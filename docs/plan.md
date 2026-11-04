@@ -6,7 +6,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 ## Files that change
 | 단계 | 바뀌는 파일 |
 | :--- | :--- |
-| 1 계정 연결 | 코드 없음. Supabase·Cloudflare·GitHub 설정 (`ONBOARDING.md` 8장) |
+| 1 계정 연결 | 코드 없음. Supabase·Cloudflare·GitHub 설정 (`ONBOARDING.md` 4장) |
 | 2 관리자 편집 보강 | `web/src/components/admin/foods-panel.tsx`, 새 `recipe-editor.tsx`·`photo-picker.tsx`, `web/src/data/photo-keys.ts`(사진 키 목록, `lib/foods.ts` 와 공유), `web/e2e/admin.spec.ts` |
 | 3 영상 임베드 | `web/supabase/migrations/0002_video.sql`(`foods.video_id`), `src/data/db-mapping.ts`, `src/data/catalog-schema.ts`, `src/app/food/[slug]/page.tsx`, 관리자 입력칸, e2e |
 | 4 삭제 요청·약관 | `src/app/about/page.tsx`(연락 주소·처리 절차), 관리자 게시 관리에 "요청으로 내림" 기록(`foods.takedown_note`, 0003 마이그레이션) |
@@ -34,7 +34,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 
 ## Proof
 - 모든 단계: `web` 에서 `npm run lint` · `npm run typecheck` · `npm run test:unit` · `npm run test:e2e` 통과 출력을 보여 준다. 바뀐 동작마다 테스트를 추가한다.
-- 1: `ONBOARDING.md` 8-5 (deploy ✓, pipeline 후 후보 생성, 숨기기 → 반영 → 사이트에서 사라짐).
+- 1: `ONBOARDING.md` 4-5 (deploy ✓, pipeline 후 후보 생성, 숨기기 → 반영 → 사이트에서 사라짐).
 - 2·3·4: 관리자 e2e 에 새 동작 추가(가짜 Supabase), 새 SQL 은 PGlite 로 RLS 확인 후 실제 Supabase 에 적용.
 - 5: `logic.test.ts` 에 30일 정리 테스트.
 - 6·7: 실제 사이트에서 GA4 실시간 보고서·쿠팡 파트너스 리포트에 `subId` 가 찍히는지 확인.

@@ -4,7 +4,7 @@
 
 | 처음이라면 | 파일 |
 | :--- | :--- |
-| 팀원 안내서 (바이브코딩으로 개발하는 법, **0장: 지금 상태·확인받을 것·남은 것**) | [`ONBOARDING.md`](ONBOARDING.md) |
+| 팀원 안내서 (**0장: 지금 상태·확인받을 것·남은 것**) | [`ONBOARDING.md`](ONBOARDING.md) |
 | 무엇을·왜 → 숫자와 규칙 → 남은 작업 | [`docs/intent.md`](docs/intent.md) → [`docs/spec.md`](docs/spec.md) → [`docs/plan.md`](docs/plan.md) |
 | 시각 규칙 (위 3개와 함께 기준 문서 4개) | [`docs/design.md`](docs/design.md) + 실제 화면 [`web/`](web/) |
 | AI 작업 규칙 (Codex 작업자 / Claude 감독) | [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) |
