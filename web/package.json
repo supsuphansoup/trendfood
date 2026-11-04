@@ -8,7 +8,7 @@
     "start": "serve out -l 3000",
     "lint": "eslint",
     "test:e2e": "playwright test",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "db:seed-sql": "node scripts/make-seed-sql.ts",
     "test:unit": "node --test \"scripts/**/*.test.ts\"",
     "pipeline": "node scripts/pipeline/run.ts"
