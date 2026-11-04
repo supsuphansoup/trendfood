@@ -165,9 +165,8 @@ trendfood/
 ├── CLAUDE.md           ← Claude Code 용 규칙·진행 상황
 ├── AGENTS.md           ← Codex·Cursor 용 규칙(자기완결)
 ├── docs/               ← 기준 문서: intent.md(무엇·왜) → spec.md(숫자·규칙) → plan.md(남은 작업) + design.md(시각 규칙)
-├── archive/            ← 예전 기획 자료 (참고용, 기준 아님)
-│   ├── prd-v2.1.md     ← 통합 전 기획서 보관본
-│   └── design-mockups/ ← 예전 시안·탈락안·데모 사진 (실서비스 사용 금지)
+├── reports/            ← 조사 보고서 3개 (결정 근거, 참고용)
+├── archive/design-mockups/ ← 예전 시안·탈락안·데모 사진 (참고용, 실서비스 사용 금지)
 ├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집), ci.yml(PR 검사)
 └── web/                ← 실제 사이트
     ├── src/app/            주소별 화면 (/, /food/[slug], /about, /admin)

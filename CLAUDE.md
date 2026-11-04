@@ -51,13 +51,9 @@
 | `README.md` | 저장소 첫 화면용 문서 안내 |
 | `.github/workflows/` | `deploy.yml`(배포), `pipeline.yml`(매일 수집), `ci.yml`(PR 검사) |
 | `web/src/app/theme.css` | tweakcn/shadcn v4 형식 테마 토큰 — **유일한 원본**, `globals.css`가 불러옴 |
-| `archive/prd-v2.1.md` | 이전 기획 v2.1 보관본. 2026-11-05 기준 문서 4개로 통합됨, 현재 기준 아님 |
-| `archive/agent-v2.0.md` | 예전 에이전트 설계서 (2026-11-03). `docs/spec.md`·`web/scripts/pipeline/`·`web/supabase/` 로 대체됨. 참고용 |
 | `archive/design-mockups/` | 예전 포토 피드형 시안: `home.html`, `detail.html`, `home-mobile.html`, `detail-mobile.html`. `alternatives/`는 탈락안, 현재 시각 기준 아님 |
 | `archive/design-mockups/img/` | 시안용 데모 사진 (Wikimedia Commons, 라이선스는 `credits.json`). **실서비스 사용 금지** |
 | `reports/` | 조사 보고서 3개 (데이터 연동 구성안: API 한도·쿠팡 정책·법률·비용 근거 / 전략 대안 비교 / UI 도구 비교). 결론은 `docs/` 에 반영됨, 근거 확인용 |
-| `research_notes/` | 위 보고서를 만들 때의 조사 메모 (보고서별 폴더). 참고용 |
-| `archive/2026-10-초기기획/` | 10월 초기 기획(AGENTS.md·docs·mockup·아이디어 PDF). **참고용, 현재 기준 아님** (그 AGENTS.md 의 "코드 금지" 규칙은 무효). 초기 배치 데모 `index.html` 은 그때 삭제됨(git 기록에만 있음, 재사용 금지) |
 
 큰 기능은 intent → spec(Areas of concern 먼저 사람 결정) → plan → 코드 순서. spec 의 ✅/🟡/⬜ 와 plan 의 ☐ 로 진행 상황을 표시하며 시각 규칙은 `docs/design.md` 를 따른다.
 

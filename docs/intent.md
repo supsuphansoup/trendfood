@@ -1,7 +1,7 @@
 # Intent: 트렌드푸드 (TrendFood)
 
 Author: supsuphansoup (팀장) · 정리: Claude Code. Status: approved (2026-11-05, 기획 v2.1 + 구조 결정 반영).
-기준 문서는 `docs/intent.md` → `docs/spec.md` → `docs/plan.md` + `docs/design.md`. 이전 기획 v2.1은 `archive/prd-v2.1.md` 에 보관하며 현재 기준으로 쓰지 않는다.
+기준 문서는 `docs/intent.md` → `docs/spec.md` → `docs/plan.md` + `docs/design.md`. 이전 기획(v2.1 등)은 git 기록에만 남아 있으며 현재 기준이 아니다.
 
 ## Problem — 무엇을 해결/확인하고 싶은지
 - SNS에서 뜨는 음식은 며칠 단위로 바뀌는데 "지금 뭐가 / 왜 뜨는지 / 어떻게 만드는지 / 어디서 사는지"를 한곳에서 볼 수 없다.
