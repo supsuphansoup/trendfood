@@ -60,8 +60,8 @@
 | ④ 검사 통과 | 아래 검사 4개가 **전부 통과**해야 끝 | `lint, typecheck, test:unit, test:e2e 돌리고 결과 그대로 보여줘` |
 | ⑤ 올리기 | 커밋 → push → Pull Request | `바뀐 파일 목록이랑 요약 보여주고, 커밋하고 PR 만들어줘` |
 
-`main` 은 GitHub에서 **보호될 예정**이라, 보호 설정이 적용되면 **PR + 다른 팀원 1명 승인** 없이는 합쳐지지 않아요. 팀원은 화면을 확인한 뒤 PR의 **Files changed → Review changes → Approve → Submit review**로 승인해요.
-PR을 열면 GitHub이 **lint·typecheck·단위 테스트·e2e 검사**를 자동으로 돌리고, 전부 **초록 ✓**여야 합칠 수 있어요. `main` 에 합쳐지면 사이트가 **자동으로 다시 배포**돼요.
+`main` 에 **잠금(보호 규칙)은 걸지 않았어요.** 대신 우리끼리 약속: `main` 에 바로 push 하지 말고 **항상 PR** 로 올리고, 다른 팀원이 한 번 보고 합쳐요. 보는 사람은 PR의 **Files changed** 탭에서 바뀐 줄을 확인하고, 괜찮으면 **Review changes → Approve → Submit review** 를 눌러요.
+PR을 열면 GitHub이 **lint·typecheck·단위 테스트·e2e 검사**를 자동으로 돌리고, **빨간 ✗ 가 있으면 합치지 말고** AI에게 고치게 해요 (잠금이 없어서 막아 주지 않아요). `main` 에 합쳐지면 사이트가 **자동으로 다시 배포**돼요.
 
 ### 검사 4개 (AI가 `web` 폴더에서 돌림)
 

@@ -18,7 +18,7 @@
 - 사진: `web/src/lib/foods.ts` 의 키→import 목록(빌드에 포함). DB 의 `image` 는 키 이름. 쿠팡 링크는 파트너스 승인 전이라 **링크 없으면 쿠팡 검색 링크로 대체**. 사진은 `web/src/assets/demo/` 데모 — **배포 전 교체 필수**.
 - 수집: `web/scripts/pipeline/`(YouTube search → LLM 음식명 추출 → 네이버 데이터랩 배수 → 상위 3개 AI 초안). LLM 은 `AI_PROVIDER`(openai|gemini)·`AI_MODEL` 환경변수로 교체(이번 달 OpenAI 크레딧, 그 뒤 Gemini 무료), 429 는 "크레딧·한도 소진"으로 `pipeline_runs` 에 기록. 데이터랩 주소는 `NAVER_DATALAB_URL` 로 변경 가능(API HUB 이전 대비, 미확인).
 - 목표는 MVP가 아니라 **완성본**: `docs/spec.md` 전체 기능을 만들고 `docs/plan.md` 에 따라 보완한다. 단, 익명 후기·평점은 Phase 2(사용자 확보 후).
-- 원격 저장소: https://github.com/supsuphansoup/trendfood (origin). `main` 은 PR + 승인 1개로 보호 예정.
+- 원격 저장소: https://github.com/supsuphansoup/trendfood (origin). `main` 보호 규칙은 걸지 않는다(2026-11-05 결정). 팀 약속: `main` 에 직접 push 하지 않고 PR 로 올리며, `ci` 검사가 초록일 때만 합친다.
 - `.playwright-mcp/`(Playwright MCP 스크린샷·로그)는 커밋하지 않는다 (루트 `.gitignore`).
 
 ## 팀장 PC 전용 (Orca 감독 모드)
