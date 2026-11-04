@@ -45,3 +45,6 @@ next-env.d.ts
 /playwright-report/
 
 # 관리자 로컬 저장소 (Supabase 연동 전)
+
+# supabase CLI link 정보 (프로젝트별, 커밋 안 함)
+/supabase/.temp/
