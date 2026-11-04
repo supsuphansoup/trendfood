@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>요즘밥상 순위</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pine: #0E5A43;
+    --pine-deep: #0A4433;
+    --pine-soft: #E4EFEA;
+    --chili: #E0372B;
+    --sea: #2B66E0;
+    --ink: #000;
+    --sub: #5B6360;
+    --line: #E3E6E4;
+    --bg: #fff;
+    --display: "Black Han Sans", sans-serif;
+    --body: "IBM Plex Sans KR", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 400 15px/1.6 var(--body);
+    word-break: keep-all;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--chili); outline-offset: 2px; }
+
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 16px; }
+
+  /* 상단 */
+  .top {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 18px 0 14px;
+  }
+  .logo { font: 400 24px/1 var(--display); color: var(--pine); letter-spacing: -0.5px; }
+  .stamp { font-size: 13px; color: var(--sub); }
+
+  .tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--line); }
+  .tab {
+    background: none; border: 0; padding: 10px 0 11px; cursor: pointer;
+    font-size: 16px; font-weight: 500; color: var(--sub);
+    border-bottom: 3px solid transparent; margin-bottom: -1px;
+  }
+  .tab[aria-selected="true"] { color: var(--ink); font-weight: 700; border-color: var(--ink); }
+
+  /* 1위 */
+  .best {
+    position: relative; overflow: hidden;
+    margin: 16px 0 8px;
+    background: var(--pine); color: #fff;
+    border-radius: 18px;
+    padding: 22px 22px 20px;
+  }
+  .best-num {
+    position: absolute; right: -6px; top: -38px;
+    font: 400 220px/1 var(--display);
+    color: var(--pine-deep);
+    pointer-events: none; user-select: none;
+  }
+  .best > *:not(.best-num) { position: relative; }
+  .best-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700;
+    background: var(--chili); color: #fff;
+    padding: 3px 10px 3px 8px; border-radius: 999px;
+  }
+  .best-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: #fff; animation: blink 1.6s infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+  .best-streak { font-size: 13px; color: #BFDCCF; margin-left: 8px; }
+  .best h2 {
+    margin: 14px 0 6px; max-width: 15em;
+    font: 400 clamp(30px, 8vw, 42px)/1.15 var(--display);
+    letter-spacing: -0.5px;
+  }
+  .best-desc { margin: 0; max-width: 28em; color: #D8EAE2; font-size: 15px; }
+  .best-facts { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 14px 0 0; padding: 0; list-style: none; font-size: 14px; }
+  .best-facts b { font-weight: 700; }
+  .best-facts span { color: #BFDCCF; margin-right: 4px; }
+
+  .best-ing {
+    margin: 18px 0 0; padding: 14px 16px;
+    background: rgba(255,255,255,.08); border-radius: 12px;
+    font-size: 14px; color: #E8F2EE;
+  }
+  .best-ing strong { display: block; font-size: 13px; color: #BFDCCF; font-weight: 500; margin-bottom: 4px; }
+
+  .best-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .btn {
+    flex: 1; display: inline-flex; justify-content: center; align-items: center;
+    min-height: 48px; padding: 0 14px; border-radius: 12px; cursor: pointer;
+    font-weight: 700; font-size: 15px; border: 0;
+  }
+  .btn-cart { background: #fff; color: var(--pine); }
+  .btn-cart:hover { background: var(--pine-soft); }
+  .btn-ghost { flex: 0 0 auto; background: transparent; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.4); }
+  .btn-ghost:hover { box-shadow: inset 0 0 0 1px #fff; }
+  .fee { margin: 10px 0 0; font-size: 12px; color: #A9CDBE; }
+
+  /* 2위~ */
+  .list { list-style: none; margin: 0; padding: 0; }
+  .row a {
+    display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 0 12px; align-items: center;
+    padding: 14px 4px; border-bottom: 1px solid var(--line);
+  }
+  .row a:hover .row-name { text-decoration: underline; text-underline-offset: 3px; }
+  .row-rank { font: 400 26px/1 var(--display); text-align: center; color: var(--ink); }
+  .row:nth-child(-n+2) .row-rank { color: var(--pine); }
+  .row-name { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.4; }
+  .row-desc { margin: 2px 0 0; font-size: 14px; color: var(--sub); line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .row-meta { margin-top: 4px; font-size: 13px; color: var(--sub); display: flex; gap: 12px; }
+  .row-side { text-align: right; min-width: 44px; }
+  .move { font-size: 13px; font-weight: 700; white-space: nowrap; }
+  .move.up { color: var(--chili); }
+  .move.down { color: var(--sea); }
+  .move.same { color: #A3AAA7; font-weight: 500; }
+  .move.new { color: var(--chili); font-size: 11px; border: 1px solid var(--chili); border-radius: 4px; padding: 0 4px; }
+
+  .foot { padding: 24px 0 40px; font-size: 13px; color: var(--sub); }
+  .foot p { margin: 0 0 6px; }
+
+  @media (min-width: 720px) {
+    .best { padding: 30px 32px 26px; }
+    .best-num { font-size: 280px; top: -52px; right: 4px; }
+    .row a { grid-template-columns: 52px minmax(0, 1fr) auto; padding: 16px 8px; }
+    .row-desc { -webkit-line-clamp: 2; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .best-tag .dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="#">요즘밥상</a>
+    <span class="stamp" id="stamp">10월 21일 오후 2시 기준</span>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-mode="trend">실시간 순위</button>
+    <button class="tab" role="tab" aria-selected="false" data-mode="like">좋아요 순위</button>
+  </div>
+
+  <main>
+    <section class="best" id="best" aria-label="1위 레시피"></section>
+    <ol class="list" id="list" start="2"></ol>
+  </main>
+
+  <footer class="foot">
+    <p>이 페이지의 구매 링크로 구매하시면 운영자가 일정 수수료를 받을 수 있습니다.</p>
+    <p>실시간 순위는 검색량과 SNS 언급량을 바탕으로 매시간 갱신됩니다.</p>
+  </footer>
+</div>
+
+<script>
+  // 목업용 샘플 데이터. trend = 실시간 순위, prev = 직전 순위 (null이면 신규)
+  const recipes = [
+    { trend: 1, prev: 1, name: "전자레인지 대파 대패삼겹 덮밥", desc: "프라이팬 없이 그릇 하나로 끝. 대파 기름이 밴 삼겹살에 굴소스 한 숟갈.", time: 7, serving: 1, likes: 3412, streak: "6시간째 1위",
+      ing: ["대패삼겹살 150g", "대파 1대", "굴소스 1큰술", "간장 0.5큰술", "참기름 약간", "즉석밥 1개"] },
+    { trend: 2, prev: 5, name: "신라면 투움바 파스타", desc: "우유와 체다치즈만 더하면 라면이 크림 파스타가 된다. 수프는 반만.", time: 8, serving: 1, likes: 2980 },
+    { trend: 3, prev: 2, name: "밤 티라미수", desc: "맛밤, 크림치즈, 다이제로 만드는 편의점 재료 티라미수. 오븐 필요 없음.", time: 15, serving: 2, likes: 4105,
+      ing: ["맛밤 1봉(80g)", "크림치즈 100g", "다이제 초코 4개", "우유 50ml", "코코아 가루 약간"] },
+    { trend: 4, prev: null, name: "두부 김밥", desc: "밥 대신 으깬 두부를 깔아서 마는 김밥. 저탄수 식단 하는 사람들 사이에서 유행 중.", time: 20, serving: 2, likes: 1270 },
+    { trend: 5, prev: 3, name: "팽이버섯 불닭 치즈롤", desc: "팽이버섯을 치즈로 말아 전자레인지에 5분. 맥주 안주.", time: 5, serving: 1, likes: 2216 },
+    { trend: 6, prev: 6, name: "얼큰 순두부 열라면", desc: "라면 끓일 때 순두부 한 봉을 통째로. 후추를 넉넉히 쳐야 맛이 산다.", time: 6, serving: 1, likes: 1894 },
+    { trend: 7, prev: 9, name: "통마늘 버터 간장 새우", desc: "버터에 통마늘을 익히고 새우를 넣어 간장으로 마무리. 바게트에 찍어 먹기.", time: 12, serving: 2, likes: 1532 },
+    { trend: 8, prev: 4, name: "오트밀 참치 미역죽", desc: "오트밀 40g으로 끓이는 한 그릇 죽. 단백질 28g.", time: 6, serving: 1, likes: 2647 },
+    { trend: 9, prev: null, name: "양배추 참치 덮밥", desc: "채 썬 양배추를 참치와 마요네즈에 버무려 밥 위에. 불 쓰는 건 계란 하나뿐.", time: 10, serving: 1, likes: 688 },
+    { trend: 10, prev: 8, name: "봉골레 마늘 오일 파스타", desc: "면수로 올리브유를 유화시키는 게 핵심. 바지락은 해감된 걸로.", time: 18, serving: 1, likes: 3120 },
+  ];
+
+  const won = n => n.toLocaleString("ko-KR");
+
+  function move(r) {
+    if (r.prev === null) return '<span class="move new">NEW</span>';
+    const d = r.prev - r.trend;
+    if (d > 0) return `<span class="move up" aria-label="${d}계단 상승">▲ ${d}</span>`;
+    if (d < 0) return `<span class="move down" aria-label="${-d}계단 하락">▼ ${-d}</span>`;
+    return '<span class="move same" aria-label="변동 없음">–</span>';
+  }
+
+  function renderBest(r, mode) {
+    const tag = mode === "trend" ? "실시간 1위" : "좋아요 1위";
+    const streak = mode === "trend" && r.streak ? `<span class="best-streak">${r.streak}</span>` : "";
+    document.getElementById("best").innerHTML = `
+      <div class="best-num" aria-hidden="true">1</div>
+      <span class="best-tag"><span class="dot"></span>${tag}</span>${streak}
+      <h2>${r.name}</h2>
+      <p class="best-desc">${r.desc}</p>
+      <ul class="best-facts">
+        <li><span>조리</span><b>${r.time}분</b></li>
+        <li><span>기준</span><b>${r.serving}인분</b></li>
+        <li><span>좋아요</span><b>${won(r.likes)}</b></li>
+      </ul>
+      ${r.ing ? `<div class="best-ing"><strong>필요한 재료 ${r.ing.length}가지</strong>${r.ing.join(", ")}</div>` : ""}
+      <div class="best-actions">
+        <button class="btn btn-cart" type="button">재료 장바구니에 담기</button>
+        <a class="btn btn-ghost" href="#">조리법 보기</a>
+      </div>
+      <p class="fee">구매 시 운영자가 일정 수수료를 받을 수 있습니다.</p>`;
+  }
+
+  function renderList(rows, mode) {
+    document.getElementById("list").innerHTML = rows.map((r, i) => `
+      <li class="row">
+        <a href="#">
+          <span class="row-rank">${i + 2}</span>
+          <div>
+            <p class="row-name">${r.name}</p>
+            <p class="row-desc">${r.desc}</p>
+            <div class="row-meta"><span>${r.time}분</span><span>좋아요 ${won(r.likes)}</span></div>
+          </div>
+          <div class="row-side">${mode === "trend" ? move(r) : ""}</div>
+        </a>
+      </li>`).join("");
+  }
+
+  function render(mode) {
+    const sorted = [...recipes].sort(mode === "trend"
+      ? (a, b) => a.trend - b.trend
+      : (a, b) => b.likes - a.likes);
+    renderBest(sorted[0], mode);
+    renderList(sorted.slice(1), mode);
+  }
+
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(o => o.setAttribute("aria-selected", o === t));
+    render(t.dataset.mode);
+  }));
+
+  render("trend");
+</script>
+</body>
+</html>
