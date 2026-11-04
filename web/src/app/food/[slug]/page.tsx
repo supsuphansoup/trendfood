@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Suspense } from "react";
 import { AdSlot } from "@/components/ad-slot";
 import { IngredientCart } from "@/components/detail/ingredient-cart";
 import { ShareButton } from "@/components/detail/share-button";
@@ -11,11 +10,13 @@ import { StepTimer } from "@/components/detail/step-timer";
 import { TrendChart } from "@/components/detail/trend-chart";
 import { LikeButton } from "@/components/like-button";
 import { SiteFooter } from "@/components/site-footer";
-import { getPublishedFood } from "@/lib/catalog";
-import { foods } from "@/lib/foods";
+import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
 
-export function generateStaticParams() {
-  return foods.map((f) => ({ slug: f.slug }));
+// 빌드할 때 게시된 음식의 상세 페이지만 만든다. 목록에 없는 주소는 404.html 로 간다.
+export const dynamicParams = false;
+
+export async function generateStaticParams() {
+  return (await getPublishedFoods()).map((f) => ({ slug: f.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps<"/food/[slug]">): Promise<Metadata> {
@@ -23,25 +24,7 @@ export async function generateMetadata({ params }: PageProps<"/food/[slug]">): P
   return food ? { title: `${food.name} 레시피와 재료 | 트렌드푸드`, description: food.why } : {};
 }
 
-// params 는 <Suspense> 안에서 읽어야 즉시 이동(instant shell)이 된다 (Next 16 Cache Components)
-export default function FoodPage({ params }: PageProps<"/food/[slug]">) {
-  return (
-    <Suspense fallback={<DetailFallback />}>
-      <FoodDetail params={params} />
-    </Suspense>
-  );
-}
-
-function DetailFallback() {
-  return (
-    <div aria-busy className="flex flex-1 flex-col">
-      <div className="h-[440px] bg-primary lg:h-[520px]" />
-      <p className="mx-auto w-full max-w-[1200px] px-5 py-8 text-base text-muted-foreground">불러오는 중이에요…</p>
-    </div>
-  );
-}
-
-async function FoodDetail({ params }: Pick<PageProps<"/food/[slug]">, "params">) {
+export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
   const food = await getPublishedFood((await params).slug);
   if (!food) notFound();
 

@@ -1,0 +1,48 @@
+# 사이트 배포: Supabase 의 '게시된 음식'으로 정적 사이트를 만들어 Cloudflare Pages 에 올린다.
+# 실행 시점: main 에 push / 관리자 화면 '사이트에 반영' (repository_dispatch: publish) / Actions 탭에서 직접 실행
+name: deploy
+
+on:
+  push:
+    branches: [main]
+    paths: ["web/**", ".github/workflows/deploy.yml"]
+  repository_dispatch:
+    types: [publish]
+  workflow_dispatch:
+
+# 반영 버튼을 여러 번 눌러도 마지막 것 하나만 끝까지 돈다
+concurrency:
+  group: deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:unit
+      - name: 정적 사이트 빌드 (Supabase 에서 게시된 음식 읽기)
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      - name: Cloudflare Pages 에 올리기
+        run: npx --yes wrangler@4.151.2 pages deploy out --project-name="${{ vars.CF_PAGES_PROJECT || 'trendfood' }}" --branch=main
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

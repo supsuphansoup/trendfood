@@ -127,7 +127,7 @@
 - 가중치는 운영 데이터로 보정 (초기값은 가정).
 
 ### 3.5 쉬운 시작 버전 (Phase 1 권장)
-DataLab 검색어 트렌드 API는 **입력한 키워드의 추이만** 돌려주고 "무엇이 뜨는지"는 알려주지 않으므로, 후보 찾기와 점수 매기기를 나눈다. 매일 1회 Vercel Cron으로 API 라우트 하나를 실행한다.
+DataLab 검색어 트렌드 API는 **입력한 키워드의 추이만** 돌려주고 "무엇이 뜨는지"는 알려주지 않으므로, 후보 찾기와 점수 매기기를 나눈다. 매일 1회 GitHub Actions 예약 실행으로 수집 스크립트(`web/scripts/pipeline`)를 돌린다 (2026-11-05 구조 변경).
 ```
 [1. 후보 찾기]  운영자 시드 키워드 목록 + YouTube search.list
                 (최근 7일, regionCode=KR, "레시피·만들기", 조회수순 상위 50개 영상 제목)
@@ -248,23 +248,23 @@ DataLab 검색어 트렌드 API는 **입력한 키워드의 추이만** 돌려�
 
 | 계층 | 기술 | 선정 이유 / 비고 |
 | :--- | :--- | :--- |
-| **Frontend** | Next.js (App Router, TypeScript) | SEO, SSR/ISR |
+| **Frontend** | Next.js (App Router, TypeScript), **정적 내보내기** | SEO. 빌드 때 HTML 생성, 운영자 [사이트에 반영] 시 다시 빌드 |
 | **Styling** | Tailwind CSS v4 + shadcn/ui (CLI v4, Base UI 기본) + Lucide Icons | 모바일 우선 반응형. 테마 토큰은 tweakcn(OKLCH)으로 생성 |
 | **폰트** | Pretendard (OFL, dynamic subset) | 한글 줄바꿈 `keep-all`, 제목 `text-wrap: balance` |
 | **애니메이션** | CSS 우선, 필요 시 Motion (LazyMotion) | `prefers-reduced-motion` 존중 |
 | **음식 이미지** | 자체 촬영 / AI 생성(사람 검수, "AI 이미지" 표시) 우선, 무료 사진은 보조 | 플랫폼 썸네일·SNS 게시물 사진 재사용 금지. sharp로 미리 WebP 변환 후 서빙. 무료 사진 출처: **Unsplash**(상업 무료, API 사용 시 작가·Unsplash 표시와 API 이미지 URL 사용 의무), **Pexels·Pixabay**(상업 무료, API 조건은 공식 약관 확인 필요), **공유마당·공공누리 1유형**(출처 표시 시 상업 가능, 한식에 강함, 사진마다 라이선스 확인), **Wikimedia Commons**(CC0·퍼블릭 도메인만). 유행 음식은 무료 사진에 거의 없으므로 관리자 화면에서 후보 중 운영자가 고른다. 상표·포장지 로고·사람 얼굴이 크게 나온 사진은 피한다 |
 | **UI 검증** | Playwright (모바일 스크린샷 비교) + axe 접근성 검사 | Claude Code는 프로젝트 `.mcp.json`의 shadcn·Playwright MCP 사용 |
 | **Backend & DB** | Supabase (PostgreSQL) | 순위·레시피 저장 (익명 후기는 Phase 2), RLS |
-| **배치 작업** | Vercel Cron 또는 Supabase pg_cron / Edge Functions | 매일 트렌드 수집·통계 갱신 |
+| **배치 작업** | GitHub Actions (매일 수집 + 배포) / Supabase Edge Function (반영 버튼) | 매일 트렌드 수집, 승인 후 재빌드 |
 | **LLM** | Claude Haiku 또는 Gemini Flash-Lite (유료 티어) | 레시피 초안·음식명 추출 (후기 검수는 Phase 2). 무료 티어는 입력 데이터가 학습에 쓰여 사용하지 않음. **v2.1 검토 중**: 후기가 빠져 입력이 공개 데이터(검색 키워드·영상 제목)뿐이므로 Phase 1은 무료 티어도 가능 — 팀 결정 필요 (10장) |
 | **트렌드 데이터** | 네이버 API HUB, 네이버 검색광고 API, YouTube Data API v3 | 공식 API만 사용 |
 | **제휴** | 쿠팡 파트너스 (링크 → 승인 후 API) | — |
 | **광고** | Google AdSense | — |
 | **어뷰징 방지** | Cloudflare Turnstile | 무료. 후기 도입(Phase 2) 시 적용 |
 | **분석** | GA4 + 쿠팡 `subId` | 유행 글별 클릭·수익 추적 |
-| **호스팅** | Vercel **Pro** | Hobby 플랜은 비상업 전용 → 수익 사이트는 Pro 필요 |
+| **호스팅** | Cloudflare Pages (무료) | 정적 파일 전송 무제한, 빌드 월 500회. (이전 안: Vercel Pro — Hobby 는 비상업 전용이라 무료 운영 불가) |
 
-**월 고정비 (추정)**: Vercel Pro $20 + Supabase Pro $25 + LLM $2~19 ≈ **월 $47~65** (네이버·YouTube·Turnstile 현재 무료)
+**월 고정비 (추정, 2026-11-05)**: Cloudflare Pages·Supabase Free·GitHub Actions(공개 저장소) **0원** + LLM(이번 달 ChatGPT Pro API 크레딧, 이후 Gemini 무료 등급) ≈ **0원**. 트래픽이 커지거나 Supabase 무료 한도·약관 문제가 생기면 Supabase Pro $25 부터 검토. 도메인 비용 별도
 
 ---
 

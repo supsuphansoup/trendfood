@@ -1,35 +1,41 @@
-"use client";
-
-import { useActionState } from "react";
-import { type FormState, login } from "@/app/admin/actions";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export function LoginForm() {
-  const [state, action, pending] = useActionState<FormState, FormData>(login, {});
+export function LoginForm({ db, onSignedIn }: { db: SupabaseClient; onSignedIn: () => void }) {
+  const [error, setError] = useState("");
+  const [pending, setPending] = useState(false);
+
+  async function submit(e: { preventDefault(): void; currentTarget: HTMLFormElement }) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    setPending(true);
+    setError("");
+    const { error } = await db.auth.signInWithPassword({
+      email: String(form.get("email") ?? ""),
+      password: String(form.get("password") ?? ""),
+    });
+    setPending(false);
+    if (error) return setError("이메일이나 비밀번호가 맞지 않아요.");
+    onSignedIn();
+  }
+
   return (
-    <form action={action} className="flex flex-col gap-4 rounded-3xl border bg-background p-6">
+    <form onSubmit={submit} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <Label htmlFor="email">이메일</Label>
+        <Input className="h-11 text-base" id="email" name="email" type="email" autoComplete="username" required />
+      </div>
       <div className="flex flex-col gap-2">
         <Label htmlFor="password">비밀번호</Label>
-        <Input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          autoFocus
-          aria-invalid={state.error ? true : undefined}
-          aria-describedby={state.error ? "login-error" : undefined}
-          className="h-12 text-base"
-        />
+        <Input className="h-11 text-base" id="password" name="password" type="password" autoComplete="current-password" required />
       </div>
-      {state.error && (
-        <p id="login-error" role="alert" className="text-sm font-bold text-destructive">
-          {state.error}
-        </p>
-      )}
-      <Button type="submit" disabled={pending} size="xl">
+      <p id="login-error" aria-live="polite" className="min-h-6 text-sm font-bold text-destructive">
+        {error}
+      </p>
+      <Button type="submit" disabled={pending}>
         {pending ? "확인 중…" : "로그인"}
       </Button>
     </form>
