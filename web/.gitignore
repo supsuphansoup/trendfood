@@ -45,5 +45,3 @@ next-env.d.ts
 /playwright-report/
 
 # 관리자 로컬 저장소 (Supabase 연동 전)
-/data/
-/.e2e-data/

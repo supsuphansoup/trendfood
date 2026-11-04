@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 
 export const metadata: Metadata = { title: "사이트 소개 | 트렌드푸드" };
 
-// MVP용 안내 페이지. 개인정보처리방침·이용약관 본문은 오픈 전 법률 검토 후 채운다 (prd.md 7장).
+// MVP용 안내 페이지. 개인정보처리방침·이용약관 본문은 오픈 전 법률 검토 후 채운다 (docs/spec.md Compliance).
 const sections = [
   {
     id: "about",

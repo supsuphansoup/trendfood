@@ -8,7 +8,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/80",
-        // 장보기·다음 재료 담기 전용 (DESIGN.md 7장: 화면당 하나)
+        // 장보기·다음 재료 담기 전용 (docs/design.md 7장: 화면당 하나)
         cta: "bg-accent text-accent-foreground hover:bg-destructive",
         outline:
           "border-[1.5px] border-line-strong bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
@@ -21,7 +21,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        // DESIGN.md: 터치 영역 44px 이상, 버튼 글자 15px 700
+        // docs/design.md: 터치 영역 44px 이상, 버튼 글자 15px 700
         default:
           "h-11 gap-1.5 px-5 text-[15px] font-bold has-data-[icon=inline-end]:pr-4 has-data-[icon=inline-start]:pl-4",
         xl: "h-14 gap-2 rounded-xl px-6 text-base font-bold",

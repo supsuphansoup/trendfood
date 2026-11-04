@@ -57,7 +57,7 @@ export function IngredientCart({ food }: { food: Food }) {
         className="flex scroll-mt-4 flex-col gap-3.5 rounded-3xl border bg-background p-[18px] md:p-6"
       >
         <p className="rounded-md bg-muted px-3 py-2.5 text-[13px] leading-normal text-muted-foreground">
-          이 영역의 링크로 구매하면 트렌드푸드가 쿠팡 파트너스 수수료를 받아요. 가격은 그대로예요.
+          이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
         </p>
         <div className="flex items-baseline justify-between gap-2.5">
           <h2 id="cart-title" className="text-2xl font-black tracking-[-0.02em]">

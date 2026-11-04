@@ -5,7 +5,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* 색·모서리·글꼴 토큰은 theme.css 에만 둔다 (DESIGN.md 기준). 다크 모드는 미정이라 .dark 토큰 없음. */
+/* 색·모서리·글꼴 토큰은 theme.css 에만 둔다 (docs/design.md 기준). 다크 모드는 미정이라 .dark 토큰 없음. */
 
 @layer base {
   html {

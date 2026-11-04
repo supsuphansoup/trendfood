@@ -105,7 +105,17 @@ test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근�
   await expectNoA11yViolations(page);
   await page.screenshot({ path: `test-results/detail-${info.project.name}.png`, fullPage: true });
 
-  const cart = page.locator("#cart");
+  const cart = page.getByRole("region", { name: "재료 장바구니" });
+  const disclosure = cart.getByText(
+    "이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.",
+    { exact: true },
+  );
+  await expect(disclosure).toBeVisible();
+  const disclosureBox = await disclosure.boundingBox();
+  const firstCheckboxBox = await cart.getByRole("checkbox").first().boundingBox();
+  expect(disclosureBox).not.toBeNull();
+  expect(firstCheckboxBox).not.toBeNull();
+  expect(disclosureBox!.y).toBeLessThan(firstCheckboxBox!.y);
   await expect(cart.getByText("0/4 담음")).toBeVisible();
   await expect(cart.getByText("37,400원")).toBeVisible();
 

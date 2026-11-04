@@ -1,41 +1,68 @@
+답변·문서·커밋 메시지는 한국어.
+
 # 트렌드푸드 (TrendFood) — 작업 인수인계
 
 > 마지막 갱신: 2026-11-05 (정적 사이트 + Supabase + GitHub Actions 구조로 전환, 팀원 안내서 `ONBOARDING.md`). 새 세션은 이 파일을 먼저 읽고 시작한다.
+
+누가 구현하든(사람·Claude·Codex) `AGENTS.md` 의 규칙과 검사 4개를 따른다.
 
 ## 서비스 한 줄 요약
 지금 유행하는 음식을 가장 빨리 알려주고(주목적), 필요한 재료를 쿠팡에서 "다음 재료 연속 담기"로 담게 돕는 한국 모바일 우선 웹 서비스. 수익은 **쿠팡 파트너스 커미션 + 구글 애드센스**.
 
 ## 현재 상태
-- **기획 v2.1 완료, 디자인 확정(포토 피드형), `DESIGN.md`·테마 토큰, MVP 화면 + 관리자 화면 + 자동 수집 파이프라인 코드 완료.** 단, **Supabase·Cloudflare·API 키는 아직 안 만듦** → 설정 순서는 `ONBOARDING.md` 7장. 키가 없으면 예시 데이터·예시 수집값으로 동작한다.
+- **기획 v2.1 완료, 디자인 확정(포토 피드형), `docs/design.md`·테마 토큰, MVP 화면 + 관리자 화면 + 자동 수집 파이프라인 코드 완료.** 단, **Supabase·Cloudflare·API 키는 아직 안 만듦** → 설정 순서는 `ONBOARDING.md` 7장. 키가 없으면 예시 데이터·예시 수집값으로 동작한다.
 - MVP 범위: 메인(1위 히어로·카테고리 탭·2~10위 카드·정렬/태그·검색(지우기 버튼)·찜 필터·인피드 광고 자리·맨 위로, 필터 상태는 주소 `?cat=&sort=&tag=&q=`에 남아 뒤로가기·공유 가능), 상세(`/food/[slug]`: AI 요약·14일 그래프·영상 자리·재료 연속 담기·집에 있어요 기억·목록 복사/공유·단계 타이머·모바일 하단 바), `/about`, 404. 찜·집에 있어요는 localStorage.
 - **구조 (2026-11-05 사용자 결정, 무료 운영):** Next.js `output: "export"` 정적 사이트 → **Cloudflare Pages**. 데이터·로그인은 **Supabase**(RLS). 자동화는 **GitHub Actions**: `.github/workflows/pipeline.yml`(매일 06:00 KST 수집 → `candidates` 대기), `deploy.yml`(main push · 관리자 [사이트에 반영] = Supabase Edge Function `request-publish` → `repository_dispatch: publish` · 수동). 빌드 때 `published_foods` 뷰를 읽어 HTML 생성, 게시 음식 0개면 빌드 중단.
 - **관리자 `/admin`** (정적 클라이언트 화면. 공개 화면에 링크 없음, `noindex` 메타 + `public/_headers` 의 `X-Robots-Tag`): Supabase Auth 이메일 로그인, `admins` 표에 있는 사람만 데이터 접근(RLS). 탭: 게시 관리(순서·숨기기·게시/초안·글 고치기), 재료 링크(쿠팡 주소만·참고 가격), 후보 큐(직접 추가·승인 시 AI 초안 → `foods` 초안 행·반려). 가입은 Supabase 대시보드에서 꺼 둔다. 예전 서버 방식(비밀번호 1234·쿠키·Proxy·`admin-store.json`)은 삭제됨.
 - DB: `web/supabase/migrations/0001_init.sql`(PGlite 로 RLS 검증 완료 2026-11-05), 예시 데이터 `web/supabase/seed.sql`(= `npm run db:seed-sql`, 원본 `web/src/data/seed-foods.ts`). 행↔화면 변환 `src/data/db-mapping.ts`, 후보 규칙 `src/data/candidates.ts`. `src/data/` 는 Node 로 바로 실행되므로 `.ts` 확장자 import 를 쓴다.
 - 사진: `web/src/lib/foods.ts` 의 키→import 목록(빌드에 포함). DB 의 `image` 는 키 이름. 쿠팡 링크는 파트너스 승인 전이라 **링크 없으면 쿠팡 검색 링크로 대체**. 사진은 `web/src/assets/demo/` 데모 — **배포 전 교체 필수**.
 - 수집: `web/scripts/pipeline/`(YouTube search → LLM 음식명 추출 → 네이버 데이터랩 배수 → 상위 3개 AI 초안). LLM 은 `AI_PROVIDER`(openai|gemini)·`AI_MODEL` 환경변수로 교체(이번 달 OpenAI 크레딧, 그 뒤 Gemini 무료), 429 는 "크레딧·한도 소진"으로 `pipeline_runs` 에 기록. 데이터랩 주소는 `NAVER_DATALAB_URL` 로 변경 가능(API HUB 이전 대비, 미확인).
-- 목표는 MVP가 아니라 **완성본**: `prd.md` 전체 기능을 만들고 보완한다. 단, 익명 후기·평점은 Phase 2(사용자 확보 후).
-- **작업 폴더: `C:\Users\khs62\Desktop\코딩\ai어드벤쳐` (브랜치 `main`). 수정은 항상 여기에 저장한다** (2026-11-05 사용자 지시). Orca 작업 폴더(`orca\workspaces\…`)는 쓰지 않는다. 원격 저장소: `https://github.com/supsuphansoup/trendfood` (origin), 아직 push 전.
-- 저장소 루트의 `.playwright-mcp/`는 시안 검사 때 생긴 스크린샷·로그다. 커밋하지 않는다 (삭제 또는 `.gitignore` 추가는 사용자 결정 대기).
+- 목표는 MVP가 아니라 **완성본**: `docs/spec.md` 전체 기능을 만들고 `docs/plan.md` 에 따라 보완한다. 단, 익명 후기·평점은 Phase 2(사용자 확보 후).
+- 원격 저장소: https://github.com/supsuphansoup/trendfood (origin). `main` 은 PR + 승인 1개로 보호 예정.
+- `.playwright-mcp/`(Playwright MCP 스크린샷·로그)는 커밋하지 않는다 (루트 `.gitignore`).
+
+## 팀장 PC 전용 (Orca 감독 모드)
+이 섹션은 Orca 가 설치된 팀장 PC(작업 폴더 `C:\Users\khs62\Desktop\코딩\ai어드벤쳐`)에서만 적용한다. 그 밖의 PC·팀원 세션에서는 무시하고, 아래 일반 규칙대로 직접 구현·검증한다.
+
+- **작업 폴더: `C:\Users\khs62\Desktop\코딩\ai어드벤쳐` (브랜치 `main`). 수정은 항상 여기에 저장한다** (2026-11-05 사용자 지시). Orca 작업 폴더(`orca\workspaces\…`)는 쓰지 않는다.
+- **구현은 Orca Codex 작업자**(`gpt-6.1-sol`, effort `high`)가 한다. **Claude Code 는 감독**: 작업을 나눠 지시하고, 결과를 검사하고, 사용자에게 보고·결정 요청만 한다. Claude 가 직접 코드를 고치지 않는다 (작업자 결과 검증용 명령 실행, 문서·`CLAUDE.md` 갱신은 예외).
+- 작업자 시작: `orca orchestration worker-start --worktree "path:C:/Users/khs62/Desktop/코딩/ai어드벤쳐" --agent codex --model gpt-6.1-sol --effort high --task-title "<제목>" --spec-file <지시서>` → 턴 종료, Orca 가 깨우면 처리. 폴링 금지. 안내서는 `orca skills get orchestration`.
+- 작업자는 `AGENTS.md` 만 자동으로 읽는다. 규칙을 바꾸면 **`AGENTS.md` 도 같이** 고친다.
+- **지시서(spec) 틀** — 매번 이 항목을 채워 자기완결로 쓴다:
+  1. 목표 (`docs/spec.md` R 번호 / `docs/plan.md` 단계)
+  2. 바꿀 것과 완료 조건 (화면 문구·수치는 직접 적는다)
+  3. 수정 허용 파일·폴더 (그 밖은 금지) / 커밋 허용 여부 (기본: 커밋 금지)
+  4. 지켜야 할 규칙 (AGENTS.md 외에 이번 작업에 특히 중요한 것)
+  5. 완료 증거: `npm run lint && npm run typecheck && npm run test:unit && npm run test:e2e` 출력, 추가한 테스트, 스크린샷 파일명. 검사 하나라도 실패면 Task 실패.
+  6. 결정이 필요하면 `ask` 로 묻고 멈출 것
+- **검사(Claude)**: 작업자 보고를 받으면 `git diff --stat` 로 범위 확인 → 검사 4개를 직접 다시 실행(작업자 출력과 다르면 되돌려 보냄) → 화면 변경은 `web/test-results/` 스크린샷 확인 → 사용자에게 보고. 커밋은 사용자 승인 후.
 
 ## 문서 지도
 | 파일 | 용도 |
 | :--- | :--- |
-| `DESIGN.md` | 색·글자 크기·간격·모서리·사진·컴포넌트(shadcn 매핑)·접근성 규칙 — **시각 기준 문서** |
+| `docs/intent.md` | **기준 문서**: 무엇·왜, 대상·제약·성공 지표·미결정 사항 |
+| `docs/spec.md` | **기준 문서**: 기능·수치·데이터·수집·수익화·사진·준수 사항·우려 사항 |
+| `docs/plan.md` | **기준 문서**: 남은 작업·순서·위험·완료 증거 |
+| `docs/design.md` | **기준 문서**: 색·글자 크기·간격·모서리·사진·컴포넌트(shadcn 매핑)·접근성. 실제 화면(`web/`)과 함께 시각 기준 |
 | `web/` | Next.js 16.4.5 앱 (App Router, TS, `src/`, 정적 내보내기 `out/`) |
-| `ONBOARDING.md` | **팀원 안내서** (1학년 팀원용: 구조 그림, 로컬 실행, 용어, 운영 루틴, 최초 설정, 규칙, 문제 해결) |
+| `ONBOARDING.md` | **팀원 안내서 (바이브코딩용)**: 팀원은 모두 AI 도구로 개발한다. AI 시키는 5단계·요청 템플릿·AI 실수 체크리스트·운영 루틴·최초 설정·문제 해결. 규칙을 바꾸면 이 문서 5장도 같이 고친다 |
+| `AGENTS.md` | **Codex 작업자용 규칙 (자기완결)**: 작업자 수칙·Commands·Conventions·Architecture·Verifying·Things the agent gets wrong. **같은 실수가 두 번 나오면 마지막 섹션에 한 줄 추가** |
+| `README.md` | 저장소 첫 화면용 문서 안내 |
 | `.github/workflows/` | `deploy.yml`, `pipeline.yml` |
 | `web/src/app/theme.css` | tweakcn/shadcn v4 형식 테마 토큰 — **유일한 원본**, `globals.css`가 불러옴 |
-| `prd.md` (v2.1) | 기능·화면 구성(5장)·수익화·기술 스택·준수 사항·로드맵 — **기준 문서**. 0장 끝에 v2.1 변경 요약 |
-| `agent.md` | 에이전트 설계, 프롬프트, DB 스키마, 연속 담기 구현 패턴 (후기 관련은 Phase 2 표시) |
-| `design/mockups/` | **확정 시안 (포토 피드형)**: `home.html`, `detail.html`, `home-mobile.html`, `detail-mobile.html`. `alternatives/`는 탈락안(랭킹 리포트형, 장보기형). 브라우저로 바로 열린다 |
-| `design/mockups/img/` | 시안용 데모 사진 (Wikimedia Commons, 라이선스는 `credits.json`). **실서비스 사용 금지** |
+| `archive/prd-v2.1.md` | 이전 기획 v2.1 보관본. 2026-11-05 기준 문서 4개로 통합됨, 현재 기준 아님 |
+| `archive/agent-v2.0.md` | 예전 에이전트 설계서 (2026-11-03). `docs/spec.md`·`web/scripts/pipeline/`·`web/supabase/` 로 대체됨. 참고용 |
+| `archive/design-mockups/` | 예전 포토 피드형 시안: `home.html`, `detail.html`, `home-mobile.html`, `detail-mobile.html`. `alternatives/`는 탈락안, 현재 시각 기준 아님 |
+| `archive/design-mockups/img/` | 시안용 데모 사진 (Wikimedia Commons, 라이선스는 `credits.json`). **실서비스 사용 금지** |
 | `reports/트렌드푸드 데이터 연동 구성안.md` | API 한도·쿠팡 정책·법률·비용 근거 |
 | `reports/트렌드푸드 전략 대안 비교.md` | 전략 대안·비판적 검토 |
 | `reports/트렌드푸드 UI 도구 비교.md` | UI 도구 조합·워크플로·이미지·폰트·보안 |
 | `archive/2026-10-초기기획/` | 10월 초기 기획(AGENTS.md·docs·mockup·아이디어 PDF). **참고용, 현재 기준 아님** (그 AGENTS.md 의 "코드 금지" 규칙은 무효). 초기 배치 데모 `index.html` 은 그때 삭제됨(git 기록에만 있음, 재사용 금지) |
 | `research_notes/아이디어 고도화/` | 이 작업에서 만든 것이 아님 — 건드리지 않는다 |
 
-팀 공유용 디자인 캔버스(claude.ai, 링크 공유 중): https://claude.ai/artifact/VEbKGqcBKPaeD7aZsSPCay — `design/mockups/`와 같은 내용 + 탈락안.
+큰 기능은 intent → spec(Areas of concern 먼저 사람 결정) → plan → 코드 순서. spec 의 ✅/🟡/⬜ 와 plan 의 ☐ 로 진행 상황을 표시하며 시각 규칙은 `docs/design.md` 를 따른다.
+
+팀 공유용 디자인 캔버스(claude.ai, 링크 공유 중): https://claude.ai/artifact/VEbKGqcBKPaeD7aZsSPCay — `archive/design-mockups/`와 같은 예전 시안 + 탈락안, 현재 시각 기준 아님.
 
 ## 확정된 결정
 - **디자인: 포토 피드형** (2026-11-04 팀 선택).
@@ -44,9 +71,9 @@
   - **카테고리 탭 (2026-11-04 사용자 결정으로 변경):** PC는 왼쪽 고정 카테고리 탭(전체·디저트·밥·면·분식·간식·찜, 개수 표시), 모바일은 상단 가로 탭. 정렬·태그 칩은 목록 위. 사이드바 **광고**는 여전히 없음.
   - 시안 색: 진한 갈색 `#2A1D16`(글자·주 버튼), 토마토 빨강 `#B3301B`(순위 숫자·주요 CTA), 연한 베이지 `#F6EEE8`/`#FBF6F2`(칩·박스), 테두리 `#EEE3DB`. 시안 글꼴은 Noto Sans KR(900 굵은 제목)이지만 실서비스는 Pretendard.
 - **익명 후기·평점: Phase 2로 연기.** 평점 표시·평점순 정렬도 제외. 좋아요(찜) 수는 유지.
-- **트렌드 수집**: 공식 API만 (네이버 API HUB + 검색광고 API + YouTube Data API). SNS·커뮤니티 크롤링, 영상 자막 추출 금지. 시작은 `prd.md` 3.5 쉬운 버전(운영자 시드 + YouTube 인기 영상 제목 → LLM 음식명 추출 → DataLab 급상승 배수 → 승인 큐, GitHub Actions 하루 1회).
+- **트렌드 수집**: 공식 API만 (네이버 API HUB + 검색광고 API + YouTube Data API). SNS·커뮤니티 크롤링, 영상 자막 추출 금지. 시작은 `docs/spec.md` 수집 규칙의 쉬운 버전(운영자 시드 + YouTube 인기 영상 제목 → LLM 음식명 추출 → DataLab 급상승 배수 → 승인 큐, GitHub Actions 하루 1회).
 - **Instagram/TikTok**: 임베드 전용. Instagram 해시태그 검색은 Phase 2에 Meta 앱 심사 후 보조 신호로만 검토. 게시물 사진 저장 금지.
-- **음식 사진**: 자체 촬영 / AI 생성("AI 이미지" 표시) 우선, 무료 사진(Unsplash·Pexels·Pixabay·공유마당 공공누리 1유형·Wikimedia CC0)은 보조. 관리자 화면에서 후보 사진 중 운영자가 고른다. 조건은 `prd.md` 6장.
+- **음식 사진**: 자체 촬영 / AI 생성("AI 이미지" 표시) 우선, 무료 사진(Unsplash·Pexels·Pixabay·공유마당 공공누리 1유형·Wikimedia CC0)은 보조. 관리자 화면에서 후보 사진 중 운영자가 고른다. 조건은 `docs/spec.md` Design의 사진 절.
 - **게시**: LLM 초안(제목·설명란·태그만 입력) → **운영자 승인 후 게시**, "AI 요약" 표시.
 - **장바구니**: 사용자 탭 1회 = 쿠팡 상품 1개 ("다음 재료 연속 담기"). 다중 탭 자동 오픈·장바구니 번들 전송·쇼핑몰 최저가 비교는 **하지 않는다**.
 - **쿠팡**: API는 누적 판매 15만원 + 승인 후. 그전에는 운영자가 링크 수동 등록.
@@ -55,8 +82,8 @@
 
 ## UI 개발 규칙
 - 스택: Next.js (App Router, TS) + Tailwind v4 + shadcn/ui (CLI v4, Base UI 기본). 다른 UI 라이브러리(Mantine, Chakra, HeroUI 등)를 섞지 않는다.
-- 배치와 시각 기준은 `prd.md` 5장 + `design/mockups/`. 시안 HTML은 참고용이고 코드는 shadcn 컴포넌트로 새로 쓴다.
-- 디자인 기준은 `DESIGN.md` + tweakcn 테마 토큰으로 고정했다. 구현은 이 둘을 따른다. 입력칸 테두리는 대비 때문에 시안 `#D9C9BD` 대신 `#9C8576`.
+- 배치·기능은 `docs/spec.md`, 시각 기준은 실제 화면(`web/`) + `docs/design.md`. 예전 시안은 `archive/design-mockups/` 에 보관하며 HTML 코드는 재사용하지 않는다.
+- 디자인 토큰 원본은 `web/src/app/theme.css`. `docs/design.md` 와 함께 따른다. 입력칸 테두리는 대비 때문에 시안 `#D9C9BD` 대신 `#9C8576`.
 - 한글: Pretendard(dynamic subset), `word-break: keep-all`, 제목 `text-wrap: balance`. 시안·구현 모두 실제 한국어 문구 사용.
 - 이미지: 플랫폼 썸네일 저장·재사용 금지. AI 생성 이미지는 "AI 이미지" 표시.
 - 검증: 화면 작업 후 Playwright로 모바일(390px)·PC 스크린샷 확인, axe 접근성 검사.
@@ -72,17 +99,17 @@
 - 설치된 스킬 활용: `frontend-design`, `vercel:shadcn`, `vercel:nextjs`.
 
 ## 다음 할 일 (순서)
-1. ~~`DESIGN.md` + 테마 토큰 작성~~ (완료 2026-11-04. 미정: 다크 모드·아이콘 세트, `DESIGN.md` 9장)
+1. ~~`docs/design.md` + 테마 토큰 작성~~ (완료 2026-11-04. 미정: 다크 모드·아이콘 세트, `docs/design.md` 9장)
 2. ~~Next.js 프로젝트 생성 + shadcn init + 테마 + Pretendard + Playwright·axe~~ (완료 2026-11-04)
 3. 2026-11-05 팀·교수님 검토 반영.
 4. 계정·키 만들기(`ONBOARDING.md` 7장 순서): Supabase(SQL·운영자 등록·Edge Function) → Cloudflare Pages → GitHub Secrets/Variables → deploy·pipeline 수동 실행으로 확인. **실제 Supabase 로 빌드·관리자 로그인은 아직 검증 못 함.**
-5. 남은 로드맵(`prd.md` 8장): 관리자 사진 선택(후보 사진 중 고르기) → 실제 사진·쿠팡 파트너스 링크·애드센스 → 오픈 → Phase 2(후기·평점).
+5. 남은 로드맵(`docs/plan.md`): 관리자 사진 선택(후보 사진 중 고르기) → 실제 사진·쿠팡 파트너스 링크·애드센스 → 오픈 → Phase 2(후기·평점).
 6. 병행: 도메인 구입(Cloudflare 에 연결), 쿠팡 파트너스 가입, 네이버 데이터랩·YouTube API 키 발급.
 
 ## 팀 결정 대기
-- **아이콘 세트**: 임시 `lucide-react`. 2026-11-05 팀·교수님 검토에서 확정 (`DESIGN.md` 9장).
+- **아이콘 세트**: 임시 `lucide-react`. 2026-11-05 팀·교수님 검토에서 확정 (`docs/design.md` 9장).
 - **칩 높이 42px**(시안) vs 터치 영역 44px 원칙.
-- Phase 1에서 LLM **무료 티어** 사용 여부 (입력이 공개 데이터뿐이라 위험이 작다는 의견, PRD 6장·10장).
+- Phase 1에서 LLM **무료 티어** 사용 여부 (입력이 공개 데이터뿐이라 위험이 작다는 의견, `docs/spec.md` Open questions 3·Areas of concern 11).
 - 사진 출처 기본값 (자체 촬영 / AI 생성 / 무료 사진 비중).
 
 ## 미확인 항목

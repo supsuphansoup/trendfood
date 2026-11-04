@@ -1,8 +1,8 @@
-# 트렌드푸드 디자인 기준 (DESIGN.md)
+# 트렌드푸드 디자인 기준 (docs/design.md)
 
 > 버전 1.0 · 2026-11-04 · 포토 피드형 확정안 기준
-> 출처: `design/mockups/home.html`, `detail.html` (모바일은 `*-mobile.html`, 내용 같음). 토큰 파일: `web/src/app/theme.css` (앱이 직접 불러오는 유일한 원본)
-> 화면 구성(무엇이 어디 있는지)은 `prd.md` 5장이 기준이고, 이 문서는 **어떻게 보이는지**를 고정한다. 둘이 다르면 `prd.md`가 우선이고 이 문서를 고친다.
+> 실제 화면(`web/`) + 이 문서가 시각 기준. 예전 시안은 `archive/design-mockups/` (PC·모바일, 탈락안 포함). 토큰 파일: `web/src/app/theme.css` (앱이 직접 불러오는 유일한 원본)
+> 화면 구성·기능은 `docs/spec.md` 가 기준이고, 이 문서는 **어떻게 보이는지**를 고정한다. 시안과 다르면 최신 `docs/spec.md` 와 실제 화면의 결정을 따르며, 미결정 항목은 9장에 남긴다.
 
 ## 0. 원칙
 1. **사진이 주인공.** 1위는 화면 가득, 2위부터는 한 줄에 하나씩 큰 사진. 글은 사진 옆(PC)·아래(모바일)에 둔다.
@@ -113,7 +113,7 @@
 - 사진이 늦게 뜰 때 바탕은 `secondary`. `next/image`에 `width`·`height` 또는 `fill` + `sizes`를 반드시 지정해 CLS를 막는다.
 - 대체 텍스트는 "무엇이 어떻게 담겼는지" 한 문장 (예: "새우와 떡이 들어간 주황빛 로제 떡볶이"). 장식용 사진은 `alt=""`.
 - AI 생성 사진은 사진 왼쪽 아래에 "AI 이미지" 배지 (흰 글자, `scrim` 55% 바탕, `rounded-full`, 13px).
-- 시안 사진(`design/mockups/img/`)은 데모용. 실서비스 사진 조건은 `prd.md` 6장.
+- 예전 시안 사진(`archive/design-mockups/img/`)은 데모용. 실서비스 사진 조건은 `docs/spec.md` Design의 사진 절.
 
 ## 7. 컴포넌트 규칙 (shadcn 매핑)
 

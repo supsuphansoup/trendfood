@@ -1,10 +1,10 @@
 /*
  * 트렌드푸드 테마 토큰 (tweakcn / shadcn v4 + Tailwind v4 형식)
- * 기준: design/mockups/home.html, detail.html (포토 피드형, 2026-11-04 확정)
+ * 기준: 실제 화면(web/) + docs/design.md (포토 피드형, 2026-11-04 확정). 예전 시안: archive/design-mockups/
  * 사용: globals.css 가 shadcn import 다음에 이 파일을 불러온다. 색·모서리·글자 값은 여기서만 고친다.
- *       tweakcn 편집기에서 조정하면 :root 값만 옮겨 오고, 바꾼 값은 DESIGN.md 표에도 반영한다.
+ *       tweakcn 편집기에서 조정하면 :root 값만 옮겨 오고, 바꾼 값은 docs/design.md 표에도 반영한다.
  *       shadcn init/add 가 globals.css 에 :root·@theme 블록을 다시 넣으면 지운다 (이 파일과 겹침).
- * 각 값 옆 주석은 시안 hex. 다크 모드는 아직 정하지 않았다 (DESIGN.md 9장).
+ * 각 값 옆 주석은 시안 hex. 다크 모드는 아직 정하지 않았다 (docs/design.md 9장).
  */
 
 :root {
@@ -132,7 +132,7 @@
   --radius-3xl: 1.25rem;   /* 20px PC 사진 카드·장바구니 박스 */
   --radius-bar: 1.125rem;  /* 18px 모바일 하단 바 */
 
-  /* 글자 크기 (PC / 모바일은 DESIGN.md 3장 표) */
+  /* 글자 크기 (PC / 모바일은 docs/design.md 3장 표) */
   --text-hero: 5.5rem;          /* 88px 메인 히어로 */
   --text-hero-detail: 4.5rem;   /* 72px 상세 히어로 */
   --text-rank: 3.5rem;          /* 56px 순위 숫자 */

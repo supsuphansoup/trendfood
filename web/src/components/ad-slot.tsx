@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-// 애드센스 자리. 높이를 미리 확보해 CLS를 막는다 (prd.md 5장). 승인 전에는 빈 자리 표시만.
+// 애드센스 자리. 높이를 미리 확보해 CLS를 막는다 (docs/spec.md Design의 화면 구성). 승인 전에는 빈 자리 표시만.
 export function AdSlot({ label, className }: { label: string; className?: string }) {
   return (
     <aside

@@ -1,283 +1,372 @@
-# 트렌드푸드 팀원 안내서
+# 트렌드푸드 팀원 안내서 (바이브코딩용)
 
-> 처음 합류한 팀원이 **"이게 어떻게 돌아가는지"** 를 이해하고, **내 컴퓨터에서 직접 띄워 보고**, **작은 수정을 올릴 수 있게** 만든 문서입니다.
-> 모르는 단어가 나오면 [5장 용어 사전](#5-용어-사전)을 먼저 보세요. 기능·화면의 기준은 `prd.md`, 디자인 기준은 `DESIGN.md`, 진행 상황은 `CLAUDE.md` 입니다.
+> 우리 팀은 **AI 코딩 도구(Claude Code, Codex, Cursor 등)에게 말로 시켜서** 개발합니다.
+> 이 문서는 코드를 몰라도 **AI에게 제대로 시키고, 결과를 확인하고, 안전하게 올리는 법**을 알려 줍니다.
+> Claude Code는 `CLAUDE.md`를, Codex·Cursor는 **자기완결 규칙 파일인 `AGENTS.md`**를 읽고 우리 규칙을 따릅니다. **사람은 이 문서만 읽으면 됩니다.**
 
 ---
 
 ## 1. 우리가 만드는 것 (1분)
 
 **"요즘 뜨는 음식, 여기서 제일 먼저."**
+유행하는 음식을 순위로 보여 주고, 필요한 재료를 쿠팡에서 **하나씩 이어서 담게** 돕는 모바일 우선 웹사이트예요.
+돈은 **쿠팡 파트너스 수수료 + 구글 광고**로 벌고, 운영비는 **거의 0원**, 사람은 매일 몇 분 **승인만** 합니다.
 
-- 지금 유행하는 음식을 순위로 보여 주고, 해 먹고 싶은 사람은 필요한 재료를 쿠팡에서 **하나씩 이어서 담을 수 있게** 돕는 모바일 우선 웹사이트예요.
-- 돈은 **쿠팡 파트너스 수수료**(방문자가 링크로 재료를 사면 일부를 받음)와 **구글 애드센스**(광고)로 법니다.
-- 목표는 **돈을 거의 안 쓰고(무료), 컴퓨터를 켜 두지 않아도** 돌아가는 것. 사람은 매일 몇 분 **승인만** 합니다.
+```
+ 매일 아침 6시 (자동)                     운영자                         방문자
+ GitHub Actions 가                       /admin 에서                     완성된 사이트
+ 유튜브 제목 → AI 음식 이름 추출          후보 승인·글 고치기·링크 넣기    (Cloudflare Pages)
+ → 네이버 검색량 배수 → 후보 저장 ──▶  Supabase(DB) ──[사이트에 반영]──▶ 다시 빌드해서 올림
+```
+
+- 사이트는 **미리 구워 둔 HTML 파일**(정적 사이트)이라 서버가 없어요. → AI가 "서버 코드"를 넣으려 하면 막아야 해요 (6장).
+- 데이터는 **Supabase**, 자동 실행은 **GitHub Actions**, 사이트 올리기는 **Cloudflare Pages**.
 
 ---
 
-## 2. 전체 구조 한 장 요약
+## 2. 처음 한 번 준비 (20분)
 
-```
-                 ┌──────────────── 매일 아침 6시 (자동) ────────────────┐
-                 │  GitHub Actions "pipeline"                            │
-                 │  ① 유튜브 인기 음식 영상 제목 모으기 (YouTube API)     │
-                 │  ② AI 가 제목에서 음식 이름만 뽑기 (OpenAI / Gemini)   │
-                 │  ③ 네이버 검색량이 얼마나 늘었는지 계산 (데이터랩 API) │
-                 │  ④ 새 후보를 '대기' 상태로 저장 ───────────┐          │
-                 └───────────────────────────────────────────│──────────┘
-                                                             ▼
-   운영자 ──▶ /admin (관리자 화면) ──── 읽기·쓰기 ────▶  Supabase (데이터베이스 + 로그인)
-              · 후보 승인/반려                              foods · ingredients · candidates …
-              · 글 고치기, 순서, 숨기기
-              · 쿠팡 링크·참고 가격
-              · [사이트에 반영] 버튼 ──▶ Supabase 함수 ──▶ GitHub Actions "deploy"
-                                                             ① Supabase 에서 '게시된 음식' 읽기
-                                                             ② 사이트를 HTML 파일로 굽기 (npm run build)
-                                                             ③ Cloudflare Pages 에 올리기
-                                                                     │
-   방문자 ◀──────────────── 완성된 HTML 파일 (아주 빠르고 무료) ◀──────┘
-```
+1. **설치**: [Node.js 24 LTS](https://nodejs.org), [Git](https://git-scm.com), 쓰는 AI 도구(Claude Code / Codex / Cursor 중 하나), VS Code.
+2. **Git 이름·이메일 설정** — 터미널에서 처음 한 번, 내 이름과 GitHub 이메일로 바꿔서 실행하세요:
+   ```bash
+   git config --global user.name "이름"
+   git config --global user.email "GitHub 이메일"
+   ```
+3. **GitHub 초대 받기**: 저장소 관리자에게 GitHub 아이디를 알려 주세요.
+4. **GitHub CLI 설치·로그인**: https://cli.github.com 에서 설치한 뒤 터미널에서 `gh auth login` 을 실행하고 안내대로 로그인하세요. AI가 PR을 만들 때 필요하고, 건너뛰면 **3장 ⑤ 올리기**에서 막혀요.
+5. **코드 받기** — 터미널에서:
+   ```bash
+   git clone https://github.com/supsuphansoup/trendfood.git
+   cd trendfood
+   ```
+6. **AI 도구를 이 `trendfood` 폴더에서 열고** 이렇게 말하세요:
+   > `ONBOARDING.md 랑 CLAUDE.md 읽고, 내 컴퓨터에서 사이트를 띄워줘. web 폴더에서 npm ci 하고 개발 서버 켜서 주소 알려줘.`
+7. 브라우저에서 **http://localhost:3000** 이 열리면 성공 🎉 (끌 때는 터미널에서 `Ctrl + C`)
+8. **테스트용 브라우저 설치**: `web` 폴더에서 `npx playwright install chromium` 을 처음 한 번 실행하세요. `test:e2e` 전에 필요해요. AI에게 설치를 부탁해도 돼요.
 
-핵심만 기억하세요.
+> 키·비밀번호가 없어도 **예시 음식 10개**로 화면이 다 떠요. 관리자 화면(`/admin`)만 "Supabase 연결 전이에요"가 나오는데 정상이에요.
 
-1. **방문자가 보는 사이트는 "미리 구워 둔 HTML 파일"** 이에요 (정적 사이트). 서버가 없어서 빠르고 무료이고, 해킹당할 곳도 적어요.
-2. **데이터는 Supabase 에** 있어요. 운영자가 관리자 화면에서 고치면 Supabase 가 바뀝니다.
-3. 바꾼 내용은 **[사이트에 반영]** 을 눌러야 사이트가 다시 구워지고(3~5분) 방문자에게 보여요.
-4. **AI 는 후보와 초안만** 만들어요. 사이트에 올라가는 건 전부 운영자가 승인한 것뿐이에요.
+> **Mac 사용자 주의**: 저장소의 `.mcp.json`(AI 도구용 shadcn·Playwright 연결)은 Windows 형식(`cmd /c npx`)이라 Mac에서는 연결이 실패할 수 있어요. 사이트 개발·검사에는 영향이 없고, 필요하면 AI에게 `내 컴퓨터용으로 MCP 설정 바꿔줘(커밋하지 말고)` 라고 하세요.
 
-### 무엇을 어디서 무료로 쓰나
+---
 
-| 역할 | 서비스 | 무료 범위 (2026-11 기준, 바뀔 수 있음) |
+## 3. 바이브코딩 작업 순서 (매번 이 5단계)
+
+| 단계 | 할 일 | AI에게 이렇게 말하기 |
 | :--- | :--- | :--- |
-| 사이트 올리기 | Cloudflare Pages | 정적 파일 무제한 전송, 한 달 빌드 500회 |
-| 데이터베이스·로그인 | Supabase Free | DB 500MB. **1주일 동안 아무 활동이 없으면 일시 정지** → 매일 수집이 돌아서 괜찮음 |
-| 자동 실행 | GitHub Actions | 공개 저장소는 무료. **60일 동안 커밋이 없으면 예약 실행이 멈춤** → Actions 탭에서 다시 켜기 |
-| AI | 이번 달 OpenAI API 크레딧 → 그 뒤 Gemini 무료 등급 | 설정값 두 개만 바꾸면 전환 (8장) |
-| 트렌드 데이터 | YouTube Data API, 네이버 데이터랩 | 하루 한도 안에서 무료 |
+| ① 가지 만들기 | `main` 에서 바로 고치지 않기 | `main 최신으로 받고 "feat/상세-타이머" 브랜치 만들어줘` |
+| ② 요청하기 | 원하는 걸 **구체적으로** (5장 템플릿) | `상세 화면 타이머 버튼을 더 크게 해줘. 모바일 390px 기준…` |
+| ③ 눈으로 보기 | AI 말만 믿지 말고 **직접 화면 확인** | `개발 서버 켜고 바뀐 화면 주소 알려줘` |
+| ④ 검사 통과 | 아래 검사 4개가 **전부 통과**해야 끝 | `lint, typecheck, test:unit, test:e2e 돌리고 결과 그대로 보여줘` |
+| ⑤ 올리기 | 커밋 → push → Pull Request | `바뀐 파일 목록이랑 요약 보여주고, 커밋하고 PR 만들어줘` |
 
----
+`main` 은 GitHub에서 **보호될 예정**이라, 보호 설정이 적용되면 **PR + 다른 팀원 1명 승인** 없이는 합쳐지지 않아요. 팀원은 화면을 확인한 뒤 PR의 **Files changed → Review changes → Approve → Submit review**로 승인해요.
+PR을 열면 GitHub이 **lint·typecheck·단위 테스트·e2e 검사**를 자동으로 돌리고, 전부 **초록 ✓**여야 합칠 수 있어요. `main` 에 합쳐지면 사이트가 **자동으로 다시 배포**돼요.
 
-## 3. 내 컴퓨터에서 띄워 보기 (처음 한 번, 20분)
+### 검사 4개 (AI가 `web` 폴더에서 돌림)
 
-### 준비물
-
-- **Node.js 24** (https://nodejs.org 에서 LTS 설치). 설치 후 터미널에서 `node --version` → `v24.…` 이 나오면 성공.
-- **Git** (https://git-scm.com). 그리고 GitHub 계정 → 저장소 관리자에게 초대를 받으세요.
-- 코드 편집기: **VS Code** 추천.
-
-### 순서
-
-```bash
-# 1) 코드 내려받기
-git clone https://github.com/supsuphansoup/trendfood.git
-cd trendfood/web
-
-# 2) 필요한 부품 설치 (처음 한 번, 몇 분 걸림)
-npm ci
-
-# 3) 개발 서버 켜기
-npm run dev
-```
-
-브라우저에서 **http://localhost:3000** 을 열면 사이트가 보여요. 파일을 고치고 저장하면 화면이 바로 바뀝니다. 끌 때는 터미널에서 `Ctrl + C`.
-
-> Supabase 설정 없이도 돌아가요. 그때는 `web/src/data/seed-foods.ts` 의 **예시 음식 10개**로 화면을 그립니다.
-> 관리자 화면(`/admin`)은 Supabase 를 연결해야 동작하고, 연결 전에는 "Supabase 연결 전이에요" 안내만 나와요.
-
-### Supabase 에 연결해서 실제 데이터로 보기 (선택)
-
-`web/.env.local` 파일을 만들고 운영자에게 받은 값을 넣어요. **이 파일은 절대 커밋하지 않아요** (`.gitignore` 에 이미 들어 있음).
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...   # 'anon public' 키 (공개돼도 되는 키)
-```
-
-`service_role` 키는 모든 권한을 가진 **비밀 키**라서 내 컴퓨터에 넣지 않아요. GitHub 비밀값에만 있어요.
-
----
-
-## 4. 자주 하는 일
-
-| 하고 싶은 것 | 고칠 파일 | 확인 |
-| :--- | :--- | :--- |
-| 메인 화면 글자·배치 | `web/src/components/home/home-feed.tsx`, `food-card.tsx` | `npm run dev` 로 보기 |
-| 상세 화면 | `web/src/app/food/[slug]/page.tsx`, `web/src/components/detail/` | 〃 |
-| 색·글자 크기 | `web/src/app/theme.css` (**여기만** 고쳐요. 기준은 `DESIGN.md`) | 〃 |
-| 예시 음식 데이터 | `web/src/data/seed-foods.ts` → 고친 뒤 `npm run db:seed-sql` | `supabase/seed.sql` 이 새로 생김 |
-| 관리자 화면 | `web/src/components/admin/` | 테스트 `e2e/admin.spec.ts` |
-| 자동 수집 규칙 | `web/scripts/pipeline/` (`logic.ts` 가 계산, `llm.ts` 가 AI 질문) | `npm run test:unit`, `npm run pipeline -- --dry-run` |
-
-### 고친 뒤 꼭 돌리는 검사 (모두 `web` 폴더에서)
-
-```bash
-npm run lint        # 코드 규칙 검사
-npm run typecheck   # 타입(자료형) 검사
-npm run test:unit   # 계산 로직 검사 (몇 초)
-npm run test:e2e    # 실제 브라우저로 모바일·PC 화면, 접근성까지 검사 (1~2분)
-```
-
-처음 `test:e2e` 전에는 브라우저를 한 번 설치해요: `npx playwright install chromium`.
-`npm run pipeline -- --dry-run` 은 **키가 없어도** 예시 값으로 수집 과정을 끝까지 보여 줘요 (DB 에는 안 씀).
-
-### 내 수정 올리기 (Git 기본)
-
-```bash
-git switch -c fix/메인-문구        # 1) 내 작업용 가지(branch) 만들기
-# … 파일 고치기 …
-git add -A
-git commit -m "fix: 메인 문구 다듬기"   # 2) 저장 지점 만들기
-git push -u origin fix/메인-문구     # 3) GitHub 에 올리기
-```
-
-GitHub 에서 **Pull Request** 를 만들고 다른 팀원에게 확인을 받은 뒤 `main` 에 합쳐요. `main` 에 합쳐지면 사이트가 **자동으로 다시 배포**돼요.
-
----
-
-## 5. 용어 사전
-
-| 용어 | 쉬운 설명 |
+| 명령 | 뭘 보나 |
 | :--- | :--- |
-| 정적 사이트 | 미리 만들어 둔 HTML 파일을 그대로 보여 주는 사이트. 방문할 때마다 서버가 계산하지 않음 |
-| 빌드 (build) | 코드와 데이터를 합쳐 HTML 파일 묶음(`web/out/`)을 만드는 일 |
-| 배포 (deploy) | 빌드 결과를 인터넷에 올리는 일 (우리는 Cloudflare Pages) |
-| Supabase | 데이터베이스(엑셀 표 같은 것) + 로그인 기능을 주는 서비스 |
-| 테이블 | DB 안의 표. `foods`(음식), `ingredients`(재료), `candidates`(후보), `admins`(운영자) |
-| RLS | 표의 **줄마다** "누가 읽고 쓸 수 있는지" 정하는 규칙. 방문자는 게시된 음식만 읽고, 쓰기는 운영자만 |
-| anon 키 / service_role 키 | anon = 공개돼도 되는 열쇠(RLS 가 막아 줌). service_role = 모든 문을 여는 열쇠(비밀) |
-| 환경변수 / 비밀값 | 코드 밖에 두는 설정값. 내 컴퓨터는 `.env.local`, GitHub 은 Settings → Secrets |
-| GitHub Actions | GitHub 이 정해진 때에 대신 명령을 실행해 주는 기능. `.github/workflows/` 에 설정 |
-| 워크플로 | Actions 의 작업 하나. 우리는 `deploy`(배포)와 `pipeline`(매일 수집) 두 개 |
-| Edge Function | Supabase 에서 돌아가는 작은 서버 코드. 우리는 [사이트에 반영] 버튼 처리 하나만 씀 |
-| API | 다른 서비스에 정해진 형식으로 데이터를 달라고 요청하는 창구 |
-| slug | 주소에 쓰는 영어 이름. `/food/dubai-chocolate` 의 `dubai-chocolate` |
-| e2e 테스트 | 진짜 브라우저를 띄워 사람처럼 눌러 보는 자동 검사 |
+| `npm run lint` | 코드 규칙 |
+| `npm run typecheck` | 자료형 오류 |
+| `npm run test:unit` | 자동 수집 계산 로직 |
+| `npm run test:e2e` | 진짜 브라우저로 모바일·PC 화면, 접근성, 관리자 화면까지 (1~2분) |
+
+**AI가 "완료했습니다"라고 해도, 이 4개 결과를 보여 주지 않았으면 끝난 게 아니에요.**
+
+### 큰 기능은 문서부터: intent → spec → plan
+
+글자·색·버그 같은 **작은 수정**은 위 5단계로 바로 해요. **새 기능·화면 추가·데이터 구조 변경** 같은 큰 일은 코드 전에 문서 3개를 거쳐요.
+코드는 AI가 빨리 쓰지만, **무엇을 만들지 정하고 제대로 됐는지 확인하는 건 사람 몫**이라서예요. 설계 없이 빠르면 틀린 걸 빨리 만들 뿐이에요.
+
+| 단계 | 문서 | AI 모드 | 내가 할 일 (통과 조건) |
+| :--- | :--- | :--- | :--- |
+| 기획 | `docs/intent.md` — 무엇을, 왜 | Plan(질문만) → Build | AI 인터뷰에 답하고, 내 말과 다른 곳 고치기 |
+| 설계 | `docs/spec.md` — 숫자와 규칙 | Build | **Areas of concern(우려 사항)부터 결정** |
+| 계획 | `docs/plan.md` — 바꿀 파일·순서·위험·확인 방법 | Plan → Build | "가장 깨지기 쉬운 곳은?" 납득될 때까지 묻기 |
+| 구현·확인 | 코드 + 검사 출력 | Build | 출력을 **직접** 보기 |
+
+- **Plan 모드** = AI가 생각·질문만 하고 파일은 안 고침 / **Build 모드** = 파일을 만들고 명령을 실행. (Claude Code 는 `Shift+Tab` 으로 전환)
+- 우리 프로젝트는 이미 세 문서가 있어요. 새 기능이면 **기존 문서에 덧붙여요**. 문제가 생기면 코드부터 고치지 말고 intent 부터 다시.
+- **커밋 = 승인.** 문서를 읽고 OK 한 뒤에 커밋해요. 다음 단계는 항상 **앞 단계 문서를 읽고** 시작해요 (말로 넘기면 뜻이 바뀌어요).
+
+**① 기획 (Plan 모드)**
+```
+<만들고 싶은 기능 한 줄>을 추가하고 싶어. docs/intent.md 와 CLAUDE.md 를 먼저 읽고,
+기획자처럼 나를 인터뷰해서 구체화해줘. 한 번에 하나씩 질문하고,
+범위·핵심 기능·제약·제외할 것·성공 기준이 정리되면 마쳐줘.
+```
+→ 모르면 "추천해줘"라고 답해도 돼요. 끝나면 (Build 모드로 바꿔서):
+```
+인터뷰 내용을 docs/intent.md 에 반영해줘 (Problem / Proposed outcome / Affected users and systems /
+Constraints / Open questions, 섹션마다 3줄 이내). 내가 읽고 OK 하면 커밋해줘.
+```
+
+**② 설계 (Build 모드, 인터뷰 없이 한 번에)**
+```
+docs/intent.md 를 읽고 이 기능의 요구사항·설계를 docs/spec.md 에 추가해줘.
+Constraints 를 반드시 지키고, 구조는 Requirements / Design / Open questions / Areas of concern.
+Open questions 는 질문마다 "결정: ..." 또는 "이월: 이유". 네가 임의로 정한 수치·규칙,
+조건끼리 충돌하는 건 Areas of concern 에 적어줘. 코드는 아직 쓰지 마.
+```
+→ 검토 3가지: ① intent 의 Problem 을 해결하나 ② 질문이 전부 결정/이월됐나 ③ **우려 사항부터 결정**
+→ 예) `우려 사항 1번은 <내 결정>으로 할게. 반영하고 커밋해줘`
+
+**③ 계획 (Plan 모드 → Build 모드)**
+```
+docs/intent.md 와 docs/spec.md 를 읽고 구현 계획을 세워줘.
+바꿀 파일, 작업 순서, 단계별 확인 방법, 가장 위험한 부분을 알려주고, 모호하면 먼저 질문해줘.
+```
+→ 기준: 이 대화를 못 본 사람도 계획만 보고 만들 수 있을 정도. 납득되면:
+```
+확정된 계획을 docs/plan.md 에 추가하고 (Files that change / Order of work / Risks / Proof) 그대로 실행해줘.
+끝나면 검사 4개 출력을 보여주고 커밋해줘.
+```
+
+**④ 확인**
+- 출력 없이 "성공"이라고만 하면 → `검사 4개 돌리고 결과 그대로 보여줘`
+- AI가 **같은 실수를 두 번** 하면 → `이 실수를 AGENTS.md 의 "Things the agent gets wrong" 에 한 줄로 추가해줘`
+- 개발 서버처럼 **계속 켜져 있는 프로그램**은 AI 대신 새 터미널에서 직접 `npm run dev` 로 켜는 게 편해요.
+
+| 체크리스트 | |
+| :--- | :--- |
+| 기획 후 | ☐ intent 를 직접 읽고 내 의도와 맞는지 확인 ☐ 커밋 |
+| 설계 후 | ☐ Areas of concern 전부 결정 ☐ Open questions 결정/이월 ☐ 커밋 |
+| 구현 전 | ☐ 가장 위험한 부분을 물어봄 ☐ 단계마다 확인 방법이 있음 |
+| 구현 후 | ☐ 검사 출력을 직접 봄 ☐ 반복된 실수는 AGENTS.md 에 적음 |
+| 문제 발생 | ☐ 코드부터 고치지 말고 intent 부터 다시 |
 
 ---
 
-## 6. 운영자 하루 루틴 (5분)
+## 4. 교수님·지도학생과 진행할 때
 
-관리자 주소는 `https://<사이트 주소>/admin` 이에요. **공개 화면 어디에도 링크가 없고 검색엔진에도 안 나와요.** 주소를 다른 곳에 올리지 마세요.
+### 진행 상황 보는 곳
 
-1. **후보 큐** 탭: 아침 6시에 자동으로 들어온 후보를 봐요. "급상승 4.2배" 처럼 근거가 같이 나와요.
-   - 괜찮으면 **승인** → AI 초안이 있으면 [게시 관리]에 **초안**으로 들어가요. 아니면 **반려**.
-   - 내가 본 유행 음식은 위 칸에서 **직접 추가**할 수 있어요.
-2. **게시 관리** 탭: 초안의 **글 고치기**로 내용을 꼭 직접 확인·수정해요 (AI 는 틀릴 수 있어요). 그다음 **게시하기**. 위/아래 화살표로 순위를 바꾸고, 내릴 음식은 **숨기기**.
-3. **재료 링크** 탭: 재료마다 쿠팡 파트너스 링크와 참고 가격을 넣어요. 비워 두면 쿠팡 검색 링크로 대신 연결돼요. `coupang.com`·`coupa.ng` 주소만 저장돼요.
-4. 맨 위 **[사이트에 반영]** 클릭 → 3~5분 뒤 사이트에 보여요. (5분에 한 번만 누를 수 있어요)
+- `docs/spec.md` **Requirements**의 ✅(구현됨)·🟡(일부/임시)·⬜(아직)로 어떤 기능이 됐는지 봐요.
+- `docs/plan.md` **Order of work**의 ☐(남음)·☑(완료)로 다음 할 일을 봐요.
+- `docs/spec.md` **Areas of concern**은 사람이 먼저 보고 결정할 내용이에요.
 
-맨 위 상자에 "자동 수집 실패 … AI 크레딧·무료 한도 소진" 이 보이면 [8장](#8-ai-바꾸기-openai--gemini)을 보세요.
+### 회의 전 준비
+
+AI에게 이렇게 말하세요:
+```
+docs/plan.md 랑 spec.md 기준으로 지난 회의 뒤에 바뀐 것, 남은 것, 오늘 결정할 것을 1쪽으로 정리해줘.
+spec.md 는 docs/spec.md 를 뜻해. git log 로 최근 변경도 요약해줘.
+```
+
+### 키 없이 시연하기
+
+개발 서버가 켜져 있으면 `Ctrl + C`로 끄고, `web` 폴더에서 아래 명령을 차례로 실행하세요:
+```bash
+npm run build
+npm start
+```
+브라우저에서 **http://localhost:3000** 을 열면 **예시 음식 10개**로 시연할 수 있어요. 키를 설정하지 않은 상태 기준이에요. 개발 서버보다 실제 배포와 같은 빌드 결과를 보여 줘요. 관리자 화면(`/admin`)은 Supabase 연결 전이라 안내 문구만 보여요.
+
+### 회의 결정 기록하기
+
+회의에서 정한 것은 **그날** `docs/spec.md` **Open questions**의 해당 줄을 `결정: … (날짜, 회의)`로 바꾸고 커밋해요. 결정이 코드에 영향을 주면 `docs/plan.md` 에 작업도 추가해요. 말로만 정하고 끝내지 않아요.
+
+**지금 팀 결정이 필요한 안건은 `docs/spec.md` 의 Open questions 1~6번을 보세요**: 아이콘 세트, 칩 높이(42/44px), Gemini 무료 등급, 사진 출처 비중, 참고 가격 표시, 사업자 신고. 각 안건의 현재 상태와 결정할 내용은 그 문서를 기준으로 봐요.
+
+### 지도학생에게 코드 리뷰 받기
+
+**PR 링크**를 공유하세요. 지도학생은 PR의 **Files changed** 탭에서 코드 줄 옆의 **+**를 눌러 줄마다 댓글을 달 수 있어요.
 
 ---
 
-## 7. 처음 한 번 설정 (운영자 1명이 한 번만, 약 1시간)
+## 5. 잘 시키는 법
 
-순서대로 하세요. 값은 메모장에 모아 두었다가 마지막에 GitHub 에 넣어요.
+### 좋은 요청의 4요소: **어디 · 무엇 · 기준 · 확인**
 
-### 7-1. Supabase
+| ❌ 애매한 요청 | ✅ 좋은 요청 |
+| :--- | :--- |
+| "메인 예쁘게 해줘" | "메인 2위 이하 카드에서 **조리시간 글자를 굵게** 하고, 모바일 390px 에서 한 줄에 들어가게 해줘. `docs/design.md` 글자 크기 표를 따르고, 스크린샷으로 보여줘" |
+| "버그 고쳐줘" | "상세 화면에서 '집에 있어요'를 누르고 새로고침하면 체크가 풀려. **다시 생기는 순서**는 ①…②… 원인 찾고 고친 다음, 이 상황을 검사하는 테스트도 추가해줘" |
+| "관리자 기능 추가해줘" | "관리자 '게시 관리'에 **사진 바꾸기** 기능을 넣고 싶어. 먼저 어떻게 만들지 **계획만** 보여주고, 내가 OK 하면 만들어줘" |
 
-1. https://supabase.com 가입 → **New project** (지역은 Seoul 또는 Tokyo). 비밀번호는 안전한 곳에 보관.
-2. 왼쪽 **SQL Editor** → `web/supabase/migrations/0001_init.sql` 내용을 붙여 넣고 **Run**. 이어서 `web/supabase/seed.sql` 도 **Run** (예시 음식 10개).
-3. **Authentication → Sign In / Providers**: 이메일 로그인만 켜고, **"Allow new users to sign up" 을 끄세요** (아무나 계정을 못 만들게).
-4. **Authentication → Users → Add user**: 운영자 이메일·비밀번호로 계정을 만들어요.
-5. SQL Editor 에서 운영자로 등록 (이메일만 바꿔서 실행):
+### 복사해서 쓰는 템플릿
+
+**화면 수정**
+```
+[어디] ○○ 화면의 ○○ 부분
+[무엇] ○○ 를 ○○ 하게 바꿔줘
+[기준] docs/design.md 와 theme.css 토큰을 지키고, 모바일 390px·PC 1280px 둘 다 확인
+[확인] 바뀐 화면 스크린샷 + 검사 4개 결과 보여줘
+```
+
+**버그**
+```
+[증상] ○○ 하면 ○○ 가 돼야 하는데 ○○ 가 돼
+[순서] 1) … 2) … 3) …
+[오류] (빨간 오류 메시지 전체 붙여넣기)
+원인을 먼저 설명하고 고쳐줘. 같은 버그를 잡는 테스트도 추가해줘.
+```
+
+**큰 기능 / 잘 모르는 것**
+```
+○○ 를 하고 싶어. 바로 만들지 말고
+1) docs/spec.md·docs/design.md·CLAUDE.md 기준으로 이게 우리 규칙에 맞는지
+2) 어떤 파일을 고칠지, 3) 더 쉬운 방법이 있는지
+먼저 알려줘.
+```
+
+**검토 받기 (PR 올리기 전에)**
+```
+지금 바뀐 내용을 리뷰해줘. 버그, 규칙 위반(CLAUDE.md), 필요 없는 변경이 있으면 알려줘.
+```
+
+### 꿀팁
+
+- **한 번에 하나만** 시키세요. 여러 개를 한꺼번에 시키면 AI가 엉뚱한 파일까지 고쳐요.
+- 대화가 너무 길어져서 AI가 헷갈려 하면 **새 대화**를 열고 "CLAUDE.md 읽고 이어서 ○○ 해줘".
+- 이해 안 되는 건 그냥 물어보세요: `방금 고친 거 알기 쉽게 설명해줘`.
+- 마음에 안 들면 되돌리기: `방금 바꾼 거 커밋 전이면 되돌려줘` (커밋 후면 `직전 커밋 되돌리는 커밋 만들어줘`).
+
+---
+
+## 6. AI가 자주 하는 실수 — 보이면 바로 멈추게 하기
+
+AI는 `CLAUDE.md` 규칙을 읽지만 **가끔 어겨요.** 아래가 보이면 `멈춰. CLAUDE.md 규칙 위반이야` 라고 말하세요.
+
+| 이런 걸 하면 | 왜 안 되나 |
+| :--- | :--- |
+| 키·비밀번호를 코드에 쓰거나 `.env.local` 을 커밋 | 공개 저장소라 전 세계에 노출돼요. 실수로 올렸으면 **그 키를 바로 새로 발급** |
+| 인스타·틱톡·커뮤니티 **긁어오기(크롤링)**, 영상 자막 추출, 쿠팡 화면 긁기 | 약관·법 위반. 우리는 **공식 API만** |
+| 쿠팡 상품을 **여러 탭 한꺼번에** 열기, 장바구니 한꺼번에 담기, 최저가 비교 | 쿠팡 정책 위반. **탭 한 번 = 상품 하나** |
+| 장바구니 버튼·재료 체크리스트 **근처에 광고** | 애드센스·쿠팡 정책 위반 |
+| Proxy, Server Actions, API 라우트, 쿠키 같은 **서버 기능** 추가 | 우리 사이트는 정적 사이트라 배포가 깨져요 |
+| Mantine·Chakra·MUI 등 **다른 UI 라이브러리** 설치, 새 패키지 마음대로 추가 | 우리는 shadcn/ui 만. 새 패키지는 **팀에 먼저 물어보기** |
+| 색·글자 크기를 파일마다 직접 숫자로 박기 | 색은 `web/src/app/theme.css` 에서만. 기준은 `docs/design.md` |
+| 실패하는 **테스트를 지우거나 건너뛰기**(`skip`) | 문제를 숨기는 것. 코드를 고쳐야 해요 |
+| 유튜브·인스타 **썸네일 사진 저장**해서 쓰기 | 저작권. 사진 규칙은 `docs/spec.md` Design의 사진 절 |
+| 후기·별점 기능 만들기 | 2단계(사용자 생긴 뒤)로 미뤘어요 |
+| `main` 에 바로 push, `git push --force` | 다른 팀원 작업이 날아가요 |
+| 부탁 안 한 파일까지 대량으로 고치기 | `요청한 것만 고치고 나머지는 되돌려줘` |
+
+---
+
+## 7. 운영자 하루 루틴 (5분)
+
+관리자 주소: `https://<사이트 주소>/admin` — **공개 화면에 링크가 없고 검색에도 안 나와요. 주소를 다른 곳에 올리지 마세요.**
+
+1. **후보 큐**: 아침에 자동으로 들어온 후보 확인 ("급상승 4.2배" 같은 근거가 같이 보여요). 괜찮으면 **승인**(AI 초안이 [게시 관리]에 '초안'으로 들어감), 아니면 **반려**. 내가 본 유행 음식은 **직접 추가**.
+2. **게시 관리**: 초안은 **글 고치기로 꼭 직접 읽고 고친 뒤** 게시 (AI는 틀릴 수 있어요). 화살표로 순위, **숨기기**로 내리기.
+3. **재료 링크**: 쿠팡 파트너스 링크·참고 가격 넣기 (쿠팡 주소만 저장돼요. 비우면 쿠팡 검색으로 연결).
+4. 맨 위 **[사이트에 반영]** → 3~5분 뒤 사이트에 보여요 (5분에 한 번).
+
+"자동 수집 실패 … AI 크레딧·무료 한도 소진"이 보이면 9장.
+
+---
+
+## 8. 처음 한 번 설정 (운영자 1명이 한 번만, 약 1시간)
+
+> **비밀값은 사람이 직접 각 사이트에 입력해요.** AI 채팅창에 키를 붙여 넣지 마세요. AI에게는 `ONBOARDING.md 8장 순서대로 내가 하는 걸 옆에서 안내해줘` 라고 하면 돼요.
+
+### 8-1. Supabase (DB·로그인)
+
+1. https://supabase.com → **New project** (지역 Seoul 또는 Tokyo).
+2. **SQL Editor** 에 `web/supabase/migrations/0001_init.sql` 붙여 넣고 **Run** → 이어서 `web/supabase/seed.sql` **Run** (예시 음식 10개).
+3. **Authentication → Sign In / Providers**: 이메일만 켜고 **"Allow new users to sign up" 끄기**.
+4. **Authentication → Users → Add user** 로 운영자 계정 만들기.
+5. SQL Editor 에서 운영자 등록 (이메일만 바꿔서):
    ```sql
    insert into public.admins (user_id) select id from auth.users where email = '운영자@이메일';
    ```
-6. **Project Settings → API** 에서 `Project URL`, `anon public` 키, `service_role` 키를 메모.
+6. **Project Settings → API** 에서 `Project URL`, `anon public` 키, `service_role` 키 메모.
 
-### 7-2. Cloudflare Pages
+### 8-2. Cloudflare Pages (사이트 올리기)
 
-1. https://dash.cloudflare.com 가입 → **Workers & Pages → Create → Pages → Direct Upload** 로 프로젝트 이름 `trendfood` 를 만들어요 (처음엔 아무 폴더나 올려도 돼요).
-2. 오른쪽 위 프로필 → **API Tokens → Create Token** → "Edit Cloudflare Workers" 템플릿 또는 **Account · Cloudflare Pages · Edit** 권한으로 만들기. 토큰과 **Account ID**(대시보드 오른쪽) 메모.
+1. https://dash.cloudflare.com → **Workers & Pages → Create → Pages → Direct Upload**, 프로젝트 이름 `trendfood`.
+2. **API Tokens → Create Token** (권한: Account · Cloudflare Pages · Edit). 토큰과 **Account ID** 메모.
 
-### 7-3. GitHub 비밀값·변수
-
-저장소 → **Settings → Secrets and variables → Actions**.
+### 8-3. GitHub 비밀값·변수 (저장소 → Settings → Secrets and variables → Actions)
 
 | 종류 | 이름 | 값 |
 | :--- | :--- | :--- |
-| Secret | `SUPABASE_URL` | Supabase Project URL |
-| Secret | `SUPABASE_ANON_KEY` | anon public 키 |
-| Secret | `SUPABASE_SERVICE_ROLE_KEY` | service_role 키 (수집 스크립트만 씀) |
-| Secret | `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` | 7-2 에서 만든 값 |
-| Secret | `YOUTUBE_API_KEY` | Google Cloud Console → YouTube Data API v3 사용 설정 → API 키 |
-| Secret | `NAVER_CLIENT_ID` / `NAVER_CLIENT_SECRET` | 네이버 개발자센터 → 애플리케이션 등록 → "데이터랩(검색어트렌드)" 선택 |
-| Secret | `OPENAI_API_KEY` 또는 `GEMINI_API_KEY` | 8장 참고 |
-| Variable | `AI_PROVIDER` | `openai` 또는 `gemini` |
-| Variable | `AI_MODEL` | 그 회사 문서에 있는 모델 이름 (코드에 박지 않고 여기서만 바꿔요) |
-| Variable | `CF_PAGES_PROJECT` | (선택) Pages 프로젝트 이름이 `trendfood` 가 아닐 때 |
+| Secret | `SUPABASE_URL` · `SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` | 8-1 에서 메모한 값 |
+| Secret | `CLOUDFLARE_API_TOKEN` · `CLOUDFLARE_ACCOUNT_ID` | 8-2 |
+| Secret | `YOUTUBE_API_KEY` | Google Cloud Console → YouTube Data API v3 → API 키 |
+| Secret | `NAVER_CLIENT_ID` · `NAVER_CLIENT_SECRET` | 네이버 개발자센터 → 애플리케이션 등록 → 데이터랩(검색어트렌드) |
+| Secret | `OPENAI_API_KEY` 또는 `GEMINI_API_KEY` | 9장 |
+| Variable | `AI_PROVIDER` · `AI_MODEL` | `openai`/`gemini`, 그 회사 문서의 모델 이름 |
 
-키가 하나도 없어도 워크플로는 실패하지 않고 예시 값으로만 돌아요. 키를 하나씩 채우면 그 단계부터 진짜 데이터로 바뀝니다.
+키가 비어 있으면 그 단계는 **예시 값으로** 돌아가요. 하나씩 채우면 그 단계부터 진짜 데이터가 돼요.
 
-### 7-4. [사이트에 반영] 버튼 연결 (Supabase Edge Function)
+### 8-4. [사이트에 반영] 버튼 연결
 
-1. GitHub → 프로필 **Settings → Developer settings → Fine-grained tokens → Generate**: 저장소는 `trendfood` **하나만**, 권한은 **Contents: Read and write** 만. 기한은 짧게(예: 90일) 하고 달력에 갱신일을 적어 두세요.
-2. Supabase **Edge Functions → Deploy a new function → Via Editor**: 이름 `request-publish`, 내용은 `web/supabase/functions/request-publish/index.ts` 를 붙여 넣고 배포. ("Verify JWT" 는 켠 채로 둬요)
-3. **Edge Functions → Secrets** 에 `GITHUB_TOKEN`(1번 토큰), `GITHUB_REPO`(`supsuphansoup/trendfood`) 추가.
+1. GitHub **Settings → Developer settings → Fine-grained tokens**: 저장소 `trendfood` **하나만**, 권한 **Contents: Read and write** 만, 기한 90일 (달력에 갱신일 적기).
+2. Supabase **Edge Functions → Deploy a new function → Via Editor**: 이름 `request-publish`, 내용은 `web/supabase/functions/request-publish/index.ts` (Verify JWT 켠 채로).
+3. **Edge Functions → Secrets**: `GITHUB_TOKEN`(1번 토큰), `GITHUB_REPO` = `supsuphansoup/trendfood`.
 
-### 7-5. 확인
+### 8-5. 확인
 
-1. GitHub **Actions → deploy → Run workflow** → 초록색 ✓ 이면 Cloudflare 가 알려 준 주소(`https://trendfood.pages.dev`)에서 사이트가 보여요.
-2. **Actions → pipeline → Run workflow** → 관리자 화면 [후보 큐]에 후보가 생기는지 확인.
-3. 관리자 화면에서 아무 음식이나 숨기고 [사이트에 반영] → 몇 분 뒤 사이트에서 사라지면 끝!
+GitHub **Actions → deploy → Run workflow** ✓ → `https://trendfood.pages.dev` 에서 사이트 확인 → **Actions → pipeline → Run workflow** → 관리자 [후보 큐]에 후보가 생기면 끝!
 
 ---
 
-## 8. AI 바꾸기 (OpenAI ↔ Gemini)
+## 9. AI 바꾸기 (자동 수집용, OpenAI ↔ Gemini)
 
-- **이번 달**: ChatGPT Pro 요금제의 API 크레딧을 써요. https://platform.openai.com 에서 **같은 이메일**로 로그인 → API 키 발급 → `OPENAI_API_KEY`, `AI_PROVIDER=openai`.
-  크레딧은 **한 달마다 사라지고**, 다 쓰면 수집이 "크레딧 소진" 으로 멈춰요 (사이트는 그대로 잘 돌아가요).
-- **그 뒤**: https://aistudio.google.com 에서 Gemini API 키 발급 → `GEMINI_API_KEY`, `AI_PROVIDER=gemini`, `AI_MODEL` 을 무료 등급 모델로.
-  ⚠️ 무료 등급은 입력이 학습에 쓰일 수 있다는 조항이 있을 수 있어요. 우리가 보내는 건 **공개 영상 제목·검색량뿐**이라 위험은 작지만, 쓰기 전에 약관을 한 번 확인하세요 (`CLAUDE.md` 팀 결정 대기 항목).
-- 바꾸는 곳은 **GitHub Variables 두 개**(`AI_PROVIDER`, `AI_MODEL`)와 키 하나뿐이에요. 코드는 안 고쳐요.
+- **이번 달**: ChatGPT Pro 요금제의 API 크레딧. https://platform.openai.com 에 **같은 이메일**로 로그인 → 키 발급 → `OPENAI_API_KEY`, `AI_PROVIDER=openai`. 크레딧은 **매달 사라지고**, 다 쓰면 수집만 멈춰요 (사이트는 멀쩡).
+- **그 뒤**: https://aistudio.google.com → `GEMINI_API_KEY`, `AI_PROVIDER=gemini`, `AI_MODEL` 은 무료 등급 모델. 무료 등급 약관(입력 학습 사용 여부)은 쓰기 전에 확인 — 팀 결정 대기 항목이에요.
+- 바꾸는 곳은 **GitHub Variables 두 개 + 키 하나**뿐. 코드는 안 고쳐요.
 
 ---
 
-## 9. 꼭 지킬 규칙
+## 10. 막혔을 때
 
-- 🔑 **비밀번호·키를 코드나 채팅에 올리지 않기.** `.env.local` 은 커밋 금지. 실수로 올렸으면 바로 그 키를 **새로 발급(교체)** 하고 알리기.
-- 🕷️ **공식 API 만** 써요. 인스타·틱톡·커뮤니티 긁어오기(크롤링), 영상 자막 추출, 쿠팡 화면 긁어오기 금지.
-- 🛒 **탭 한 번 = 쿠팡 상품 하나.** 여러 탭 한꺼번에 열기, 장바구니 한꺼번에 보내기, 최저가 비교는 하지 않아요 (쿠팡 정책).
-- 📢 쿠팡 링크 근처에는 "쿠팡 파트너스 활동으로 수수료를 받을 수 있어요" 안내가 있어야 하고, **장바구니 버튼·체크리스트 주변에는 광고를 넣지 않아요.**
-- 🖼️ 사진: 지금 들어 있는 사진은 **데모용**이라 실제 오픈 전에 바꿔야 해요. 유튜브·인스타 썸네일을 저장해서 쓰면 안 돼요. AI 로 만든 사진에는 "AI 이미지" 표시.
-- 🤖 AI 가 쓴 글은 **운영자가 읽고 고친 뒤** 게시하고, 화면에 "AI 요약" 표시를 유지해요.
-- ⭐ 후기·평점은 2단계(사용자가 생긴 뒤)에 만들어요. 지금은 넣지 않아요.
+1. **빨간 오류 메시지 전체**를 복사해서 AI에게: `이 오류 원인이 뭐고 어떻게 고쳐? (오류 붙여넣기)`
+2. AI가 같은 실수를 3번 반복하면 **새 대화**를 열고 처음부터 상황을 설명하기.
+3. 그래도 안 되면 혼자 오래 붙잡지 말고 **팀 채팅에 오류 + AI에게 시킨 말**을 같이 올리기.
 
----
-
-## 10. 문제가 생기면
-
-| 증상 | 해결 |
+| 자주 나오는 증상 | 해결 |
 | :--- | :--- |
-| `npm ci` 가 실패해요 | `node --version` 이 24 인지 확인. 아니면 Node 24 설치 후 터미널을 다시 열기 |
-| `localhost:3000` 이 이미 쓰는 중이래요 | 다른 터미널의 `npm run dev` 를 `Ctrl + C` 로 끄거나 `npm run dev -- -p 3001` |
-| 관리자 화면에 "Supabase 연결 전이에요" | `.env.local` 이 없거나 값이 틀림 (3장). 고친 뒤 개발 서버를 껐다 켜기 |
-| "관리자 권한이 없어요" | 로그인은 됐지만 `admins` 표에 없음 → 7-1 의 5번 SQL 실행 |
-| [사이트에 반영] 이 "GitHub 에 요청하지 못했어요" | 7-4 토큰 만료·권한 부족. 새 토큰을 만들어 `GITHUB_TOKEN` 교체 |
-| 반영했는데 사이트가 그대로예요 | GitHub **Actions → deploy** 에서 빨간 ✗ 를 눌러 로그 확인. 브라우저 새로고침(Ctrl+Shift+R) |
-| 매일 수집이 안 돌아요 | Actions → pipeline 이 꺼졌는지 확인 (60일 규칙). **Enable workflow** 누르기 |
-| deploy 가 "게시된 음식이 하나도 없어요" 로 멈춰요 | 일부러 막은 것 (빈 사이트 배포 방지). 관리자 화면에서 하나 이상 게시하기 |
-
-모르겠으면 혼자 오래 붙잡지 말고 **오류 메시지 전체를 복사해서** 팀 채팅에 올려 주세요.
+| `npm ci` 실패 | `node --version` 이 24 인지 확인 → 아니면 Node 24 설치 후 터미널 다시 열기 |
+| 3000 포트가 이미 사용 중 | 다른 터미널의 개발 서버 끄기, 또는 `npm run dev -- -p 3001` |
+| `test:e2e` 가 브라우저 없다고 함 | 설치를 건너뛰었으면 `web` 폴더에서 `npx playwright install chromium` 한 번 실행 |
+| "Supabase 연결 전이에요" | 정상 (키 없음). 실제 데이터가 필요하면 운영자에게 `web/.env.local` 값 받기 — **anon 키만**, service_role 키는 절대 X |
+| "관리자 권한이 없어요" | 8-1 의 5번 SQL 로 운영자 등록 |
+| [사이트에 반영] 이 "GitHub 에 요청하지 못했어요" | 8-4 토큰 만료 → 새로 만들어 교체 |
+| 반영했는데 그대로 | GitHub **Actions → deploy** 의 빨간 ✗ 로그를 AI에게 보여 주기 |
+| 매일 수집이 멈춤 | 60일 동안 커밋이 없으면 GitHub 이 멈춰요 → Actions → pipeline → **Enable workflow** |
 
 ---
 
-## 11. 파일 지도
+## 11. 용어 사전
+
+| 용어 | 쉬운 설명 |
+| :--- | :--- |
+| 바이브코딩 | 코드를 직접 치지 않고 AI에게 말로 시켜서 만드는 방식 |
+| 저장소 / 브랜치 / 커밋 / PR | 프로젝트 폴더 / 내 작업용 갈래 / 저장 지점 / "이거 합쳐도 돼?" 요청 |
+| push / merge | GitHub 에 올리기 / 갈래를 합치기 |
+| 정적 사이트 · 빌드 · 배포 | 미리 만든 HTML 파일 사이트 · HTML 묶음 만들기 · 인터넷에 올리기 |
+| Supabase · 테이블 · RLS | DB+로그인 서비스 · DB 안의 표 · 줄마다 "누가 읽고 쓰나" 정하는 규칙 |
+| anon 키 / service_role 키 | 공개돼도 되는 열쇠 / 모든 문을 여는 **비밀** 열쇠 |
+| 환경변수 · `.env.local` | 코드 밖에 두는 설정값 · 내 컴퓨터 전용 설정 파일 (**커밋 금지**) |
+| GitHub Actions · 워크플로 | GitHub 이 대신 명령을 돌려 주는 기능 · 그 작업 하나 (`deploy`, `pipeline`) |
+| lint · typecheck · e2e | 코드 규칙 검사 · 자료형 검사 · 브라우저로 사람처럼 눌러 보는 검사 |
+| slug | 주소에 쓰는 영어 이름 (`/food/dubai-chocolate`) |
+
+---
+
+## 12. 파일 지도 (AI에게 "어디 고쳐?" 물을 때 참고)
 
 ```
 trendfood/
-├── ONBOARDING.md          ← 이 문서
-├── CLAUDE.md              ← 진행 상황·결정 사항 (AI 도우미도 이걸 먼저 읽음)
-├── prd.md / DESIGN.md     ← 기능 기준 / 디자인 기준
-├── design/mockups/        ← 확정 시안 HTML (브라우저로 열기)
-├── .github/workflows/     ← deploy.yml(배포), pipeline.yml(매일 수집)
-└── web/                   ← 실제 사이트 코드 (Next.js)
-    ├── src/app/           ← 주소별 화면 (/, /food/[slug], /about, /admin)
-    ├── src/components/    ← 화면 조각 (home, detail, admin, ui)
-    ├── src/data/          ← 데이터 형식·예시 데이터·DB 변환 (사이트·스크립트 공용)
-    ├── src/lib/           ← 사진 목록, Supabase 연결, 도우미 함수
-    ├── scripts/pipeline/  ← 매일 수집 스크립트 + 단위 테스트
-    ├── supabase/          ← DB 만드는 SQL, 예시 데이터 SQL, Edge Function
-    └── e2e/               ← 브라우저 자동 테스트
+├── ONBOARDING.md       ← 이 문서 (사람용)
+├── CLAUDE.md           ← Claude Code 용 규칙·진행 상황
+├── AGENTS.md           ← Codex·Cursor 용 규칙(자기완결)
+├── docs/               ← 기준 문서: intent.md(무엇·왜) → spec.md(숫자·규칙) → plan.md(남은 작업) + design.md(시각 규칙)
+├── archive/            ← 예전 기획 자료 (참고용, 기준 아님)
+│   ├── prd-v2.1.md     ← 통합 전 기획서 보관본
+│   └── design-mockups/ ← 예전 시안·탈락안·데모 사진 (실서비스 사용 금지)
+├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집)
+└── web/                ← 실제 사이트
+    ├── src/app/            주소별 화면 (/, /food/[slug], /about, /admin)
+    ├── src/app/theme.css   색·글자 크기 (디자인은 여기서만)
+    ├── src/components/     화면 조각 (home, detail, admin, ui)
+    ├── src/data/           데이터 형식·예시 음식 10개
+    ├── scripts/pipeline/   매일 수집 스크립트
+    ├── supabase/           DB 만드는 SQL, 반영 버튼 함수
+    └── e2e/                브라우저 자동 테스트
 ```

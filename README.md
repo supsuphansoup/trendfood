@@ -1,19 +1,12 @@
 # 트렌드푸드 (TrendFood)
 
-지금 유행하는 음식을 가장 빨리 알려주고, 필요한 재료를 쿠팡에서 연속으로 담을 수 있게 돕는 웹 서비스입니다. 수익은 쿠팡 파트너스 커미션과 구글 애드센스입니다.
+지금 유행하는 음식을 가장 빨리 알려주고, 필요한 재료를 쿠팡에서 하나씩 이어서 담게 돕는 모바일 우선 웹 서비스입니다. 수익은 쿠팡 파트너스 수수료와 구글 애드센스, 운영비는 무료 등급 서비스로 거의 0원입니다.
 
-## 문서
-
-| 파일 | 내용 |
+| 처음이라면 | 파일 |
 | :--- | :--- |
-| [`prd.md`](prd.md) | 기획서 (v2.0): 기능 요구사항, 화면 구성, 수익화, 기술 스택, 준수 사항, 로드맵 |
-| [`agent.md`](agent.md) | AI 에이전트 설계, 프롬프트, DB 스키마, 자동화 워크플로우 |
-| [`CLAUDE.md`](CLAUDE.md) | 진행 현황, 확정된 결정, 개발 규칙, 다음 할 일 (작업 세션 인수인계용) |
-| [`reports/`](reports/) | 데이터 연동 구성안, 전략 대안 비교, UI 도구 비교 조사 보고서 |
-| [`.mcp.json`](.mcp.json) | 이 프로젝트 전용 MCP 서버 (shadcn, Playwright) |
-| `research_notes/` | 보고서의 출처별 조사 노트 |
-| [`index.html`](index.html) | **화면 구성·배치 참고용 데모**. 실제 서비스 코드에 재사용하지 않음 |
-
-## 상태
-
-기획 단계입니다. 구현은 Next.js + Supabase로 새로 시작합니다 (`prd.md` 8장 로드맵).
+| 팀원 안내서 (바이브코딩으로 개발하는 법) | [`ONBOARDING.md`](ONBOARDING.md) |
+| 무엇을·왜 → 숫자와 규칙 → 남은 작업 | [`docs/intent.md`](docs/intent.md) → [`docs/spec.md`](docs/spec.md) → [`docs/plan.md`](docs/plan.md) |
+| 시각 규칙 (위 3개와 함께 기준 문서 4개) | [`docs/design.md`](docs/design.md) + 실제 화면 [`web/`](web/) |
+| AI 작업 규칙 (Codex 작업자 / Claude 감독) | [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) |
+| 사이트 코드 | [`web/`](web/) — `npm ci` 후 `npm run dev` |
+| 조사 보고서 / 예전 시안 / 예전 기획서 | [`reports/`](reports/) / [`archive/design-mockups/`](archive/design-mockups/) / [`archive/prd-v2.1.md`](archive/prd-v2.1.md) — 보관본은 현재 기준 아님 |
