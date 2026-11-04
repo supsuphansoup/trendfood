@@ -12,6 +12,8 @@
 3. `docs/spec.md` — 기능 목록(✅/🟡/⬜)과 **Open questions**(팀 결정 안건)
 4. `docs/plan.md` — 앞으로 할 일 순서 (2단계부터 나눠 맡기)
 
+> **작업 기록**: AI(Codex 등)는 `AGENTS.md` 규칙대로 작업이 끝날 때마다 `docs/worklog/` 에 기록 파일을 하나 만들어 같은 PR 에 넣어요. 안 만들면 `AGENTS.md 규칙대로 docs/worklog 에 작업 기록 남겨줘` 라고 말해요.
+
 **순서**
 
 1. **시연 (5분)**: https://trendfood.pages.dev 메인 → 상세(재료 연속 담기) → `/admin` 로그인 → 후보 큐·게시 관리 화면.
@@ -165,6 +167,7 @@ trendfood/
 ├── CLAUDE.md           ← Claude Code 용 규칙·진행 상황
 ├── AGENTS.md           ← Codex·Cursor 용 규칙(자기완결)
 ├── docs/               ← 기준 문서: intent.md(무엇·왜) → spec.md(숫자·규칙) → plan.md(남은 작업) + design.md(시각 규칙)
+│   └── worklog/        ← 작업 기록: AI가 작업마다 파일 하나씩 남김 (팀장 확인용, AGENTS.md 규칙)
 ├── reports/            ← 조사 보고서 3개 (결정 근거, 참고용)
 ├── archive/design-mockups/ ← 예전 시안·탈락안·데모 사진 (참고용, 실서비스 사용 금지)
 ├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집), ci.yml(PR 검사)

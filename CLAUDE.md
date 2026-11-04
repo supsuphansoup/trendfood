@@ -48,6 +48,7 @@
 | `web/` | Next.js 16.4.5 앱 (App Router, TS, `src/`, 정적 내보내기 `out/`) |
 | `ONBOARDING.md` | **팀원 안내서 (프로젝트 내용만)**: 오늘 할 일·0장 지금 상태(확인받을 것·남은 것)·서비스 구조·진행 상황 보는 곳·시연·운영자 루틴·최초 설정(4장)·AI 바꾸기·파일 지도. 설치·Git 사용법은 넣지 않는다(지도학생 도움) |
 | `AGENTS.md` | **Codex 작업자용 규칙 (자기완결)**: 작업자 수칙·Commands·Conventions·Architecture·Verifying·Things the agent gets wrong. **같은 실수가 두 번 나오면 마지막 섹션에 한 줄 추가** |
+| `docs/worklog/` | **팀원 작업 기록**: 작업마다 `YYYY-MM-DD-이름-주제.md` 한 파일(규칙 `AGENTS.md`, 틀 `docs/worklog/README.md`). 팀원 진행 확인은 여기와 `git log` 로 |
 | `README.md` | 저장소 첫 화면용 문서 안내 |
 | `.github/workflows/` | `deploy.yml`(배포), `pipeline.yml`(매일 수집), `ci.yml`(PR 검사) |
 | `web/src/app/theme.css` | tweakcn/shadcn v4 형식 테마 토큰 — **유일한 원본**, `globals.css`가 불러옴 |
