@@ -26,6 +26,7 @@
 
 - **작업 폴더: `C:\Users\khs62\Desktop\코딩\ai어드벤쳐` (브랜치 `main`). 수정은 항상 여기에 저장한다** (2026-11-05 사용자 지시). Orca 작업 폴더(`orca\workspaces\…`)는 쓰지 않는다.
 - **구현은 Orca Codex 작업자**(`gpt-6.1-sol`, effort `high`)가 한다. **Claude Code 는 감독**: 작업을 나눠 지시하고, 결과를 검사하고, 사용자에게 보고·결정 요청만 한다. Claude 가 직접 코드를 고치지 않는다 (작업자 결과 검증용 명령 실행, 문서·`CLAUDE.md` 갱신은 예외).
+- **알려진 문제 (2026-11-05):** Orca 1.4.248 + Codex CLI 0.160.0 에서 Codex 작업자가 `agent_readiness: timeout`(`session_not_reported`)으로 자주 시작 실패한다(Claude 작업자는 정상). 실패하면 바로 재시도하지 말고, 사용자 승인을 받아 Claude 작업자 또는 Claude 직접 구현으로 대신한다.
 - 작업자 시작: `orca orchestration worker-start --worktree "path:C:/Users/khs62/Desktop/코딩/ai어드벤쳐" --agent codex --model gpt-6.1-sol --effort high --task-title "<제목>" --spec-file <지시서>` → 턴 종료, Orca 가 깨우면 처리. 폴링 금지. 안내서는 `orca skills get orchestration`.
 - 작업자는 `AGENTS.md` 만 자동으로 읽는다. 규칙을 바꾸면 **`AGENTS.md` 도 같이** 고친다.
 - **지시서(spec) 틀** — 매번 이 항목을 채워 자기완결로 쓴다:
@@ -45,20 +46,18 @@
 | `docs/plan.md` | **기준 문서**: 남은 작업·순서·위험·완료 증거 |
 | `docs/design.md` | **기준 문서**: 색·글자 크기·간격·모서리·사진·컴포넌트(shadcn 매핑)·접근성. 실제 화면(`web/`)과 함께 시각 기준 |
 | `web/` | Next.js 16.4.5 앱 (App Router, TS, `src/`, 정적 내보내기 `out/`) |
-| `ONBOARDING.md` | **팀원 안내서 (바이브코딩용)**: 팀원은 모두 AI 도구로 개발한다. AI 시키는 5단계·요청 템플릿·AI 실수 체크리스트·운영 루틴·최초 설정·문제 해결. 규칙을 바꾸면 이 문서 5장도 같이 고친다 |
+| `ONBOARDING.md` | **팀원 안내서 (프로젝트 내용만)**: 오늘 할 일·0장 지금 상태(확인받을 것·남은 것)·서비스 구조·진행 상황 보는 곳·시연·운영자 루틴·최초 설정(4장)·AI 바꾸기·파일 지도. 설치·Git 사용법은 넣지 않는다(지도학생 도움) |
 | `AGENTS.md` | **Codex 작업자용 규칙 (자기완결)**: 작업자 수칙·Commands·Conventions·Architecture·Verifying·Things the agent gets wrong. **같은 실수가 두 번 나오면 마지막 섹션에 한 줄 추가** |
 | `README.md` | 저장소 첫 화면용 문서 안내 |
-| `.github/workflows/` | `deploy.yml`, `pipeline.yml` |
+| `.github/workflows/` | `deploy.yml`(배포), `pipeline.yml`(매일 수집), `ci.yml`(PR 검사) |
 | `web/src/app/theme.css` | tweakcn/shadcn v4 형식 테마 토큰 — **유일한 원본**, `globals.css`가 불러옴 |
 | `archive/prd-v2.1.md` | 이전 기획 v2.1 보관본. 2026-11-05 기준 문서 4개로 통합됨, 현재 기준 아님 |
 | `archive/agent-v2.0.md` | 예전 에이전트 설계서 (2026-11-03). `docs/spec.md`·`web/scripts/pipeline/`·`web/supabase/` 로 대체됨. 참고용 |
 | `archive/design-mockups/` | 예전 포토 피드형 시안: `home.html`, `detail.html`, `home-mobile.html`, `detail-mobile.html`. `alternatives/`는 탈락안, 현재 시각 기준 아님 |
 | `archive/design-mockups/img/` | 시안용 데모 사진 (Wikimedia Commons, 라이선스는 `credits.json`). **실서비스 사용 금지** |
-| `reports/트렌드푸드 데이터 연동 구성안.md` | API 한도·쿠팡 정책·법률·비용 근거 |
-| `reports/트렌드푸드 전략 대안 비교.md` | 전략 대안·비판적 검토 |
-| `reports/트렌드푸드 UI 도구 비교.md` | UI 도구 조합·워크플로·이미지·폰트·보안 |
+| `reports/` | 조사 보고서 3개 (데이터 연동 구성안: API 한도·쿠팡 정책·법률·비용 근거 / 전략 대안 비교 / UI 도구 비교). 결론은 `docs/` 에 반영됨, 근거 확인용 |
+| `research_notes/` | 위 보고서를 만들 때의 조사 메모 (보고서별 폴더). 참고용 |
 | `archive/2026-10-초기기획/` | 10월 초기 기획(AGENTS.md·docs·mockup·아이디어 PDF). **참고용, 현재 기준 아님** (그 AGENTS.md 의 "코드 금지" 규칙은 무효). 초기 배치 데모 `index.html` 은 그때 삭제됨(git 기록에만 있음, 재사용 금지) |
-| `research_notes/아이디어 고도화/` | 이 작업에서 만든 것이 아님 — 건드리지 않는다 |
 
 큰 기능은 intent → spec(Areas of concern 먼저 사람 결정) → plan → 코드 순서. spec 의 ✅/🟡/⬜ 와 plan 의 ☐ 로 진행 상황을 표시하며 시각 규칙은 `docs/design.md` 를 따른다.
 
@@ -99,24 +98,10 @@
 - 설치된 스킬 활용: `frontend-design`, `vercel:shadcn`, `vercel:nextjs`.
 
 ## 다음 할 일 (순서)
-1. ~~`docs/design.md` + 테마 토큰 작성~~ (완료 2026-11-04. 미정: 다크 모드·아이콘 세트, `docs/design.md` 9장)
-2. ~~Next.js 프로젝트 생성 + shadcn init + 테마 + Pretendard + Playwright·axe~~ (완료 2026-11-04)
-3. 2026-11-05 팀·교수님 검토 반영.
-4. 계정·키 만들기(`ONBOARDING.md` 4장): Supabase·Cloudflare·Secrets·Edge Function **완료(2026-11-05)**. 남음: 수집 키 3종·`AI_PROVIDER`/`AI_MODEL`, pipeline 수동 실행 확인. 실제 Supabase 로 빌드는 GitHub Actions 에서 확인(deploy `985c6bb`), 관리자 로그인·[사이트에 반영]→`repository_dispatch` 생성도 실제로 확인(2026-11-05). Cloudflare 업로드 성공, https://trendfood.pages.dev 응답 200.
-5. 남은 로드맵(`docs/plan.md`): 관리자 사진 선택(후보 사진 중 고르기) → 실제 사진·쿠팡 파트너스 링크·애드센스 → 오픈 → Phase 2(후기·평점).
-6. 병행: 도메인 구입(Cloudflare 에 연결), 쿠팡 파트너스 가입, 네이버 데이터랩·YouTube API 키 발급.
+1. 2026-11-05 팀·교수님 검토 반영 (팀장 불참, 팀원이 진행 — `ONBOARDING.md` 맨 위·0장).
+2. 계정·키 만들기(`ONBOARDING.md` 4장): Supabase·Cloudflare·Secrets·Edge Function **완료(2026-11-05)**. 남음: 수집 키 3종·`AI_PROVIDER`/`AI_MODEL`, pipeline 수동 실행 확인. 실제 Supabase 로 빌드는 GitHub Actions 에서 확인(deploy `985c6bb`), 관리자 로그인·[사이트에 반영]→`repository_dispatch` 생성도 실제로 확인(2026-11-05). Cloudflare 업로드 성공, https://trendfood.pages.dev 응답 200.
+3. 남은 로드맵(`docs/plan.md` 2단계부터): 관리자 편집 보강(사진·조리법·재료) → 영상 임베드 → 삭제 요청 창구 → YouTube 약관 대응 → 분석 → 실데이터 → 오픈 → Phase 2(후기·평점).
+4. 병행: 도메인 구입(Cloudflare 에 연결), 쿠팡 파트너스 가입, 네이버 데이터랩·YouTube API 키 발급.
 
-## 팀 결정 대기
-- **아이콘 세트**: 임시 `lucide-react`. 2026-11-05 팀·교수님 검토에서 확정 (`docs/design.md` 9장).
-- **칩 높이 42px**(시안) vs 터치 영역 44px 원칙.
-- Phase 1에서 LLM **무료 티어** 사용 여부 (입력이 공개 데이터뿐이라 위험이 작다는 의견, `docs/spec.md` Open questions 3·Areas of concern 11).
-- 사진 출처 기본값 (자체 촬영 / AI 생성 / 무료 사진 비중).
-
-## 미확인 항목
-- 쿠팡 API 호출 한도(분당 50회 vs 시간당 10회), 식품 공식 수수료율.
-- 네이버 API HUB 유료 전환 시점·단가.
-- 사업자등록·통신판매업·부가통신사업 신고 필요 여부.
-- AI 기본법 표시 의무 세부 범위, AI 이미지 생성 API 공식 가격.
-- LLM 무료 티어 한도·학습 사용·상업 이용 조항 (공식 문서로 재확인).
-- Pexels·Pixabay API 공식 약관, Instagram 앱 심사 통과 가능성.
-- v0·Claude Design·Stitch 출력물 상업 이용 조건 (사용 시 확인).
+## 팀 결정 대기·미확인 항목
+목록 원본은 `docs/spec.md` 의 **Open questions**(팀 결정: 아이콘 세트·칩 높이·Gemini 무료 등급·사진 출처·참고 가격·사업자 신고)와 **Areas of concern** 9~11(쿠팡 API 한도·수수료율, 네이버 API HUB, AI 기본법, 무료 LLM·이미지 약관, Instagram 심사). 여기에 따로 적지 않는다.

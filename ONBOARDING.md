@@ -168,7 +168,7 @@ trendfood/
 ├── archive/            ← 예전 기획 자료 (참고용, 기준 아님)
 │   ├── prd-v2.1.md     ← 통합 전 기획서 보관본
 │   └── design-mockups/ ← 예전 시안·탈락안·데모 사진 (실서비스 사용 금지)
-├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집)
+├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집), ci.yml(PR 검사)
 └── web/                ← 실제 사이트
     ├── src/app/            주소별 화면 (/, /food/[slug], /about, /admin)
     ├── src/app/theme.css   색·글자 크기 (디자인은 여기서만)

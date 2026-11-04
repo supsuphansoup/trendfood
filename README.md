@@ -7,6 +7,6 @@
 | 팀원 안내서 (**0장: 지금 상태·확인받을 것·남은 것**) | [`ONBOARDING.md`](ONBOARDING.md) |
 | 무엇을·왜 → 숫자와 규칙 → 남은 작업 | [`docs/intent.md`](docs/intent.md) → [`docs/spec.md`](docs/spec.md) → [`docs/plan.md`](docs/plan.md) |
 | 시각 규칙 (위 3개와 함께 기준 문서 4개) | [`docs/design.md`](docs/design.md) + 실제 화면 [`web/`](web/) |
-| AI 작업 규칙 (Codex 작업자 / Claude 감독) | [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) |
+| AI 작업 규칙 (Codex·Cursor / Claude Code) | [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) |
 | 사이트 코드 | [`web/`](web/) — `npm ci` 후 `npm run dev` |
-| 조사 보고서 / 예전 시안 / 예전 기획서 | [`reports/`](reports/) / [`archive/design-mockups/`](archive/design-mockups/) / [`archive/prd-v2.1.md`](archive/prd-v2.1.md) — 보관본은 현재 기준 아님 |
+| 조사 보고서·메모 / 예전 시안·기획서 | [`reports/`](reports/)·[`research_notes/`](research_notes/) / [`archive/`](archive/) — 참고용, 현재 기준 아님 |
