@@ -1,0 +1,57 @@
+{
+ "dubai": {
+  "file": "dubai.jpg",
+  "title": "File:Dubai chocolate on a plate 02.jpg",
+  "lic": "CC BY 4.0"
+ },
+ "dubai2": {
+  "file": "dubai2.jpg",
+  "title": "File:\"Dubai-like\" chocolate from South Korea.jpg",
+  "lic": "CC0"
+ },
+ "tteokbokki": {
+  "file": "tteokbokki.jpg",
+  "title": "File:Shrimp rosé tteokbokki.jpg",
+  "lic": "CC BY 4.0"
+ },
+ "gimbap": {
+  "file": "gimbap.jpg",
+  "title": "File:Gimbap (pixabay).jpg",
+  "lic": "CC0"
+ },
+ "gyeranppang": {
+  "file": "gyeranppang.jpg",
+  "title": "File:Gyeranppang (egg bread) (Seoul street food).jpg",
+  "lic": "CC0"
+ },
+ "makguksu": {
+  "file": "makguksu.jpg",
+  "title": "File:Korean.food-Makguksu-01.jpg",
+  "lic": "CC BY 2.0"
+ },
+ "bagel": {
+  "file": "bagel.jpg",
+  "title": "File:Toasted sesame bagel with cream cheese - Massachusetts.jpg",
+  "lic": "CC0"
+ },
+ "garaetteok": {
+  "file": "garaetteok.jpg",
+  "title": "File:Garae-tteok.jpg",
+  "lic": "CC BY-SA 4.0"
+ },
+ "deopbap": {
+  "file": "deopbap.jpg",
+  "title": "File:Chicken mayo deop-bap - Kogi, Brighton.jpg",
+  "lic": "CC0"
+ },
+ "risotto": {
+  "file": "risotto.jpg",
+  "title": "File:Risotto de gambas, restaurant Danieli (Vienne, Autriche).jpg",
+  "lic": "CC0"
+ },
+ "ramyeon": {
+  "file": "ramyeon.jpg",
+  "title": "File:Ramyeon.jpg",
+  "lic": "CC BY-SA 2.0"
+ }
+}
