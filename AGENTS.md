@@ -39,6 +39,8 @@
 ## Things the agent gets wrong
 - 이전 화면이 숨겨진 채 DOM 에 남아 e2e 가 엉뚱한 요소를 잡음 → `getByRole`·`getByLabel`(보이는 것만)로 찾는다.
 - shadcn `init`/`add` 가 `globals.css` 에 `:root`·`@theme` 를 다시 넣음 → 지운다(토큰 원본은 `theme.css`). `--base base-ui` 는 틀린 값, `--base base`.
+- `wrangler pages project create` 를 `web/` 안에서 실행하면 Workers(OpenNext)로 바꾸려고 `package.json`·`next.config.ts` 등을 마음대로 고침 → wrangler 는 `pages deploy out` 외에는 빈 임시 폴더에서 실행하고, 실행 뒤 `git status` 확인.
+- 새로 clone 하면 `next-env.d.ts`·`.next/types` 가 없어 `tsc` 가 실패함 → `typecheck` 스크립트가 `next typegen` 을 먼저 돌린다. 지우지 않는다.
 - Git Bash 에서 heredoc 과 `< /dev/null` 을 같이 써서 파일을 빈 파일로 만듦 → 파일 쓰기는 편집 도구로.
 - `"use client"` 를 하위 컴포넌트마다 붙여 직렬화 경고 → 진입 컴포넌트(`admin-app.tsx` 등)에만.
 - 정적 내보내기에서 서버 전용 기능을 넣어 `npm run build` 가 깨짐 → 위 "못 쓰는 것" 확인.
