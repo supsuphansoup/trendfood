@@ -2,7 +2,7 @@
 
 # 트렌드푸드 (TrendFood) — 작업 인수인계
 
-> 마지막 갱신: 2026-11-05 (정적 사이트 + Supabase + GitHub Actions 구조로 전환, 팀원 안내서 `ONBOARDING.md`). 새 세션은 이 파일을 먼저 읽고 시작한다.
+> 마지막 갱신: 2026-11-05 밤 (계정 연결 완료: Supabase·Cloudflare·Secrets, `ONBOARDING.md` 0장에 현재 상태·확인받을 것·남은 것). 새 세션은 이 파일을 먼저 읽고 시작한다.
 
 누가 구현하든(사람·Claude·Codex) `AGENTS.md` 의 규칙과 검사 4개를 따른다.
 
@@ -10,7 +10,7 @@
 지금 유행하는 음식을 가장 빨리 알려주고(주목적), 필요한 재료를 쿠팡에서 "다음 재료 연속 담기"로 담게 돕는 한국 모바일 우선 웹 서비스. 수익은 **쿠팡 파트너스 커미션 + 구글 애드센스**.
 
 ## 현재 상태
-- **기획 v2.1 완료, 디자인 확정(포토 피드형), `docs/design.md`·테마 토큰, MVP 화면 + 관리자 화면 + 자동 수집 파이프라인 코드 완료.** 단, **Supabase·Cloudflare·API 키는 아직 안 만듦** → 설정 순서는 `ONBOARDING.md` 7장. 키가 없으면 예시 데이터·예시 수집값으로 동작한다.
+- **기획 v2.1 완료, 디자인 확정(포토 피드형), `docs/design.md`·테마 토큰, MVP 화면 + 관리자 화면 + 자동 수집 파이프라인 코드 완료.** **계정 연결 완료(2026-11-05, 팀장 개인 계정):** Supabase 프로젝트 `trendfood`(ref `axhhdqrajhsambxulbhi`, 서울, 예시 음식 10개, 가입 막음, 운영자 `trendfood2026@gmail.com`, Edge Function `request-publish` + `GITHUB_TOKEN`(만료 없음)·`GITHUB_REPO`), Cloudflare Pages `trendfood`(https://trendfood.pages.dev), GitHub Secrets(Supabase·Cloudflare). **수집 키(YouTube·네이버·AI)는 아직 없음** → 매일 06:00 수집이 예시 후보를 `candidates` 에 넣는다. 교수님·팀 확인 대기 항목은 `ONBOARDING.md` 0장.
 - MVP 범위: 메인(1위 히어로·카테고리 탭·2~10위 카드·정렬/태그·검색(지우기 버튼)·찜 필터·인피드 광고 자리·맨 위로, 필터 상태는 주소 `?cat=&sort=&tag=&q=`에 남아 뒤로가기·공유 가능), 상세(`/food/[slug]`: AI 요약·14일 그래프·영상 자리·재료 연속 담기·집에 있어요 기억·목록 복사/공유·단계 타이머·모바일 하단 바), `/about`, 404. 찜·집에 있어요는 localStorage.
 - **구조 (2026-11-05 사용자 결정, 무료 운영):** Next.js `output: "export"` 정적 사이트 → **Cloudflare Pages**. 데이터·로그인은 **Supabase**(RLS). 자동화는 **GitHub Actions**: `.github/workflows/pipeline.yml`(매일 06:00 KST 수집 → `candidates` 대기), `deploy.yml`(main push · 관리자 [사이트에 반영] = Supabase Edge Function `request-publish` → `repository_dispatch: publish` · 수동). 빌드 때 `published_foods` 뷰를 읽어 HTML 생성, 게시 음식 0개면 빌드 중단.
 - **관리자 `/admin`** (정적 클라이언트 화면. 공개 화면에 링크 없음, `noindex` 메타 + `public/_headers` 의 `X-Robots-Tag`): Supabase Auth 이메일 로그인, `admins` 표에 있는 사람만 데이터 접근(RLS). 탭: 게시 관리(순서·숨기기·게시/초안·글 고치기), 재료 링크(쿠팡 주소만·참고 가격), 후보 큐(직접 추가·승인 시 AI 초안 → `foods` 초안 행·반려). 가입은 Supabase 대시보드에서 꺼 둔다. 예전 서버 방식(비밀번호 1234·쿠키·Proxy·`admin-store.json`)은 삭제됨.
@@ -102,7 +102,7 @@
 1. ~~`docs/design.md` + 테마 토큰 작성~~ (완료 2026-11-04. 미정: 다크 모드·아이콘 세트, `docs/design.md` 9장)
 2. ~~Next.js 프로젝트 생성 + shadcn init + 테마 + Pretendard + Playwright·axe~~ (완료 2026-11-04)
 3. 2026-11-05 팀·교수님 검토 반영.
-4. 계정·키 만들기(`ONBOARDING.md` 7장 순서): Supabase(SQL·운영자 등록·Edge Function) → Cloudflare Pages → GitHub Secrets/Variables → deploy·pipeline 수동 실행으로 확인. **실제 Supabase 로 빌드·관리자 로그인은 아직 검증 못 함.**
+4. 계정·키 만들기(`ONBOARDING.md` 8장): Supabase·Cloudflare·Secrets·Edge Function **완료(2026-11-05)**. 남음: 수집 키 3종·`AI_PROVIDER`/`AI_MODEL`, pipeline 수동 실행 확인, 관리자 로그인·[사이트에 반영] 실사용 확인. 실제 Supabase 로 빌드는 GitHub Actions 에서 확인(deploy `985c6bb`), 관리자 로그인은 아직 미검증.
 5. 남은 로드맵(`docs/plan.md`): 관리자 사진 선택(후보 사진 중 고르기) → 실제 사진·쿠팡 파트너스 링크·애드센스 → 오픈 → Phase 2(후기·평점).
 6. 병행: 도메인 구입(Cloudflare 에 연결), 쿠팡 파트너스 가입, 네이버 데이터랩·YouTube API 키 발급.
 

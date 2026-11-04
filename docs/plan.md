@@ -6,7 +6,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 ## Files that change
 | 단계 | 바뀌는 파일 |
 | :--- | :--- |
-| 1 계정 연결 | 코드 없음. Supabase·Cloudflare·GitHub 설정 (`ONBOARDING.md` 7장) |
+| 1 계정 연결 | 코드 없음. Supabase·Cloudflare·GitHub 설정 (`ONBOARDING.md` 8장) |
 | 2 관리자 편집 보강 | `web/src/components/admin/foods-panel.tsx`, 새 `recipe-editor.tsx`·`photo-picker.tsx`, `web/src/data/photo-keys.ts`(사진 키 목록, `lib/foods.ts` 와 공유), `web/e2e/admin.spec.ts` |
 | 3 영상 임베드 | `web/supabase/migrations/0002_video.sql`(`foods.video_id`), `src/data/db-mapping.ts`, `src/data/catalog-schema.ts`, `src/app/food/[slug]/page.tsx`, 관리자 입력칸, e2e |
 | 4 삭제 요청·약관 | `src/app/about/page.tsx`(연락 주소·처리 절차), 관리자 게시 관리에 "요청으로 내림" 기록(`foods.takedown_note`, 0003 마이그레이션) |
@@ -15,7 +15,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 | 7 실데이터·오픈 | `web/src/assets/` 실제 사진, Supabase 데이터, `CLAUDE.md`·`docs/` 기준 문서 상태 갱신 |
 
 ## Order of work
-1. ☐ **계정 연결 (사람이 직접)**: Supabase 프로젝트·SQL·운영자 등록 → Cloudflare Pages → GitHub Secrets/Variables → Edge Function. 키는 채팅에 붙여 넣지 않는다. 병행 준비: 도메인 구입, 쿠팡 파트너스 가입, 네이버 API HUB·YouTube 키 발급, 사업자 신고 필요 여부 확인, SNS 계정 개설. 검색광고 API 키는 확장 도입 전 준비한다.
+1. 🟡 **계정 연결 (사람이 직접)** — 2026-11-05 Supabase·Cloudflare·GitHub Secrets·Edge Function·운영자 등록 완료(팀장 개인 계정, `ONBOARDING.md` 0장). **남음: 수집 키 3종(YouTube·네이버·AI)과 `AI_PROVIDER`·`AI_MODEL`, 교수님·팀 확인.** 원래 범위: Supabase 프로젝트·SQL·운영자 등록 → Cloudflare Pages → GitHub Secrets/Variables → Edge Function. 키는 채팅에 붙여 넣지 않는다. 병행 준비: 도메인 구입, 쿠팡 파트너스 가입, 네이버 API HUB·YouTube 키 발급, 사업자 신고 필요 여부 확인, SNS 계정 개설. 검색광고 API 키는 확장 도입 전 준비한다.
 2. ☐ **관리자 편집 보강** (spec R14·R16, Areas of concern 2·3): 조리 단계·재료 추가/삭제/순서, 사진 키 고르기(빌드에 들어 있는 사진 중 선택 + "AI 이미지" 표시 여부). 사진 업로드는 비용·용량 검토 후 별도 단계.
 3. ☐ **영상 임베드** (R5): 운영자가 YouTube 주소 입력 → ID 만 저장(11자, `^[A-Za-z0-9_-]{11}$`) → `youtube-nocookie.com/embed/<id>` + 출처 링크. 썸네일 저장 금지.
 4. ☐ **삭제 요청 창구** (R15): 정적 사이트라 폼 대신 연락 이메일 + 48시간 안 처리 약속을 `/about` 에 적고, 관리자에서 숨기기 + 사유 기록. 필수 페이지의 개인정보처리방침·이용약관 본문과 AI 활용·신고·임시조치 고지를 오픈 전에 검토한다.
@@ -26,7 +26,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 9. ☐ **수집 확장·Phase 2**: 쉬운 수집 안정 후 검색광고·블로그·카페 신호 추가. 사용자 확보 후 후기 CRUD·평점·Turnstile·금칙어·LLM 검수·신고·임시조치는 새 `intent.md` 로 시작하며, Instagram 해시태그 보조 신호는 앱 심사 후 검토한다 (`docs/spec.md` 제외·수집 규칙).
 
 ## Risks
-- **가장 깨지기 쉬운 곳: 반영 경로** (관리자 → Edge Function → GitHub 토큰 → deploy). 토큰 만료(90일)·권한 부족이면 버튼만 실패한다 → 관리자 화면에 실패 문구가 보이는지, 토큰 갱신일을 달력에 둔다.
+- **가장 깨지기 쉬운 곳: 반영 경로** (관리자 → Edge Function → GitHub 토큰 → deploy). 토큰 삭제·권한 부족이면 버튼만 실패한다 → 관리자 화면에 실패 문구가 보이는지 확인. 토큰은 만료 없음(2026-11-05)이라 프로젝트 종료·유출 의심 시 직접 삭제한다.
 - **빌드가 DB 에 의존**: Supabase 가 정지·오류면 배포가 멈춘다(사이트는 직전 버전 유지). 정지 해제 방법을 `ONBOARDING.md` 에 둔다.
 - **AI 초안 품질**: 사실과 다른 요약·조리법. 승인 후에도 게시 전 운영자 검수 필수, "AI 요약" 표시 유지.
 - **스키마 변경**: 마이그레이션은 번호를 붙여 새 파일로만 추가(0002, 0003…), 기존 파일은 고치지 않는다. 적용은 SQL Editor 에서 순서대로.
@@ -34,7 +34,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 
 ## Proof
 - 모든 단계: `web` 에서 `npm run lint` · `npm run typecheck` · `npm run test:unit` · `npm run test:e2e` 통과 출력을 보여 준다. 바뀐 동작마다 테스트를 추가한다.
-- 1: `ONBOARDING.md` 7-5 (deploy ✓, pipeline 후 후보 생성, 숨기기 → 반영 → 사이트에서 사라짐).
+- 1: `ONBOARDING.md` 8-5 (deploy ✓, pipeline 후 후보 생성, 숨기기 → 반영 → 사이트에서 사라짐).
 - 2·3·4: 관리자 e2e 에 새 동작 추가(가짜 Supabase), 새 SQL 은 PGlite 로 RLS 확인 후 실제 Supabase 에 적용.
 - 5: `logic.test.ts` 에 30일 정리 테스트.
 - 6·7: 실제 사이트에서 GA4 실시간 보고서·쿠팡 파트너스 리포트에 `subId` 가 찍히는지 확인.

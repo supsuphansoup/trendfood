@@ -6,6 +6,33 @@
 
 ---
 
+## 0. 지금 상태 (2026-11-05 기준) — 제일 먼저 읽기
+
+### 해 놓은 것 (팀장, 2026-11-05 밤)
+- **사이트·관리자 코드**: 메인·상세·소개·404, 관리자 화면(`/admin`), 자동 수집 코드, 자동 검사(`ci`)·자동 배포(`deploy`) — 검사 4개 모두 통과.
+- **계정 연결(8장 8-1~8-4)**: 모두 **팀장 개인 계정**으로 만들었어요.
+  - Supabase 프로젝트 `trendfood` (서울) — DB 표·보안 규칙, **예시 음식 10개**, 새 가입 막기, 운영자 계정 1개(`trendfood2026@gmail.com`), Edge Function `request-publish`
+  - Cloudflare Pages 프로젝트 `trendfood` → 사이트 주소 **https://trendfood.pages.dev**
+  - GitHub Secrets(Supabase·Cloudflare 키)와 [사이트에 반영] 버튼용 GitHub 토큰
+- `main` 에 합치면 사이트가 **자동으로 다시 올라가요.**
+
+### ⚠ 아직 확인받지 않은 것 — 교수님·팀 검토 전까지는 "임시"
+아래는 팀장이 먼저 정해서 해 둔 거예요. **회의에서 확인받고**, 바꾸기로 하면 `docs/spec.md` Open questions 에 결정을 적고 고쳐요.
+1. **구조와 비용**: Cloudflare Pages + Supabase 무료 + GitHub Actions 로 **0원 운영** (서버 없는 정적 사이트).
+2. **계정 주인**: 모든 서비스가 팀장 개인 계정이에요. 팀원에게 대시보드 권한(멤버 초대)을 줄지 정해요.
+3. **`main` 보호 규칙 없음**: 잠금 대신 "항상 PR, 초록 ✓ 일 때만 합치기" 약속(3장)으로 운영해요.
+4. **[사이트에 반영] 토큰 만료 없음**: 저장소 하나·코드 쓰기 권한만. 프로젝트를 접을 때 반드시 삭제해요.
+5. **자동 수집은 아직 예시 값**: 수집 키(YouTube·네이버·AI)가 없어서 매일 아침 6시에 **가짜 예시 후보**가 [후보 큐]에 들어가요. 승인 전엔 사이트에 안 나오니 **반려**하면 돼요.
+6. **화면 내용**: 사진은 **데모(실서비스 금지)**, 쿠팡 링크는 파트너스 가입 전이라 **쿠팡 검색 링크**로 대체, 음식 글 10개는 예시예요.
+7. **팀 결정 대기 안건**: `docs/spec.md` Open questions 1~6 (4장 참고).
+
+### 남은 것 (순서는 `docs/plan.md`)
+- **수집 키 3종 넣기** (8-3 표): YouTube API 키, 네이버 데이터랩 키, AI 키(OpenAI 또는 Gemini — 무료 등급 쓸지 팀 결정 후).
+- **개발**: `docs/plan.md` 2단계부터 — 관리자 편집 보강 → 영상 넣기 → 삭제 요청 창구 → YouTube 약관 대응 → 분석. **키 없이 바로 시작할 수 있어요.** 겹치지 않게 사람마다 단계를 나눠요.
+- **오픈 준비**: 실제 사진, 쿠팡 파트너스 가입·링크, 직접 검수한 글 20~30개, 도메인, 사업자 신고 여부 확인.
+
+---
+
 ## 1. 우리가 만드는 것 (1분)
 
 **"요즘 뜨는 음식, 여기서 제일 먼저."**
@@ -161,7 +188,9 @@ spec.md 는 docs/spec.md 를 뜻해. git log 로 최근 변경도 요약해줘.
 npm run build
 npm start
 ```
-브라우저에서 **http://localhost:3000** 을 열면 **예시 음식 10개**로 시연할 수 있어요. 키를 설정하지 않은 상태 기준이에요. 개발 서버보다 실제 배포와 같은 빌드 결과를 보여 줘요. 관리자 화면(`/admin`)은 Supabase 연결 전이라 안내 문구만 보여요.
+브라우저에서 **http://localhost:3000** 을 열면 **예시 음식 10개**로 시연할 수 있어요 (내 PC 에 키가 없을 때 기준). 개발 서버보다 실제 배포와 같은 빌드 결과를 보여 줘요. 이 방법에서는 관리자 화면(`/admin`)이 안내 문구만 보여요.
+
+**실제 사이트로 시연하기**: **https://trendfood.pages.dev** (Supabase 의 예시 음식 10개). 관리자 시연은 `https://trendfood.pages.dev/admin` 에서 운영자 계정으로 로그인 — 비밀번호는 팀장만 알아요. 0장의 "확인받지 않은 것"을 같이 보여 드리고 피드백을 받아요.
 
 ### 회의 결정 기록하기
 
@@ -248,7 +277,7 @@ AI는 `CLAUDE.md` 규칙을 읽지만 **가끔 어겨요.** 아래가 보이면 
 
 ## 7. 운영자 하루 루틴 (5분)
 
-관리자 주소: `https://<사이트 주소>/admin` — **공개 화면에 링크가 없고 검색에도 안 나와요. 주소를 다른 곳에 올리지 마세요.**
+관리자 주소: `https://trendfood.pages.dev/admin` — **공개 화면에 링크가 없고 검색에도 안 나와요. 주소를 다른 곳에 올리지 마세요.**
 
 1. **후보 큐**: 아침에 자동으로 들어온 후보 확인 ("급상승 4.2배" 같은 근거가 같이 보여요). 괜찮으면 **승인**(AI 초안이 [게시 관리]에 '초안'으로 들어감), 아니면 **반려**. 내가 본 유행 음식은 **직접 추가**.
 2. **게시 관리**: 초안은 **글 고치기로 꼭 직접 읽고 고친 뒤** 게시 (AI는 틀릴 수 있어요). 화살표로 순위, **숨기기**로 내리기.
@@ -260,6 +289,8 @@ AI는 `CLAUDE.md` 규칙을 읽지만 **가끔 어겨요.** 아래가 보이면 
 ---
 
 ## 8. 처음 한 번 설정 (운영자 1명이 한 번만, 약 1시간)
+
+> **2026-11-05 에 8-1~8-4 는 팀장이 끝냈어요** (0장). 남은 건 8-3 표의 **수집 키(YouTube·네이버·AI)와 `AI_PROVIDER`·`AI_MODEL` 변수**뿐이에요. 아래는 다시 만들거나 계정을 옮길 때의 기록이에요.
 
 > **비밀값은 사람이 직접 각 사이트에 입력해요.** AI 채팅창에 키를 붙여 넣지 마세요. AI에게는 `ONBOARDING.md 8장 순서대로 내가 하는 걸 옆에서 안내해줘` 라고 하면 돼요.
 
@@ -295,7 +326,7 @@ AI는 `CLAUDE.md` 규칙을 읽지만 **가끔 어겨요.** 아래가 보이면 
 
 ### 8-4. [사이트에 반영] 버튼 연결
 
-1. GitHub **Settings → Developer settings → Fine-grained tokens**: 저장소 `trendfood` **하나만**, 권한 **Contents: Read and write** 만, 기한 90일 (달력에 갱신일 적기).
+1. GitHub **Settings → Developer settings → Fine-grained tokens**: 저장소 `trendfood` **하나만**, 권한 **Contents: Read and write** 만. 기한은 **만료 없음**으로 만들었어요 (0장 ⚠4) — 프로젝트를 접거나 유출이 의심되면 바로 삭제.
 2. Supabase **Edge Functions → Deploy a new function → Via Editor**: 이름 `request-publish`, 내용은 `web/supabase/functions/request-publish/index.ts` (Verify JWT 켠 채로).
 3. **Edge Functions → Secrets**: `GITHUB_TOKEN`(1번 토큰), `GITHUB_REPO` = `supsuphansoup/trendfood`.
 
@@ -326,7 +357,7 @@ GitHub **Actions → deploy → Run workflow** ✓ → `https://trendfood.pages.
 | `test:e2e` 가 브라우저 없다고 함 | 설치를 건너뛰었으면 `web` 폴더에서 `npx playwright install chromium` 한 번 실행 |
 | "Supabase 연결 전이에요" | 정상 (키 없음). 실제 데이터가 필요하면 운영자에게 `web/.env.local` 값 받기 — **anon 키만**, service_role 키는 절대 X |
 | "관리자 권한이 없어요" | 8-1 의 5번 SQL 로 운영자 등록 |
-| [사이트에 반영] 이 "GitHub 에 요청하지 못했어요" | 8-4 토큰 만료 → 새로 만들어 교체 |
+| [사이트에 반영] 이 "GitHub 에 요청하지 못했어요" | 8-4 토큰이 삭제·변경됨 → 새로 만들어 Supabase `GITHUB_TOKEN` 교체 |
 | 반영했는데 그대로 | GitHub **Actions → deploy** 의 빨간 ✗ 로그를 AI에게 보여 주기 |
 | 매일 수집이 멈춤 | 60일 동안 커밋이 없으면 GitHub 이 멈춰요 → Actions → pipeline → **Enable workflow** |
 
