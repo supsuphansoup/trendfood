@@ -95,7 +95,7 @@
 - 설치된 스킬 활용: `frontend-design`, `vercel:shadcn`, `vercel:nextjs`.
 
 ## 다음 할 일 (순서)
-1. 2026-11-05 팀·교수님 검토 반영 (팀장 불참, 팀원이 진행 — `ONBOARDING.md` 맨 위·0장).
+1. 2026-11-05 팀·교수님 검토 반영 (수업, 팀장 불참·팀원이 진행 — `ONBOARDING.md` 맨 위·0장).
 2. 계정·키 만들기(`ONBOARDING.md` 4장): Supabase·Cloudflare·Secrets·Edge Function **완료(2026-11-05)**. 남음: 수집 키 3종·`AI_PROVIDER`/`AI_MODEL`, pipeline 수동 실행 확인. 실제 Supabase 로 빌드는 GitHub Actions 에서 확인(deploy `985c6bb`), 관리자 로그인·[사이트에 반영]→`repository_dispatch` 생성도 실제로 확인(2026-11-05). Cloudflare 업로드 성공, https://trendfood.pages.dev 응답 200.
 3. 남은 로드맵(`docs/plan.md` 2단계부터): 관리자 편집 보강(사진·조리법·재료) → 영상 임베드 → 삭제 요청 창구 → YouTube 약관 대응 → 분석 → 실데이터 → 오픈 → Phase 2(후기·평점).
 4. 병행: 도메인 구입(Cloudflare 에 연결), 쿠팡 파트너스 가입, 네이버 데이터랩·YouTube API 키 발급.
