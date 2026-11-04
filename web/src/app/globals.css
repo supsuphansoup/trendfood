@@ -1,0 +1,22 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "./theme.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* 색·모서리·글꼴 토큰은 theme.css 에만 둔다 (DESIGN.md 기준). 다크 모드는 미정이라 .dark 토큰 없음. */
+
+@layer base {
+  html {
+    @apply font-sans;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

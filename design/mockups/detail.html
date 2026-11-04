@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>② 상세 화면</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#B3301B}a:hover{color:#852212}
+*{word-break:keep-all;box-sizing:border-box}
+h1,h2,h3{text-wrap:balance}
+img{display:block}
+:focus-visible{outline:3px solid #B3301B;outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.h2{margin:0;font-size:24px;font-weight:900;letter-spacing:-.02em}
+.box{border:1px solid #EEE3DB;border-radius:20px;padding:24px}
+.ing{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 14px;border-radius:14px;background:#FBF6F2;font-size:16px;cursor:pointer}
+.ing input{width:24px;height:24px;accent-color:#2A1D16;margin:0;flex-shrink:0}
+.ing .p{margin-left:auto;font-size:13px;color:#5C4A3E;white-space:nowrap;text-align:right}
+.ing.done{background:#fff;border:1px solid #EEE3DB}
+.ing.done .nm{text-decoration:line-through;color:#5C4A3E}
+.ing.home{background:#fff;border:1px dashed #D9C9BD;color:#5C4A3E}
+.key{font-size:12px;font-weight:700;color:#7A2414;background:#FBE3DB;padding:3px 8px;border-radius:6px;white-space:nowrap}
+.ok{font-size:12px;font-weight:700;color:#2E6B3F;white-space:nowrap}
+.step{display:grid;grid-template-columns:44px minmax(0,1fr);gap:16px;padding:18px 0;border-top:1px solid #EEE3DB}
+.sn{width:44px;height:44px;border-radius:50%;background:#2A1D16;color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center}
+.st{margin:0;font-size:17px;line-height:1.7}
+.timer{display:inline-flex;align-items:center;gap:8px;margin-top:10px;font:inherit;font-size:14px;font-weight:700;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid #2A1D16;background:#fff;color:#2A1D16;cursor:pointer}
+.badge{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid #D9C9BD;background:#fff;color:#2A1D16;cursor:pointer}
+.badge.on{border-color:#2A1D16;background:#2A1D16;color:#fff}
+.rv{padding:18px 0;border-top:1px solid #EEE3DB;display:flex;flex-direction:column;gap:8px}
+.rvh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;font-size:14px;color:#5C4A3E}
+.rvh b{color:#2A1D16}
+.tag{font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;background:#F6EEE8;color:#2A1D16}
+.field{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:700}
+.field input,.field textarea{font:inherit;font-weight:400;font-size:15px;padding:12px 14px;border-radius:12px;border:1px solid #D9C9BD;background:#fff;color:#2A1D16}
+.ad{border:1px dashed #CDBBAE;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#5C4A3E;background:#FBF6F2}
+.mbar{display:none}
+@media (max-width:860px){
+ .mbar{display:flex}
+ .hero-title{font-size:44px!important}
+ .hero{height:440px!important}
+ .box{padding:18px}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #2A1D16; font-family: 'Noto Sans KR', sans-serif">
+  <section class="hero" style="position: relative; height: 520px; overflow: hidden; background: #2A1D16">
+    <img src="img/dubai2.jpg" alt="초록 포장지 위에 놓인 한입 베어 문 두바이 초콜릿, 피스타치오 속이 보인다" width="960" height="723" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,12,8,0.6) 0%, rgba(20,12,8,0) 30%, rgba(20,12,8,0) 38%, rgba(20,12,8,0.88) 100%)"></div>
+    <header style="position: relative">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 16px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px">
+        <a href="home.html" style="display: flex; align-items: center; gap: 6px; color: #FFFFFF; text-decoration: none; font-weight: 700; font-size: 15px; padding: 10px 14px 10px 8px; border-radius: 999px; background: rgba(20,12,8,0.45)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>순위로</a>
+        <a href="home.html" style="font-size: 22px; font-weight: 900; color: #FFFFFF; text-decoration: none; letter-spacing: -0.03em">트렌드푸드</a>
+        <nav style="margin-left: auto; display: flex; gap: 8px">
+          <button type="button" aria-label="찜하기" style="width: 46px; height: 46px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+          <button type="button" aria-label="공유하기" style="width: 46px; height: 46px; border-radius: 50%; border: 0; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; cursor: pointer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
+        </nav>
+      </div>
+    </header>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px 36px; color: #FFFFFF; display: flex; flex-direction: column; gap: 12px">
+        <nav aria-label="현재 위치" style="font-size: 14px"><ol style="list-style: none; margin: 0; padding: 0; display: flex; gap: 8px"><li><a href="home.html" style="color: #FFFFFF">홈</a></li><li aria-hidden="true">/</li><li><a href="#" style="color: #FFFFFF">디저트</a></li><li aria-hidden="true">/</li><li aria-current="page">두바이 초콜릿</li></ol></nav>
+        <h1 class="hero-title" style="margin: 0; font-size: 72px; font-weight: 900; line-height: 1; letter-spacing: -0.04em">두바이 초콜릿</h1>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px">
+          <li style="font-size: 14px; font-weight: 700; padding: 7px 12px; border-radius: 999px; background: #FFFFFF; color: #2A1D16">오늘 급상승 1위</li>
+          <li style="font-size: 14px; padding: 7px 12px; border-radius: 999px; background: rgba(20,12,8,0.55)">조리 40분, 굳히기 1시간</li>
+          <li style="font-size: 14px; padding: 7px 12px; border-radius: 999px; background: rgba(20,12,8,0.55)">난이도 보통</li>
+          <li style="font-size: 14px; padding: 7px 12px; border-radius: 999px; background: rgba(20,12,8,0.55)">8조각 분량</li>
+          <li style="font-size: 14px; padding: 7px 12px; border-radius: 999px; background: rgba(20,12,8,0.55)">찜 1,240</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <main style="max-width: 1200px; margin: 0 auto; padding: 32px 20px 64px; display: flex; flex-direction: column; gap: 32px">
+    <section style="display: flex; flex-wrap: wrap; gap: 28px; align-items: stretch">
+      <div style="flex: 1 1 420px; display: flex; flex-direction: column; gap: 14px">
+        <h2 class="h2">왜 지금 뜨고 있나요</h2>
+        <p style="margin: 0; font-size: 17px; line-height: 1.75; color: #4A3A2F">초콜릿 안에 피스타치오 크림과 바삭하게 볶은 카다이프 면을 채운 디저트예요. 해외에서 먼저 유행했고, 이번 주 국내에서 집에서 만드는 영상이 48개 올라오며 검색량이 지난주의 3.2배가 됐어요. 편의점에도 비슷한 제품이 나오기 시작했어요.</p>
+        <figure style="margin: 0; background: #FBF6F2; border-radius: 16px; padding: 16px 18px 10px">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px">
+            <figcaption style="font-size: 14px; color: #4A3A2F">네이버 검색량, 최근 14일</figcaption>
+            <p style="margin: 0; font-size: 26px; font-weight: 900; color: #B3301B">3.2배</p>
+          </div>
+          <svg viewBox="0 0 400 80" style="width: 100%; height: auto" role="img" aria-label="최근 14일 동안 검색량이 지난주 대비 3.2배로 늘어난 그래프">
+            <line x1="0" y1="76" x2="400" y2="76" stroke="#E3D3C7"/>
+            <polyline fill="none" stroke="#B3301B" stroke-width="3" stroke-linejoin="round" points="0,70 30,69 60,70 90,67 120,68 150,64 180,62 210,58 240,51 270,42 300,35 330,26 360,17 392,6"/>
+            <circle cx="392" cy="6" r="5" fill="#B3301B"/>
+          </svg>
+        </figure>
+        <p style="margin: 0; font-size: 13px; color: #5C4A3E">AI가 공개 검색량과 영상 제목을 바탕으로 요약했고, 운영자가 검수했어요.</p>
+      </div>
+      <figure style="flex: 1 1 460px; margin: 0; display: flex; flex-direction: column; gap: 8px">
+        <a href="#" style="position: relative; display: block; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; background: #2A1D16">
+          <img src="img/dubai.jpg" alt="" width="960" height="541" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8">
+          <span style="position: absolute; top: 50%; left: 50%; width: 68px; height: 48px; margin: -24px 0 0 -34px; border-radius: 12px; background: #E62117; display: flex; align-items: center; justify-content: center"><svg width="20" height="20" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5v9l7.5-4.5z" fill="#fff"/></svg></span>
+          <span class="sr">원본 영상 재생</span>
+        </a>
+        <figcaption style="font-size: 13px; color: #5C4A3E; line-height: 1.6">원본 영상: [채널명], YouTube 공식 임베드로 재생돼요. 원작자가 요청하면 바로 내려요.</figcaption>
+      </figure>
+    </section>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start">
+      <section aria-labelledby="cart-title" class="box" style="flex: 5 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 14px; background: #FFFFFF; box-shadow: 0 1px 0 #EEE3DB">
+        <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #5C4A3E; background: #FBF6F2; border-radius: 10px; padding: 10px 12px">이 영역의 링크로 구매하면 트렌드푸드가 쿠팡 파트너스 수수료를 받아요. 가격은 그대로예요.</p>
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px">
+          <h2 id="cart-title" class="h2">재료 장바구니</h2>
+          <p style="margin: 0; font-size: 14px; font-weight: 700">1/4 담음</p>
+        </div>
+        <div role="progressbar" aria-label="재료 담기 진행" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" style="height: 8px; border-radius: 999px; background: #F6EEE8"><div style="width: 25%; height: 100%; border-radius: 999px; background: #B3301B"></div></div>
+        <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+          <legend class="sr">살 재료 고르기</legend>
+          <label class="ing done"><input type="checkbox" checked><span class="nm">피스타치오 스프레드 200g</span><span class="p"><span class="ok">담음</span><br>12,900원</span></label>
+          <label class="ing" style="border: 2px solid #2A1D16; background: #fff"><input type="checkbox" checked><span>카다이프 면 250g</span><span class="key">구하기 어려움</span><span class="p">8,500원</span></label>
+          <label class="ing"><input type="checkbox" checked><span>다크 초콜릿 커버춰 300g</span><span class="p">9,800원</span></label>
+          <label class="ing"><input type="checkbox" checked><span>무염 버터 200g</span><span class="p">6,200원</span></label>
+          <label class="ing home"><input type="checkbox"><span>설탕</span><span class="p">집에 있어요</span></label>
+          <label class="ing home"><input type="checkbox"><span>소금</span><span class="p">집에 있어요</span></label>
+        </fieldset>
+        <p style="margin: 0; font-size: 13px; color: #5C4A3E; line-height: 1.5">체크를 풀면 '집에 있어요'로 기억해서 다음 레시피에서도 자동으로 빼 드려요.</p>
+        <div style="border-top: 1px solid #EEE3DB; padding-top: 14px; display: flex; flex-direction: column; gap: 4px">
+          <p style="margin: 0; font-size: 16px">4개 선택, 참고 금액 <b style="font-size: 22px">37,400원</b></p>
+          <p style="margin: 0; font-size: 12px; color: #5C4A3E">11월 4일 09:00 기준 참고 가격이에요. 실제 가격과 다를 수 있어요.</p>
+        </div>
+        <a href="#" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 64px; border-radius: 16px; background: #B3301B; color: #FFFFFF; text-decoration: none">
+          <span style="font-size: 13px">피스타치오 스프레드 담기 완료</span>
+          <b style="font-size: 18px">다음 재료 담기: 카다이프 면</b>
+        </a>
+        <p style="margin: 0; font-size: 12px; color: #5C4A3E; line-height: 1.5">누를 때마다 쿠팡 상품 페이지가 하나씩 새 창으로 열려요. 담고 돌아오면 다음 재료가 이어서 보여요.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <button type="button" style="font: inherit; font-size: 15px; font-weight: 700; min-height: 48px; border-radius: 12px; border: 1.5px solid #D9C9BD; background: #fff; color: #2A1D16">재료 목록 복사</button>
+          <button type="button" style="font: inherit; font-size: 15px; font-weight: 700; min-height: 48px; border-radius: 12px; border: 1.5px solid #D9C9BD; background: #fff; color: #2A1D16">카톡으로 보내기</button>
+        </div>
+      </section>
+
+      <div style="flex: 7 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 36px">
+        <section style="display: flex; flex-direction: column; gap: 12px">
+          <h2 class="h2">편의점·마트에서 사서 맛보기</h2>
+          <p style="margin: 0; font-size: 16px; line-height: 1.7; color: #4A3A2F">직접 만들기 전에 맛부터 보고 싶다면 이런 곳을 찾아보세요.</p>
+          <ul style="list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px">
+            <li style="padding: 16px; border-radius: 16px; background: #FBF6F2; display: flex; flex-direction: column; gap: 4px"><b style="font-size: 16px">편의점 디저트 코너</b><span style="font-size: 14px; color: #4A3A2F; line-height: 1.6">'두바이 스타일' 초콜릿 바, 쿠키 제품이 나와 있어요</span></li>
+            <li style="padding: 16px; border-radius: 16px; background: #FBF6F2; display: flex; flex-direction: column; gap: 4px"><b style="font-size: 16px">대형마트 수입과자 코너</b><span style="font-size: 14px; color: #4A3A2F; line-height: 1.6">피스타치오 크림 초콜릿을 찾아보세요</span></li>
+          </ul>
+        </section>
+
+        <section style="display: flex; flex-direction: column">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; padding-bottom: 6px">
+            <h2 class="h2">만드는 법</h2>
+            <p style="margin: 0; font-size: 14px; color: #5C4A3E">5단계</p>
+          </div>
+          <ol style="list-style: none; margin: 0; padding: 0">
+            <li class="step"><span class="sn">1</span><div><p class="st">카다이프 면을 2cm 길이로 자르고, 버터를 녹인 팬에서 약불로 노릇해질 때까지 볶아요.</p><button type="button" class="timer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>타이머 8분</button></div></li>
+            <li class="step"><span class="sn">2</span><div><p class="st">볶은 카다이프를 한 김 식힌 뒤 피스타치오 스프레드, 소금 한 꼬집과 섞어요.</p></div></li>
+            <li class="step"><span class="sn">3</span><div><p class="st">다크 초콜릿을 중탕으로 녹여 틀 안쪽에 얇게 바르고 냉동실에서 굳혀요.</p><button type="button" class="timer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>타이머 10분</button></div></li>
+            <li class="step"><span class="sn">4</span><div><p class="st">2번 필링을 꾹꾹 눌러 채우고, 남은 초콜릿으로 윗면을 덮어요.</p></div></li>
+            <li class="step"><span class="sn">5</span><div><p class="st">냉장실에서 1시간 굳힌 뒤 틀에서 꺼내 잘라요.</p><button type="button" class="timer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>타이머 1시간</button></div></li>
+          </ol>
+          <p style="margin: 8px 0 0; padding: 16px 18px; border-radius: 16px; background: #FBF6F2; font-size: 15px; line-height: 1.7"><b>팁</b> 카다이프를 덜 볶으면 금방 눅눅해져요. 갈색이 돌고 바스락 소리가 날 때까지 볶아 주세요.</p>
+        </section>
+
+        <div class="ad" style="height: 140px">광고 자리 (조리법 하단)</div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer style="background: #2A1D16; color: #EADFD6; font-size: 13px">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 28px 20px 110px; display: flex; flex-direction: column; gap: 10px">
+      <nav style="display: flex; flex-wrap: wrap; gap: 16px"><a href="#" style="color: #FFFFFF">사이트 소개</a><a href="#" style="color: #FFFFFF">개인정보처리방침</a><a href="#" style="color: #FFFFFF">이용약관</a><a href="#" style="color: #FFFFFF">연락처</a></nav>
+      <p style="margin: 0; line-height: 1.6">이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 트렌드 요약은 AI가 쓰고 운영자가 검수합니다.</p>
+      <p style="margin: 0; line-height: 1.6; color: #CDBFB3">시안용 데모 사진: Wikimedia Commons (CC0, CC BY, CC BY-SA). 실제 서비스에서는 쓰지 않습니다.</p>
+    </div>
+  </footer>
+
+  <a href="#" class="mbar" style="position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 3; align-items: center; gap: 12px; padding: 10px 10px 10px 16px; border-radius: 18px; background: #2A1D16; color: #FFFFFF; text-decoration: none; box-shadow: 0 8px 24px rgba(42,29,22,0.35)">
+    <span style="flex: 1; display: flex; flex-direction: column; font-size: 13px; color: #EADFD6">1/4 담음, 쿠팡 파트너스 링크<b style="font-size: 15px; color: #FFFFFF">다음: 카다이프 면</b></span>
+    <span style="background: #B3301B; color: #FFFFFF; font-weight: 700; font-size: 15px; padding: 12px 16px; border-radius: 12px">담기</span>
+  </a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":3000}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

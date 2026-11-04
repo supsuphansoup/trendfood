@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>③ 장보기형</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800&amp;display=swap">
+<style>
+body{margin:0;background:#F4F6F0}
+a{color:#1D6A41}a:hover{color:#124A2C}
+*{word-break:keep-all;box-sizing:border-box}
+h1,h2,h3{text-wrap:balance}
+img{display:block}
+:focus-visible{outline:3px solid #1D6A41;outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.chip{font:inherit;font-size:14px;font-weight:700;min-height:40px;padding:8px 14px;border-radius:999px;border:1px solid #CBD5C6;background:#fff;color:#1B2A1F;cursor:pointer;white-space:nowrap}
+.chip.on{background:#1D6A41;border-color:#1D6A41;color:#fff}
+.ing{display:flex;align-items:center;gap:10px;min-height:48px;padding:6px 12px;border-radius:12px;background:#F4F6F0;font-size:15px;cursor:pointer}
+.ing input{width:22px;height:22px;accent-color:#1D6A41;margin:0;flex-shrink:0}
+.ing .p{margin-left:auto;font-size:13px;color:#4C5C50;white-space:nowrap}
+.ing.home{background:#fff;border:1px dashed #CBD5C6;color:#4C5C50}
+.key{font-size:12px;font-weight:800;color:#7A4A00;background:#F4D35E;padding:2px 7px;border-radius:6px;white-space:nowrap}
+.row{display:grid;grid-template-columns:32px 112px minmax(0,1fr) auto;gap:16px;align-items:center;padding:14px;background:#fff;border-radius:16px}
+.rk{font-size:22px;font-weight:800;text-align:center}
+.th{width:112px;height:112px;border-radius:12px;object-fit:cover}
+.nm{margin:0;font-size:19px;font-weight:800;line-height:1.3}
+.nm a{color:#1B2A1F;text-decoration:none}
+.nm a:hover{text-decoration:underline}
+.why{margin:4px 0 8px;font-size:14px;color:#4C5C50;line-height:1.5}
+.need{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#1D6A41;background:#E5F0E8;padding:5px 10px;border-radius:999px}
+.meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:#4C5C50;margin-top:8px}
+.up{color:#A3341C;font-weight:700}.dn{color:#2753A8;font-weight:700}.nw{color:#1D6A41;font-weight:700}
+.go{font:inherit;font-weight:800;font-size:14px;min-height:44px;padding:0 16px;border-radius:12px;border:1.5px solid #1D6A41;background:#fff;color:#1D6A41;cursor:pointer;white-space:nowrap}
+.ad{border:1px dashed #B5C2AF;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#4C5C50;background:#fff}
+.mbar{display:none}
+@media (max-width:860px){
+ .panel{display:none!important}
+ .mbar{display:flex}
+}
+@media (max-width:760px){
+ .row{grid-template-columns:24px 80px minmax(0,1fr);gap:12px;padding:12px}
+ .rk{font-size:18px}
+ .th{width:80px;height:80px}
+ .nm{font-size:17px}
+ .go{display:none}
+ .hero-title{font-size:34px!important}
+ .hero-pad{padding:20px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #F4F6F0; color: #1B2A1F; font-family: 'Gothic A1', sans-serif; padding-bottom: 0">
+  <header style="background: #FFFFFF; border-bottom: 1px solid #DDE4D8">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 12px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px">
+      <a href="#" style="display: flex; align-items: center; gap: 8px; font-size: 21px; font-weight: 800; color: #1B2A1F; text-decoration: none">
+        <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="7" fill="#1D6A41"/><path d="M6 10h12l-1.2 7H7.2z M9 10V8a3 3 0 0 1 6 0v2" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        트렌드푸드
+      </a>
+      <form role="search" style="flex: 1 1 300px; order: 3; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 14px; border-radius: 12px; background: #F4F6F0; border: 1px solid #CBD5C6">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4C5C50" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <label for="q3" class="sr">음식 이름이나 재료로 검색</label>
+        <input id="q3" type="search" placeholder="집에 있는 재료로 찾기 (계란 참치)" style="flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 15px; color: #1B2A1F; outline: none">
+      </form>
+      <nav style="margin-left: auto; order: 2; display: flex; align-items: center; gap: 4px; font-size: 14px">
+        <a href="#" style="color: #4C5C50; padding: 12px 10px">제휴 안내</a>
+        <a href="#" style="color: #1B2A1F; font-weight: 700; text-decoration: none; padding: 10px 14px; border-radius: 12px; border: 1px solid #CBD5C6">찜 3</a>
+      </nav>
+    </div>
+  </header>
+
+  <div style="max-width: 1240px; margin: 0 auto; padding: 24px 20px 56px; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+    <main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+      <section style="background: #FFFFFF; border-radius: 24px; overflow: hidden; display: flex; flex-wrap: wrap">
+        <div style="flex: 1 1 320px; position: relative; min-height: 300px">
+          <img src="../img/dubai.jpg" alt="반으로 자른 두바이 초콜릿, 초록색 피스타치오 속이 보인다" width="960" height="541" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+          <span style="position: absolute; top: 14px; left: 14px; background: #FFFFFF; color: #1B2A1F; font-weight: 800; font-size: 15px; padding: 8px 14px; border-radius: 999px">오늘의 1위</span>
+          <span style="position: absolute; bottom: 12px; left: 14px; background: rgba(27,42,31,0.82); color: #fff; font-size: 11px; padding: 3px 8px; border-radius: 6px">데모 사진</span>
+        </div>
+        <div class="hero-pad" style="flex: 1 1 380px; padding: 28px; display: flex; flex-direction: column; gap: 12px">
+          <h1 class="hero-title" style="margin: 0; font-size: 40px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em">두바이 초콜릿</h1>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #3C4B40">일주일 새 검색량이 세 배. 피스타치오 크림과 바삭한 카다이프를 초콜릿 안에 채워요. 조리 40분, 난이도 보통.</p>
+          <fieldset style="border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px">
+            <legend style="font-size: 14px; font-weight: 800; margin-bottom: 6px">살 재료를 골라 주세요</legend>
+            <label class="ing"><input type="checkbox" checked>피스타치오 스프레드<span class="p">참고가 12,900원</span></label>
+            <label class="ing"><input type="checkbox" checked>카다이프 면<span class="key">구하기 어려움</span><span class="p">참고가 8,500원</span></label>
+            <label class="ing"><input type="checkbox" checked>다크 초콜릿 커버춰<span class="p">참고가 9,800원</span></label>
+            <label class="ing"><input type="checkbox" checked>무염 버터<span class="p">참고가 6,200원</span></label>
+            <label class="ing home"><input type="checkbox">설탕<span class="p">집에 있어요</span></label>
+            <label class="ing home"><input type="checkbox">소금<span class="p">집에 있어요</span></label>
+          </fieldset>
+          <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; border-top: 1px solid #DDE4D8; padding-top: 12px">
+            <p style="margin: 0; font-size: 15px"><b>4개</b> 선택, 참고 금액 <b style="font-size: 20px">37,400원</b></p>
+            <p style="margin: 0; font-size: 12px; color: #4C5C50">11월 4일 09:00 기준, 실제 가격과 다를 수 있어요</p>
+          </div>
+          <a href="#" style="display: flex; justify-content: center; align-items: center; min-height: 56px; background: #1D6A41; color: #FFFFFF; font-weight: 800; font-size: 17px; text-decoration: none; border-radius: 14px">쿠팡에서 첫 재료 담기 (1/4)</a>
+          <p style="margin: 0; font-size: 12px; color: #4C5C50; line-height: 1.5">버튼을 누를 때마다 재료 하나씩 쿠팡 상품 페이지가 열려요. 이 링크로 구매하면 트렌드푸드가 쿠팡 파트너스 수수료를 받아요.</p>
+        </div>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px">
+          <h2 style="margin: 0; font-size: 24px; font-weight: 800">2위부터 10위</h2>
+          <p style="margin: 0; font-size: 13px; color: #4C5C50">초록 표시는 집에 있는 재료를 뺀 개수예요</p>
+        </div>
+        <div role="group" aria-label="정렬과 필터" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px">
+          <button type="button" class="chip on" aria-pressed="true">급상승순</button>
+          <button type="button" class="chip" aria-pressed="false">살 재료 적은 순</button>
+          <button type="button" class="chip" aria-pressed="false">평점순</button>
+          <button type="button" class="chip" aria-pressed="false">조리시간순</button>
+          <button type="button" class="chip">#10분컷</button>
+          <button type="button" class="chip">#자취생</button>
+          <button type="button" class="chip">필터</button>
+        </div>
+        <ol start="2" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+          <li class="row"><span class="rk">2</span><img class="th" src="../img/deopbap.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">치킨마요 덮밥</a></h3><p class="why">남은 치킨과 마요네즈로 끝내는 한 끼</p><span class="need">재료 5개 중 2개만 사면 돼요</span><div class="meta"><span class="up">2계단 상승</span><span>10분</span><span>평점 4.5</span></div></div><button type="button" class="go">재료 보기</button></li>
+          <li class="row"><span class="rk">3</span><img class="th" src="../img/tteokbokki.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">새우 로제 떡볶이</a></h3><p class="why">고추장 소스에 크림을 더해 덜 맵고 고소하게</p><span class="need">재료 7개 중 4개만 사면 돼요</span><div class="meta"><span class="up">1계단 상승</span><span>20분</span><span>평점 4.4</span></div></div><button type="button" class="go">재료 보기</button></li>
+          <li class="row"><span class="rk">4</span><img class="th" src="../img/gyeranppang.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">에어프라이어 계란빵</a></h3><p class="why">핫케이크 가루와 계란이면 길거리 맛 그대로</p><span class="need">재료 4개 중 1개만 사면 돼요</span><div class="meta"><span>순위 그대로</span><span>15분</span><span>평점 4.3</span></div></div><button type="button" class="go">재료 보기</button></li>
+          <li class="row"><span class="rk">5</span><img class="th" src="../img/risotto.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">새우 크림 리조또</a></h3><p class="why">즉석밥으로 만드는 리조또</p><span class="need">재료 6개 중 3개만 사면 돼요</span><div class="meta"><span class="dn">1계단 하락</span><span>25분</span><span>평점 4.2</span></div></div><button type="button" class="go">재료 보기</button></li>
+        </ol>
+        <div class="ad" style="height: 110px">광고 자리 (인피드 1개)</div>
+        <ol start="6" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px">
+          <li class="row"><span class="rk">6</span><img class="th" src="../img/gimbap.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">참치 김밥</a></h3><p class="why">깻잎에 참치마요를 싸서 말면 물기 없이 깔끔</p><span class="need">재료 8개 중 5개만 사면 돼요</span><div class="meta"><span class="dn">2계단 하락</span><span>20분</span><span>평점 4.4</span></div></div><button type="button" class="go">재료 보기</button></li>
+          <li class="row"><span class="rk">7</span><img class="th" src="../img/garaetteok.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">버터 가래떡구이</a></h3><p class="why">가래떡을 버터에 굽고 꿀을 한 줄</p><span class="need">재료 3개 중 1개만 사면 돼요</span><div class="meta"><span class="nw">새로 진입</span><span>10분</span><span>평점 4.5</span></div></div><button type="button" class="go">재료 보기</button></li>
+          <li class="row"><span class="rk">8</span><img class="th" src="../img/makguksu.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">들기름 막국수</a></h3><p class="why">들기름, 간장, 김가루면 되는 국수</p><span class="need">재료 4개 중 2개만 사면 돼요</span><div class="meta"><span class="up">3계단 상승</span><span>15분</span><span>평점 4.6</span></div></div><button type="button" class="go">재료 보기</button></li>
+          <li class="row"><span class="rk">9</span><img class="th" src="../img/bagel.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">대파 크림치즈 베이글</a></h3><p class="why">구운 대파를 크림치즈에 섞어 바르기</p><span class="need">재료 3개 중 2개만 사면 돼요</span><div class="meta"><span class="up">1계단 상승</span><span>10분</span><span>평점 4.3</span></div></div><button type="button" class="go">재료 보기</button></li>
+          <li class="row"><span class="rk">10</span><img class="th" src="../img/ramyeon.jpg" alt="" width="112" height="112"><div><h3 class="nm"><a href="#">계란 파 라면</a></h3><p class="why">계란은 마지막 30초에, 파는 듬뿍</p><span class="need">집에 있는 재료로 바로 돼요</span><div class="meta"><span>순위 그대로</span><span>8분</span><span>평점 4.1</span></div></div><button type="button" class="go">재료 보기</button></li>
+        </ol>
+        <button type="button" style="margin-top: 6px; min-height: 52px; font: inherit; font-weight: 800; font-size: 16px; border-radius: 14px; border: 1.5px solid #1B2A1F; background: #fff; color: #1B2A1F">11위부터 더 보기</button>
+      </section>
+    </main>
+
+    <aside class="panel" aria-label="내 장보기" style="flex: 1 1 300px; max-width: 100%; position: sticky; top: 16px; display: flex; flex-direction: column; gap: 14px">
+      <section style="background: #1B2A1F; color: #FFFFFF; border-radius: 22px; padding: 22px; display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 18px; font-weight: 800">진행 중인 장보기</h2>
+        <div style="display: flex; gap: 12px; align-items: center">
+          <img src="../img/dubai.jpg" alt="" width="56" height="56" style="width: 56px; height: 56px; border-radius: 12px; object-fit: cover">
+          <div style="flex: 1">
+            <p style="margin: 0; font-size: 15px; font-weight: 700">두바이 초콜릿</p>
+            <p style="margin: 2px 0 0; font-size: 13px; color: #CFDACF">4개 중 1개 담음</p>
+          </div>
+        </div>
+        <div role="progressbar" aria-label="장보기 진행" aria-valuemin="0" aria-valuemax="4" aria-valuenow="1" style="height: 8px; border-radius: 999px; background: #34473A"><div style="width: 25%; height: 100%; border-radius: 999px; background: #F4D35E"></div></div>
+        <ol style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 14px">
+          <li style="display: flex; gap: 8px; align-items: center; color: #CFDACF"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#F4D35E" stroke-width="3" aria-hidden="true"><path d="M5 12l5 5 9-10"/></svg><s>피스타치오 스프레드</s><span class="sr">담음</span></li>
+          <li style="display: flex; gap: 8px; align-items: center; font-weight: 700"><span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #F4D35E"></span>카다이프 면 (다음)</li>
+          <li style="display: flex; gap: 8px; align-items: center; color: #CFDACF"><span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #5E7264"></span>다크 초콜릿 커버춰</li>
+          <li style="display: flex; gap: 8px; align-items: center; color: #CFDACF"><span aria-hidden="true" style="width: 16px; height: 16px; border-radius: 50%; border: 2px solid #5E7264"></span>무염 버터</li>
+        </ol>
+        <a href="#" style="display: flex; justify-content: center; align-items: center; min-height: 52px; background: #F4D35E; color: #1B2A1F; font-weight: 800; font-size: 16px; text-decoration: none; border-radius: 14px">다음 재료 담기: 카다이프 면</a>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <button type="button" style="font: inherit; font-size: 14px; font-weight: 700; min-height: 44px; border-radius: 12px; border: 1px solid #5E7264; background: transparent; color: #fff">목록 복사</button>
+          <button type="button" style="font: inherit; font-size: 14px; font-weight: 700; min-height: 44px; border-radius: 12px; border: 1px solid #5E7264; background: transparent; color: #fff">카톡 공유</button>
+        </div>
+        <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #CFDACF">쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다.</p>
+      </section>
+      <section style="background: #FFFFFF; border-radius: 22px; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+        <h2 style="margin: 0; font-size: 16px; font-weight: 800">집에 있는 재료</h2>
+        <p style="margin: 0; font-size: 13px; color: #4C5C50; line-height: 1.5">여기 있는 재료는 다음 레시피에서 자동으로 빼 드려요.</p>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 6px; font-size: 14px">
+          <li style="padding: 6px 12px; border-radius: 999px; background: #E5F0E8; color: #1D6A41; font-weight: 700">소금</li>
+          <li style="padding: 6px 12px; border-radius: 999px; background: #E5F0E8; color: #1D6A41; font-weight: 700">설탕</li>
+          <li style="padding: 6px 12px; border-radius: 999px; background: #E5F0E8; color: #1D6A41; font-weight: 700">간장</li>
+          <li style="padding: 6px 12px; border-radius: 999px; background: #E5F0E8; color: #1D6A41; font-weight: 700">계란</li>
+          <li style="padding: 6px 12px; border-radius: 999px; background: #E5F0E8; color: #1D6A41; font-weight: 700">우유</li>
+          <li><button type="button" style="font: inherit; font-size: 14px; font-weight: 700; min-height: 32px; padding: 4px 12px; border-radius: 999px; border: 1px dashed #1D6A41; background: #fff; color: #1D6A41">재료 추가</button></li>
+        </ul>
+      </section>
+    </aside>
+  </div>
+
+  <footer style="background: #1B2A1F; color: #DDE4D8; font-size: 13px">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 28px 20px 96px; display: flex; flex-direction: column; gap: 10px">
+      <nav style="display: flex; flex-wrap: wrap; gap: 16px"><a href="#" style="color: #FFFFFF">사이트 소개</a><a href="#" style="color: #FFFFFF">개인정보처리방침</a><a href="#" style="color: #FFFFFF">이용약관</a><a href="#" style="color: #FFFFFF">연락처</a></nav>
+      <p style="margin: 0; line-height: 1.6">이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 트렌드 요약은 AI가 쓰고 운영자가 검수합니다.</p>
+      <p style="margin: 0; line-height: 1.6; color: #BFCABD">시안용 데모 사진: Wikimedia Commons (CC0, CC BY, CC BY-SA). 실제 서비스에서는 쓰지 않습니다.</p>
+    </div>
+  </footer>
+
+  <a href="#" class="mbar" style="position: fixed; left: 12px; right: 12px; bottom: 12px; z-index: 3; align-items: center; gap: 12px; padding: 10px 12px 10px 10px; border-radius: 18px; background: #1B2A1F; color: #FFFFFF; text-decoration: none; box-shadow: 0 8px 24px rgba(27,42,31,0.3)">
+    <img src="../img/dubai.jpg" alt="" width="44" height="44" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover">
+    <span style="flex: 1; display: flex; flex-direction: column; font-size: 13px; color: #CFDACF">두바이 초콜릿 1/4 담음<b style="font-size: 15px; color: #FFFFFF">다음: 카다이프 면</b></span>
+    <span style="background: #F4D35E; color: #1B2A1F; font-weight: 800; font-size: 14px; padding: 10px 14px; border-radius: 12px">담기</span>
+  </a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2300}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

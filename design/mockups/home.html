@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>② 포토 피드형</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&amp;display=swap">
+<style>
+body{margin:0;background:#FFFFFF}
+a{color:#B3301B}a:hover{color:#852212}
+*{word-break:keep-all;box-sizing:border-box}
+h1,h2,h3{text-wrap:balance}
+img{display:block}
+:focus-visible{outline:3px solid #B3301B;outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.chip{font:inherit;font-size:15px;font-weight:500;min-height:42px;padding:8px 16px;border-radius:999px;border:0;background:#F6EEE8;color:#2A1D16;cursor:pointer;white-space:nowrap}
+.chip.on{background:#2A1D16;color:#fff;font-weight:700}
+.card{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:36px;align-items:center;padding:28px 0;border-bottom:1px solid #EEE3DB}
+.ph{position:relative;border-radius:20px;overflow:hidden;aspect-ratio:3/2;background:#F6EEE8}
+.ph img{width:100%;height:100%;object-fit:cover}
+.like{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.tx{display:flex;flex-direction:column;gap:10px}
+.top{display:flex;align-items:baseline;gap:12px}
+.rk{font-size:56px;font-weight:900;line-height:.9;color:#B3301B;letter-spacing:-.04em}
+.chg{font-size:14px;font-weight:700;color:#5C4A3E}
+.nm{margin:0;font-size:32px;font-weight:900;line-height:1.2;letter-spacing:-.02em}
+.nm a{color:#2A1D16;text-decoration:none}
+.nm a:hover{text-decoration:underline}
+.why{margin:0;font-size:17px;line-height:1.65;color:#4A3A2F;max-width:28em}
+.meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:#5C4A3E}
+.meta b{color:#2A1D16}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.b1{background:#2A1D16;color:#fff;font-weight:700;font-size:15px;text-decoration:none;padding:13px 20px;border-radius:12px}
+.b2{color:#2A1D16;font-weight:700;font-size:15px;text-decoration:none;padding:12px 18px;border-radius:12px;border:1.5px solid #D9C9BD}
+.ad{border:1px dashed #CDBBAE;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#5C4A3E;background:#FBF6F2}
+.hscroll{scrollbar-width:none}
+.hscroll::-webkit-scrollbar{display:none}
+@media (max-width:760px){
+ .card{grid-template-columns:1fr;gap:14px;padding:20px 0}
+ .ph{border-radius:16px}
+ .rk{font-size:40px}
+ .nm{font-size:24px}
+ .why{font-size:15px}
+ .acts a{flex:1;text-align:center}
+ .hero-title{font-size:48px!important}
+ .hero{height:560px!important}
+}
+</style>
+</helmet>
+<div style="min-height: 100vh; background: #FFFFFF; color: #2A1D16; font-family: 'Noto Sans KR', sans-serif">
+  <section class="hero" style="position: relative; height: 640px; overflow: hidden; background: #2A1D16">
+    <img src="img/dubai2.jpg" alt="초록 포장지 위에 놓인 한입 베어 문 두바이 초콜릿, 피스타치오 속이 보인다" width="960" height="723" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover">
+    <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(20,12,8,0.55) 0%, rgba(20,12,8,0) 28%, rgba(20,12,8,0) 40%, rgba(20,12,8,0.86) 100%)"></div>
+    <header style="position: relative">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 16px 20px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px">
+        <a href="#" style="font-size: 24px; font-weight: 900; color: #FFFFFF; text-decoration: none; letter-spacing: -0.03em">트렌드푸드</a>
+        <form role="search" style="flex: 1 1 280px; order: 3; display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 16px; border-radius: 999px; background: rgba(255,255,255,0.95)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5C4A3E" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <label for="q2" class="sr">음식 이름이나 재료로 검색</label>
+          <input id="q2" type="search" placeholder="뭐 먹고 싶어요? 재료로도 찾아요" style="flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 15px; color: #2A1D16; outline: none">
+        </form>
+        <nav style="margin-left: auto; order: 2; display: flex; align-items: center; gap: 4px; font-size: 14px">
+          <a href="#" style="color: #FFFFFF; padding: 12px 10px">제휴 안내</a>
+          <a href="#" style="color: #2A1D16; background: #FFFFFF; font-weight: 700; text-decoration: none; padding: 10px 16px; border-radius: 999px">찜 3</a>
+        </nav>
+      </div>
+    </header>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0">
+      <div style="max-width: 1200px; margin: 0 auto; padding: 0 20px 44px; color: #FFFFFF; display: flex; flex-direction: column; gap: 14px">
+        <p style="margin: 0; font-size: 16px; font-weight: 700">오늘 가장 많이 찾은 음식, 1위</p>
+        <h1 class="hero-title" style="margin: 0; font-size: 88px; font-weight: 900; line-height: 1; letter-spacing: -0.04em">두바이 초콜릿</h1>
+        <p style="margin: 0; font-size: 18px; line-height: 1.6; max-width: 34em">피스타치오 크림과 바삭한 카다이프를 채운 초콜릿. 일주일 새 검색량이 세 배로 늘었어요.</p>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px">
+          <a href="detail.html" style="background: #FFFFFF; color: #2A1D16; font-weight: 900; font-size: 17px; text-decoration: none; padding: 16px 26px; border-radius: 14px">레시피 보기</a>
+          <a href="#" style="color: #FFFFFF; font-weight: 700; font-size: 17px; text-decoration: none; padding: 14px 24px; border-radius: 14px; border: 1.5px solid rgba(255,255,255,0.8)">재료 6개 담기</a>
+          <span style="font-size: 14px">조리 40분</span>
+        </div>
+        <p style="margin: 0; font-size: 12px">AI 요약, 운영자 검수 완료. 데모 사진</p>
+      </div>
+    </div>
+  </section>
+
+  <nav aria-label="정렬과 필터" style="background: #FFFFFF; border-bottom: 1px solid #EEE3DB">
+    <div class="hscroll" style="max-width: 1200px; margin: 0 auto; padding: 12px 20px; display: flex; gap: 8px; overflow-x: auto">
+      <button type="button" class="chip on" aria-pressed="true">급상승순</button>
+      <button type="button" class="chip" aria-pressed="false">좋아요순</button>
+      <button type="button" class="chip" aria-pressed="false">조리시간순</button>
+      <span aria-hidden="true" style="width: 1px; background: #EEE3DB; margin: 4px 4px"></span>
+      <button type="button" class="chip">#10분컷</button>
+      <button type="button" class="chip">#자취생</button>
+      <button type="button" class="chip">#디저트</button>
+      <button type="button" class="chip">#안주</button>
+      <button type="button" class="chip" style="border: 1.5px solid #2A1D16; background: #fff">필터 더 보기</button>
+    </div>
+  </nav>
+
+  <main style="max-width: 1200px; margin: 0 auto; padding: 12px 20px 56px">
+    <ol start="2" style="list-style: none; margin: 0; padding: 0">
+      <li class="card"><div class="ph"><img src="img/deopbap.jpg" alt="치킨 위에 마요네즈와 채소를 올린 덮밥" width="960" height="1280"><button type="button" class="like" aria-label="치킨마요 덮밥 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">2</span><span class="chg">어제보다 2계단 올라왔어요</span></div><h2 class="nm"><a href="#">치킨마요 덮밥</a></h2><p class="why">남은 치킨을 잘게 찢어 마요네즈, 데리야끼 소스와 함께 밥 위에. 배달 치킨 다음 날 메뉴로 많이 찾아요.</p><div class="meta"><span>조리 <b>10분</b></span><span>좋아요 8,410</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 4개 담기</a></div></div></li>
+      <li class="card"><div class="ph"><img src="img/tteokbokki.jpg" alt="새우와 떡이 들어간 주황빛 로제 떡볶이" width="635" height="423"><button type="button" class="like" aria-label="새우 로제 떡볶이 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">3</span><span class="chg">1계단 올라왔어요</span></div><h2 class="nm"><a href="#">새우 로제 떡볶이</a></h2><p class="why">고추장 소스에 우유와 크림치즈를 더해 덜 맵고 고소하게. 분식집 인기 메뉴를 집에서.</p><div class="meta"><span>조리 <b>20분</b></span><span>좋아요 6,920</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 6개 담기</a></div></div></li>
+      <li class="card"><div class="ph"><img src="img/gyeranppang.jpg" alt="철판 위에 줄지어 구워지는 계란빵" width="960" height="640"><button type="button" class="like" aria-label="에어프라이어 계란빵 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">4</span><span class="chg">순위 그대로</span></div><h2 class="nm"><a href="#">에어프라이어 계란빵</a></h2><p class="why">핫케이크 가루 반죽에 계란을 하나씩. 에어프라이어 15분이면 길거리 그 맛이에요.</p><div class="meta"><span>조리 <b>15분</b></span><span>좋아요 5,130</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 3개 담기</a></div></div></li>
+    </ol>
+    <div class="ad" style="height: 130px; margin: 28px 0">광고 자리 (인피드 1개)</div>
+    <ol start="5" style="list-style: none; margin: 0; padding: 0">
+      <li class="card"><div class="ph"><img src="img/risotto.jpg" alt="새우와 채소를 올린 크림 리조또" width="960" height="709"><button type="button" class="like" aria-label="새우 크림 리조또 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">5</span><span class="chg">1계단 내려갔어요</span></div><h2 class="nm"><a href="#">새우 크림 리조또</a></h2><p class="why">즉석밥에 우유와 치즈를 넣고 졸이면 끝. 냉동 새우로 충분해요.</p><div class="meta"><span>조리 <b>25분</b></span><span>좋아요 4,870</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 5개 담기</a></div></div></li>
+      <li class="card"><div class="ph"><img src="img/gimbap.jpg" alt="접시에 썰어 놓은 김밥" width="960" height="698"><button type="button" class="like" aria-label="참치 김밥 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">6</span><span class="chg">2계단 내려갔어요</span></div><h2 class="nm"><a href="#">참치 김밥</a></h2><p class="why">깻잎으로 참치마요를 감싸 말면 물기 없이 깔끔해요.</p><div class="meta"><span>조리 <b>20분</b></span><span>좋아요 3,960</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 6개 담기</a></div></div></li>
+      <li class="card"><div class="ph"><img src="img/garaetteok.jpg" alt="접시에 가지런히 놓인 가래떡" width="960" height="960"><button type="button" class="like" aria-label="버터 가래떡구이 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">7</span><span class="chg">새로 들어왔어요</span></div><h2 class="nm"><a href="#">버터 가래떡구이</a></h2><p class="why">가래떡을 버터에 노릇하게 굽고 꿀을 한 줄. 겨울 간식으로 다시 뜨고 있어요.</p><div class="meta"><span>조리 <b>10분</b></span><span>좋아요 3,720</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 3개 담기</a></div></div></li>
+      <li class="card"><div class="ph"><img src="img/makguksu.jpg" alt="김가루와 계란을 올린 막국수" width="800" height="600"><button type="button" class="like" aria-label="들기름 막국수 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">8</span><span class="chg">3계단 올라왔어요</span></div><h2 class="nm"><a href="#">들기름 막국수</a></h2><p class="why">메밀면에 들기름, 간장, 김가루. 양념 세 가지로 끝나는 국수예요.</p><div class="meta"><span>조리 <b>15분</b></span><span>좋아요 3,410</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 4개 담기</a></div></div></li>
+      <li class="card"><div class="ph"><img src="img/bagel.jpg" alt="크림치즈를 곁들인 참깨 베이글" width="960" height="961"><button type="button" class="like" aria-label="대파 크림치즈 베이글 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">9</span><span class="chg">1계단 올라왔어요</span></div><h2 class="nm"><a href="#">대파 크림치즈 베이글</a></h2><p class="why">구운 대파를 다져 크림치즈에 섞으면 베이글 가게 맛.</p><div class="meta"><span>조리 <b>10분</b></span><span>좋아요 2,980</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 3개 담기</a></div></div></li>
+      <li class="card"><div class="ph"><img src="img/ramyeon.jpg" alt="계란과 파를 올린 라면" width="500" height="402"><button type="button" class="like" aria-label="계란 파 라면 찜하기"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2A1D16" stroke-width="2" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button></div>
+        <div class="tx"><div class="top"><span class="rk">10</span><span class="chg">순위 그대로</span></div><h2 class="nm"><a href="#">계란 파 라면</a></h2><p class="why">계란은 불 끄기 30초 전에, 파는 아끼지 말고.</p><div class="meta"><span>조리 <b>8분</b></span><span>좋아요 2,550</span></div><div class="acts"><a href="#" class="b1">레시피 보기</a><a href="#" class="b2">재료 3개 담기</a></div></div></li>
+    </ol>
+    <button type="button" style="margin-top: 28px; width: 100%; min-height: 56px; font: inherit; font-weight: 700; font-size: 16px; border-radius: 14px; border: 1.5px solid #2A1D16; background: #fff; color: #2A1D16">11위부터 더 보기</button>
+  </main>
+
+  <footer style="background: #2A1D16; color: #EADFD6; font-size: 13px">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 28px 20px; display: flex; flex-direction: column; gap: 10px">
+      <nav style="display: flex; flex-wrap: wrap; gap: 16px"><a href="#" style="color: #FFFFFF">사이트 소개</a><a href="#" style="color: #FFFFFF">개인정보처리방침</a><a href="#" style="color: #FFFFFF">이용약관</a><a href="#" style="color: #FFFFFF">연락처</a></nav>
+      <p style="margin: 0; line-height: 1.6">이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 트렌드 요약은 AI가 쓰고 운영자가 검수합니다.</p>
+      <p style="margin: 0; line-height: 1.6; color: #CDBFB3">시안용 데모 사진: Wikimedia Commons (CC0, CC BY, CC BY-SA). 실제 서비스에서는 쓰지 않습니다.</p>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":3600}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
