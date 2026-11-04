@@ -102,7 +102,7 @@
 1. ~~`docs/design.md` + 테마 토큰 작성~~ (완료 2026-11-04. 미정: 다크 모드·아이콘 세트, `docs/design.md` 9장)
 2. ~~Next.js 프로젝트 생성 + shadcn init + 테마 + Pretendard + Playwright·axe~~ (완료 2026-11-04)
 3. 2026-11-05 팀·교수님 검토 반영.
-4. 계정·키 만들기(`ONBOARDING.md` 8장): Supabase·Cloudflare·Secrets·Edge Function **완료(2026-11-05)**. 남음: 수집 키 3종·`AI_PROVIDER`/`AI_MODEL`, pipeline 수동 실행 확인, 관리자 로그인·[사이트에 반영] 실사용 확인. 실제 Supabase 로 빌드는 GitHub Actions 에서 확인(deploy `985c6bb`), 관리자 로그인은 아직 미검증.
+4. 계정·키 만들기(`ONBOARDING.md` 8장): Supabase·Cloudflare·Secrets·Edge Function **완료(2026-11-05)**. 남음: 수집 키 3종·`AI_PROVIDER`/`AI_MODEL`, pipeline 수동 실행 확인. 실제 Supabase 로 빌드는 GitHub Actions 에서 확인(deploy `985c6bb`), 관리자 로그인·[사이트에 반영]→`repository_dispatch` 생성도 실제로 확인(2026-11-05). Cloudflare 업로드 성공, https://trendfood.pages.dev 응답 200.
 5. 남은 로드맵(`docs/plan.md`): 관리자 사진 선택(후보 사진 중 고르기) → 실제 사진·쿠팡 파트너스 링크·애드센스 → 오픈 → Phase 2(후기·평점).
 6. 병행: 도메인 구입(Cloudflare 에 연결), 쿠팡 파트너스 가입, 네이버 데이터랩·YouTube API 키 발급.
 
