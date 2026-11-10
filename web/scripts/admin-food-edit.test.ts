@@ -1,6 +1,40 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { cleanSteps, ingredientChanges, moveItem, photoChanges } from "../src/data/admin-food-edit.ts";
+import { cleanBasicInfo, cleanSteps, cookLabelInput, ingredientChanges, moveItem, photoChanges, type BasicInfoDraft } from "../src/data/admin-food-edit.ts";
+
+const basicInfo: BasicInfoDraft = {
+  name: "  두바이 초콜릿  ", category: "디저트", tags: ["안주", "목록 밖", "10분컷", "안주"],
+  cook_minutes: " 10 ", cook_label: "  ", difficulty: "쉬움", servings: " 2인분 ", change_label: " 새로 들어왔어요 ",
+};
+
+test("기본 정보 정리: 공백 제거·태그 순서·목록 밖 태그 제거·빈 표시 문구와 정확한 8개 열", () => {
+  const before = structuredClone(basicInfo);
+  assert.deepEqual(cleanBasicInfo(basicInfo).value, {
+    name: "두바이 초콜릿", category: "디저트", tags: ["10분컷", "안주"], cook_minutes: 10,
+    cook_label: "", difficulty: "쉬움", servings: "2인분", change_label: "새로 들어왔어요",
+  });
+  assert.deepEqual(basicInfo, before);
+  assert.deepEqual(cleanBasicInfo({ ...basicInfo, tags: [] }).value?.tags, []);
+  assert.equal(cleanBasicInfo({ ...basicInfo, cook_label: " 조리 40분, 굳히기 1시간 ", servings: " " }).value?.cook_label, "조리 40분, 굳히기 1시간");
+  for (const cook_minutes of ["1", "1440"]) assert.equal(cleanBasicInfo({ ...basicInfo, cook_minutes }).value?.cook_minutes, Number(cook_minutes));
+  assert.equal(cleanBasicInfo({ ...basicInfo, name: "가".repeat(30) }).value?.name.length, 30);
+});
+
+test("기본 정보 검증: 이름 1~30자·조리 시간 1~1440 정수·순위 변동 문구 필수", () => {
+  for (const name of ["", "  ", "가".repeat(31)]) assert.equal(cleanBasicInfo({ ...basicInfo, name }).error, "이름을 1~30자로 적어 주세요.");
+  for (const cook_minutes of ["", " ", "0", "1441", "1.5", "-1", "abc", "1e2"]) {
+    assert.equal(cleanBasicInfo({ ...basicInfo, cook_minutes }).error, "조리 시간은 1~1440 사이의 분으로 적어 주세요.");
+  }
+  assert.equal(cleanBasicInfo({ ...basicInfo, change_label: " " }).error, "순위 변동 문구를 적어 주세요.");
+});
+
+test("조리 시간 표시 입력: 현재 분과 같은 자동 문구만 비우고 직접 쓴 문구 유지", () => {
+  assert.equal(cookLabelInput("조리 10분", 10), "");
+  assert.equal(cookLabelInput("조리 10분", 15), "조리 10분");
+  assert.equal(cookLabelInput("조리 40분, 굳히기 1시간", 40), "조리 40분, 굳히기 1시간");
+  assert.equal(cookLabelInput(" 조리 10분 ", 10), " 조리 10분 ");
+  assert.equal(cookLabelInput("", 10), "");
+});
 
 test("조리법 정리: 공백 제거, 빈 타이머 키 생략, 타이머 경계값", () => {
   assert.deepEqual(cleanSteps([{ text: " 섞어요 ", timer: " " }, { text: "굽기", timer: " 1 " }, { text: "숙성", timer: "1440" }]).value,

@@ -1,4 +1,16 @@
-import type { Step } from "./catalog-schema.ts";
+import { tagOptions, type Category, type FoodRecord, type Step } from "./catalog-schema.ts";
+
+export type FoodBasicInfo = {
+  name: string;
+  category: Category;
+  tags: string[];
+  cook_minutes: number;
+  cook_label: string;
+  difficulty: FoodRecord["difficulty"];
+  servings: string;
+  change_label: string;
+};
+export type BasicInfoDraft = Omit<FoodBasicInfo, "cook_minutes"> & { cook_minutes: string };
 
 export type StepDraft = { text: string; timer: string };
 export type IngredientDraft = { id?: number; name: string; hard: boolean; pantry: boolean; url?: string | null };
@@ -6,6 +18,27 @@ export type SavedIngredient = IngredientDraft & { id: number; position: number }
 type Result<T> = { value: T; error?: never } | { error: string; value?: never };
 type IngredientFields = { name: string; hard: boolean; pantry: boolean; position: number };
 type IngredientChanges = { removed: number[]; updated: { id: number; patch: IngredientFields }[]; added: IngredientFields[] };
+
+export function cookLabelInput(label: string, minutes: number): string {
+  return label === `조리 ${minutes}분` ? "" : label;
+}
+
+export function cleanBasicInfo(draft: BasicInfoDraft): Result<FoodBasicInfo> {
+  const name = draft.name.trim();
+  if (!name || name.length > 30) return { error: "이름을 1~30자로 적어 주세요." };
+  const minutes = draft.cook_minutes.trim();
+  const cook_minutes = Number(minutes);
+  if (!/^\d+$/.test(minutes) || !Number.isInteger(cook_minutes) || cook_minutes < 1 || cook_minutes > 1440) {
+    return { error: "조리 시간은 1~1440 사이의 분으로 적어 주세요." };
+  }
+  const change_label = draft.change_label.trim();
+  if (!change_label) return { error: "순위 변동 문구를 적어 주세요." };
+  return { value: {
+    name, category: draft.category, tags: tagOptions.filter((tag) => draft.tags.includes(tag)),
+    cook_minutes, cook_label: draft.cook_label.trim(), difficulty: draft.difficulty,
+    servings: draft.servings.trim(), change_label,
+  } };
+}
 
 export function cleanSteps(drafts: StepDraft[]): Result<Step[]> {
   if (!drafts.length) return { error: "조리 단계를 하나 이상 적어 주세요." };

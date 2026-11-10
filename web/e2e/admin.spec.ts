@@ -7,14 +7,14 @@ const SUPABASE = "http://127.0.0.1:54321"; // playwright.config.ts 의 FAKE_SUPA
 const ADMIN = { id: "11111111-1111-1111-1111-111111111111", email: "admin@trendfood.test", password: "correct-horse" };
 const STRANGER = { id: "22222222-2222-2222-2222-222222222222", email: "guest@trendfood.test", password: "guest-pass" };
 
-type Food = { slug: string; name: string; status: string; hidden: boolean; sort_order: number; why: string; summary: string; tip: string; ai_drafted: boolean; image: string; alt: string; hero_image: string | null; hero_alt: string | null; steps: { text: string; timerMinutes?: number }[] };
+type Food = { slug: string; name: string; category: string; tags: string[]; cook_minutes: number; cook_label: string; difficulty: string; servings: string; change_label: string; status: string; hidden: boolean; sort_order: number; why: string; summary: string; tip: string; ai_drafted: boolean; image: string; alt: string; hero_image: string | null; hero_alt: string | null; steps: { text: string; timerMinutes?: number }[] };
 
 function makeFake() {
   const foods: Food[] = [
     ["dubai-chocolate", "두바이 초콜릿"],
     ["chicken-mayo-deopbap", "치킨마요 덮밥"],
     ["shrimp-rose-tteokbokki", "새우 로제 떡볶이"],
-  ].map(([slug, name], i) => ({ slug, name, status: "published", hidden: false, sort_order: (i + 1) * 10, why: `${name} 설명`, summary: "요약", tip: "팁", ai_drafted: false, image: "dubai", alt: "초콜릿 사진", hero_image: "dubai2", hero_alt: "히어로 사진", steps: [{ text: "섞어요" }, { text: "식혀요", timerMinutes: 10 }] }));
+  ].map(([slug, name], i) => ({ slug, name, category: "디저트", tags: ["디저트", "예전 태그"], cook_minutes: 10, cook_label: "조리 10분", difficulty: "쉬움", servings: "2인분", change_label: "새로 들어왔어요", status: "published", hidden: false, sort_order: (i + 1) * 10, why: `${name} 설명`, summary: "요약", tip: "팁", ai_drafted: false, image: "dubai", alt: "초콜릿 사진", hero_image: "dubai2", hero_alt: "히어로 사진", steps: [{ text: "섞어요" }, { text: "식혀요", timerMinutes: 10 }] }));
   const ingredients = [
     { id: 1, food_slug: "dubai-chocolate", position: 0, name: "카다이프", price: 12900, url: null as string | null, hard: true, pantry: false },
     { id: 2, food_slug: "dubai-chocolate", position: 1, name: "피스타치오 스프레드", price: null as number | null, url: null as string | null, hard: false, pantry: false },
@@ -136,6 +136,138 @@ async function openDetails(page: Page) {
   await expect(row.getByRole("textbox", { name: "재료 이름", exact: true })).toHaveCount(2);
   return row;
 }
+
+async function openBasicInfo(page: Page) {
+  await login(page);
+  const row = page.getByRole("listitem").filter({ has: page.getByRole("button", { name: "두바이 초콜릿 위로", exact: true }) });
+  await row.getByRole("button", { name: "기본 정보 고치기", exact: true }).click();
+  return row;
+}
+
+const cookLabel = '조리 시간 표시 문구 (비우면 "조리 N분", 40자)';
+const changeLabel = "순위 변동 문구 (예: 새로 들어왔어요, 30자)";
+
+test("기본 정보: 8개 열만 저장하고 이름을 다시 불러오며 주소·사진·재료 보존", async ({ page }) => {
+  const db = await installFake(page);
+  const before = structuredClone(db.foods[0]);
+  const ingredients = structuredClone(db.ingredients);
+  const row = await openBasicInfo(page);
+  await row.getByLabel("이름 (30자)", { exact: true }).fill(" 새 초콜릿 ");
+  await row.getByLabel("카테고리", { exact: true }).selectOption("간식");
+  await row.getByRole("checkbox", { name: "디저트", exact: true }).uncheck();
+  await row.getByRole("checkbox", { name: "안주", exact: true }).check();
+  await row.getByRole("checkbox", { name: "10분컷", exact: true }).check();
+  await row.getByLabel("조리 시간 (분)", { exact: true }).fill(" 40 ");
+  await row.getByLabel(cookLabel, { exact: true }).fill(" 조리 40분, 굳히기 1시간 ");
+  await row.getByLabel("난이도", { exact: true }).selectOption("어려움");
+  await row.getByLabel("분량 (예: 2인분, 20자)", { exact: true }).fill(" 4인분 ");
+  await row.getByLabel(changeLabel, { exact: true }).fill(" 3계단 올랐어요 ");
+  const request = page.waitForRequest((req) => req.url().includes("/rest/v1/foods?") && req.method() === "PATCH");
+  await row.getByRole("button", { name: "기본 정보 저장", exact: true }).click();
+  const expected = { name: "새 초콜릿", category: "간식", tags: ["10분컷", "안주"], cook_minutes: 40, cook_label: "조리 40분, 굳히기 1시간", difficulty: "어려움", servings: "4인분", change_label: "3계단 올랐어요" };
+  expect((await request).postDataJSON()).toEqual(expected);
+  await expect(page.getByRole("status").filter({ hasText: "새 초콜릿 기본 정보를 저장했어요. '사이트에 반영'을 눌러 주세요." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "새 초콜릿", exact: true })).toBeVisible();
+  expect(db.foods[0]).toEqual({ ...before, ...expected });
+  expect(db.ingredients).toEqual(ingredients);
+});
+
+test("기본 정보 검증: 빈 이름·31자·조리 시간 0·1441·소수·빈 변동 문구는 요청 없음", async ({ page }) => {
+  const db = await installFake(page);
+  const requests: string[] = [];
+  page.on("request", (req) => { if (req.url().startsWith(SUPABASE) && req.method() === "PATCH") requests.push(req.url()); });
+  const row = await openBasicInfo(page);
+  const name = row.getByLabel("이름 (30자)", { exact: true });
+  await expect(name).toHaveAttribute("maxlength", "30");
+  await expect(row.getByLabel(cookLabel, { exact: true })).toHaveAttribute("maxlength", "40");
+  await expect(row.getByLabel("분량 (예: 2인분, 20자)", { exact: true })).toHaveAttribute("maxlength", "20");
+  await expect(row.getByLabel(changeLabel, { exact: true })).toHaveAttribute("maxlength", "30");
+  // 입력 제한을 우회해 들어온 31자도 순수 함수가 거부하는지 확인한다.
+  await name.evaluate((input) => input.removeAttribute("maxlength"));
+  for (const value of [" ", "가".repeat(31)]) {
+    await name.fill(value);
+    await row.getByRole("button", { name: "기본 정보 저장", exact: true }).click();
+    await expect(page.getByRole("status").filter({ hasText: "이름을 1~30자로 적어 주세요." })).toBeVisible();
+  }
+  await name.fill("두바이 초콜릿");
+  for (const value of ["0", "1441", "1.5"]) {
+    await row.getByLabel("조리 시간 (분)", { exact: true }).fill(value);
+    await row.getByRole("button", { name: "기본 정보 저장", exact: true }).click();
+    await expect(page.getByRole("status").filter({ hasText: "조리 시간은 1~1440 사이의 분으로 적어 주세요." })).toBeVisible();
+  }
+  await row.getByLabel("조리 시간 (분)", { exact: true }).fill("10");
+  await row.getByLabel(changeLabel, { exact: true }).fill(" ");
+  await row.getByRole("button", { name: "기본 정보 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "순위 변동 문구를 적어 주세요." })).toBeVisible();
+  expect(db.writes).toEqual([]);
+  expect(requests).toEqual([]);
+});
+
+test("기본 정보 조리 문구: 자동 문구는 빈 입력·분만 바꾸면 빈 문자열 저장, 직접 쓴 문구 유지", async ({ page }) => {
+  const db = await installFake(page);
+  db.foods[1].cook_minutes = 40;
+  db.foods[1].cook_label = "조리 40분, 굳히기 1시간";
+  const row = await openBasicInfo(page);
+  await expect(row.getByLabel(cookLabel, { exact: true })).toHaveValue("");
+  await row.getByLabel("조리 시간 (분)", { exact: true }).fill("15");
+  await row.getByRole("button", { name: "기본 정보 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 기본 정보를 저장했어요." })).toBeVisible();
+  expect(db.foods[0]).toMatchObject({ cook_minutes: 15, cook_label: "", tags: ["디저트"] });
+  const other = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "치킨마요 덮밥", exact: true }) });
+  await other.getByRole("button", { name: "기본 정보 고치기", exact: true }).click();
+  await expect(other.getByLabel(cookLabel, { exact: true })).toHaveValue("조리 40분, 굳히기 1시간");
+  await other.getByRole("checkbox", { name: "디저트", exact: true }).uncheck();
+  await other.getByRole("button", { name: "기본 정보 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "치킨마요 덮밥 기본 정보를 저장했어요." })).toBeVisible();
+  expect(db.foods[1]).toMatchObject({ cook_label: "조리 40분, 굳히기 1시간", tags: [] });
+});
+
+test("기본 정보 저장 오류: 실패 알림과 기존 이름·입력 유지", async ({ page }) => {
+  const db = await installFake(page);
+  const row = await openBasicInfo(page);
+  await page.route(`${SUPABASE}/rest/v1/foods?**`, async (route) => {
+    if (route.request().method() === "PATCH") return json(route, { message: "기본 정보 저장 시험 오류" }, 500);
+    await route.fallback();
+  });
+  await row.getByLabel("이름 (30자)", { exact: true }).fill("저장 실패 이름");
+  await row.getByRole("button", { name: "기본 정보 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "저장하지 못했어요: 기본 정보 저장 시험 오류" })).toBeVisible();
+  await expect(row.getByLabel("이름 (30자)", { exact: true })).toHaveValue("저장 실패 이름");
+  expect(db.foods[0].name).toBe("두바이 초콜릿");
+  expect(db.writes).toEqual([]);
+});
+
+test("기본 정보 편집: 세 편집 버튼은 하나만 펼치며 즉시 입력·접근성·가로 넘침 검사", async ({ page }, info) => {
+  await installFake(page);
+  const row = await openBasicInfo(page);
+  const basic = row.getByRole("button", { name: "기본 정보 고치기", exact: true });
+  const text = row.getByRole("button", { name: "글 고치기", exact: true });
+  const details = row.getByRole("button", { name: "사진·재료·조리법 고치기", exact: true });
+  await expect(basic).toHaveAttribute("aria-expanded", "true");
+  await expect(row.getByRole("button", { name: "기본 정보 저장", exact: true })).toBeEnabled();
+  await basic.click();
+  await expect(row.getByRole("group", { name: "기본 정보", exact: true })).toHaveCount(0);
+  await basic.click();
+  await text.click();
+  await expect(basic).toHaveAttribute("aria-expanded", "false");
+  await expect(row.getByRole("group", { name: "기본 정보", exact: true })).toHaveCount(0);
+  await details.click();
+  await expect(text).toHaveAttribute("aria-expanded", "false");
+  await expect(row.getByLabel("한 줄 설명 (200자)")).toHaveCount(0);
+  await basic.click();
+  await expect(details).toHaveAttribute("aria-expanded", "false");
+  await expect(row.getByRole("group", { name: "사진", exact: true })).toHaveCount(0);
+  await expect(row.getByRole("group", { name: "재료", exact: true })).toHaveCount(0);
+  const other = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "치킨마요 덮밥", exact: true }) });
+  await other.getByRole("button", { name: "글 고치기", exact: true }).click();
+  await expect(basic).toHaveAttribute("aria-expanded", "false");
+  await basic.click();
+  await expect(page.getByRole("button", { expanded: true, name: /고치기$/ })).toHaveCount(1);
+  await expect(row.getByText("이름을 바꿔도 페이지 주소는 그대로예요.", { exact: true })).toBeVisible();
+  await noA11y(page);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: `test-results/admin-basic-info-${info.project.name}.png`, fullPage: true });
+});
 
 test("사진 편집: 설명 필수, 키 변경 시 히어로 초기화, 같은 키면 히어로 보존", async ({ page }) => {
   const db = await installFake(page);

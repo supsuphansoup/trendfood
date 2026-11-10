@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import type { FoodBasicInfo } from "@/data/admin-food-edit.ts";
+import { FoodBasicInfoEditor } from "./food-basic-info-editor";
 import { FoodDetailsEditor, type FoodDetails } from "./food-details-editor";
 
-type Row = FoodDetails & {
+type Row = FoodDetails & FoodBasicInfo & {
   slug: string;
   name: string;
   status: "draft" | "published";
@@ -19,17 +21,18 @@ type Row = FoodDetails & {
   ai_drafted: boolean;
 };
 
-/** 게시 관리: 순서 바꾸기 · 숨기기 · 게시/초안 · 글 고치기 */
+/** 게시 관리: 순서 바꾸기 · 숨기기 · 게시/초안 · 기본 정보·글·사진·재료·조리법 고치기 */
 export function FoodsPanel({ db }: { db: SupabaseClient }) {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [notice, setNotice] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [details, setDetails] = useState<string | null>(null);
+  const [basicInfo, setBasicInfo] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { data, error } = await db
       .from("foods")
-      .select("slug, name, status, hidden, sort_order, why, summary, tip, ai_drafted, image, alt, steps")
+      .select("slug, name, status, hidden, sort_order, why, summary, tip, ai_drafted, image, alt, steps, category, tags, cook_minutes, cook_label, difficulty, servings, change_label")
       .order("sort_order")
       .order("slug");
     if (error) return setNotice(`목록을 못 불러왔어요: ${error.message}`);
@@ -132,8 +135,20 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                 </Button>
                 <Button
                   variant="outline"
+                  aria-expanded={basicInfo === r.slug}
+                  onClick={() => {
+                    setEditing(null);
+                    setDetails(null);
+                    setBasicInfo(basicInfo === r.slug ? null : r.slug);
+                  }}
+                >
+                  기본 정보 고치기
+                </Button>
+                <Button
+                  variant="outline"
                   aria-expanded={editing === r.slug}
                   onClick={() => {
+                    setBasicInfo(null);
                     setDetails(null);
                     setEditing(editing === r.slug ? null : r.slug);
                   }}
@@ -144,6 +159,7 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                   variant="outline"
                   aria-expanded={details === r.slug}
                   onClick={() => {
+                    setBasicInfo(null);
                     setEditing(null);
                     setDetails(details === r.slug ? null : r.slug);
                   }}
@@ -152,6 +168,8 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                 </Button>
               </div>
             </div>
+            {basicInfo === r.slug && <FoodBasicInfoEditor row={r} onNotice={setNotice}
+              onSave={(patch) => save(r.slug, patch, `${patch.name} 기본 정보를 저장했어요. '사이트에 반영'을 눌러 주세요.`)} />}
             {editing === r.slug && (
               <TextEditor
                 row={r}
