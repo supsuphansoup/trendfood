@@ -10,14 +10,16 @@ export function FoodCard({ food }: { food: Food }) {
   return (
     <li className="grid items-center gap-[14px] border-b py-5 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-9 md:py-7">
       <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-secondary md:rounded-3xl">
-        <Image
-          src={food.image}
-          alt={food.alt}
-          fill
-          sizes="(max-width: 768px) 100vw, 640px"
-          className="object-cover"
-          placeholder="blur"
-        />
+        <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0">
+          <Image
+            src={food.image}
+            alt={food.alt}
+            fill
+            sizes="(max-width: 768px) 100vw, 640px"
+            className="object-cover"
+            placeholder="blur"
+          />
+        </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-3 right-3" />
       </div>
       <div className="flex flex-col gap-2.5">

@@ -9,6 +9,7 @@ import { ShareButton } from "@/components/detail/share-button";
 import { StepTimer } from "@/components/detail/step-timer";
 import { TrendChart } from "@/components/detail/trend-chart";
 import { LikeButton } from "@/components/like-button";
+import { ShoppingCartPanel } from "@/components/shopping-cart";
 import { SiteFooter } from "@/components/site-footer";
 import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
 
@@ -47,7 +48,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
           className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,12,8,0.6)_0%,rgba(20,12,8,0)_30%,rgba(20,12,8,0)_38%,rgba(20,12,8,0.88)_100%)]"
         />
         <header className="relative">
-          <div className="mx-auto flex max-w-[1200px] items-center gap-3 px-5 py-4">
+          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-5 py-4">
             <Link
               href="/"
               className="flex items-center gap-1.5 rounded-full bg-scrim/45 py-2.5 pr-3.5 pl-2 text-[15px] font-bold text-white hover:text-white"
@@ -58,8 +59,9 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             <Link href="/" className="text-[22px] font-black tracking-[-0.03em] text-white hover:text-white">
               트렌드푸드
             </Link>
-            <div className="ml-auto flex gap-2">
+            <div className="ml-auto flex gap-3">
               <LikeButton slug={food.slug} name={food.name} className="size-[46px]" />
+              <ShoppingCartPanel compact />
               <ShareButton title={food.name} />
             </div>
           </div>

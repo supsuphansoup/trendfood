@@ -1,11 +1,12 @@
 "use client";
 
 import { Check, ClipboardCopy, MessageCircle, RotateCcw, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { type MouseEvent, useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { coupangUrl, type Food, won } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 import { PANTRY_KEY, useStoredSet } from "@/lib/use-stored-set";
+import { CART_KEY } from "@/components/shopping-cart";
 
 // 재료 이름에서 용량을 뺀 기본 이름 ('무염 버터 200g' → '무염 버터'). '집에 있어요'는 이 이름으로 기억한다.
 const baseName = (name: string) => name.replace(/\s[\d.]+\s?(g|kg|ml|매|개|개입|구|장|단).*$/, "");
@@ -14,6 +15,7 @@ const PRICE_AT = "11월 4일 09:00";
 
 export function IngredientCart({ food }: { food: Food }) {
   const pantry = useStoredSet(PANTRY_KEY); // 집에 있어요 (일반 재료)
+  const shoppingCart = useStoredSet(CART_KEY);
   const need = useStoredSet("tf:need"); // 기본은 집에 있는 재료지만 사겠다고 고른 것
   const added = useStoredSet(`tf:added:${food.slug}`);
   const [status, setStatus] = useState("");
@@ -44,7 +46,13 @@ export function IngredientCart({ food }: { food: Food }) {
 
   const nextLink = next && {
     href: next.url ?? coupangUrl(next.name),
-    onClick: () => added.toggle(next.name, true),
+    onClick: (event: MouseEvent<HTMLAnchorElement>) => {
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      // 진행 상태로 링크가 다음 재료로 바뀌기 전에, 누른 재료의 주소를 연다.
+      window.open(next.url ?? coupangUrl(next.name), "_blank", "noopener,noreferrer");
+      added.toggle(next.name, true);
+    },
     target: "_blank",
     rel: "sponsored noopener noreferrer",
   };
@@ -120,6 +128,17 @@ export function IngredientCart({ food }: { food: Food }) {
           </p>
         </div>
 
+        <button
+          type="button"
+          disabled={!toBuy.length}
+          onClick={() => {
+            toBuy.forEach((r) => shoppingCart.toggle(JSON.stringify({ slug: food.slug, food: food.name, name: r.name }), true));
+            say("선택한 재료를 통합 장바구니에 담았어요");
+          }}
+          className="min-h-12 rounded-xl border border-line-strong bg-background px-4 font-bold disabled:opacity-50"
+        >
+          선택한 재료 통합 장바구니에 담기
+        </button>
         {nextLink ? (
           <a
             {...nextLink}

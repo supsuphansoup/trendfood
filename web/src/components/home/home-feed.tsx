@@ -18,7 +18,10 @@ import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AdSlot } from "@/components/ad-slot";
 import { FoodCard } from "@/components/home/food-card";
+import { YearFilter } from "@/components/home/year-filter";
+import { trendHistory } from "@/data/trend-history";
 import { LikeCount } from "@/components/like-button";
+import { ShoppingCartPanel } from "@/components/shopping-cart";
 import { buyable, categoryOptions, type Food, sortOptions, tagOptions } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 import { LIKES_KEY, useStoredSet } from "@/lib/use-stored-set";
@@ -46,11 +49,13 @@ function readUrl() {
   const cat = p.get("cat");
   const sort = p.get("sort");
   const tag = p.get("tag");
+  const year = Number(p.get("year"));
   return {
     tab: ([...tabs, "찜"] as string[]).includes(cat ?? "") ? (cat as Tab) : "전체",
     sort: (sortOptions as readonly string[]).includes(sort ?? "") ? (sort as Sort) : "급상승순",
     tag: (tagOptions as readonly string[]).includes(tag ?? "") ? tag : null,
     q: p.get("q") ?? "",
+    year: Number.isInteger(year) && year >= 2010 && year <= 2025 ? year : null,
   };
 }
 
@@ -63,6 +68,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
   const [applied, setApplied] = useState("");
   const [showTop, setShowTop] = useState(false);
   const [ready, setReady] = useState(false);
+  const [year, setYear] = useState<number | null>(null);
   const likes = useStoredSet(LIKES_KEY);
   const listRef = useRef<HTMLElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -76,6 +82,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     setTag(s.tag);
     setQuery(s.q);
     setApplied(s.q);
+    setYear(s.year);
     setReady(true);
     /* eslint-enable react-hooks/set-state-in-effect */
     const onPop = () => {
@@ -85,6 +92,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
       setTag(n.tag);
       setQuery(n.q);
       setApplied(n.q);
+      setYear(n.year);
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
@@ -97,11 +105,12 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     if (sort !== "급상승순") p.set("sort", sort);
     if (tag) p.set("tag", tag);
     if (applied.trim()) p.set("q", applied.trim());
+    if (year !== null) p.set("year", String(year));
     const next = p.size ? `?${p}` : window.location.pathname;
     if (next !== window.location.search && !(next === window.location.pathname && !window.location.search)) {
       window.history.pushState(null, "", next);
     }
-  }, [ready, tab, sort, tag, applied]);
+  }, [ready, tab, sort, tag, applied, year]);
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 900);
@@ -117,7 +126,8 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
   }, [foods, likes.items]);
 
   const q = applied.trim();
-  const filtering = Boolean(q || tag || tab !== "전체");
+  const filtering = Boolean(q || tag || tab !== "전체" || year !== null);
+  const history = trendHistory.filter((item) => item.year === year);
 
   const list = useMemo(() => {
     const filtered = foods.filter(
@@ -141,14 +151,24 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: "smooth" });
   };
   const pickTab = (t: Tab) => {
+    setYear(null);
     setTab(t);
     toList();
   };
   const reset = () => {
+    setYear(null);
     setTab("전체");
     setTag(null);
     setQuery("");
     setApplied("");
+  };
+  const pickYear = (value: number) => {
+    setYear(value);
+    setTab("전체");
+    setTag(null);
+    setQuery("");
+    setApplied("");
+    toList();
   };
 
   const title = [tab === "전체" ? (filtering ? "전체" : "2위부터") : tab === "찜" ? "찜한 음식" : tab, tag && `#${tag}`, q && `'${q}' 검색`]
@@ -181,6 +201,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
               className="order-3 flex h-[46px] flex-[1_1_280px] items-center gap-2 rounded-full bg-white/95 pr-1.5 pl-4 md:order-2"
               onSubmit={(e) => {
                 e.preventDefault();
+                setYear(null);
                 setApplied(query);
                 searchRef.current?.blur();
                 listRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -218,7 +239,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 </button>
               )}
             </form>
-            <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-1 text-sm md:order-3">
+            <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-3 text-sm md:order-3">
               <Link href="/about#partners" className="px-2.5 py-3 text-white hover:text-white">
                 제휴 안내
               </Link>
@@ -226,13 +247,15 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 type="button"
                 aria-pressed={tab === "찜"}
                 onClick={() => {
+                  setYear(null);
                   setTab(tab === "찜" ? "전체" : "찜");
                   listRef.current?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="rounded-full bg-white px-4 py-2.5 font-bold text-foreground aria-pressed:bg-accent aria-pressed:text-white"
+                className="h-11 rounded-full bg-white px-4 font-bold text-foreground aria-pressed:bg-accent aria-pressed:text-white"
               >
                 <LikeCount />
               </button>
+              <ShoppingCartPanel />
             </nav>
           </div>
         </header>
@@ -286,6 +309,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 </button>
               );
             })}
+            <YearFilter year={year} onChange={pickYear} onClear={() => setYear(null)} />
           </nav>
         </aside>
 
@@ -310,8 +334,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                   </button>
                 ))}
               </div>
+              <YearFilter year={year} onChange={pickYear} onClear={() => setYear(null)} />
             </nav>
-            <nav aria-label="정렬과 태그" className="flex gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none] lg:px-0">
+            {year === null && <nav aria-label="정렬과 태그" className="flex gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none] lg:px-0">
               {sortOptions.map((s) => (
                 <button key={s} type="button" aria-pressed={sort === s} onClick={() => setSort(s)} className={chipClass}>
                   {s}
@@ -329,20 +354,38 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                   #{t}
                 </button>
               ))}
-            </nav>
+            </nav>}
           </div>
 
-          <main id="list" ref={listRef} className="scroll-mt-0 px-5 pt-4 pb-14 lg:px-0">
+          <main id="list" ref={listRef} className={cn("px-5 pt-4 pb-14 lg:px-0", year !== null ? "scroll-mt-[300px] lg:scroll-mt-4" : "scroll-mt-0")}>
             <div aria-live="polite" className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h2 className="text-lg font-black">{title}</h2>
-              <span className="text-sm text-muted-foreground">{list.length}개</span>
+              <h2 className="text-lg font-black">{year !== null ? `${year}년 유행 음식` : title}</h2>
+              <span className="text-sm text-muted-foreground">{year !== null ? history.length : list.length}개</span>
               {filtering && (
                 <button type="button" onClick={reset} className="min-h-11 text-sm font-bold text-accent underline">
                   전체 보기
                 </button>
               )}
             </div>
-            {list.length === 0 ? (
+            {year !== null ? (
+              <>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">당시 보도로 살펴본 유행 음식이에요. 순위가 아닌 대표 사례이며, 연도는 유행이 확인된 시기를 뜻해요.</p>
+                <ul className="m-0 list-none divide-y p-0">
+                  {history.map((item) => (
+                    <li key={item.name} className="flex flex-col gap-3 py-6">
+                      <span className="text-sm font-bold text-accent">{item.year}년</span>
+                      <h3 className="text-2xl font-black">{item.name}</h3>
+                      <p className="text-base leading-relaxed text-body">{item.summary}</p>
+                      <span className="text-xs text-muted-foreground">AI 요약</span>
+                      <div className="flex flex-wrap items-center gap-4">
+                        <a href={item.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm font-bold underline">출처: {item.source}<span className="sr-only"> (새 창)</span></a>
+                        {item.recipeSlug && foods.some((food) => food.slug === item.recipeSlug) && <Link href={`/food/${item.recipeSlug}`} className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm font-bold text-primary-foreground hover:text-primary-foreground">레시피 보기</Link>}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : list.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-16 text-center">
                 <p className="text-base text-body">
                   {tab === "찜" ? "아직 찜한 음식이 없어요. 사진 위 하트를 눌러 보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
