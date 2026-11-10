@@ -89,7 +89,7 @@ DataLab은 **입력한 키워드의 추이만** 반환하므로 후보 찾기와
 
 | 소스 | 역할·제약 |
 | :--- | :--- |
-| 네이버 DataLab / API HUB | 상대지수로 급상승 감지. 이전 기획에는 API별 월 50,000건·한시 무료, 2026-07-31부터 신규는 API HUB 발급으로 기록됨; 현재 주소·한도는 Areas of concern 및 plan Risks 확인 |
+| 네이버 DataLab / API HUB | 상대지수로 급상승 감지. `POST https://naverapihub.apigw.ntruss.com/search-trend/v1/search`, 인증 헤더 `X-NCP-APIGW-API-KEY-ID`·`X-NCP-APIGW-API-KEY`. HUB 안내 기준 월 50,000회, 현재 추출 요청 최대 20개 기준 하루 4회. 5그룹씩 요청하고 그룹당 검색어는 현재 최대 2개(문서 간 5/20개 충돌로 5개 이하 유지). 일 한도·요금 충돌은 `reports/트렌드푸드 인스타·네이버 데이터 조사.md` 참고 ([공식 요청 형식](https://api.ncloud-docs.com/docs/naver-api-hub-search-trend), [공식 한도](https://guide.ncloud-docs.com/docs/apihub-application)) |
 | 네이버 검색광고 API | **도입 안 함 (2026-11-10 조사)**: 2026-11-04 약관이 API 데이터를 광고 관리 목적으로만 쓰게 한다. 근거 `reports/트렌드푸드 인스타·네이버 데이터 조사.md` |
 | 네이버 블로그·카페 검색 | **도입 안 함 (2026-11-10 조사)**: 2026-09 검색 API 특약이 결과의 저장·가공·AI 입력·수익 활용을 금지한다. 네이버의 별도 허락을 받기 전에는 쓰지 않는다. 근거 같은 보고서 |
 | YouTube Data API v3 | 근거 영상 탐색·통계. 현재 검색 수치·쿼터 계산은 위 표가 기준; 확장 시 `publishedAfter`·`regionCode=KR`, `playlistItems.list`로 요리 채널 화이트리스트 업로드 폴링, `videos.list`로 통계 갱신 |
@@ -173,7 +173,7 @@ DataLab은 **입력한 키워드의 추이만** 반환하므로 후보 찾기와
 1. **AI가 정한 수치**: 배수 기준 1.3, 초안 3개, 영상 7일·검색어 5개, 점수 공식, 반영 쿨다운 5분, 수집 시각 06:00. 실제 데이터로 1~2주 돌려 보고 조정 필요.
 2. **초안 사진**: 승인된 AI 초안은 사진이 정해지지 않아 임시로 `dubai` 사진 키가 들어간다. R14 전에는 **게시 전에 운영자가 사진을 바꿔야** 하는데, 지금 관리자 화면에는 사진 바꾸기가 없다 (SQL 로만 가능).
 3. **조리법·재료 편집 불가**: 관리자 화면에서 단계·재료를 추가/삭제할 수 없다 (R16). AI 초안이 틀리면 고치기 어렵다.
-4. **네이버 데이터랩 주소**: 기존 `openapi.naver.com/v1/datalab/search` 를 쓴다. "API HUB" 로 옮겨 가면 `NAVER_DATALAB_URL` 만 바꾸면 되지만, 새 주소·요청 형식은 미확인.
+4. **네이버 데이터랩 주소**: NAVER API HUB의 `https://naverapihub.apigw.ntruss.com/search-trend/v1/search` 를 기본으로 사용한다. `NAVER_DATALAB_URL` 로 전체 요청 주소를 바꿀 수 있으며, 인증은 HUB에서 발급한 `NAVER_API_HUB_KEY_ID`·`NAVER_API_HUB_KEY`를 `X-NCP-APIGW-API-KEY-ID`·`X-NCP-APIGW-API-KEY` 헤더로 전달한다. 요청 본문·성공 응답 형식은 유지하며, Gateway 오류와 검색어 트렌드 검증 오류·429 한도 초과를 처리한다(2026-11-10 [공식 공통 인증·오류](https://api.ncloud-docs.com/docs/naver-api-hub-overview) 확인). 실제 키 발급·연동 확인은 남아 있다.
 5. **무료 등급 위험**: Supabase Free 는 1주 무활동 시 정지(매일 수집이 막아 줌), 무료 등급의 상업 이용 조항 불명확. GitHub Actions 예약은 공개 저장소에서 60일 무커밋 시 정지.
 6. **YouTube 약관**: 상세의 "관련 영상 n개" 와 후보 근거에 YouTube 에서 온 수치가 들어간다. "자체 파생 지표 노출 금지·30일 갱신" 조항에 맞는지 확인 필요 (R19).
 7. **실제 연결 일부 검증**: 2026-11-05 실제 Supabase 연결(SQL·RLS·예시 데이터)과 실제 데이터 빌드는 확인했다. 관리자 로그인·[사이트에 반영](→ GitHub `repository_dispatch`)·Cloudflare 업로드도 확인했다. 남은 것은 실제 키로 돌리는 수집(`ONBOARDING.md` 4-5).

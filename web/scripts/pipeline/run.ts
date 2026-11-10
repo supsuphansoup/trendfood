@@ -53,8 +53,8 @@ async function main() {
 
     // 3) 검색량 급상승 배수
     let trends = new Map<string, number[]>();
-    if (env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET) {
-      trends = await naverTrend(extracted.map((e) => e.name), env.NAVER_CLIENT_ID, env.NAVER_CLIENT_SECRET);
+    if (env.NAVER_API_HUB_KEY_ID && env.NAVER_API_HUB_KEY) {
+      trends = await naverTrend(extracted.map((e) => e.name), env.NAVER_API_HUB_KEY_ID, env.NAVER_API_HUB_KEY);
     } else {
       log("네이버 키 없음 → 예시 검색량 사용");
       for (const [i, e] of extracted.entries()) trends.set(e.name, sampleSeries(i));

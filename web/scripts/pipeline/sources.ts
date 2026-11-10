@@ -31,12 +31,14 @@ export async function searchYoutube(query: string, key: string, days = 7): Promi
 }
 
 /**
- * 네이버 데이터랩 검색어 트렌드 (한 번에 키워드 그룹 5개, 하루 1,000회).
+ * 네이버 API HUB 검색어 트렌드 (한 번에 키워드 그룹 5개, HUB 안내 기준 월 50,000회).
+ * 하루 1회 수집에서 음식 후보 수 ÷ 5를 올림한 만큼 호출 (최대 20개 추출 시 하루 4회).
+ * 문서 간 일 한도 충돌은 reports/트렌드푸드 인스타·네이버 데이터 조사.md 참고.
  * 값은 요청 안에서 가장 큰 값을 100으로 둔 상대값이라, 배수는 그룹마다 따로 계산해야 맞다.
- * 주소는 NAVER_DATALAB_URL 로 바꿀 수 있다 (API HUB 로 옮겨 가면 그 주소로).
+ * 주소는 NAVER_DATALAB_URL 로 바꿀 수 있다.
  */
 export async function naverTrend(names: string[], id: string, secret: string, days = 14): Promise<Map<string, number[]>> {
-  const url = process.env.NAVER_DATALAB_URL || "https://openapi.naver.com/v1/datalab/search";
+  const url = process.env.NAVER_DATALAB_URL || "https://naverapihub.apigw.ntruss.com/search-trend/v1/search";
   const end = new Date(Date.now() - 86_400_000);
   const start = new Date(end.getTime() - (days - 1) * 86_400_000);
   const out = new Map<string, number[]>();
@@ -44,7 +46,7 @@ export async function naverTrend(names: string[], id: string, secret: string, da
     const group = names.slice(i, i + 5);
     const res = await fetch(url, {
       method: "POST",
-      headers: { "X-Naver-Client-Id": id, "X-Naver-Client-Secret": secret, "Content-Type": "application/json" },
+      headers: { "X-NCP-APIGW-API-KEY-ID": id, "X-NCP-APIGW-API-KEY": secret, "Content-Type": "application/json" },
       body: JSON.stringify({
         startDate: ymd(start),
         endDate: ymd(end),
@@ -52,11 +54,21 @@ export async function naverTrend(names: string[], id: string, secret: string, da
         keywordGroups: group.map((name) => ({ groupName: name, keywords: [...new Set([name, name.replace(/\s+/g, "")])] })),
       }),
     });
+    if (!res.ok) {
+      const error = (await res.json().catch(() => ({}))) as {
+        error?: { errorCode?: string; message?: string; details?: string };
+        errorCode?: string;
+        errorMessage?: string;
+        errMsg?: string;
+      };
+      const message = [error.error?.message, error.error?.details].filter(Boolean).join(": ")
+        || error.errMsg || error.errorMessage || error.error?.errorCode || error.errorCode || res.statusText || "오류 설명 없음";
+      const quota = res.status === 429 || error.error?.errorCode === "429" || error.errorCode === "429";
+      throw new Error(`네이버 API HUB ${quota ? "한도 초과" : "오류"} ${res.status}: ${message}`);
+    }
     const body = (await res.json()) as {
-      errorMessage?: string;
       results?: { title: string; data: { period: string; ratio: number }[] }[];
     };
-    if (!res.ok) throw new Error(`네이버 데이터랩 오류 ${res.status}: ${body.errorMessage ?? ""}`);
     for (const r of body.results ?? []) {
       // 검색량이 없는 날은 응답에서 빠지므로 0으로 채운다
       const byDay = new Map(r.data.map((d) => [d.period, d.ratio]));

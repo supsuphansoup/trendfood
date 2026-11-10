@@ -133,7 +133,7 @@ npm start
 | Secret | `SUPABASE_URL` · `SUPABASE_ANON_KEY` · `SUPABASE_SERVICE_ROLE_KEY` | 4-1 에서 메모한 값 |
 | Secret | `CLOUDFLARE_API_TOKEN` · `CLOUDFLARE_ACCOUNT_ID` | 4-2 |
 | Secret | `YOUTUBE_API_KEY` | Google Cloud Console → YouTube Data API v3 → API 키 |
-| Secret | `NAVER_CLIENT_ID` · `NAVER_CLIENT_SECRET` | 네이버 개발자센터 → 애플리케이션 등록 → 데이터랩(검색어트렌드) |
+| Secret | `NAVER_API_HUB_KEY_ID` · `NAVER_API_HUB_KEY` | 네이버 클라우드 플랫폼 콘솔 → Menu → All Services → Application Services → NAVER API HUB → Subscription → [서비스 이용 신청] → Application → [Application 등록] → Data Lab의 검색어 트렌드 선택 → [다음] → 앱 이름 입력 → [완료] → 등록한 앱의 [인증 정보] → Application Key의 Client ID를 첫 Secret에, Client Secret을 둘째 Secret에 복사 ([공식 화면 안내](https://guide.ncloud-docs.com/docs/apihub-application)) |
 | Secret | `OPENAI_API_KEY` 또는 `GEMINI_API_KEY` | 6장 |
 | Variable | `AI_PROVIDER` · `AI_MODEL` | `openai`/`gemini`, 그 회사 문서의 모델 이름 |
 
