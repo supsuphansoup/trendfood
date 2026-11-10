@@ -351,6 +351,6 @@ export const seedFoods: FoodRecord[] = [
       { text: "불 끄기 30초 전에 계란을 넣고 휘젓지 않아요." },
     ],
     tip: "파는 흰 부분을 먼저, 초록 부분은 마지막에 넣으면 향이 살아요.",
-    convenience: [{ place: "편의점 라면 코너", desc: "즉석 조리기로 바로 끓여 먹을 수 있어요" }],
+    convenience: [],
   },
 ];

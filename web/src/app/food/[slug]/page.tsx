@@ -132,7 +132,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
           <IngredientCart food={food} />
 
           <div className="flex min-w-0 flex-col gap-9">
-            <section className="flex flex-col gap-3">
+            {food.convenience.length > 0 && <section className="flex flex-col gap-3">
               <h2 className="text-2xl font-black tracking-[-0.02em]">편의점·마트에서 사서 맛보기</h2>
               <p className="text-base text-body">직접 만들기 전에 맛부터 보고 싶다면 이런 곳을 찾아보세요.</p>
               <ul className="m-0 grid list-none gap-2.5 p-0 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
@@ -143,7 +143,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                   </li>
                 ))}
               </ul>
-            </section>
+            </section>}
 
             <section>
               <div className="flex items-baseline justify-between gap-2.5 pb-2">

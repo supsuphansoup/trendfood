@@ -19,6 +19,7 @@ type Row = FoodDetails & FoodBasicInfo & {
   summary: string;
   tip: string;
   ai_drafted: boolean;
+  convenience: unknown;
 };
 
 /** 게시 관리: 순서 바꾸기 · 숨기기 · 게시/초안 · 기본 정보·글·사진·재료·조리법 고치기 */
@@ -32,7 +33,7 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
   const load = useCallback(async () => {
     const { data, error } = await db
       .from("foods")
-      .select("slug, name, status, hidden, sort_order, why, summary, tip, ai_drafted, image, alt, steps, category, tags, cook_minutes, cook_label, difficulty, servings, change_label")
+      .select("slug, name, status, hidden, sort_order, why, summary, tip, ai_drafted, image, alt, steps, convenience, category, tags, cook_minutes, cook_label, difficulty, servings, change_label")
       .order("sort_order")
       .order("slug");
     if (error) return setNotice(`목록을 못 불러왔어요: ${error.message}`);

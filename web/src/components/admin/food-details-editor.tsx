@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { cleanSteps, ingredientChanges, moveItem, photoChanges, type IngredientDraft, type SavedIngredient, type StepDraft } from "@/data/admin-food-edit.ts";
+import { cleanConvenience, cleanSteps, convenienceDrafts, ingredientChanges, moveItem, photoChanges, type ConvenienceDraft, type IngredientDraft, type SavedIngredient, type StepDraft } from "@/data/admin-food-edit.ts";
 import type { Step } from "@/data/catalog-schema";
 import { photos } from "@/lib/foods";
 
-export type FoodDetails = { slug: string; name: string; image: string; alt: string; steps: Step[] };
+export type FoodDetails = { slug: string; name: string; image: string; alt: string; steps: Step[]; convenience: unknown };
 type Props = { row: FoodDetails; db: SupabaseClient; onNotice: (message: string) => void; onReload: () => Promise<void> };
 
 export function FoodDetailsEditor(props: Props) {
@@ -19,6 +19,7 @@ export function FoodDetailsEditor(props: Props) {
       <PhotoEditor {...props} />
       <IngredientsEditor {...props} />
       <StepsEditor {...props} />
+      <ConvenienceEditor {...props} />
     </div>
   );
 }
@@ -194,6 +195,55 @@ function StepsEditor({ row, db, onNotice, onReload }: Props) {
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" disabled={items.length >= 20} onClick={() => setItems([...items, { key: crypto.randomUUID(), text: "", timer: "" }])}>단계 추가</Button>
           <Button type="submit">조리법 저장</Button>
+        </div>
+      </fieldset>
+    </form>
+  );
+}
+
+function ConvenienceEditor({ row, db, onNotice, onReload }: Props) {
+  const [items, setItems] = useState<(ConvenienceDraft & { key: string })[]>(() => convenienceDrafts(row.convenience).map((item, index) => ({ ...item, key: String(index) })));
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    const result = cleanConvenience(items);
+    if (result.error !== undefined) return onNotice(result.error);
+    setSaving(true);
+    try {
+      const { error } = await db.from("foods").update({ convenience: result.value }).eq("slug", row.slug);
+      if (error) throw error;
+      onNotice(`${row.name} 사서 맛보기를 저장했어요. '사이트에 반영'을 눌러 주세요.`);
+      await onReload();
+    } catch (error) {
+      onNotice(`저장하지 못했어요: ${(error as Error).message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form noValidate onSubmit={(e) => { e.preventDefault(); void save(); }}>
+      <fieldset disabled={saving} className="flex min-w-0 flex-col gap-3 border-t pt-3">
+        <legend className="text-lg font-bold">사서 맛보기</legend>
+        <p className="text-[13px] text-muted-foreground">편의점·마트처럼 사서 맛볼 수 있는 곳이에요. 하나도 없으면 상세 화면에 이 구역이 안 보여요.</p>
+        {items.map((item, index) => (
+          <div key={item.key} className="flex min-w-0 flex-col gap-2 rounded-lg bg-muted p-3">
+            <Label htmlFor={`${row.slug}-place-${item.key}`}>파는 곳</Label>
+            <Input id={`${row.slug}-place-${item.key}`} aria-label={`사서 맛보기 ${index + 1} 파는 곳`} required maxLength={30} className="h-11 text-base" value={item.place} onChange={(e) => setItems(items.map((old) => old.key === item.key ? { ...old, place: e.target.value } : old))} />
+            <Label htmlFor={`${row.slug}-desc-${item.key}`}>설명</Label>
+            <Input id={`${row.slug}-desc-${item.key}`} aria-label={`사서 맛보기 ${index + 1} 설명`} required maxLength={80} className="h-11 text-base" value={item.desc} onChange={(e) => setItems(items.map((old) => old.key === item.key ? { ...old, desc: e.target.value } : old))} />
+            <div className="flex flex-wrap gap-2">
+              <OrderButtons name={`사서 맛보기 ${index + 1}`} index={index} count={items.length} onMove={(direction) => setItems(moveItem(items, index, direction))} />
+              <Button type="button" variant="outline" aria-label={`사서 맛보기 ${index + 1} 삭제`} onClick={() => setItems(items.filter((old) => old.key !== item.key))}>삭제</Button>
+            </div>
+          </div>
+        ))}
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="outline" onClick={() => {
+            if (items.length >= 6) return onNotice("사서 맛보기는 6개까지 적을 수 있어요.");
+            setItems([...items, { key: crypto.randomUUID(), place: "", desc: "" }]);
+          }}>파는 곳 추가</Button>
+          <Button type="submit">사서 맛보기 저장</Button>
         </div>
       </fieldset>
     </form>

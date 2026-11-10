@@ -13,6 +13,7 @@ export type FoodBasicInfo = {
 export type BasicInfoDraft = Omit<FoodBasicInfo, "cook_minutes"> & { cook_minutes: string };
 
 export type StepDraft = { text: string; timer: string };
+export type ConvenienceDraft = { place: string; desc: string };
 export type IngredientDraft = { id?: number; name: string; hard: boolean; pantry: boolean; url?: string | null };
 export type SavedIngredient = IngredientDraft & { id: number; position: number };
 type Result<T> = { value: T; error?: never } | { error: string; value?: never };
@@ -54,6 +55,28 @@ export function cleanSteps(drafts: StepDraft[]): Result<Step[]> {
     steps.push(timer ? { text, timerMinutes: minutes } : { text });
   }
   return { value: steps };
+}
+
+export function convenienceDrafts(value: unknown): ConvenienceDraft[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => item && typeof item.place === "string" && typeof item.desc === "string"
+    ? [{ place: item.place, desc: item.desc }] : []);
+}
+
+export function cleanConvenience(drafts: ConvenienceDraft[]): Result<ConvenienceDraft[]> {
+  if (drafts.length > 6) return { error: "사서 맛보기는 6개까지 적을 수 있어요." };
+  const items: ConvenienceDraft[] = [];
+  const places = new Set<string>();
+  for (const draft of drafts) {
+    const place = draft.place.trim();
+    const desc = draft.desc.trim();
+    if (!place || !desc) return { error: "파는 곳과 설명을 모두 적어 주세요. 안 쓰는 줄은 삭제해 주세요." };
+    if (place.length > 30 || desc.length > 80) return { error: "파는 곳은 30자, 설명은 80자까지 적을 수 있어요." };
+    if (places.has(place)) return { error: "파는 곳 이름이 겹쳐요. 하나로 합쳐 주세요." };
+    places.add(place);
+    items.push({ place, desc });
+  }
+  return { value: items };
 }
 
 export function ingredientChanges(original: SavedIngredient[], drafts: IngredientDraft[]): Result<IngredientChanges> {

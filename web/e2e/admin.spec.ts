@@ -7,14 +7,14 @@ const SUPABASE = "http://127.0.0.1:54321"; // playwright.config.ts 의 FAKE_SUPA
 const ADMIN = { id: "11111111-1111-1111-1111-111111111111", email: "admin@trendfood.test", password: "correct-horse" };
 const STRANGER = { id: "22222222-2222-2222-2222-222222222222", email: "guest@trendfood.test", password: "guest-pass" };
 
-type Food = { slug: string; name: string; category: string; tags: string[]; cook_minutes: number; cook_label: string; difficulty: string; servings: string; change_label: string; status: string; hidden: boolean; sort_order: number; why: string; summary: string; tip: string; ai_drafted: boolean; image: string; alt: string; hero_image: string | null; hero_alt: string | null; steps: { text: string; timerMinutes?: number }[] };
+type Food = { slug: string; name: string; category: string; tags: string[]; cook_minutes: number; cook_label: string; difficulty: string; servings: string; change_label: string; status: string; hidden: boolean; sort_order: number; why: string; summary: string; tip: string; ai_drafted: boolean; image: string; alt: string; hero_image: string | null; hero_alt: string | null; steps: { text: string; timerMinutes?: number }[]; convenience: { place: string; desc: string }[] };
 
 function makeFake() {
   const foods: Food[] = [
     ["dubai-chocolate", "두바이 초콜릿"],
     ["chicken-mayo-deopbap", "치킨마요 덮밥"],
     ["shrimp-rose-tteokbokki", "새우 로제 떡볶이"],
-  ].map(([slug, name], i) => ({ slug, name, category: "디저트", tags: ["디저트", "예전 태그"], cook_minutes: 10, cook_label: "조리 10분", difficulty: "쉬움", servings: "2인분", change_label: "새로 들어왔어요", status: "published", hidden: false, sort_order: (i + 1) * 10, why: `${name} 설명`, summary: "요약", tip: "팁", ai_drafted: false, image: "dubai", alt: "초콜릿 사진", hero_image: "dubai2", hero_alt: "히어로 사진", steps: [{ text: "섞어요" }, { text: "식혀요", timerMinutes: 10 }] }));
+  ].map(([slug, name], i) => ({ slug, name, category: "디저트", tags: ["디저트", "예전 태그"], cook_minutes: 10, cook_label: "조리 10분", difficulty: "쉬움", servings: "2인분", change_label: "새로 들어왔어요", status: "published", hidden: false, sort_order: (i + 1) * 10, why: `${name} 설명`, summary: "요약", tip: "팁", ai_drafted: false, image: "dubai", alt: "초콜릿 사진", hero_image: "dubai2", hero_alt: "히어로 사진", steps: [{ text: "섞어요" }, { text: "식혀요", timerMinutes: 10 }], convenience: [{ place: "편의점", desc: "초콜릿 바" }, { place: "마트", desc: "쿠키" }] }));
   const ingredients = [
     { id: 1, food_slug: "dubai-chocolate", position: 0, name: "카다이프", price: 12900, url: null as string | null, hard: true, pantry: false },
     { id: 2, food_slug: "dubai-chocolate", position: 1, name: "피스타치오 스프레드", price: null as number | null, url: null as string | null, hard: false, pantry: false },
@@ -380,6 +380,86 @@ test("조리법 검증: 빈 단계·범위 밖 타이머·빈 목록은 저장�
   await row.getByRole("button", { name: "조리법 저장", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "조리 단계를 하나 이상 적어 주세요." })).toBeVisible();
   expect(db.writes).toEqual([]);
+});
+
+test("사서 맛보기 편집: 수정·추가·순서 변경 후 convenience 열만 저장하고 다시 불러온다", async ({ page }) => {
+  const db = await installFake(page);
+  const before = structuredClone(db.foods[0]);
+  const lists: string[] = [];
+  page.on("request", (req) => {
+    if (req.method() === "GET" && req.url().includes("/rest/v1/foods?")) lists.push(req.url());
+  });
+  const row = await openDetails(page);
+  await expect(row.getByRole("textbox", { name: "사서 맛보기 1 파는 곳", exact: true })).toHaveValue("편의점");
+  await expect(row.getByRole("textbox", { name: "사서 맛보기 1 파는 곳", exact: true })).toHaveAttribute("maxlength", "30");
+  await expect(row.getByRole("textbox", { name: "사서 맛보기 1 설명", exact: true })).toHaveAttribute("maxlength", "80");
+  expect(new URL(lists[0]).searchParams.get("select")?.split(",")).toContain("convenience");
+  await row.getByRole("textbox", { name: "사서 맛보기 1 파는 곳", exact: true }).fill(" 동네 편의점 ");
+  await row.getByRole("textbox", { name: "사서 맛보기 1 설명", exact: true }).fill(" 초콜릿 신제품 ");
+  await row.getByRole("button", { name: "파는 곳 추가", exact: true }).click();
+  await row.getByRole("textbox", { name: "사서 맛보기 3 파는 곳", exact: true }).fill(" 백화점 ");
+  await row.getByRole("textbox", { name: "사서 맛보기 3 설명", exact: true }).fill(" 디저트 코너 ");
+  await row.getByRole("button", { name: "사서 맛보기 3 위로", exact: true }).click();
+  await row.getByRole("button", { name: "사서 맛보기 1 아래로", exact: true }).click();
+  const expected = [{ place: "백화점", desc: "디저트 코너" }, { place: "동네 편의점", desc: "초콜릿 신제품" }, { place: "마트", desc: "쿠키" }];
+  const count = lists.length;
+  const request = page.waitForRequest((req) => req.url().includes("/rest/v1/foods?") && req.method() === "PATCH");
+  await row.getByRole("button", { name: "사서 맛보기 저장", exact: true }).click();
+  expect((await request).postDataJSON()).toEqual({ convenience: expected });
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 사서 맛보기를 저장했어요. '사이트에 반영'을 눌러 주세요." })).toBeVisible();
+  await expect.poll(() => lists.length).toBeGreaterThan(count);
+  expect(db.foods[0]).toEqual({ ...before, convenience: expected });
+  await row.getByRole("button", { name: "사진·재료·조리법 고치기", exact: true }).click();
+  await row.getByRole("button", { name: "사진·재료·조리법 고치기", exact: true }).click();
+  await expect(row.getByRole("textbox", { name: "사서 맛보기 1 파는 곳", exact: true })).toHaveValue("백화점");
+});
+
+test("사서 맛보기 편집: 모든 줄을 삭제하면 빈 배열로 저장한다", async ({ page }) => {
+  const db = await installFake(page);
+  const row = await openDetails(page);
+  await row.getByRole("button", { name: "사서 맛보기 2 삭제", exact: true }).click();
+  await row.getByRole("button", { name: "사서 맛보기 1 삭제", exact: true }).click();
+  const request = page.waitForRequest((req) => req.url().includes("/rest/v1/foods?") && req.method() === "PATCH");
+  await row.getByRole("button", { name: "사서 맛보기 저장", exact: true }).click();
+  expect((await request).postDataJSON()).toEqual({ convenience: [] });
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 사서 맛보기를 저장했어요." })).toBeVisible();
+  expect(db.foods[0].convenience).toEqual([]);
+});
+
+test("사서 맛보기 검증: 빈 칸·중복 파는 곳·6줄에서 추가는 저장 요청 없음", async ({ page }) => {
+  const db = await installFake(page);
+  const requests: string[] = [];
+  page.on("request", (req) => {
+    if (req.method() === "PATCH") requests.push(req.url());
+  });
+  const row = await openDetails(page);
+  await row.getByRole("textbox", { name: "사서 맛보기 1 설명", exact: true }).fill(" ");
+  await row.getByRole("button", { name: "사서 맛보기 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "파는 곳과 설명을 모두 적어 주세요. 안 쓰는 줄은 삭제해 주세요." })).toBeVisible();
+  await row.getByRole("textbox", { name: "사서 맛보기 1 설명", exact: true }).fill("초콜릿 바");
+  await row.getByRole("textbox", { name: "사서 맛보기 2 파는 곳", exact: true }).fill(" 편의점 ");
+  await row.getByRole("button", { name: "사서 맛보기 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "파는 곳 이름이 겹쳐요. 하나로 합쳐 주세요." })).toBeVisible();
+  for (let i = 2; i < 6; i++) await row.getByRole("button", { name: "파는 곳 추가", exact: true }).click();
+  await row.getByRole("button", { name: "파는 곳 추가", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "사서 맛보기는 6개까지 적을 수 있어요." })).toBeVisible();
+  await expect(row.getByRole("textbox", { name: /사서 맛보기 \d+ 파는 곳/ })).toHaveCount(6);
+  expect(requests).toEqual([]);
+  expect(db.writes).toEqual([]);
+});
+
+test("사서 맛보기 접근성: 펼친 구역 axe·44px 입력과 버튼·가로 넘침·스크린샷", async ({ page }, info) => {
+  await installFake(page);
+  const row = await openDetails(page);
+  const section = row.getByRole("group", { name: "사서 맛보기", exact: true });
+  await expect(section).toBeVisible();
+  await expect(section.getByText("편의점·마트처럼 사서 맛볼 수 있는 곳이에요. 하나도 없으면 상세 화면에 이 구역이 안 보여요.", { exact: true })).toBeVisible();
+  await noA11y(page);
+  for (const control of await section.getByRole("textbox").or(section.getByRole("button")).all()) {
+    expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: `test-results/admin-convenience-${info.project.name}.png`, fullPage: true });
 });
 
 test("상세 편집: 글 편집과 상호 배타적이며 펼친 화면 접근성·가로 넘침 검사", async ({ page }, info) => {

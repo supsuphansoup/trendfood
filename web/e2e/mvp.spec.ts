@@ -20,6 +20,14 @@ const siteInfoLinks = [
   ["삭제 요청·연락처", "/about#contact"],
 ] as const;
 
+test("상세: 사서 맛보기가 비면 구역을 숨기고 값이 있으면 표시한다", async ({ page }) => {
+  await page.goto("/food/egg-green-onion-ramyeon");
+  await expect(page.getByRole("heading", { name: "계란 파 라면", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "편의점·마트에서 사서 맛보기", exact: true })).toHaveCount(0);
+  await page.goto("/food/dubai-chocolate");
+  await expect(page.getByRole("heading", { name: "편의점·마트에서 사서 맛보기", exact: true })).toBeVisible();
+});
+
 test("필수 페이지: 본문·시행일·메일·접근성·가로 넘침", async ({ page }, info) => {
   for (const [title, href] of siteInfoLinks.slice(0, 3)) {
     expect((await page.goto(href))?.status()).toBe(200);

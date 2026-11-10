@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { cleanBasicInfo, cleanSteps, cookLabelInput, ingredientChanges, moveItem, photoChanges, type BasicInfoDraft } from "../src/data/admin-food-edit.ts";
+import { cleanBasicInfo, cleanConvenience, cleanSteps, convenienceDrafts, cookLabelInput, ingredientChanges, moveItem, photoChanges, type BasicInfoDraft } from "../src/data/admin-food-edit.ts";
 
 const basicInfo: BasicInfoDraft = {
   name: "  두바이 초콜릿  ", category: "디저트", tags: ["안주", "목록 밖", "10분컷", "안주"],
@@ -64,6 +64,37 @@ test("재료 검증: 빈 목록·빈 이름·공백을 자른 뒤 같은 이름 
   assert.equal(ingredientChanges([], []).error, "재료를 하나 이상 적어 주세요.");
   assert.equal(ingredientChanges([], [{ ...item, name: " " }]).error, "이름이 비어 있는 재료가 있어요.");
   assert.equal(ingredientChanges([], [item, { ...item, name: "설탕" }]).error, "같은 이름의 재료가 두 번 있어요: 설탕");
+});
+
+test("사서 맛보기 정리: 앞뒤 공백 제거·순서 유지·원본 보존·0줄 정상", () => {
+  const drafts = [{ place: " 마트 ", desc: " 초콜릿 바 " }, { place: " 편의점 ", desc: " 쿠키 " }];
+  const before = structuredClone(drafts);
+  assert.deepEqual(cleanConvenience(drafts).value, [{ place: "마트", desc: "초콜릿 바" }, { place: "편의점", desc: "쿠키" }]);
+  assert.deepEqual(drafts, before);
+  assert.deepEqual(cleanConvenience([]), { value: [] });
+  assert.equal(cleanConvenience([{ place: "가".repeat(30), desc: "나".repeat(80) }]).error, undefined);
+  assert.equal(cleanConvenience(Array.from({ length: 6 }, (_, i) => ({ place: `마트 ${i}`, desc: "초콜릿" }))).value?.length, 6);
+});
+
+test("사서 맛보기 검증: 빈 칸·길이 초과·중복 파는 곳·7줄의 네 가지 안내", () => {
+  const item = { place: " 편의점 ", desc: "초콜릿" };
+  for (const draft of [{ ...item, place: " " }, { ...item, desc: " " }]) {
+    assert.equal(cleanConvenience([draft]).error, "파는 곳과 설명을 모두 적어 주세요. 안 쓰는 줄은 삭제해 주세요.");
+  }
+  for (const draft of [{ ...item, place: "가".repeat(31) }, { ...item, desc: "나".repeat(81) }]) {
+    assert.equal(cleanConvenience([draft]).error, "파는 곳은 30자, 설명은 80자까지 적을 수 있어요.");
+  }
+  assert.equal(cleanConvenience([item, { ...item, place: "편의점" }]).error, "파는 곳 이름이 겹쳐요. 하나로 합쳐 주세요.");
+  assert.equal(cleanConvenience(Array.from({ length: 7 }, (_, i) => ({ ...item, place: `마트 ${i}` }))).error, "사서 맛보기는 6개까지 적을 수 있어요.");
+});
+
+test("사서 맛보기 초안: 배열 아님·잘못된 항목 제거, 문자열 항목만 복사", () => {
+  for (const value of [null, undefined, "편의점", {}, 1]) assert.deepEqual(convenienceDrafts(value), []);
+  const valid = { place: " 편의점 ", desc: " 초콜릿 " };
+  assert.deepEqual(convenienceDrafts([null, undefined, "마트", 1, [], {}, { place: "마트" }, { place: 1, desc: "초콜릿" }, { place: "마트", desc: false }, valid, { place: "", desc: "", extra: true }]), [valid, { place: "", desc: "" }]);
+  const drafts = convenienceDrafts([valid]);
+  drafts[0].place = "마트";
+  assert.equal(valid.place, " 편의점 ");
 });
 
 test("사진 변경분: 키 변경 때만 히어로 초기화, 빈 설명 거부", () => {
