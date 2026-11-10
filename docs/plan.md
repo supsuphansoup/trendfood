@@ -9,7 +9,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 | 1 계정 연결 | 코드 없음. Supabase·Cloudflare·GitHub 설정 (`ONBOARDING.md` 4장) |
 | 2 관리자 편집 보강 | `web/src/components/admin/foods-panel.tsx`, 새 `recipe-editor.tsx`·`photo-picker.tsx`, `web/src/data/photo-keys.ts`(사진 키 목록, `lib/foods.ts` 와 공유), `web/e2e/admin.spec.ts` |
 | 3 영상 임베드 | `web/supabase/migrations/0002_video.sql`(`foods.video_id`), `src/data/db-mapping.ts`, `src/data/catalog-schema.ts`, `src/app/food/[slug]/page.tsx`, 관리자 입력칸, e2e |
-| 4 삭제 요청·약관 | `src/app/about/page.tsx`(연락 주소·처리 절차), 관리자 게시 관리에 "요청으로 내림" 기록(`foods.takedown_note`, 0003 마이그레이션) |
+| 4 삭제 요청·약관 | `web/src/app/about/page.tsx`·`web/src/app/privacy/page.tsx`·`web/src/app/terms/page.tsx`, 공통 안내 틀·운영자 메일 상수·푸터·공개 화면 e2e. 남음: 관리자 게시 관리의 내림 사유 기록(DB 열 필요) |
 | 5 약관 준수 수집 | `web/scripts/pipeline/run.ts`(30일 지난 후보 신호 삭제), `logic.test.ts` |
 | 6 분석 | `src/app/layout.tsx`(GA4, 동의 문구), `ingredient-cart.tsx`(쿠팡 링크 `subId=<slug>`) |
 | 7 실데이터·오픈 | `web/src/assets/` 실제 사진, Supabase 데이터, `CLAUDE.md`·`docs/` 기준 문서 상태 갱신 |
@@ -18,7 +18,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 1. 🟡 **계정 연결 (사람이 직접)** — 2026-11-05 Supabase·Cloudflare·GitHub Secrets·Edge Function·운영자 등록 완료(팀장 개인 계정, `ONBOARDING.md` 0장). **남음: 수집 키 3종(YouTube·네이버·AI)과 `AI_PROVIDER`·`AI_MODEL`, 교수님·팀 확인.** 원래 범위: Supabase 프로젝트·SQL·운영자 등록 → Cloudflare Pages → GitHub Secrets/Variables → Edge Function. 키는 채팅에 붙여 넣지 않는다. 병행 준비: 도메인 구입, 쿠팡 파트너스 가입, 네이버 API HUB·YouTube 키 발급, 사업자 신고 필요 여부 확인, SNS 계정 개설. 네이버 키는 **API HUB 에서만 새로 발급**되고 인증 헤더가 달라 수집 코드의 HUB 전환이 먼저다(2026-11-10 조사). 데이터랩 지수의 상업 이용·저장 범위는 네이버에 문의한다(같은 조사 보고서의 문의 목록).
 2. 🟡 **관리자 편집 보강** (spec R14·R16, Areas of concern 2·3): 조리 단계·재료 추가/삭제/순서·타이머 편집, 번들 사진 키·설명 선택과 구역별 저장 완료. **남음: 사진 업로드, "AI 이미지" 표시.** 사진 업로드는 비용·용량 검토 후 별도 단계.
 3. ☐ **영상 임베드** (R5): 운영자가 YouTube 주소 입력 → ID 만 저장(11자, `^[A-Za-z0-9_-]{11}$`) → `youtube-nocookie.com/embed/<id>` + 출처 링크. 썸네일 저장 금지.
-4. ☐ **삭제 요청 창구** (R15): 정적 사이트라 폼 대신 연락 이메일 + 48시간 안 처리 약속을 `/about` 에 적고, 관리자에서 숨기기 + 사유 기록. 필수 페이지의 개인정보처리방침·이용약관 본문과 AI 활용·신고·임시조치 고지를 오픈 전에 검토한다.
+4. 🟡 **삭제 요청 창구·필수 페이지 본문** (R8·R15): `/about#contact`에 메일 창구·48시간 답장 안내, `/privacy`·`/terms` 본문과 AI 활용·신고·임시조치 고지 완료. **남음: 관리자 화면의 내림 사유 기록(DB 열 필요), 법률 전문가 검토 전 초안이라는 점.** 운영자는 삭제 요청 확인 후 게시 관리에서 숨기기 → [사이트에 반영]으로 내린다.
 5. ☐ **YouTube 약관 대응** (R19, concern 6): 30일 지난 후보의 `signals` 비우기, 상세의 "관련 영상 n개" 표기 유지 여부 결정.
 6. ☐ **분석** (R20): GA4, 쿠팡 링크 `subId`. 쿠키 고지 문구.
 7. ☐ **실데이터 준비**: 데모 사진 교체, 쿠팡 파트너스 링크 등록, 직접 검수한 글 20~30개, 도메인 연결.

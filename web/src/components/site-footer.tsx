@@ -6,12 +6,12 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-[1200px] flex-col gap-2.5 px-5 py-7">
         <nav aria-label="사이트 정보" className="flex flex-wrap gap-4">
           {[
-            ["사이트 소개", "about"],
-            ["개인정보처리방침", "privacy"],
-            ["이용약관", "terms"],
-            ["연락처", "contact"],
-          ].map(([label, id]) => (
-            <Link key={id} href={`/about#${id}`} className="text-white hover:text-white">
+            ["사이트 소개", "/about"],
+            ["개인정보처리방침", "/privacy"],
+            ["이용약관", "/terms"],
+            ["삭제 요청·연락처", "/about#contact"],
+          ].map(([label, href]) => (
+            <Link key={href} href={href} className="inline-flex min-h-11 min-w-11 items-center text-footer-foreground hover:text-footer-foreground">
               {label}
             </Link>
           ))}

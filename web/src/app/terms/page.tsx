@@ -1,0 +1,63 @@
+import type { Metadata } from "next";
+import { SiteInfoPage } from "@/components/site-info-page";
+import { OPERATOR_EMAIL } from "@/data/site";
+
+export const metadata: Metadata = { title: "이용약관 | 트렌드푸드" };
+
+export default function TermsPage() {
+  return (
+    <SiteInfoPage title="이용약관" effectiveDate="2026년 11월 10일">
+      <p>이 약관은 트렌드푸드(이하 &quot;서비스&quot;)를 이용하는 조건을 알려 드려요. 서비스를 이용하면 이 약관에 동의한 것으로 봐요.</p>
+      <section>
+        <h2>1. 서비스 내용</h2>
+        <p>서비스는 지금 유행하는 음식 정보와 재료 목록·조리법을 보여 주고, 재료를 쿠팡에서 살 수 있도록 링크로 이어 줘요. 가입 없이 무료로 이용해요.</p>
+      </section>
+      <section>
+        <h2>2. AI 활용 고지</h2>
+        <p>음식 소개 글은 생성형 AI가 초안을 쓰고 운영자가 확인한 뒤 올려요. AI가 쓴 요약에는 &quot;AI 요약&quot;, AI로 만든 사진에는 &quot;AI 이미지&quot; 표시가 붙어요.</p>
+      </section>
+      <section>
+        <h2>3. 정보의 정확성</h2>
+        <p>순위와 검색량 추이는 공개된 데이터를 바탕으로 한 참고 정보예요. 실제 인기와 다를 수 있어요.</p>
+        <p>참고 가격은 운영자가 적어 둔 시점의 값이에요. 실제 가격·재고·배송은 쿠팡에서 확인해 주세요.</p>
+        <p>조리법은 참고용이에요. 알레르기, 재료의 상태, 불과 칼 사용 같은 조리 안전은 이용자가 직접 확인해 주세요.</p>
+      </section>
+      <section>
+        <h2>4. 제휴 고지</h2>
+        <p>이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+        <p>링크로 구매해도 가격은 같아요. 주문·결제·배송·환불은 쿠팡과 구매자 사이의 일이고, 서비스는 판매자가 아니에요.</p>
+      </section>
+      <section>
+        <h2>5. 저작권</h2>
+        <p>서비스가 쓴 글과 화면 구성의 권리는 트렌드푸드에 있어요. 허락 없이 통째로 복사해 다른 곳에 올리면 안 돼요.</p>
+        <p>소개한 원본 영상·사진의 권리는 각 원작자에게 있어요.</p>
+      </section>
+      <section>
+        <h2>6. 권리 침해 신고와 임시 조치</h2>
+        <p>내 저작권이나 명예 등 권리가 침해됐다고 생각하면 아래 메일로 알려 주세요. 48시간 안에 확인하고 답장드려요.</p>
+        <p>확인하는 동안 해당 내용을 먼저 보이지 않게 가릴 수 있어요(임시 조치). 가린 날부터 30일 안에 삭제할지 다시 보이게 할지 정해서 신고한 분에게 알려 드려요.</p>
+        <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>
+      </section>
+      <section>
+        <h2>7. 서비스 변경과 중단</h2>
+        <p>서비스는 내용을 고치거나, 점검·장애 때문에 잠시 멈출 수 있어요.</p>
+      </section>
+      <section>
+        <h2>8. 책임의 한계</h2>
+        <p>서비스는 무료로 제공하는 참고 정보예요. 서비스의 정보를 따라 하다 생긴 손해는, 운영자에게 고의나 큰 잘못이 있는 경우가 아니면 책임지지 않아요.</p>
+      </section>
+      <section>
+        <h2>9. 약관이 바뀔 때</h2>
+        <p>약관을 고치면 시행일 7일 전부터 이 페이지에 알려요.</p>
+      </section>
+      <section>
+        <h2>10. 적용되는 법</h2>
+        <p>이 약관은 대한민국 법을 따라요.</p>
+      </section>
+      <section>
+        <h2>11. 문의</h2>
+        <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>
+      </section>
+    </SiteInfoPage>
+  );
+}

@@ -13,6 +13,72 @@ const near = (actual: number[], hex: string) =>
 
 const cardTitles = (page: Page) => page.locator("#list li h3").allInnerTexts();
 
+const siteInfoLinks = [
+  ["사이트 소개", "/about"],
+  ["개인정보처리방침", "/privacy"],
+  ["이용약관", "/terms"],
+  ["삭제 요청·연락처", "/about#contact"],
+] as const;
+
+test("필수 페이지: 본문·시행일·메일·접근성·가로 넘침", async ({ page }, info) => {
+  for (const [title, href] of siteInfoLinks.slice(0, 3)) {
+    expect((await page.goto(href))?.status()).toBe(200);
+    await expect(page).toHaveTitle(`${title} | 트렌드푸드`);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
+    await expect(page.getByRole("heading", { level: 1, name: title, exact: true })).toBeVisible();
+    if (href !== "/about") {
+      await expect(page.getByText("시행일: 2026년 11월 10일", { exact: true })).toBeVisible();
+      await expect(page.getByRole("heading", { level: 2 })).toHaveCount(11);
+    }
+    const emailLinks = page.getByRole("link", { name: "trendfood2026@gmail.com", exact: true });
+    expect(await emailLinks.count()).toBeGreaterThan(0);
+    for (const email of await emailLinks.all()) {
+      await expect(email).toBeVisible();
+      await expect(email).toHaveAttribute("href", "mailto:trendfood2026@gmail.com");
+    }
+    const footer = page.getByRole("navigation", { name: "사이트 정보", exact: true });
+    for (const [label, destination] of siteInfoLinks) {
+      await expect(footer.getByRole("link", { name: label, exact: true })).toHaveAttribute("href", destination);
+    }
+    await expect(page.getByText(/오픈 전 정식 문서로 바꿀 예정|주소 확정 전/)).toHaveCount(0);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    expect((await page.getByRole("main").boundingBox())!.width).toBeLessThanOrEqual(760);
+    for (const link of await page.getByRole("link").all()) {
+      const box = (await link.boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+    }
+    await expectNoA11yViolations(page);
+    await page.screenshot({ path: `test-results/${href.slice(1)}-${info.project.name}.png`, fullPage: true });
+  }
+});
+
+test("필수 페이지: 푸터 이동·기존 소개 앵커·전문 보기", async ({ page }) => {
+  for (const [label, href] of siteInfoLinks) {
+    await page.goto("/about");
+    await page.getByRole("navigation", { name: "사이트 정보", exact: true }).getByRole("link", { name: label, exact: true }).click();
+    await expect(page).toHaveURL(href);
+  }
+  for (const id of ["about", "partners", "ai", "privacy", "terms", "contact"]) {
+    await page.goto(`/about#${id}`);
+    await expect(page.locator(`section#${id}`)).toBeVisible();
+    if (id === "privacy" || id === "terms") {
+      const title = id === "privacy" ? "개인정보처리방침" : "이용약관";
+      const fullText = page.locator(`section#${id}`).getByRole("link", { name: `${title} 전문 보기`, exact: true });
+      await expect(fullText).toHaveAttribute("href", `/${id}`);
+      await fullText.click();
+      await expect(page).toHaveURL(`/${id}`);
+    }
+  }
+  await expect(page.locator("#contact").getByRole("listitem")).toHaveText([
+    "문제가 되는 페이지 주소",
+    "어떤 부분이 문제인지 (원본 주소가 있으면 함께)",
+    "본인이 원작자·권리자인지, 대리인인지",
+  ]);
+  await page.getByRole("main").getByRole("link", { name: "트렌드푸드", exact: true }).click();
+  await expect(page).toHaveURL("/");
+});
+
 test("연도별 음식: 2010~2025 슬라이더, 출처, 주소 유지와 초기화", async ({ page }, info) => {
   await page.goto("/");
   const categories = page.getByRole("navigation", { name: "카테고리" }).filter({ visible: true });

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { SiteFooter } from "@/components/site-footer";
+import { SiteInfoPage } from "@/components/site-info-page";
+import { OPERATOR_EMAIL } from "@/data/site";
 
 export const metadata: Metadata = { title: "사이트 소개 | 트렌드푸드" };
 
-// MVP용 안내 페이지. 개인정보처리방침·이용약관 본문은 오픈 전 법률 검토 후 채운다 (docs/spec.md Compliance).
+// 필수 문서 전문과 삭제 요청 창구를 안내한다. 법률 전문가 검토는 남아 있다 (docs/spec.md Compliance).
 const sections = [
   {
     id: "about",
@@ -17,29 +18,46 @@ const sections = [
     body: "이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 재료 링크로 구매해도 가격은 같아요.",
   },
   {
+    id: "ai",
+    title: "AI 활용 안내",
+    body: '음식 소개 글(왜 뜨는지 요약, 재료, 조리법)은 생성형 AI가 초안을 쓰고, 운영자가 직접 확인하고 고친 뒤에 올려요. AI가 쓴 요약에는 "AI 요약" 표시가 붙어요. AI로 만든 사진을 쓸 때는 "AI 이미지"라고 표시해요.',
+  },
+  {
     id: "privacy",
     title: "개인정보처리방침",
-    body: "회원가입이 없어요. 찜과 '집에 있어요' 기록은 이 브라우저에만 저장되고 서버로 보내지 않아요. (오픈 전 정식 문서로 바꿀 예정)",
+    body: "회원가입이 없고, 방문자의 이름·연락처를 받지 않아요. 찜과 장바구니 기록은 이 브라우저에만 저장돼요.",
+    href: "/privacy",
   },
-  { id: "terms", title: "이용약관", body: "오픈 전 정식 문서로 바꿀 예정이에요." },
-  { id: "contact", title: "연락처", body: "원본 영상·사진 삭제 요청과 문의는 운영자 메일로 받아요. (주소 확정 전)" },
+  {
+    id: "terms",
+    title: "이용약관",
+    body: "서비스 이용 조건, AI 활용, 정보의 정확성, 권리 침해 신고 절차를 적어 두었어요.",
+    href: "/terms",
+  },
 ];
 
 export default function AboutPage() {
   return (
-    <>
-      <main className="mx-auto flex w-full max-w-[760px] flex-1 flex-col gap-8 px-5 py-10">
-        <Link href="/" className="text-2xl font-black tracking-[-0.03em] text-foreground hover:text-foreground">
-          트렌드푸드
-        </Link>
-        {sections.map((s) => (
-          <section key={s.id} id={s.id} className="flex scroll-mt-6 flex-col gap-2">
-            <h2 className="text-2xl font-black tracking-[-0.02em]">{s.title}</h2>
-            <p className="text-base leading-[1.75] text-body">{s.body}</p>
-          </section>
-        ))}
-      </main>
-      <SiteFooter />
-    </>
+    <SiteInfoPage title="사이트 소개">
+      {sections.map((s) => (
+        <section key={s.id} id={s.id}>
+          <h2>{s.title}</h2>
+          <p>{s.body}</p>
+          {s.href && <Link href={s.href}>{s.title} 전문 보기</Link>}
+        </section>
+      ))}
+      <section id="contact">
+        <h2>삭제 요청·연락처</h2>
+        <p>내 영상·사진·글이 허락 없이 쓰였거나, 틀린 내용이 있으면 아래 메일로 알려 주세요. 48시간 안에 확인하고 답장드려요. 권리 침해가 확인되면 해당 내용을 바로 내리거나 고쳐요.</p>
+        <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>
+        <p>메일에 적어 주세요:</p>
+        <ul>
+          <li>문제가 되는 페이지 주소</li>
+          <li>어떤 부분이 문제인지 (원본 주소가 있으면 함께)</li>
+          <li>본인이 원작자·권리자인지, 대리인인지</li>
+        </ul>
+        <p>그 밖의 문의도 같은 메일로 받아요.</p>
+      </section>
+    </SiteInfoPage>
   );
 }
