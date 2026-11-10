@@ -27,7 +27,7 @@
 - **작업 폴더: `C:\Users\khs62\Desktop\코딩\ai어드벤쳐` (브랜치 `main`). 수정은 항상 여기에 저장한다** (2026-11-05 사용자 지시). Orca 작업 폴더(`orca\workspaces\…`)는 쓰지 않는다.
 - **구현은 Orca Codex 작업자**(`gpt-6.1-sol`, effort `high`)가 한다. **Claude Code 는 감독**: 작업을 나눠 지시하고, 결과를 검사하고, 사용자에게 보고·결정 요청만 한다. Claude 가 직접 코드를 고치지 않는다 (작업자 결과 검증용 명령 실행, 문서·`CLAUDE.md` 갱신은 예외).
 - **알려진 문제 (2026-11-05):** Orca 1.4.248 + Codex CLI 0.160.0 에서 Codex 작업자가 `agent_readiness: timeout`(`session_not_reported`)으로 자주 시작 실패한다(Claude 작업자는 정상). 실패하면 바로 재시도하지 말고, 사용자 승인을 받아 Claude 작업자 또는 Claude 직접 구현으로 대신한다.
-- 작업자 시작: `orca orchestration worker-start --worktree "path:C:/Users/khs62/Desktop/코딩/ai어드벤쳐" --agent codex --model gpt-6.1-sol --effort high --task-title "<제목>" --spec-file <지시서>` → 턴 종료, Orca 가 깨우면 처리. 폴링 금지. 안내서는 `orca skills get orchestration`.
+- 작업자 시작: `orca orchestration worker-start --worktree "id:0abd82fd-bc27-46ca-8dae-272e787c0564::D:/home/Desktop/코딩/ai어드벤쳐" --agent codex --model gpt-6.1-sol --effort high --task-title "<제목>" --spec-file <지시서>` → 턴 종료, Orca 가 깨우면 처리. 폴링 금지. 안내서는 `orca skills get orchestration`.
 - 작업자는 `AGENTS.md` 만 자동으로 읽는다. 규칙을 바꾸면 **`AGENTS.md` 도 같이** 고친다.
 - **지시서(spec) 틀** — 매번 이 항목을 채워 자기완결로 쓴다:
   1. 목표 (`docs/spec.md` R 번호 / `docs/plan.md` 단계)
@@ -67,7 +67,7 @@
   - **카테고리 탭 (2026-11-04 사용자 결정으로 변경):** PC는 왼쪽 고정 카테고리 탭(전체·디저트·밥·면·분식·간식·찜, 개수 표시), 모바일은 상단 가로 탭. 정렬·태그 칩은 목록 위. 사이드바 **광고**는 여전히 없음.
   - 시안 색: 진한 갈색 `#2A1D16`(글자·주 버튼), 토마토 빨강 `#B3301B`(순위 숫자·주요 CTA), 연한 베이지 `#F6EEE8`/`#FBF6F2`(칩·박스), 테두리 `#EEE3DB`. 시안 글꼴은 Noto Sans KR(900 굵은 제목)이지만 실서비스는 Pretendard.
 - **익명 후기·평점: Phase 2로 연기.** 평점 표시·평점순 정렬도 제외. 좋아요(찜) 수는 유지.
-- **트렌드 수집**: 공식 API만 (네이버 API HUB + 검색광고 API + YouTube Data API). SNS·커뮤니티 크롤링, 영상 자막 추출 금지. 시작은 `docs/spec.md` 수집 규칙의 쉬운 버전(운영자 시드 + YouTube 인기 영상 제목 → LLM 음식명 추출 → DataLab 급상승 배수 → 승인 큐, GitHub Actions 하루 1회).
+- **트렌드 수집**: 공식 API만 (네이버 API HUB 데이터랩 + YouTube Data API). 네이버 검색광고 API·블로그·카페 검색 API 는 약관상 이 용도로 못 쓴다(2026-11-10 조사, `reports/트렌드푸드 인스타·네이버 데이터 조사.md`). SNS·커뮤니티 크롤링, 영상 자막 추출 금지. 시작은 `docs/spec.md` 수집 규칙의 쉬운 버전(운영자 시드 + YouTube 인기 영상 제목 → LLM 음식명 추출 → DataLab 급상승 배수 → 승인 큐, GitHub Actions 하루 1회).
 - **Instagram/TikTok**: 임베드 전용. Instagram 해시태그 검색은 Phase 2에 Meta 앱 심사 후 보조 신호로만 검토. 게시물 사진 저장 금지.
 - **음식 사진**: 자체 촬영 / AI 생성("AI 이미지" 표시) 우선, 무료 사진(Unsplash·Pexels·Pixabay·공유마당 공공누리 1유형·Wikimedia CC0)은 보조. 관리자 화면에서 후보 사진 중 운영자가 고른다. 조건은 `docs/spec.md` Design의 사진 절.
 - **게시**: LLM 초안(제목·설명란·태그만 입력) → **운영자 승인 후 게시**, "AI 요약" 표시.
