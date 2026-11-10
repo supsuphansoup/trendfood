@@ -12,13 +12,13 @@
 3. `docs/spec.md` — 기능 목록(✅/🟡/⬜)과 **Open questions**(팀 결정 안건)
 4. `docs/plan.md` — 앞으로 할 일 순서 (2단계부터 나눠 맡기)
 
-> **작업 기록**: AI(Codex 등)는 `AGENTS.md` 규칙대로 작업이 끝날 때마다 `docs/worklog/` 에 기록 파일을 하나 만들어 같은 PR 에 넣어요. 안 만들면 `AGENTS.md 규칙대로 docs/worklog 에 작업 기록 남겨줘` 라고 말해요.
+> **작업 기록**: AI(Codex 등)는 `AGENTS.md` 규칙대로 작업이 끝날 때마다 `docs/worklog/` 에 기록 파일을 하나 만들어 같은 커밋에 넣어요. 안 만들면 `AGENTS.md 규칙대로 docs/worklog 에 작업 기록 남겨줘` 라고 말해요.
 
 **순서**
 
 1. **시연 (5분)**: https://trendfood.pages.dev 메인 → 상세(재료 연속 담기) → `/admin` 로그인 → 후보 큐·게시 관리 화면.
 2. **확인받기 (핵심)**: 0장 "⚠ 아직 확인받지 않은 것" 1~7번을 **하나씩** 여쭤보고 답을 그대로 받아 적어요.
-3. **기록**: 받아 적은 것을 AI에게 주고 `이 수업 메모를 docs/spec.md Open questions 와 ONBOARDING.md 0장에 결정으로 반영하고, 코드가 바뀌어야 하면 docs/plan.md 에 작업으로 추가해줘` → PR. 결정이 안 난 건 "보류: 이유"로 적어요.
+3. **기록**: 받아 적은 것을 AI에게 주고 `이 수업 메모를 docs/spec.md Open questions 와 ONBOARDING.md 0장에 결정으로 반영하고, 코드가 바뀌어야 하면 docs/plan.md 에 작업으로 추가해줘` → 커밋·push. 결정이 안 난 건 "보류: 이유"로 적어요.
 4. **나누기**: `docs/plan.md` 2단계부터 둘이 겹치지 않게 맡을 단계를 정해 팀 채팅에 올려요.
 5. **공유할거**: 중요한것만
 
@@ -38,7 +38,7 @@
 아래는 팀장이 먼저 정해서 해 둔 거예요. **수업에서 확인받고**, 바꾸기로 하면 `docs/spec.md` Open questions 에 결정을 적고 고쳐요.
 1. **구조와 비용**: Cloudflare Pages + Supabase 무료 + GitHub Actions 로 **0원 운영** (서버 없는 정적 사이트).
 2. **계정 주인**: 모든 서비스가 팀장 개인 계정이에요. 팀원에게 대시보드 권한(멤버 초대)을 줄지 정해요.
-3. **`main` 보호 규칙 없음**: 잠금 대신 "항상 PR, 초록 ✓ 일 때만 합치기" 약속으로 운영해요.
+3. **PR 없이 `main` 에 바로 push** (2026-11-10 팀장 결정, 보호 규칙도 없음): push 전에 `git pull --rebase` 로 최신을 받고 검사 4개를 돌려요. push 뒤 GitHub Actions 의 `ci` 가 초록 ✓ 인지 보고, 빨간 ✗ 면 바로 고쳐요. 배포(`deploy`)는 기본 검사(lint·typecheck·unit)를 통과해야만 돼요.
 4. **[사이트에 반영] 토큰 만료 없음**: 저장소 하나·코드 쓰기 권한만. 프로젝트를 접을 때 반드시 삭제해요.
 5. **자동 수집은 아직 예시 값**: 수집 키(YouTube·네이버·AI)가 없어서 매일 아침 6시에 **가짜 예시 후보**가 [후보 큐]에 들어가요. 승인 전엔 사이트에 안 나오니 **반려**하면 돼요.
 6. **화면 내용**: 사진은 **데모(실서비스 금지)**, 쿠팡 링크는 파트너스 가입 전이라 **쿠팡 검색 링크**로 대체, 음식 글 10개는 예시예요.
@@ -170,7 +170,7 @@ trendfood/
 │   └── worklog/        ← 작업 기록: AI가 작업마다 파일 하나씩 남김 (팀장 확인용, AGENTS.md 규칙)
 ├── reports/            ← 조사 보고서 3개 (결정 근거, 참고용)
 ├── archive/design-mockups/ ← 예전 시안·탈락안·데모 사진 (참고용, 실서비스 사용 금지)
-├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집), ci.yml(PR 검사)
+├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집), ci.yml(push 검사)
 └── web/                ← 실제 사이트
     ├── src/app/            주소별 화면 (/, /food/[slug], /about, /admin)
     ├── src/app/theme.css   색·글자 크기 (디자인은 여기서만)

@@ -18,7 +18,7 @@
 - 사진: `web/src/lib/foods.ts` 의 키→import 목록(빌드에 포함). DB 의 `image` 는 키 이름. 쿠팡 링크는 파트너스 승인 전이라 **링크 없으면 쿠팡 검색 링크로 대체**. 사진은 `web/src/assets/demo/` 데모 — **배포 전 교체 필수**.
 - 수집: `web/scripts/pipeline/`(YouTube search → LLM 음식명 추출 → 네이버 데이터랩 배수 → 상위 3개 AI 초안). LLM 은 `AI_PROVIDER`(openai|gemini)·`AI_MODEL` 환경변수로 교체(이번 달 OpenAI 크레딧, 그 뒤 Gemini 무료), 429 는 "크레딧·한도 소진"으로 `pipeline_runs` 에 기록. 데이터랩 주소는 `NAVER_DATALAB_URL` 로 변경 가능(API HUB 이전 대비, 미확인).
 - 목표는 MVP가 아니라 **완성본**: `docs/spec.md` 전체 기능을 만들고 `docs/plan.md` 에 따라 보완한다. 단, 익명 후기·평점은 Phase 2(사용자 확보 후).
-- 원격 저장소: https://github.com/supsuphansoup/trendfood (origin). `main` 보호 규칙은 걸지 않는다(2026-11-05 결정). 팀 약속: `main` 에 직접 push 하지 않고 PR 로 올리며, `ci` 검사가 초록일 때만 합친다.
+- 원격 저장소: https://github.com/supsuphansoup/trendfood (origin). `main` 보호 규칙은 걸지 않는다(2026-11-05 결정). **PR 없이 `main` 에 바로 push** 한다(2026-11-10 결정): push 전 `git pull --rebase` 로 최신을 받고 검사 4개를 돌린다. push 뒤 `ci`(검사 4개)가 돌고, `deploy` 는 lint·typecheck·unit 을 통과해야만 배포한다.
 - `.playwright-mcp/`(Playwright MCP 스크린샷·로그)는 커밋하지 않는다 (루트 `.gitignore`).
 
 ## 팀장 PC 전용 (Orca 감독 모드)
@@ -50,7 +50,7 @@
 | `AGENTS.md` | **Codex 작업자용 규칙 (자기완결)**: 작업자 수칙·Commands·Conventions·Architecture·Verifying·Things the agent gets wrong. **같은 실수가 두 번 나오면 마지막 섹션에 한 줄 추가** |
 | `docs/worklog/` | **팀원 작업 기록**: 작업마다 `YYYY-MM-DD-이름-주제.md` 한 파일(규칙 `AGENTS.md`, 틀 `docs/worklog/README.md`). 팀원 진행 확인은 여기와 `git log` 로 |
 | `README.md` | 저장소 첫 화면용 문서 안내 |
-| `.github/workflows/` | `deploy.yml`(배포), `pipeline.yml`(매일 수집), `ci.yml`(PR 검사) |
+| `.github/workflows/` | `deploy.yml`(배포), `pipeline.yml`(매일 수집), `ci.yml`(main push·PR·수동 검사) |
 | `web/src/app/theme.css` | tweakcn/shadcn v4 형식 테마 토큰 — **유일한 원본**, `globals.css`가 불러옴 |
 | `archive/design-mockups/` | 예전 포토 피드형 시안: `home.html`, `detail.html`, `home-mobile.html`, `detail-mobile.html`. `alternatives/`는 탈락안, 현재 시각 기준 아님 |
 | `archive/design-mockups/img/` | 시안용 데모 사진 (Wikimedia Commons, 라이선스는 `credits.json`). **실서비스 사용 금지** |
