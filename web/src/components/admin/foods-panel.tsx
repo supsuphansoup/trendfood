@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { FoodDetailsEditor, type FoodDetails } from "./food-details-editor";
 
-type Row = {
+type Row = FoodDetails & {
   slug: string;
   name: string;
   status: "draft" | "published";
@@ -23,11 +24,12 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [notice, setNotice] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
+  const [details, setDetails] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     const { data, error } = await db
       .from("foods")
-      .select("slug, name, status, hidden, sort_order, why, summary, tip, ai_drafted")
+      .select("slug, name, status, hidden, sort_order, why, summary, tip, ai_drafted, image, alt, steps")
       .order("sort_order")
       .order("slug");
     if (error) return setNotice(`목록을 못 불러왔어요: ${error.message}`);
@@ -131,9 +133,22 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                 <Button
                   variant="outline"
                   aria-expanded={editing === r.slug}
-                  onClick={() => setEditing(editing === r.slug ? null : r.slug)}
+                  onClick={() => {
+                    setDetails(null);
+                    setEditing(editing === r.slug ? null : r.slug);
+                  }}
                 >
                   글 고치기
+                </Button>
+                <Button
+                  variant="outline"
+                  aria-expanded={details === r.slug}
+                  onClick={() => {
+                    setEditing(null);
+                    setDetails(details === r.slug ? null : r.slug);
+                  }}
+                >
+                  사진·재료·조리법 고치기
                 </Button>
               </div>
             </div>
@@ -143,6 +158,7 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                 onSave={(patch) => save(r.slug, patch, `${r.name} 글을 저장했어요.`).then(() => setEditing(null))}
               />
             )}
+            {details === r.slug && <FoodDetailsEditor row={r} db={db} onNotice={setNotice} onReload={load} />}
           </li>
         ))}
       </ol>
