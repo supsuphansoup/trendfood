@@ -18,6 +18,16 @@ export type IngredientDraft = { id?: number; name: string; hard: boolean; pantry
 export type SavedIngredient = IngredientDraft & { id: number; position: number };
 type Result<T> = { value: T; error?: never } | { error: string; value?: never };
 
+export const takedownReasons = ["", "원작자 삭제 요청", "권리 침해 신고", "내용 오류", "기타"] as const;
+export type TakedownNote = { reason: (typeof takedownReasons)[number]; memo: string };
+
+export function cleanTakedownNote(draft: { reason: string; memo: string }): Result<TakedownNote> {
+  if (!takedownReasons.some((reason) => reason === draft.reason)) return { error: "내림 사유를 목록에서 골라 주세요." };
+  const memo = draft.memo.trim();
+  if ([...memo].length > 200) return { error: "메모는 200자까지 적을 수 있어요." };
+  return { value: { reason: draft.reason as TakedownNote["reason"], memo } };
+}
+
 export function youtubeId(input: string): Result<string | null> {
   const value = input.trim();
   if (!value) return { value: null };

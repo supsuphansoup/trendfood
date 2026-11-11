@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { FoodBasicInfo } from "@/data/admin-food-edit.ts";
 import { FoodBasicInfoEditor } from "./food-basic-info-editor";
 import { FoodDetailsEditor, type FoodDetails } from "./food-details-editor";
+import { TakedownLog } from "./takedown-log";
 
 type Row = FoodDetails & FoodBasicInfo & {
   slug: string;
@@ -50,6 +51,15 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
   async function save(slug: string, patch: Partial<Row>, done: string) {
     const { error } = await db.from("foods").update(patch).eq("slug", slug);
     setNotice(error ? `저장하지 못했어요: ${error.message}` : done);
+    await load();
+  }
+
+  async function setHidden(row: Row, hidden: boolean) {
+    const { error } = await db.from("foods").update({ hidden }).eq("slug", row.slug);
+    if (error) return setNotice(`저장하지 못했어요: ${error.message}`);
+    const done = hidden ? `${row.name}을(를) 숨겼어요.` : `${row.name}을(를) 다시 보이게 했어요.`;
+    const { error: logError } = await db.from("takedown_log").insert({ food_slug: row.slug, action: hidden ? "hide" : "show" });
+    setNotice(logError ? `${done} 다만 내림 기록을 남기지 못했어요: ${logError.message}` : done);
     await load();
   }
 
@@ -119,9 +129,7 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                 <Label className="flex h-11 items-center gap-2 px-1 text-sm">
                   <Switch
                     checked={r.hidden}
-                    onCheckedChange={(hidden) =>
-                      save(r.slug, { hidden }, hidden ? `${r.name}을(를) 숨겼어요.` : `${r.name}을(를) 다시 보이게 했어요.`)
-                    }
+                    onCheckedChange={(hidden) => setHidden(r, hidden)}
                   />
                   숨기기
                 </Label>
@@ -170,6 +178,7 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                 </Button>
               </div>
             </div>
+            {r.hidden && <TakedownLog db={db} slug={r.slug} name={r.name} onNotice={setNotice} />}
             {basicInfo === r.slug && <FoodBasicInfoEditor row={r} onNotice={setNotice}
               onSave={(patch) => save(r.slug, patch, `${patch.name} 기본 정보를 저장했어요. '사이트에 반영'을 눌러 주세요.`)} />}
             {editing === r.slug && (

@@ -8,6 +8,7 @@ const ADMIN = { id: "11111111-1111-1111-1111-111111111111", email: "admin@trendf
 const STRANGER = { id: "22222222-2222-2222-2222-222222222222", email: "guest@trendfood.test", password: "guest-pass" };
 
 type Food = { video_id?: string | null; slug: string; name: string; category: string; tags: string[]; cook_minutes: number; cook_label: string; difficulty: string; servings: string; change_label: string; status: string; hidden: boolean; sort_order: number; why: string; summary: string; tip: string; ai_drafted: boolean; image: string; alt: string; hero_image: string | null; hero_alt: string | null; steps: { text: string; timerMinutes?: number }[]; convenience: { place: string; desc: string }[] };
+type Takedown = { id: number; food_slug: string; action: "hide" | "show"; reason: string; memo: string; created_at: string };
 
 function makeFake() {
   const foods: Food[] = [
@@ -27,7 +28,7 @@ function makeFake() {
     },
   ];
   const published: number[] = [];
-  return { foods, ingredients, candidates, published, failIngredientName: "", writes: [] as string[] };
+  return { foods, ingredients, candidates, published, takedownLog: [] as Takedown[], failTakedown: false, failIngredientName: "", writes: [] as string[] };
 }
 
 const json = (route: Route, body: unknown, status = 200) =>
@@ -69,17 +70,23 @@ async function installFake(page: Page) {
     }
 
     const table = path.replace("/rest/v1/", "");
+    if (table === "takedown_log" && db.failTakedown) return json(route, { message: "table takedown_log does not exist" }, 404);
     const f = eqFilter(url);
     const matches = (r: Record<string, unknown>) => [...url.searchParams].every(([key, value]) => !value.startsWith("eq.") || String(r[key]) === value.slice(3));
     if (table === "admins") return json(route, f?.[1] === ADMIN.id ? [{ user_id: ADMIN.id }] : []);
     if (table === "pipeline_runs") return json(route, [{ started_at: "2026-11-04T21:00:00Z", finished_at: "2026-11-04T21:02:00Z", ok: true, summary: { inserted: 1 } }]);
 
     const rows: Record<string, unknown>[] =
-      table === "foods" ? db.foods : table === "ingredients" ? db.ingredients : table === "candidates" ? db.candidates : [];
+      table === "foods" ? db.foods : table === "ingredients" ? db.ingredients : table === "candidates" ? db.candidates : table === "takedown_log" ? db.takedownLog : [];
     if (method === "GET") {
       const list = rows.filter(matches);
       if (table === "foods") list.sort((a, b) => Number(a.sort_order) - Number(b.sort_order));
       if (table === "ingredients") list.sort((a, b) => Number(a.position) - Number(b.position));
+      if (table === "takedown_log") {
+        if (url.searchParams.get("order") !== "created_at.desc,id.desc") return json(route, { message: "내림 기록 정렬 누락" }, 400);
+        list.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)) || Number(b.id) - Number(a.id));
+        return json(route, list.slice(0, Number(url.searchParams.get("limit") ?? list.length)));
+      }
       return json(route, list);
     }
     if (method === "PATCH") {
@@ -102,6 +109,11 @@ async function installFake(page: Page) {
     }
     if (method === "POST") {
       const body = req.postDataJSON();
+      if (table === "takedown_log") {
+        db.writes.push(`${method} ${table}`);
+        db.takedownLog.push({ id: db.takedownLog.length + 1, reason: "", memo: "", created_at: "2026-11-11T00:00:00Z", ...body });
+        return route.fulfill({ status: 201, headers: { "access-control-allow-origin": "*" } });
+      }
       for (const item of Array.isArray(body) ? body : [body]) {
         if (table === "ingredients" && rows.some((r) => r.food_slug === item.food_slug && r.name === item.name)) return json(route, { code: "23505", message: "duplicate key" }, 409);
         if (table === "candidates" && db.candidates.some((c) => c.normalized === item.normalized)) {
@@ -146,6 +158,143 @@ async function openBasicInfo(page: Page) {
 
 const cookLabel = '조리 시간 표시 문구 (비우면 "조리 N분", 40자)';
 const changeLabel = "순위 변동 문구 (예: 새로 들어왔어요, 30자)";
+
+test("내림 기록: 숨김·사유와 메모 저장·다시 보임, 접근성·44px·가로 넘침", async ({ page }, info) => {
+  const db = await installFake(page);
+  await login(page);
+  const row = page.getByRole("listitem").filter({ has: page.getByRole("button", { name: "두바이 초콜릿 위로", exact: true }) });
+  const section = row.getByRole("group", { name: "내림 기록", exact: true });
+  await expect(section).toHaveCount(0);
+  const insert = page.waitForRequest((req) => req.url().includes("/rest/v1/takedown_log") && req.method() === "POST");
+  await row.getByRole("switch").click();
+  expect((await insert).postDataJSON()).toEqual({ food_slug: "dubai-chocolate", action: "hide" });
+  await expect(section.getByRole("listitem")).toContainText("2026. 11. 11. 오전 09:00 · 숨김 · 사유 없음");
+  expect(db.foods[0].hidden).toBe(true);
+  expect(db.takedownLog).toHaveLength(1);
+  expect(db.writes.slice(0, 2)).toEqual(["PATCH foods", "POST takedown_log"]);
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿을(를) 숨겼어요." })).toBeVisible();
+  await section.getByLabel("내림 사유", { exact: true }).selectOption("원작자 삭제 요청");
+  const memo = section.getByLabel("메모 (200자)", { exact: true });
+  await expect(memo).toHaveAttribute("maxlength", "200");
+  await expect(memo).toHaveAccessibleDescription("요청한 사람의 이름·연락처는 적지 마세요.");
+  await memo.fill("  접수 후 확인 중  ");
+  const before = structuredClone(db.takedownLog[0]);
+  const update = page.waitForRequest((req) => req.url().includes("/rest/v1/takedown_log?") && req.method() === "PATCH");
+  await section.getByRole("button", { name: "사유 저장", exact: true }).click();
+  const req = await update;
+  expect(req.postDataJSON()).toEqual({ reason: "원작자 삭제 요청", memo: "접수 후 확인 중" });
+  expect(new URL(req.url()).searchParams.get("id")).toBe(`eq.${before.id}`);
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 내림 사유를 저장했어요." })).toBeVisible();
+  await expect(section.getByRole("listitem")).toContainText("숨김 · 원작자 삭제 요청 · 접수 후 확인 중");
+  expect(db.takedownLog[0]).toEqual({ ...before, reason: "원작자 삭제 요청", memo: "접수 후 확인 중" });
+  await noA11y(page);
+  for (const control of await section.getByRole("textbox").or(section.getByRole("combobox")).or(section.getByRole("button")).all()) {
+    expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.screenshot({ path: `test-results/admin-takedown-${info.project.name}.png`, fullPage: true });
+  const show = page.waitForRequest((request) => request.url().includes("/rest/v1/takedown_log") && request.method() === "POST");
+  await row.getByRole("switch").click();
+  expect((await show).postDataJSON()).toEqual({ food_slug: "dubai-chocolate", action: "show" });
+  await expect(section).toHaveCount(0);
+  expect(db.foods[0].hidden).toBe(false);
+  expect(db.takedownLog).toHaveLength(2);
+  expect(db.takedownLog[1].action).toBe("show");
+});
+
+test("내림 기록 표 없음: 숨김·다시 보임과 다른 편집 유지", async ({ page }) => {
+  const db = await installFake(page);
+  db.failTakedown = true;
+  const row = await openBasicInfo(page);
+  await row.getByRole("switch").click();
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿을(를) 숨겼어요. 다만 내림 기록을 남기지 못했어요: table takedown_log does not exist" })).toBeVisible();
+  expect(db.foods[0].hidden).toBe(true);
+  const section = row.getByRole("group", { name: "내림 기록", exact: true });
+  await expect(section).toHaveText("내림 기록내림 기록을 못 불러왔어요. Supabase SQL Editor 에서 web/supabase/migrations/0003_takedown_log.sql 을 먼저 실행해 주세요.");
+  await expect(section.getByRole("button")).toHaveCount(0);
+  await expect(section.getByRole("listitem")).toHaveCount(0);
+  await row.getByRole("button", { name: "글 고치기", exact: true }).click();
+  await row.getByLabel("한 줄 설명 (200자)").fill("내림 기록 없이 글 편집");
+  await row.getByRole("button", { name: "저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 글을 저장했어요." })).toBeVisible();
+  expect(db.foods[0].why).toBe("내림 기록 없이 글 편집");
+  await row.getByRole("switch").click();
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿을(를) 다시 보이게 했어요. 다만 내림 기록을 남기지 못했어요: table takedown_log does not exist" })).toBeVisible();
+  expect(db.foods[0].hidden).toBe(false);
+  await expect(section).toHaveCount(0);
+});
+
+test("내림 기록: 음식별 최신 5개와 가장 최근 hide 한 줄만 수정", async ({ page }) => {
+  const db = await installFake(page);
+  db.foods[0].hidden = true;
+  for (let id = 1; id <= 7; id++) db.takedownLog.push({ id, food_slug: "dubai-chocolate", action: id % 2 ? "hide" : "show", reason: "", memo: `기록 ${id}`, created_at: `2026-11-${String(id).padStart(2, "0")}T00:00:00Z` });
+  db.takedownLog.push({ id: 8, food_slug: "chicken-mayo-deopbap", action: "hide", reason: "", memo: "다른 음식", created_at: "2026-11-11T00:00:00Z" });
+  await login(page);
+  const section = page.getByRole("group", { name: "내림 기록", exact: true });
+  await expect(section.getByRole("listitem")).toHaveCount(5);
+  await expect(section.getByRole("listitem").first()).toContainText("기록 7");
+  await expect(section.getByRole("listitem").last()).toContainText("기록 3");
+  const before = structuredClone(db.takedownLog);
+  await section.getByLabel("내림 사유", { exact: true }).selectOption("내용 오류");
+  await section.getByRole("button", { name: "사유 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 내림 사유를 저장했어요." })).toBeVisible();
+  expect(db.takedownLog).toEqual(before.map((entry) => entry.id === 7 ? { ...entry, reason: "내용 오류" } : entry));
+});
+
+test("내림 기록: 가장 최근 show면 사유 폼 없이 목록만 표시", async ({ page }) => {
+  const db = await installFake(page);
+  db.foods[0].hidden = true;
+  db.takedownLog.push({ id: 1, food_slug: "dubai-chocolate", action: "show", reason: "", memo: "", created_at: "2026-11-11T00:00:00Z" });
+  await login(page);
+  const section = page.getByRole("group", { name: "내림 기록", exact: true });
+  await expect(section.getByRole("listitem")).toContainText("다시 보임 · 사유 없음");
+  await expect(section.getByRole("combobox")).toHaveCount(0);
+  await expect(section.getByRole("button")).toHaveCount(0);
+});
+
+test("내림 기록: 사유 저장 실패는 기록과 입력 유지", async ({ page }) => {
+  const db = await installFake(page);
+  await login(page);
+  await page.getByRole("switch").first().click();
+  const section = page.getByRole("group", { name: "내림 기록", exact: true });
+  await section.getByLabel("내림 사유", { exact: true }).selectOption("기타");
+  await page.route(`${SUPABASE}/rest/v1/takedown_log?**`, (route) => route.request().method() === "PATCH" ? json(route, { message: "사유 저장 시험 오류" }, 500) : route.fallback());
+  await section.getByRole("button", { name: "사유 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "저장하지 못했어요: 사유 저장 시험 오류" })).toBeVisible();
+  await expect(section.getByLabel("내림 사유", { exact: true })).toHaveValue("기타");
+  expect(db.takedownLog[0].reason).toBe("");
+});
+
+test("내림 기록: 숨김 저장 실패면 기록 요청 없음", async ({ page }) => {
+  const db = await installFake(page);
+  await login(page);
+  await page.route(`${SUPABASE}/rest/v1/foods?**`, (route) => route.request().method() === "PATCH" ? json(route, { message: "숨김 시험 오류" }, 500) : route.fallback());
+  await page.getByRole("switch").first().click();
+  await expect(page.getByRole("status").filter({ hasText: "저장하지 못했어요: 숨김 시험 오류" })).toBeVisible();
+  expect(db.foods[0].hidden).toBe(false);
+  expect(db.takedownLog).toEqual([]);
+  await expect(page.getByRole("group", { name: "내림 기록", exact: true })).toHaveCount(0);
+});
+
+test("내림 기록 로딩: 응답 전 폼·버튼 없이 불러오는 중 표시", async ({ page }) => {
+  await installFake(page);
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => { release = resolve; });
+  await page.route(`${SUPABASE}/rest/v1/takedown_log?**`, async (route) => {
+    if (route.request().method() === "GET") await pending;
+    await route.fallback();
+  });
+  await login(page);
+  await page.getByRole("switch").first().click();
+  const section = page.getByRole("group", { name: "내림 기록", exact: true });
+  try {
+    await expect(section).toContainText("불러오는 중이에요…");
+    await expect(section.getByRole("button")).toHaveCount(0);
+    await expect(section.getByRole("combobox")).toHaveCount(0);
+  } finally { release(); }
+  await expect(section.getByRole("button", { name: "사유 저장", exact: true })).toBeVisible();
+  await noA11y(page);
+});
 
 test("원본 영상: 주소에서 ID만 저장·목록 재조회·확인 링크·비우면 내림", async ({ page }) => {
   const db = await installFake(page);
@@ -645,12 +794,12 @@ test("게시 관리: 순서·숨기기·글 고치기 후 '사이트에 반영'"
 
   const row = page.locator("li", { hasText: "새우 로제 떡볶이" });
   await row.getByRole("switch").click();
-  await expect(row.getByText("숨김")).toBeVisible();
+  await expect(row.getByText("숨김", { exact: true })).toBeVisible();
   expect(db.foods.find((f) => f.slug === "shrimp-rose-tteokbokki")?.hidden).toBe(true);
 
   await row.getByRole("button", { name: "글 고치기" }).click();
   await row.getByLabel("한 줄 설명 (200자)").fill("바뀐 설명");
-  await row.getByRole("button", { name: "저장" }).click();
+  await row.getByRole("button", { name: "저장", exact: true }).click();
   await expect(page.getByRole("status").filter({ hasText: "새우 로제 떡볶이 글을 저장했어요." })).toBeVisible();
   expect(db.foods.find((f) => f.slug === "shrimp-rose-tteokbokki")?.why).toBe("바뀐 설명");
 

@@ -23,7 +23,7 @@ Status: approved for current build (2026-11-05). `docs/intent.md` 를 구체적�
 - R12 ✅ **후보 큐**: 자동 수집 후보 + 직접 추가, 승인(AI 초안이 있으면 `foods` 초안 행 생성)·반려.
 - R13 ✅ **[사이트에 반영]**: 사이트 재빌드 요청 + 마지막 자동 수집 결과·실패 원인 표시.
 - R14 🟡 **대표 사진 선택**: 번들 사진 중 고르기 ✅ / 업로드·"AI 이미지" 표시 ⬜.
-- R15 🟡 **삭제 요청 창구**: 메일 창구·48시간 안내 ✅ / 관리자 화면의 내림 사유 기록 ⬜ (DB 열 필요).
+- R15 ✅ **삭제 요청 창구**: 메일 창구·48시간 안내, 관리자 숨기기·다시 보이기 기록과 내림 사유·메모 저장. 실제 Supabase 에 `0003_takedown_log.sql` 적용 필요(사람이 직접).
 - R16 ✅ **조리법·재료 목록 편집**: 관리자에서 단계·재료 추가/삭제/순서, 조리 타이머·재료 속성, 사서 맛보기(편의점·마트)의 파는 곳·설명 추가/삭제/순서 편집 및 구역별 저장. 사서 맛보기가 비면 상세 화면의 해당 구역을 숨긴다. 기존 재료의 가격·쿠팡 링크 유지.
 
 ### 자동화
@@ -42,7 +42,7 @@ Status: approved for current build (2026-11-05). `docs/intent.md` 를 구체적�
 ```
 GitHub Actions pipeline (매일 21:00 UTC = 06:00 KST)
   └▶ YouTube search.list → LLM → 네이버 데이터랩 → Supabase candidates (service_role)
-운영자 브라우저 /admin ──(anon 키 + 로그인 JWT, RLS)──▶ Supabase foods·ingredients·candidates
+운영자 브라우저 /admin ──(anon 키 + 로그인 JWT, RLS)──▶ Supabase foods·ingredients·candidates·takedown_log
   └▶ [사이트에 반영] → Edge Function request-publish → GitHub repository_dispatch(publish)
 GitHub Actions deploy → npm run build (published_foods 뷰 읽기) → out/ → wrangler pages deploy
 방문자 ◀── Cloudflare Pages 정적 파일 (out/, 404.html, _headers)
@@ -69,7 +69,7 @@ GitHub Actions deploy → npm run build (published_foods 뷰 읽기) → out/ �
 
 ### 권한 (RLS)
 - 방문자(anon): `status='published' and not hidden` 인 음식과 그 재료만 읽기.
-- 운영자(`admins` 에 있는 로그인 계정): 모든 표 읽기·쓰기. `pipeline_runs` 는 읽기만.
+- 운영자(`admins` 에 있는 로그인 계정): 모든 표 읽기·쓰기. `pipeline_runs` 는 읽기만. `takedown_log`(`web/supabase/migrations/0003_takedown_log.sql`)는 읽기·추가·수정만 가능하며 삭제할 수 없고, 사유·메모는 공개 뷰에 포함하지 않는다.
 - 수집 스크립트: `service_role` 키(GitHub Secret)로 RLS 우회. 브라우저·로컬에는 두지 않는다.
 - 회원 가입은 Supabase 대시보드에서 끈다. 운영자 등록은 SQL Editor 에서만.
 
@@ -149,10 +149,10 @@ DataLab은 **입력한 키워드의 추이만** 반환하므로 후보 찾기와
 | 공정위 추천·보증 심사지침 (2024-12 개정) | 제휴 링크가 있는 화면의 **상단 또는 첫 부분**에 대가성 문구. 조건부 표현("수수료를 받을 수 있음") 금지. 장바구니 상단·CTA 근처 및 R7 위치에 노출 |
 | 쿠팡 파트너스 | 강제 이동·자동 클릭·다중 탭 자동 오픈·자체 단축 URL 금지. 사용자 탭 1회 = 상품 1개, 번들 전송·쇼핑몰별 최저가 비교·분산 링크 금지 |
 | AI 기본법 (2026-01-22 시행) | 레시피 카드에 "AI 요약", `/terms`·`/about`에 AI 활용 고지 ✅, 운영자 검수 후 게시. 세부 적용 범위는 미확인 |
-| 저작권 | 재료·조리 순서 등 사실만 추출해 새 문장으로 작성. 원본 영상은 공식 임베드 + 출처 링크, `/about#contact`에 원작자 삭제 요청 메일 창구·48시간 답장 안내 ✅ (R15), 관리자 내림 사유 기록은 남음 |
+| 저작권 | 재료·조리 순서 등 사실만 추출해 새 문장으로 작성. 원본 영상은 공식 임베드 + 출처 링크, `/about#contact`에 원작자 삭제 요청 메일 창구·48시간 답장 안내 ✅ (R15), 관리자 내림 사유 기록 구현 완료(실제 DB 에 0003 적용 필요) |
 | YouTube API 약관 | 가져온 통계는 **30일 내 갱신 또는 삭제**, 자체 파생 지표 화면 노출 금지, 스크래핑 금지(R19) |
 | 개인정보 보호 | `/privacy`에 개인정보처리방침 공개 ✅ (브라우저 저장·접속 기록·메일 처리·권리 요청·보호책임자 안내). 후기용 비밀번호 단방향 해시·IP 해시 및 단기 보관은 Phase 2 도입 때 적용 |
-| 정보통신망법 | `/terms`에 권리 침해 신고·임시조치 절차 명시 ✅ (48시간 답장·30일 안 결정 안내). 관리자 내림 사유 기록은 남음. Phase 2에는 제44조의2의 임시조치(최대 30일)·신고 및 관리 기록 포함 |
+| 정보통신망법 | `/terms`에 권리 침해 신고·임시조치 절차 명시 ✅ (48시간 답장·30일 안 결정 안내). 관리자 내림 사유 기록 구현 완료(실제 DB 에 0003 적용 필요). Phase 2에는 제44조의2의 임시조치(최대 30일)·신고 및 관리 기록 포함 |
 | 애드센스 | Design의 수익화 운영 원칙 준수 |
 | 사업자 확인 | 사업자등록·통신판매업·부가통신사업 신고 필요 여부는 **수익 발생 전** 세무사·전문가 확인 |
 

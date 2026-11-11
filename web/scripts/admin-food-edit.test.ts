@@ -1,6 +1,21 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { cleanBasicInfo, cleanConvenience, cleanSteps, convenienceDrafts, cookLabelInput, ingredientChanges, moveItem, photoChanges, type BasicInfoDraft } from "../src/data/admin-food-edit.ts";
+import { cleanBasicInfo, cleanConvenience, cleanSteps, cleanTakedownNote, convenienceDrafts, cookLabelInput, ingredientChanges, moveItem, photoChanges, takedownReasons, type BasicInfoDraft } from "../src/data/admin-food-edit.ts";
+
+test("내림 사유 정리: 허용 사유·선택 안 함·메모 공백 제거·200자 경계", () => {
+  for (const reason of takedownReasons) assert.deepEqual(cleanTakedownNote({ reason, memo: "  확인 중  " }).value, { reason, memo: "확인 중" });
+  assert.deepEqual(cleanTakedownNote({ reason: "", memo: " " }).value, { reason: "", memo: "" });
+  assert.equal(cleanTakedownNote({ reason: "기타", memo: "가".repeat(200) }).value?.memo.length, 200);
+  assert.equal(cleanTakedownNote({ reason: "기타", memo: "😀".repeat(200) }).value?.memo, "😀".repeat(200));
+});
+
+test("내림 사유 검증: 목록 밖 사유 거부", () => {
+  assert.equal(cleanTakedownNote({ reason: "목록 밖", memo: "" }).error, "내림 사유를 목록에서 골라 주세요.");
+});
+
+test("내림 사유 검증: 메모 201자 거부", () => {
+  assert.equal(cleanTakedownNote({ reason: "내용 오류", memo: "가".repeat(201) }).error, "메모는 200자까지 적을 수 있어요.");
+});
 
 const basicInfo: BasicInfoDraft = {
   name: "  두바이 초콜릿  ", category: "디저트", tags: ["안주", "목록 밖", "10분컷", "안주"],
