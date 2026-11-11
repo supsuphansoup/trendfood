@@ -18,7 +18,7 @@ const lit = (v: unknown): string => {
 
 const lines: string[] = [
   "-- 자동 생성 파일 (npm run db:seed-sql). 직접 고치지 말고 src/data/seed-foods.ts 를 고친다.",
-  "-- 0001_init.sql 실행 뒤 SQL Editor 에서 실행. 같은 slug 가 있으면 덮어쓴다.",
+  "-- 0001_init.sql → 0002_video.sql 실행 뒤 SQL Editor 에서 실행. 같은 slug 가 있으면 덮어쓴다.",
   "begin;",
 ];
 

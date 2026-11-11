@@ -7,14 +7,14 @@ const SUPABASE = "http://127.0.0.1:54321"; // playwright.config.ts 의 FAKE_SUPA
 const ADMIN = { id: "11111111-1111-1111-1111-111111111111", email: "admin@trendfood.test", password: "correct-horse" };
 const STRANGER = { id: "22222222-2222-2222-2222-222222222222", email: "guest@trendfood.test", password: "guest-pass" };
 
-type Food = { slug: string; name: string; category: string; tags: string[]; cook_minutes: number; cook_label: string; difficulty: string; servings: string; change_label: string; status: string; hidden: boolean; sort_order: number; why: string; summary: string; tip: string; ai_drafted: boolean; image: string; alt: string; hero_image: string | null; hero_alt: string | null; steps: { text: string; timerMinutes?: number }[]; convenience: { place: string; desc: string }[] };
+type Food = { video_id?: string | null; slug: string; name: string; category: string; tags: string[]; cook_minutes: number; cook_label: string; difficulty: string; servings: string; change_label: string; status: string; hidden: boolean; sort_order: number; why: string; summary: string; tip: string; ai_drafted: boolean; image: string; alt: string; hero_image: string | null; hero_alt: string | null; steps: { text: string; timerMinutes?: number }[]; convenience: { place: string; desc: string }[] };
 
 function makeFake() {
   const foods: Food[] = [
     ["dubai-chocolate", "두바이 초콜릿"],
     ["chicken-mayo-deopbap", "치킨마요 덮밥"],
     ["shrimp-rose-tteokbokki", "새우 로제 떡볶이"],
-  ].map(([slug, name], i) => ({ slug, name, category: "디저트", tags: ["디저트", "예전 태그"], cook_minutes: 10, cook_label: "조리 10분", difficulty: "쉬움", servings: "2인분", change_label: "새로 들어왔어요", status: "published", hidden: false, sort_order: (i + 1) * 10, why: `${name} 설명`, summary: "요약", tip: "팁", ai_drafted: false, image: "dubai", alt: "초콜릿 사진", hero_image: "dubai2", hero_alt: "히어로 사진", steps: [{ text: "섞어요" }, { text: "식혀요", timerMinutes: 10 }], convenience: [{ place: "편의점", desc: "초콜릿 바" }, { place: "마트", desc: "쿠키" }] }));
+  ].map(([slug, name], i) => ({ video_id: null, slug, name, category: "디저트", tags: ["디저트", "예전 태그"], cook_minutes: 10, cook_label: "조리 10분", difficulty: "쉬움", servings: "2인분", change_label: "새로 들어왔어요", status: "published", hidden: false, sort_order: (i + 1) * 10, why: `${name} 설명`, summary: "요약", tip: "팁", ai_drafted: false, image: "dubai", alt: "초콜릿 사진", hero_image: "dubai2", hero_alt: "히어로 사진", steps: [{ text: "섞어요" }, { text: "식혀요", timerMinutes: 10 }], convenience: [{ place: "편의점", desc: "초콜릿 바" }, { place: "마트", desc: "쿠키" }] }));
   const ingredients = [
     { id: 1, food_slug: "dubai-chocolate", position: 0, name: "카다이프", price: 12900, url: null as string | null, hard: true, pantry: false },
     { id: 2, food_slug: "dubai-chocolate", position: 1, name: "피스타치오 스프레드", price: null as number | null, url: null as string | null, hard: false, pantry: false },
@@ -146,6 +146,96 @@ async function openBasicInfo(page: Page) {
 
 const cookLabel = '조리 시간 표시 문구 (비우면 "조리 N분", 40자)';
 const changeLabel = "순위 변동 문구 (예: 새로 들어왔어요, 30자)";
+
+test("원본 영상: 주소에서 ID만 저장·목록 재조회·확인 링크·비우면 내림", async ({ page }) => {
+  const db = await installFake(page);
+  const before = structuredClone(db.foods[0]);
+  const row = await openDetails(page);
+  const input = row.getByLabel("YouTube 주소 또는 영상 ID", { exact: true });
+  const save = row.getByRole("button", { name: "영상 저장", exact: true });
+  await expect(input).toHaveValue("");
+  await input.fill("https://youtu.be/AbCdEfGhI_1?si=x");
+  const request = page.waitForRequest((req) => req.url().includes("/rest/v1/foods?") && req.method() === "PATCH");
+  const reload = page.waitForRequest((req) => req.url().includes("/rest/v1/foods?") && req.method() === "GET");
+  await save.click();
+  expect((await request).postDataJSON()).toEqual({ video_id: "AbCdEfGhI_1" });
+  expect(new URL((await reload).url()).searchParams.get("select")).toBe("*");
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 영상을 저장했어요. '사이트에 반영'을 눌러 주세요." })).toBeVisible();
+  await expect(row.getByRole("link", { name: "YouTube에서 확인", exact: true })).toHaveAttribute("href", "https://www.youtube.com/watch?v=AbCdEfGhI_1");
+  await expect(input).toHaveValue("AbCdEfGhI_1");
+  await expect(save).toBeEnabled();
+  expect(db.foods[0]).toEqual({ ...before, video_id: "AbCdEfGhI_1" });
+  await input.fill(" ");
+  const remove = page.waitForRequest((req) => req.url().includes("/rest/v1/foods?") && req.method() === "PATCH");
+  await save.click();
+  expect((await remove).postDataJSON()).toEqual({ video_id: null });
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 영상을 내렸어요. '사이트에 반영'을 눌러 주세요." })).toBeVisible();
+  await expect(row.getByRole("link", { name: "YouTube에서 확인", exact: true })).toHaveCount(0);
+  expect(db.foods[0]).toEqual(before);
+});
+
+test("원본 영상 검증: 잘못된 주소는 저장 요청 없이 안내", async ({ page }) => {
+  const db = await installFake(page);
+  const requests: string[] = [];
+  page.on("request", (req) => { if (req.url().startsWith(SUPABASE) && req.method() === "PATCH") requests.push(req.url()); });
+  const row = await openDetails(page);
+  await row.getByLabel("YouTube 주소 또는 영상 ID", { exact: true }).fill("https://youtube.com.evil.com/watch?v=AbCdEfGhI_1");
+  await row.getByRole("button", { name: "영상 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "YouTube 주소나 11자 영상 ID를 적어 주세요." })).toBeVisible();
+  expect(db.writes).toEqual([]);
+  expect(requests).toEqual([]);
+});
+
+test("원본 영상 열 없음: 안내만 표시하고 사진 저장은 유지", async ({ page }) => {
+  const db = await installFake(page);
+  delete db.foods[0].video_id;
+  const queries: string[] = [];
+  page.on("request", (req) => { if (req.url().includes("/rest/v1/foods?") && req.method() === "GET") queries.push(new URL(req.url()).searchParams.get("select")!); });
+  const row = await openDetails(page);
+  const video = row.getByRole("group", { name: "원본 영상", exact: true });
+  await expect(video.getByText("DB 에 영상 칸이 아직 없어요. Supabase SQL Editor 에서 web/supabase/migrations/0002_video.sql 을 먼저 실행해 주세요.", { exact: true })).toBeVisible();
+  await expect(video.getByRole("textbox")).toHaveCount(0);
+  await expect(video.getByRole("button")).toHaveCount(0);
+  await row.getByLabel("사진 설명 (화면을 못 보는 사람에게 읽어 주는 글, 120자)").fill("새 사진 설명");
+  const reload = page.waitForRequest((req) => req.url().includes("/rest/v1/foods?") && req.method() === "GET");
+  await row.getByRole("button", { name: "사진 저장", exact: true }).click();
+  await reload;
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 사진을 저장했어요." })).toBeVisible();
+  expect(db.foods[0].alt).toBe("새 사진 설명");
+  expect(db.foods[0]).not.toHaveProperty("video_id");
+  expect(queries.length).toBeGreaterThanOrEqual(2);
+  expect(queries.every((query) => query === "*")).toBe(true);
+});
+
+test("원본 영상 저장 오류: 실패 알림과 기존 ID·입력 유지", async ({ page }) => {
+  const db = await installFake(page);
+  db.foods[0].video_id = "trendfood01";
+  const row = await openDetails(page);
+  await expect(row.getByLabel("YouTube 주소 또는 영상 ID", { exact: true })).toHaveValue("trendfood01");
+  await page.route(`${SUPABASE}/rest/v1/foods?**`, async (route) => {
+    if (route.request().method() === "PATCH") return json(route, { message: "영상 저장 시험 오류" }, 500);
+    return route.fallback();
+  });
+  await row.getByLabel("YouTube 주소 또는 영상 ID", { exact: true }).fill("AbCdEfGhI_1");
+  await row.getByRole("button", { name: "영상 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "저장하지 못했어요: 영상 저장 시험 오류" })).toBeVisible();
+  expect(db.foods[0].video_id).toBe("trendfood01");
+  await expect(row.getByLabel("YouTube 주소 또는 영상 ID", { exact: true })).toHaveValue("AbCdEfGhI_1");
+});
+
+test("원본 영상 접근성: 즉시 입력·44px·iframe 없음·axe·가로 넘침·스크린샷", async ({ page }, info) => {
+  const db = await installFake(page);
+  db.foods[0].video_id = "trendfood01";
+  const row = await openDetails(page);
+  const video = row.getByRole("group", { name: "원본 영상", exact: true });
+  await expect(video.getByLabel("YouTube 주소 또는 영상 ID", { exact: true })).toBeEnabled();
+  await expect(video.getByRole("link", { name: "YouTube에서 확인", exact: true })).toHaveAttribute("href", "https://www.youtube.com/watch?v=trendfood01");
+  await expect(page.locator("iframe")).toHaveCount(0);
+  for (const element of await video.locator("input, button, a").all()) expect((await element.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await noA11y(page);
+  await page.screenshot({ path: `test-results/admin-video-${info.project.name}.png`, fullPage: true });
+});
 
 test("기본 정보: 8개 열만 저장하고 이름을 다시 불러오며 주소·사진·재료 보존", async ({ page }) => {
   const db = await installFake(page);
@@ -393,7 +483,7 @@ test("사서 맛보기 편집: 수정·추가·순서 변경 후 convenience 열
   await expect(row.getByRole("textbox", { name: "사서 맛보기 1 파는 곳", exact: true })).toHaveValue("편의점");
   await expect(row.getByRole("textbox", { name: "사서 맛보기 1 파는 곳", exact: true })).toHaveAttribute("maxlength", "30");
   await expect(row.getByRole("textbox", { name: "사서 맛보기 1 설명", exact: true })).toHaveAttribute("maxlength", "80");
-  expect(new URL(lists[0]).searchParams.get("select")?.split(",")).toContain("convenience");
+  expect(new URL(lists[0]).searchParams.get("select")).toBe("*");
   await row.getByRole("textbox", { name: "사서 맛보기 1 파는 곳", exact: true }).fill(" 동네 편의점 ");
   await row.getByRole("textbox", { name: "사서 맛보기 1 설명", exact: true }).fill(" 초콜릿 신제품 ");
   await row.getByRole("button", { name: "파는 곳 추가", exact: true }).click();

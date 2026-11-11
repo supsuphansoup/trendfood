@@ -96,6 +96,7 @@ npm start
 
 1. **후보 큐**: 아침에 자동으로 들어온 후보 확인 ("급상승 4.2배" 같은 근거가 같이 보여요). 괜찮으면 **승인**(AI 초안이 [게시 관리]에 '초안'으로 들어감), 아니면 **반려**. 내가 본 유행 음식은 **직접 추가**.
 2. **게시 관리**: 화살표로 순서 바꾸기, **숨기기**, **게시/초안 전환**, **글 고치기**, **기본 정보 고치기**, **사진·재료·조리법 고치기(사서 맛보기 포함)**를 할 수 있어요. 초안은 **글 고치기로 꼭 직접 읽고 고친 뒤** 게시해요 (AI는 틀릴 수 있어요).
+   원본 영상은 [사진·재료·조리법 고치기]에서 YouTube 주소를 넣는다.
 3. **재료 링크**: 쿠팡 파트너스 링크·참고 가격 넣기 (쿠팡 주소만 저장돼요. 비우면 쿠팡 검색으로 연결).
 4. 맨 위 **[사이트에 반영]** → 3~5분 뒤 사이트에 보여요 (5분에 한 번).
 5. **운영자 메일**(`trendfood2026@gmail.com`)을 확인해요. 삭제 요청이 오면 **48시간 안에 답장**하고, 관리자 **[게시 관리]**에서 해당 글 **숨기기** → **[사이트에 반영]**을 눌러요.
@@ -113,7 +114,7 @@ npm start
 ### 4-1. Supabase (DB·로그인)
 
 1. https://supabase.com → **New project** (지역 Seoul 또는 Tokyo).
-2. **SQL Editor** 에 `web/supabase/migrations/0001_init.sql` 붙여 넣고 **Run** → 이어서 `web/supabase/seed.sql` **Run** (예시 음식 10개).
+2. **SQL Editor** 에 `web/supabase/migrations/0001_init.sql` 붙여 넣고 **Run** → `web/supabase/migrations/0002_video.sql` **Run** → `web/supabase/seed.sql` **Run** (예시 음식 10개).
 3. **Authentication → Sign In / Providers**: 이메일만 켜고 **"Allow new users to sign up" 끄기**.
 4. **Authentication → Users → Add user** 로 운영자 계정 만들기.
 5. SQL Editor 에서 운영자 등록 (이메일만 바꿔서):

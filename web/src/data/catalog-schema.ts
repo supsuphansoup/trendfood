@@ -35,6 +35,7 @@ export type FoodRecord = {
   servings: string;
   likes: number;
   videos: number;
+  videoId: string | null;
   multiplier: number;
   /** 최근 14일 검색량 지수 */
   trend: number[];

@@ -28,8 +28,9 @@ export default function PrivacyPage() {
         <p>서비스는 Cloudflare Pages 에 올려져 있어요. 사이트를 안전하게 전달하고 공격을 막기 위해 Cloudflare 가 IP 주소, 접속 시각, 브라우저 종류 같은 접속 기록을 처리할 수 있어요. 운영자는 이 기록으로 방문자가 누구인지 알아내지 않아요.</p>
       </section>
       <section>
-        <h2>4. 쿠팡 링크</h2>
+        <h2>4. 쿠팡 링크와 YouTube 영상</h2>
         <p>재료 링크를 누르면 쿠팡 사이트가 새 창으로 열려요. 그때부터는 쿠팡의 개인정보처리방침이 적용돼요. 쿠팡은 제휴 실적을 확인하려고 쿠키를 쓸 수 있어요. 서비스는 방문자가 쿠팡에서 무엇을 샀는지 알 수 없어요.</p>
+        <p>상세 화면의 원본 영상은 YouTube 공식 플레이어로 보여 줘요. 영상이 있는 화면을 열면 플레이어를 불러오면서 IP 주소 같은 접속 정보가 YouTube(Google)에 전달되고, 영상을 재생하면 쿠키 같은 기록이 저장될 수 있어요. 이때는 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 개인정보처리방침</a>이 적용돼요.</p>
       </section>
       <section>
         <h2>5. 광고와 방문 분석</h2>

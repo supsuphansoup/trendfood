@@ -6,17 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { cleanConvenience, cleanSteps, convenienceDrafts, ingredientChanges, moveItem, photoChanges, type ConvenienceDraft, type IngredientDraft, type SavedIngredient, type StepDraft } from "@/data/admin-food-edit.ts";
+import { cleanConvenience, cleanSteps, convenienceDrafts, ingredientChanges, moveItem, photoChanges, youtubeId, type ConvenienceDraft, type IngredientDraft, type SavedIngredient, type StepDraft } from "@/data/admin-food-edit.ts";
 import type { Step } from "@/data/catalog-schema";
 import { photos } from "@/lib/foods";
 
-export type FoodDetails = { slug: string; name: string; image: string; alt: string; steps: Step[]; convenience: unknown };
+export type FoodDetails = { slug: string; name: string; image: string; alt: string; steps: Step[]; convenience: unknown; video_id?: string | null };
 type Props = { row: FoodDetails; db: SupabaseClient; onNotice: (message: string) => void; onReload: () => Promise<void> };
 
 export function FoodDetailsEditor(props: Props) {
   return (
     <div className="flex min-w-0 flex-col gap-4 border-t pt-3">
       <PhotoEditor {...props} />
+      <VideoEditor {...props} />
       <IngredientsEditor {...props} />
       <StepsEditor {...props} />
       <ConvenienceEditor {...props} />
@@ -64,6 +65,43 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
         </div>
         <p className="text-sm text-muted-foreground">지금 들어 있는 사진은 모두 데모예요. 실제 서비스 전에 바꿔야 해요.</p>
         <Button type="submit" className="self-start">사진 저장</Button>
+      </fieldset>
+    </form>
+  );
+}
+
+function VideoEditor({ row, db, onNotice, onReload }: Props) {
+  const [input, setInput] = useState(row.video_id ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function save() {
+    const result = youtubeId(input);
+    if (result.error !== undefined) return onNotice(result.error);
+    setSaving(true);
+    try {
+      const { error } = await db.from("foods").update({ video_id: result.value }).eq("slug", row.slug);
+      if (error) throw error;
+      setInput(result.value ?? "");
+      onNotice(`${row.name} 영상을 ${result.value ? "저장했어요" : "내렸어요"}. '사이트에 반영'을 눌러 주세요.`);
+      await onReload();
+    } catch (error) {
+      onNotice(`저장하지 못했어요: ${(error as Error).message}`);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form noValidate onSubmit={(e) => { e.preventDefault(); void save(); }}>
+      <fieldset disabled={saving} className="flex min-w-0 flex-col gap-3 border-t pt-3">
+        <legend className="text-lg font-bold">원본 영상</legend>
+        {row.video_id === undefined ? <p className="text-sm text-muted-foreground">DB 에 영상 칸이 아직 없어요. Supabase SQL Editor 에서 web/supabase/migrations/0002_video.sql 을 먼저 실행해 주세요.</p> : <>
+          <Label htmlFor={`${row.slug}-video`}>YouTube 주소 또는 영상 ID</Label>
+          <Input id={`${row.slug}-video`} aria-describedby={`${row.slug}-video-help`} value={input} onChange={(e) => setInput(e.target.value)} className="h-11 text-base" />
+          <p id={`${row.slug}-video-help`} className="text-sm text-muted-foreground">주소를 넣으면 영상 ID(11자)만 저장해요. 비우고 저장하면 영상이 내려가요.</p>
+          {row.video_id && <a href={`https://www.youtube.com/watch?v=${row.video_id}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center self-start text-accent underline">YouTube에서 확인</a>}
+          <Button type="submit" className="self-start">영상 저장</Button>
+        </>}
       </fieldset>
     </form>
   );

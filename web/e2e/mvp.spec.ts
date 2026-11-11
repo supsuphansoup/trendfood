@@ -1,6 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
+test.beforeEach(async ({ page }) => {
+  // 기존 상세 이동 테스트도 실제 YouTube 네트워크에 의존하지 않는다.
+  await page.route(/^https?:\/\/(?:[^/]+\.)?youtube(?:-nocookie)?\.com\//, (route) => route.fulfill({ contentType: "text/html", body: '<!doctype html><html lang="ko"><head><title>영상 테스트</title></head><body></body></html>' }));
+});
+
 const rgb = (el: Locator) =>
   el.evaluate((node) => {
     const ctx = document.createElement("canvas").getContext("2d")!;
@@ -19,6 +24,46 @@ const siteInfoLinks = [
   ["이용약관", "/terms"],
   ["삭제 요청·연락처", "/about#contact"],
 ] as const;
+
+test("원본 영상 상세: 공식 iframe·출처·최소 크기·axe·가로 넘침", async ({ page }, info) => {
+  await page.goto("/food/chicken-mayo-deopbap");
+  const frame = page.locator("iframe");
+  await expect(frame).toHaveCount(1);
+  await expect(frame).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/trendfood01");
+  await expect(frame).toHaveAttribute("title", "치킨마요 덮밥 원본 영상");
+  await expect(frame).toHaveAttribute("loading", "lazy");
+  await expect(frame).toHaveAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+  await expect(frame).toHaveAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+  await expect(frame).toHaveAttribute("allowfullscreen", "");
+  const link = page.getByRole("link", { name: "YouTube에서 보기", exact: true });
+  await expect(link).toHaveAttribute("href", "https://www.youtube.com/watch?v=trendfood01");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(page.getByText("원본 영상은 YouTube 공식 플레이어로 재생돼요. 원작자가 요청하면 바로 내려요.", { exact: false })).toBeVisible();
+  const box = (await frame.boundingBox())!;
+  expect(box.width).toBeGreaterThanOrEqual(200);
+  expect(box.height).toBeGreaterThanOrEqual(200);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await expectNoA11yViolations(page);
+  await page.screenshot({ path: `test-results/detail-video-${info.project.name}.png`, fullPage: true });
+});
+
+test("원본 영상 없음: iframe·임시 문구·관련 영상 수 숨김, 글 폭 제한", async ({ page }) => {
+  await page.goto("/food/dubai-chocolate");
+  await expect(page.locator("iframe")).toHaveCount(0);
+  await expect(page.getByText(/원본 영상 자리|관련 영상/)).toHaveCount(0);
+  const summary = page.getByRole("heading", { name: "왜 지금 뜨고 있나요", exact: true }).locator("..");
+  expect((await summary.boundingBox())!.width).toBeLessThanOrEqual(768);
+});
+
+test("원본 영상 개인정보 안내: 제목·Google 방침 링크", async ({ page }) => {
+  await page.goto("/privacy");
+  await expect(page.getByRole("heading", { name: "4. 쿠팡 링크와 YouTube 영상", exact: true })).toBeVisible();
+  const link = page.getByRole("link", { name: "Google 개인정보처리방침", exact: true });
+  await expect(link).toHaveAttribute("href", "https://policies.google.com/privacy");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", "noopener noreferrer");
+});
 
 test("상세: 사서 맛보기가 비면 구역을 숨기고 값이 있으면 표시한다", async ({ page }) => {
   await page.goto("/food/egg-green-onion-ramyeon");

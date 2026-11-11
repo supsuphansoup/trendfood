@@ -1,4 +1,4 @@
-import { ChevronLeft, Play } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -105,7 +105,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
 
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-5 pt-8 pb-28 lg:pb-16">
         <section className="flex flex-wrap gap-8">
-          <div className="flex min-w-0 flex-[1_1_460px] flex-col gap-2.5">
+          <div className={`flex min-w-0 flex-[1_1_460px] flex-col gap-2.5${food.videoId ? "" : " max-w-3xl"}`}>
             <h2 className="text-2xl font-black tracking-[-0.02em]">왜 지금 뜨고 있나요</h2>
             <p className="text-base leading-[1.75] text-body md:text-[17px]">{food.summary}</p>
             <TrendChart data={food.trend} multiplier={food.multiplier} />
@@ -114,18 +114,23 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               AI가 공개 검색량과 영상 제목을 바탕으로 요약했고, 운영자가 검수했어요.
             </p>
           </div>
-          <figure className="m-0 flex min-w-0 flex-[1_1_460px] flex-col gap-2">
-            <div className="relative aspect-video overflow-hidden rounded-2xl bg-primary">
-              <Image src={food.image} alt="" fill sizes="(max-width: 1024px) 100vw, 560px" className="object-cover opacity-80" />
-              <span className="absolute top-1/2 left-1/2 flex h-12 w-[68px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl bg-[#E62117]">
-                <Play className="size-5 fill-white text-white" aria-hidden />
-              </span>
+          {food.videoId && <figure className="m-0 flex min-w-0 flex-[1_1_460px] flex-col gap-2">
+            <div className="relative aspect-video min-h-[200px] overflow-hidden rounded-2xl bg-primary">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${food.videoId}`}
+                title={`${food.name} 원본 영상`}
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="absolute inset-0 size-full border-0"
+              />
             </div>
             <figcaption className="text-[13px] leading-relaxed text-muted-foreground">
-              원본 영상 자리: 운영자가 등록하면 YouTube 공식 임베드로 재생돼요 (관련 영상 {food.videos}개). 원작자가
-              요청하면 바로 내려요.
+              원본 영상은 YouTube 공식 플레이어로 재생돼요. 원작자가 요청하면 바로 내려요.{" "}
+              <a href={`https://www.youtube.com/watch?v=${food.videoId}`} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-accent underline">YouTube에서 보기</a>
             </figcaption>
-          </figure>
+          </figure>}
         </section>
 
         <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">

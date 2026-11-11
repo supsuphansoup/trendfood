@@ -18,6 +18,7 @@ export type FoodRow = {
   servings: string;
   likes: number;
   videos: number;
+  video_id?: string | null;
   multiplier: number | string;
   trend: number[];
   image: string;
@@ -81,6 +82,7 @@ export function rowToRecord(row: FoodRow): Omit<FoodRecord, "rank"> {
     servings: row.servings,
     likes: row.likes,
     videos: row.videos,
+    videoId: typeof row.video_id === "string" && /^[A-Za-z0-9_-]{11}$/.test(row.video_id) ? row.video_id : null,
     multiplier: Number(row.multiplier) || 1,
     trend: row.trend?.length ? row.trend : [1, 1],
     image: row.image,
@@ -123,6 +125,7 @@ export function recordToRow(r: FoodRecord, extra: Partial<FoodRow> = {}): Omit<F
     servings: r.servings,
     likes: r.likes,
     videos: r.videos,
+    video_id: r.videoId,
     multiplier: r.multiplier,
     trend: r.trend,
     image: r.image,
