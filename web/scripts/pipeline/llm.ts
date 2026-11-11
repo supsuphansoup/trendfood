@@ -136,10 +136,11 @@ export const draftSchema = {
   },
 };
 
-export function draftPrompt(name: string, multiplier: number, mentions: number, titles: string[]): string {
+export function draftPrompt(name: string, multiplier: number, titles: string[]): string {
   return [
     `음식 '${name}'의 소개 글 초안을 한국어로 써 주세요. 운영자가 검수한 뒤 게시합니다.`,
-    `근거 수치: 네이버 검색량이 최근 3일 동안 평소의 ${multiplier}배, 최근 인기 영상 제목 ${mentions}개에 등장.`,
+    `근거 수치: 네이버 검색량이 최근 3일 동안 평소의 ${multiplier}배.`,
+    "영상 개수·조회수·구독자 수 같은 YouTube 수치는 글에 쓰지 마세요.",
     "summary 에는 위 수치와 아래 제목에서 알 수 있는 사실만 쓰고, 출처 없는 숫자·유행 원인을 지어내지 마세요.",
     "조리법은 일반적인 가정용 레시피로 6단계 이내, 재료는 12개 이내로 쓰세요.",
     "",

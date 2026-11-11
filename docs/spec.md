@@ -29,7 +29,7 @@ Status: approved for current build (2026-11-05). `docs/intent.md` 를 구체적�
 ### 자동화
 - R17 ✅ **매일 수집**: YouTube 인기 음식 영상 제목 → LLM 음식명 추출 → 네이버 데이터랩 급상승 배수 → 후보 '대기' 저장, 상위 몇 개는 AI 상세 초안. 자동 게시는 하지 않는다.
 - R18 ✅ **배포**: main push · [사이트에 반영] · 수동 실행 때 정적 빌드 후 Cloudflare Pages 업로드.
-- R19 ⬜ **통계 갱신**: YouTube 에서 가져온 수치는 30일 안에 갱신 또는 삭제 (API 약관).
+- R19 ✅ **통계 갱신**: 29일 지난 자동 수집 후보의 YouTube 유래 값 정리, 승인 때 개수 복사 안 함, 초안 프롬프트에 YouTube 수치 금지.
 - R20 ⬜ **분석**: GA4 + 쿠팡 `subId` 로 글별 클릭·수익 추적.
 
 ### 제외 (하지 않음)
@@ -175,7 +175,7 @@ DataLab은 **입력한 키워드의 추이만** 반환하므로 후보 찾기와
 3. **조리법·재료 편집 — 해결**: 관리자에서 단계·재료 추가/삭제/순서와 타이머를 편집한다(R16). 기존 재료 가격·쿠팡 링크를 유지하며, 링크가 있는 재료 삭제는 두 번 누른다. 재료 저장 중 오류가 나면 성공 알림 없이 DB 목록을 다시 불러온다.
 4. **네이버 데이터랩 주소**: NAVER API HUB의 `https://naverapihub.apigw.ntruss.com/search-trend/v1/search` 를 기본으로 사용한다. `NAVER_DATALAB_URL` 로 전체 요청 주소를 바꿀 수 있으며, 인증은 HUB에서 발급한 `NAVER_API_HUB_KEY_ID`·`NAVER_API_HUB_KEY`를 `X-NCP-APIGW-API-KEY-ID`·`X-NCP-APIGW-API-KEY` 헤더로 전달한다. 요청 본문·성공 응답 형식은 유지하며, Gateway 오류와 검색어 트렌드 검증 오류·429 한도 초과를 처리한다(2026-11-10 [공식 공통 인증·오류](https://api.ncloud-docs.com/docs/naver-api-hub-overview) 확인). 실제 키 발급·연동 확인은 남아 있다.
 5. **무료 등급 위험**: Supabase Free 는 1주 무활동 시 정지(매일 수집이 막아 줌), 무료 등급의 상업 이용 조항 불명확. GitHub Actions 예약은 공개 저장소에서 60일 무커밋 시 정지.
-6. **YouTube 약관**: 상세의 "관련 영상 n개" 표기는 삭제함, 30일 갱신·삭제(R19)는 남음.
+6. **YouTube 약관**: 상세의 "관련 영상 n개" 표기 삭제, 29일 지난 자동 수집 후보의 YouTube 유래 값 정리·승인 때 개수 복사 방지·초안 프롬프트에 YouTube 수치 금지(R19) 완료. **남음: YouTube API Services 사용 고지와 YouTube 서비스 약관 동의 문구를 /about·/terms 에 넣을지는 팀 결정**.
 7. **실제 연결 일부 검증**: 2026-11-05 실제 Supabase 연결(SQL·RLS·예시 데이터)과 실제 데이터 빌드는 확인했다. 관리자 로그인·[사이트에 반영](→ GitHub `repository_dispatch`)·Cloudflare 업로드도 확인했다. 남은 것은 실제 키로 돌리는 수집(`ONBOARDING.md` 4-5).
 8. **관리자 화면 공개성**: 정적 사이트라 `/admin` 화면 자체는 누구나 열 수 있다 (데이터는 RLS 로 보호). 주소를 숨기는 것은 보안이 아니라 편의다.
 9. **수익·API 약관 미확인**: 쿠팡 API 실제 호출 한도(분당 50회 vs 시간당 10회, 출처 충돌)·식품 공식 수수료율, 네이버 API HUB 유료 전환 시점·단가·검색광고 API 비광고 목적 사용 약관을 확인한다. 이전 기획의 DataLab 월 50,000건·YouTube 검색 하루 100회(별도 쿼터)와 현행 spec·plan 수치는 다르므로 최신 문서를 유지하고 실제 적용 전 공식 한도를 확인한다.

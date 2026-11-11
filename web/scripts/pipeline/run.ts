@@ -6,6 +6,7 @@
 // 키가 없으면 그 단계는 예시 값으로 대신하고, Supabase 키가 없거나 --dry-run 이면 DB 에 쓰지 않고 화면에만 보여 준다.
 import { createClient } from "@supabase/supabase-js";
 import { type CandidateDraft, normalizeName, weekOf } from "../../src/data/candidates.ts";
+import { cleanupOldYoutubeData } from "./cleanup.ts";
 import { AiQuotaError, aiConfig, askJson, draftPrompt, draftSchema, extractPrompt, extractSchema } from "./llm.ts";
 import { cleanExtracted, type Extracted, pickCandidates, risingMultiplier, type Scored, scaleTrend, scoreOf } from "./logic.ts";
 import { naverTrend, searchYoutube, type Video } from "./sources.ts";
@@ -28,6 +29,13 @@ async function main() {
   const summary: Record<string, unknown> = { dryRun };
 
   try {
+    if (db) {
+      summary.cleaned = await cleanupOldYoutubeData(db, new Date());
+      log(`30일 정리: ${summary.cleaned}개`);
+    } else {
+      log("DB 없음 → 30일 정리 건너뜀");
+    }
+
     // 1) 영상 제목
     let videos: Video[] = [];
     if (env.YOUTUBE_API_KEY) {
@@ -84,7 +92,7 @@ async function main() {
       let draft: CandidateDraft | null = null;
       if (i < DRAFT_LIMIT && aiConfig()) {
         try {
-          draft = (await askJson(draftPrompt(p.name, p.multiplier, p.mentions, titles), draftSchema)) as CandidateDraft;
+          draft = (await askJson(draftPrompt(p.name, p.multiplier, titles), draftSchema)) as CandidateDraft;
         } catch (e) {
           if (e instanceof AiQuotaError) throw e;
           log(`${p.name} 초안 실패: ${(e as Error).message}`);

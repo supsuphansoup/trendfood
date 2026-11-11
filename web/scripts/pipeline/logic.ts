@@ -1,8 +1,31 @@
 // 수집 파이프라인의 계산 부분 (외부 호출 없음 → node --test 로 검사)
-import { normalizeName } from "../../src/data/candidates.ts";
+import { type CandidateRow, normalizeName } from "../../src/data/candidates.ts";
 import { categoryOptions, type Category } from "../../src/data/catalog-schema.ts";
 
 export type Extracted = { name: string; category: Category; mentions: number };
+
+export const YOUTUBE_RETENTION_DAYS = 29;
+
+export function retentionCutoff(now: Date): string {
+  return new Date(now.getTime() - YOUTUBE_RETENTION_DAYS * 24 * 60 * 60 * 1000).toISOString();
+}
+
+type YoutubeData = Pick<CandidateRow, "source" | "note" | "signals" | "score">;
+
+/** YouTube 유래 값만 비우고, 변경이 없으면 DB 요청을 생략한다. */
+export function stripYoutubeData(row: YoutubeData): Partial<YoutubeData> | null {
+  const patch: Partial<YoutubeData> = {};
+  if (row.source.startsWith("영상 제목:")) patch.source = "";
+  if (row.note.match(/^영상 \d+개 언급$/)?.[0] === row.note) patch.note = "";
+  if (Object.hasOwn(row.signals, "videos") || Object.hasOwn(row.signals, "mentions")) {
+    const signals = { ...row.signals };
+    delete signals.videos;
+    delete signals.mentions;
+    patch.signals = signals;
+  }
+  if (row.score !== null) patch.score = null;
+  return Object.keys(patch).length ? patch : null;
+}
 
 /** 최근 days 일 평균 ÷ 그 앞 기간 평균. 앞 기간이 0이면 새로 뜬 것으로 보고 최근값 그대로 (최대 99) */
 export function risingMultiplier(series: number[], recentDays = 3): number {

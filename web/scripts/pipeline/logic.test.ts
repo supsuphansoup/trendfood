@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { draftToRows, normalizeName, weekOf } from "../../src/data/candidates.ts";
-import { cleanExtracted, pickCandidates, risingMultiplier, scaleTrend, scoreOf } from "./logic.ts";
+import { cleanExtracted, pickCandidates, retentionCutoff, risingMultiplier, scaleTrend, scoreOf, stripYoutubeData, YOUTUBE_RETENTION_DAYS } from "./logic.ts";
 
 test("급상승 배수: 최근 3일 평균 ÷ 앞 기간 평균", () => {
   assert.equal(risingMultiplier([10, 10, 10, 10, 30, 30, 30]), 3);
@@ -69,9 +69,43 @@ test("승인 초안 → foods 행: 주소 검사·길이 자르기·재료 중�
   assert.equal(rows.food.why.length, 200);
   assert.equal(rows.food.cook_minutes, 1);
   assert.equal(rows.food.multiplier, 2.35);
-  assert.equal(rows.food.videos, 3);
+  assert.equal(rows.food.videos, 0);
   assert.deepEqual(rows.ingredients.map((i) => [i.position, i.name, i.pantry]), [
     [0, "찹쌀가루", false],
     [1, "버터", true],
   ]);
+});
+
+test("YouTube 정리: 영상 유래 값만 제거하고 재실행하면 변경 없음", () => {
+  const row = {
+    source: "영상 제목: 버터떡 만들기",
+    note: "영상 3개 언급",
+    signals: { multiplier: 2, trend: [1, 2], videos: 3, mentions: 3 },
+    score: 4.2,
+    draft: { slug: "butter-tteok" },
+    name: "버터떡",
+    category: "간식",
+    status: "승인",
+  };
+  const before = structuredClone(row);
+  const patch = stripYoutubeData(row);
+  assert.deepEqual(patch, { source: "", note: "", signals: { multiplier: 2, trend: [1, 2] }, score: null });
+  assert.equal(stripYoutubeData({ ...row, ...patch }), null);
+  assert.deepEqual(row, before);
+  assert.notEqual(patch?.signals, row.signals);
+});
+
+test("YouTube 정리: 주소와 운영자 메모는 보존하고 정확한 언급 문구만 제거", () => {
+  for (const note of ["운영자 메모", "영상 3개 언급 추가", "영상 3개 언급\n"]) {
+    const row = { source: "https://example.com", note, signals: { videos: 0 }, score: null };
+    assert.deepEqual(stripYoutubeData(row), { signals: {} });
+  }
+  assert.deepEqual(stripYoutubeData({ source: "", note: "", signals: { mentions: 0 }, score: 0 }), { signals: {}, score: null });
+});
+
+test("보관 기한: 고정 시각에서 정확히 29일 전 ISO 문자열", () => {
+  const now = new Date("2026-11-11T03:04:05.678Z");
+  assert.equal(YOUTUBE_RETENTION_DAYS, 29);
+  assert.equal(retentionCutoff(now), "2026-10-13T03:04:05.678Z");
+  assert.equal(now.toISOString(), "2026-11-11T03:04:05.678Z");
 });

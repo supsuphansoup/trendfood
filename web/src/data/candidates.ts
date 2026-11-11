@@ -74,7 +74,7 @@ export function draftToRows(
       difficulty: d.difficulty ?? "쉬움",
       servings: d.servings ?? "",
       likes: 0,
-      videos: typeof c.signals?.videos === "number" ? c.signals.videos : 0,
+      videos: 0,
       multiplier: Math.round(multiplier * 100) / 100,
       trend: trend.map((n) => Math.round(n as number)),
       image: "dubai",
