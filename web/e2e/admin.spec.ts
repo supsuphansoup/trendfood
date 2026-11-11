@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, type Route, test } from "@playwright/test";
+import type { Photo } from "../src/data/photos.ts";
 
 // 관리자 화면은 브라우저에서 Supabase 와 직접 통신한다. 테스트에서는 그 통신을 가로채 가짜 Supabase 로 답한다.
 // (실제 권한 검사는 DB 의 RLS 가 맡고, 그 부분은 supabase/migrations 를 PGlite 로 따로 검사했다)
@@ -28,7 +29,12 @@ function makeFake() {
     },
   ];
   const published: number[] = [];
-  return { foods, ingredients, candidates, published, takedownLog: [] as Takedown[], failTakedown: false, failIngredientName: "", writes: [] as string[] };
+  return {
+    foods, ingredients, candidates, published, takedownLog: [] as Takedown[], failTakedown: false, failIngredientName: "", writes: [] as string[],
+    photos: [] as Photo[], failPhotosRead: false, failPhotosInsert: false,
+    storageUploads: [] as { path: string; contentType: string; upsert: string; body: Buffer }[],
+    storageDeletes: [] as string[], storageFiles: new Map<string, Buffer>(),
+  };
 }
 
 const json = (route: Route, body: unknown, status = 200) =>
@@ -54,6 +60,24 @@ async function installFake(page: Page) {
     }
     const path = url.pathname;
 
+    if (path.startsWith("/storage/v1/object/public/food-photos/")) {
+      const body = db.storageFiles.get(path.split("/").at(-1)!);
+      return body ? route.fulfill({ contentType: "image/webp", body }) : route.fulfill({ status: 404 });
+    }
+    if (path.startsWith("/storage/v1/object/food-photos/") && method === "POST") {
+      const filename = path.split("/").at(-1)!;
+      const body = req.postDataBuffer()!;
+      db.storageUploads.push({ path: filename, contentType: req.headers()["content-type"], upsert: req.headers()["x-upsert"], body });
+      db.storageFiles.set(filename, body);
+      return json(route, { Id: filename.slice(0, -5), Key: `food-photos/${filename}` });
+    }
+    if (path === "/storage/v1/object/food-photos" && method === "DELETE") {
+      const { prefixes } = req.postDataJSON() as { prefixes: string[] };
+      db.storageDeletes.push(...prefixes);
+      prefixes.forEach((filename) => db.storageFiles.delete(filename));
+      return json(route, prefixes.map((name) => ({ name })));
+    }
+
     if (path === "/auth/v1/token") {
       const { email, password } = req.postDataJSON();
       const user = [ADMIN, STRANGER].find((u) => u.email === email && u.password === password);
@@ -70,6 +94,8 @@ async function installFake(page: Page) {
     }
 
     const table = path.replace("/rest/v1/", "");
+    if (table === "photos" && method === "GET" && db.failPhotosRead) return json(route, { message: "table photos does not exist" }, 404);
+    if (table === "photos" && method === "POST" && db.failPhotosInsert) return json(route, { message: "사진 정보 저장 시험 오류" }, 500);
     if (table === "takedown_log" && db.failTakedown) return json(route, { message: "table takedown_log does not exist" }, 404);
     const f = eqFilter(url);
     const matches = (r: Record<string, unknown>) => [...url.searchParams].every(([key, value]) => !value.startsWith("eq.") || String(r[key]) === value.slice(3));
@@ -77,9 +103,13 @@ async function installFake(page: Page) {
     if (table === "pipeline_runs") return json(route, [{ started_at: "2026-11-04T21:00:00Z", finished_at: "2026-11-04T21:02:00Z", ok: true, summary: { inserted: 1 } }]);
 
     const rows: Record<string, unknown>[] =
-      table === "foods" ? db.foods : table === "ingredients" ? db.ingredients : table === "candidates" ? db.candidates : table === "takedown_log" ? db.takedownLog : [];
+      table === "foods" ? db.foods : table === "ingredients" ? db.ingredients : table === "candidates" ? db.candidates : table === "takedown_log" ? db.takedownLog : table === "photos" ? db.photos : [];
     if (method === "GET") {
       const list = rows.filter(matches);
+      if (table === "photos") {
+        if (url.searchParams.get("order") !== "created_at.desc" || url.searchParams.get("limit") !== "100") return json(route, { message: "사진 최신순 100개 조회 누락" }, 400);
+        return json(route, list.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 100));
+      }
       if (table === "foods") list.sort((a, b) => Number(a.sort_order) - Number(b.sort_order));
       if (table === "ingredients") list.sort((a, b) => Number(a.position) - Number(b.position));
       if (table === "takedown_log") {
@@ -158,6 +188,173 @@ async function openBasicInfo(page: Page) {
 
 const cookLabel = '조리 시간 표시 문구 (비우면 "조리 N분", 40자)';
 const changeLabel = "순위 변동 문구 (예: 새로 들어왔어요, 30자)";
+
+const photoCredit = "출처 표시 (화면에 그대로 나와요, 100자)";
+const photoSource = "원본 주소 (https://, 직접 촬영이면 비워 두기)";
+const photoConfirm = "이 사진을 광고가 있는 사이트에 써도 되는 것을 확인했어요.";
+const uploadNotice = "사진을 올렸어요. [사진 저장]을 눌러 이 음식에 적용해 주세요.";
+
+async function photoPng(page: Page, width = 3000, height = 2000) {
+  const data = await page.evaluate(({ width, height }) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    canvas.getContext("2d")!.fillRect(0, 0, width, height);
+    return canvas.toDataURL("image/png").split(",")[1];
+  }, { width, height });
+  return { name: "직접-찍은-사진.png", mimeType: "image/png", buffer: Buffer.from(data, "base64") };
+}
+
+test("사진 올리기: WebP 축소·출처 저장·선택 후 음식 적용, 접근성·44px·가로 넘침", async ({ page }, info) => {
+  const db = await installFake(page);
+  const row = await openDetails(page);
+  const photo = row.getByRole("group", { name: "사진", exact: true });
+  await photo.getByLabel("사진 파일", { exact: true }).setInputFiles(await photoPng(page));
+  await photo.getByLabel("라이선스", { exact: true }).selectOption("CC BY");
+  await photo.getByLabel(photoCredit).fill("직접 찍은 작가 이름");
+  await photo.getByLabel(photoSource).fill("https://example.com/my-photo");
+  await photo.getByLabel(photoConfirm).check();
+  await photo.getByRole("button", { name: "사진 올리기", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: uploadNotice })).toBeVisible();
+  expect(db.storageUploads).toHaveLength(1);
+  expect(db.photos).toHaveLength(1);
+  const saved = db.photos[0];
+  expect(saved).toMatchObject({ width: 1600, height: 1067, credit: "직접 찍은 작가 이름", license: "CC BY", source_url: "https://example.com/my-photo", path: `${saved.id}.webp` });
+  expect(saved.id).toMatch(/^[0-9a-f-]{36}$/);
+  const upload = db.storageUploads[0];
+  expect(upload).toMatchObject({ contentType: "image/webp", upsert: "false", path: saved.path });
+  expect(upload.body.length).toBeLessThanOrEqual(1048576);
+  expect(upload.body.subarray(0, 4).toString()).toBe("RIFF");
+  expect(upload.body.subarray(8, 12).toString()).toBe("WEBP");
+  await expect(photo.getByLabel("사진 고르기", { exact: true })).toHaveValue(saved.id);
+  await expect(photo.getByRole("img", { name: "초콜릿 사진", exact: true })).toHaveAttribute("src", `${SUPABASE}/storage/v1/object/public/food-photos/${saved.path}`);
+  await expect.poll(() => photo.getByRole("img").evaluate((image: HTMLImageElement) => [image.naturalWidth, image.naturalHeight])).toEqual([1600, 1067]);
+  await expect(photo.getByText("올린 사진은 다음 업데이트부터 공개 화면에 나와요. 그전까지는 대체 사진이 보여요.", { exact: true })).toBeVisible();
+  expect(db.foods[0].image).toBe("dubai");
+  await noA11y(page);
+  for (const control of await photo.getByRole("textbox").or(photo.getByRole("combobox")).or(photo.getByRole("button")).or(photo.getByLabel("사진 파일", { exact: true })).all()) {
+    expect((await control.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  expect((await photo.locator(`label[for="dubai-chocolate-photo-confirm"]`).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await photo.screenshot({ path: `test-results/admin-photo-upload-${info.project.name}.png` });
+  await photo.getByRole("button", { name: "사진 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 사진을 저장했어요." })).toBeVisible();
+  expect(db.foods[0]).toMatchObject({ image: saved.id, hero_image: null, hero_alt: null });
+});
+
+test("사진 올리기 검증: 파일 없음·출처·CC BY 원본 주소·확인·텍스트 파일은 전송 없음", async ({ page }) => {
+  const db = await installFake(page);
+  const row = await openDetails(page);
+  const button = row.getByRole("button", { name: "사진 올리기", exact: true });
+  const notice = (message: string) => expect(page.getByRole("status").filter({ hasText: message })).toBeVisible();
+  await button.click();
+  await notice("사진 파일을 골라 주세요.");
+  const file = row.getByLabel("사진 파일", { exact: true });
+  await file.setInputFiles(await photoPng(page, 20, 20));
+  await row.getByLabel(photoCredit).fill(" ");
+  await button.click();
+  await notice("출처 표시를 적어 주세요.");
+  await row.getByLabel(photoCredit).fill("촬영자");
+  await row.getByLabel("라이선스", { exact: true }).selectOption("CC BY");
+  await button.click();
+  await notice("원본 주소를 https:// 로 시작하게 적어 주세요.");
+  await row.getByLabel(photoSource).fill("http://example.com/photo");
+  await button.click();
+  await notice("원본 주소를 https:// 로 시작하게 적어 주세요.");
+  await row.getByLabel(photoSource).fill("https://example.com/photo");
+  await button.click();
+  await notice("사진을 써도 되는지 확인하고 체크해 주세요.");
+  await row.getByLabel(photoConfirm).check();
+  await file.setInputFiles({ name: "사진.txt", mimeType: "text/plain", buffer: Buffer.from("사진이 아닌 텍스트") });
+  await button.click();
+  await notice("JPG·PNG·WebP 사진만 올릴 수 있어요. 아이폰 사진(HEIC)은 JPG 로 바꿔 주세요.");
+  expect(db.storageUploads).toEqual([]);
+  expect(db.photos).toEqual([]);
+});
+
+test("사진 정보 저장 실패: 방금 올린 파일 삭제 후 실패 알림", async ({ page }) => {
+  const db = await installFake(page);
+  db.failPhotosInsert = true;
+  const row = await openDetails(page);
+  await row.getByLabel("사진 파일", { exact: true }).setInputFiles(await photoPng(page, 20, 20));
+  await row.getByLabel(photoConfirm).check();
+  await row.getByRole("button", { name: "사진 올리기", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "사진을 올리지 못했어요: 사진 정보 저장 시험 오류" })).toBeVisible();
+  expect(db.storageUploads).toHaveLength(1);
+  expect(db.storageDeletes).toEqual([db.storageUploads[0].path]);
+  expect(db.storageFiles.size).toBe(0);
+  expect(db.photos).toEqual([]);
+  expect(db.foods[0].image).toBe("dubai");
+  await expect(row.getByLabel("사진 고르기", { exact: true })).toHaveValue("dubai");
+});
+
+for (const tooLarge of [false, true]) {
+  test(`사진 줄이기: 0.82→0.7→0.6 재시도 후 ${tooLarge ? "1MB 초과면 전송 없이 안내" : "직접 촬영 기본값으로 저장"}`, async ({ page }) => {
+    await page.addInitScript(({ tooLarge }) => {
+      const original = HTMLCanvasElement.prototype.toBlob;
+      const state = window as typeof window & { photoQualities: number[] };
+      state.photoQualities = [];
+      HTMLCanvasElement.prototype.toBlob = function (callback, type, quality) {
+        if (type === "image/webp") {
+          state.photoQualities.push(quality!);
+          if (tooLarge || quality! > 0.6) {
+            callback(new Blob([new Uint8Array(1048577)], { type }));
+            return;
+          }
+        }
+        original.call(this, callback, type, quality);
+      };
+    }, { tooLarge });
+    const db = await installFake(page);
+    const row = await openDetails(page);
+    await row.getByLabel("사진 파일", { exact: true }).setInputFiles(await photoPng(page, 20, 20));
+    await row.getByLabel(photoConfirm).check();
+    await row.getByRole("button", { name: "사진 올리기", exact: true }).click();
+    const message = tooLarge ? "사진을 충분히 줄이지 못했어요. 더 작은 사진으로 올려 주세요." : uploadNotice;
+    await expect(page.getByRole("status").filter({ hasText: message })).toBeVisible();
+    expect(await page.evaluate(() => (window as typeof window & { photoQualities: number[] }).photoQualities)).toEqual([0.82, 0.7, 0.6]);
+    expect(db.storageUploads).toHaveLength(tooLarge ? 0 : 1);
+    if (!tooLarge) expect(db.photos[0]).toMatchObject({ credit: "트렌드푸드 직접 촬영", license: "직접 촬영", source_url: "", width: 20, height: 20 });
+  });
+}
+
+test("사진 표 없음: 0004 안내와 번들 사진 선택·저장 유지", async ({ page }) => {
+  const db = await installFake(page);
+  db.failPhotosRead = true;
+  const row = await openDetails(page);
+  await expect(row.getByText("사진 올리기를 쓰려면 Supabase SQL Editor 에서 web/supabase/migrations/0004_photos.sql 을 먼저 실행해 주세요.", { exact: true })).toBeVisible();
+  await expect(row.getByRole("button", { name: "사진 올리기", exact: true })).toHaveCount(0);
+  await expect(row.getByLabel("사진 파일", { exact: true })).toHaveCount(0);
+  await row.getByLabel("사진 고르기", { exact: true }).selectOption("bagel");
+  await row.getByRole("button", { name: "사진 저장", exact: true }).click();
+  await expect(page.getByRole("status").filter({ hasText: "두바이 초콜릿 사진을 저장했어요." })).toBeVisible();
+  expect(db.foods[0]).toMatchObject({ image: "bagel", hero_image: null });
+});
+
+test("사진 불러오기: 로딩 중 입력·버튼 없이 안내 후 최신 100개 표시", async ({ page }) => {
+  const db = await installFake(page);
+  for (let index = 0; index < 101; index++) db.photos.push({ id: `photo-${index}`, path: `photo-${index}.webp`, width: 20, height: 20, credit: `촬영자 ${index}`, source_url: "", license: "직접 촬영", created_at: new Date(Date.UTC(2026, 10, 1, 0, index)).toISOString() });
+  let release!: () => void;
+  const pending = new Promise<void>((resolve) => { release = resolve; });
+  await page.route(`${SUPABASE}/rest/v1/photos?**`, async (route) => {
+    if (route.request().method() === "GET") await pending;
+    await route.fallback();
+  });
+  const row = await openDetails(page);
+  const photo = row.getByRole("group", { name: "사진", exact: true });
+  try {
+    await expect(photo).toContainText("불러오는 중이에요…");
+    await expect(photo.getByRole("button")).toHaveCount(0);
+    await expect(photo.getByRole("combobox")).toHaveCount(0);
+  } finally {
+    release();
+  }
+  const options = photo.getByLabel("사진 고르기", { exact: true }).locator("option").filter({ hasText: "올린 사진 ·" });
+  await expect(options).toHaveCount(100);
+  await expect(options.first()).toHaveText("올린 사진 · 촬영자 100 · 11/1");
+  await expect(options.last()).toHaveText("올린 사진 · 촬영자 1 · 11/1");
+});
 
 test("내림 기록: 숨김·사유와 메모 저장·다시 보임, 접근성·44px·가로 넘침", async ({ page }, info) => {
   const db = await installFake(page);

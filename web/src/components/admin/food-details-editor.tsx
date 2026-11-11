@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cleanConvenience, cleanSteps, convenienceDrafts, ingredientChanges, moveItem, photoChanges, youtubeId, type ConvenienceDraft, type IngredientDraft, type SavedIngredient, type StepDraft } from "@/data/admin-food-edit.ts";
 import type { Step } from "@/data/catalog-schema";
+import { photoLabel, type Photo } from "@/data/photos.ts";
 import { photos } from "@/lib/foods";
+import { PhotoUploader } from "./photo-uploader";
 
 export type FoodDetails = { slug: string; name: string; image: string; alt: string; steps: Step[]; convenience: unknown; video_id?: string | null };
 type Props = { row: FoodDetails; db: SupabaseClient; onNotice: (message: string) => void; onReload: () => Promise<void> };
@@ -29,6 +31,21 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
   const [image, setImage] = useState(row.image);
   const [alt, setAlt] = useState(row.alt);
   const [saving, setSaving] = useState(false);
+  const [uploaded, setUploaded] = useState<Photo[] | null>(null);
+  const [photosAvailable, setPhotosAvailable] = useState(false);
+
+  const loadPhotos = useCallback(async () => {
+    const { data, error } = await db.from("photos").select("id, path, width, height, credit, source_url, license, created_at").order("created_at", { ascending: false }).limit(100);
+    setUploaded(error ? [] : data as Photo[]);
+    setPhotosAvailable(!error);
+  }, [db]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    void loadPhotos();
+  }, [loadPhotos]);
+
+  const selected = uploaded?.find((photo) => photo.id === image);
 
   async function save() {
     const result = photoChanges(row.image, image, alt);
@@ -47,26 +64,36 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
   }
 
   return (
-    <form noValidate onSubmit={(e) => { e.preventDefault(); void save(); }}>
-      <fieldset disabled={saving} className="flex min-w-0 flex-col gap-3">
+      <fieldset className="flex min-w-0 flex-col gap-3">
         <legend className="mb-3 text-lg font-bold">사진</legend>
+        {uploaded === null ? <p className="text-base text-muted-foreground">불러오는 중이에요…</p> : <>
+        <form noValidate onSubmit={(e) => { e.preventDefault(); void save(); }}>
+        <fieldset disabled={saving} className="flex min-w-0 flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="flex min-w-0 flex-col gap-1.5">
+          <div className="flex min-w-0 max-w-full flex-col gap-1.5">
             <Label htmlFor={`${row.slug}-photo`}>사진 고르기</Label>
-            <select id={`${row.slug}-photo`} value={image} onChange={(e) => setImage(e.target.value)} className="h-11 rounded-lg border border-input bg-background px-3 text-base">
+            <select id={`${row.slug}-photo`} value={image} onChange={(e) => setImage(e.target.value)} className="h-11 min-w-0 max-w-full rounded-lg border border-input bg-background px-3 text-base">
               {Object.keys(photos).map((key) => <option key={key} value={key}>{key}</option>)}
+              {uploaded.map((photo) => <option key={photo.id} value={photo.id}>{photoLabel(photo)}</option>)}
             </select>
           </div>
           {photos[image] && <Image src={photos[image]} alt={alt} width={64} height={64} className="size-16 rounded-lg object-cover" />}
+          {/* 저장소 미리보기는 공개 주소를 그대로 사용한다. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {selected && <img src={db.storage.from("food-photos").getPublicUrl(selected.path).data.publicUrl} alt={alt} width={64} height={64} className="size-16 rounded-lg object-cover" />}
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${row.slug}-alt`}>사진 설명 (화면을 못 보는 사람에게 읽어 주는 글, 120자)</Label>
           <Input id={`${row.slug}-alt`} required maxLength={120} value={alt} onChange={(e) => setAlt(e.target.value)} className="h-11 text-base" />
         </div>
+        {selected && <p className="text-sm text-muted-foreground">올린 사진은 다음 업데이트부터 공개 화면에 나와요. 그전까지는 대체 사진이 보여요.</p>}
         <p className="text-sm text-muted-foreground">지금 들어 있는 사진은 모두 데모예요. 실제 서비스 전에 바꿔야 해요.</p>
         <Button type="submit" className="self-start">사진 저장</Button>
+        </fieldset>
+        </form>
+        {photosAvailable ? <PhotoUploader slug={row.slug} db={db} onNotice={onNotice} onUploaded={async (id) => { await loadPhotos(); setImage(id); }} /> : <p className="text-sm text-muted-foreground">사진 올리기를 쓰려면 Supabase SQL Editor 에서 web/supabase/migrations/0004_photos.sql 을 먼저 실행해 주세요.</p>}
+        </>}
       </fieldset>
-    </form>
   );
 }
 
