@@ -26,6 +26,8 @@
 
 ## 0. 지금 상태 (2026-11-05 기준) — 제일 먼저 읽기
 
+> 2026-11-10~11 에 바뀐 것(관리자 편집·영상·약관 페이지·내림 기록·사진 올리기)은 `docs/2026-11-팀원수정-이후-작업요약.md` 에 정리돼 있어요.
+
 ### 해 놓은 것
 - **사이트·관리자 코드**: 메인·상세·소개·404, 관리자 화면(`/admin`), 자동 수집 코드, 자동 검사(`ci`)·자동 배포(`deploy`) — 검사 4개 모두 통과.
 - **계정 연결(4장)**: 모두 **개인 계정**으로 만들었어요.
@@ -176,11 +178,10 @@ trendfood/
 ├── AGENTS.md           ← Codex·Cursor 용 규칙(자기완결)
 ├── docs/               ← 기준 문서: intent.md(무엇·왜) → spec.md(숫자·규칙) → plan.md(남은 작업) + design.md(시각 규칙)
 │   └── worklog/        ← 작업 기록: AI가 작업마다 파일 하나씩 남김 (팀장 확인용, AGENTS.md 규칙)
-├── reports/            ← 조사 보고서 3개 (결정 근거, 참고용)
-├── archive/design-mockups/ ← 예전 시안·탈락안·데모 사진 (참고용, 실서비스 사용 금지)
+├── reports/            ← 조사 보고서 4개 (결정 근거, 참고용)
 ├── .github/workflows/  ← deploy.yml(배포), pipeline.yml(매일 수집), ci.yml(push 검사)
 └── web/                ← 실제 사이트
-    ├── src/app/            주소별 화면 (/, /food/[slug], /about, /admin)
+    ├── src/app/            주소별 화면 (/, /food/[slug], /about, /privacy, /terms, /admin)
     ├── src/app/theme.css   색·글자 크기 (디자인은 여기서만)
     ├── src/components/     화면 조각 (home, detail, admin, ui)
     ├── src/data/           데이터 형식·예시 음식 10개

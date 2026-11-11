@@ -9,4 +9,5 @@
 | 시각 규칙 (위 3개와 함께 기준 문서 4개) | [`docs/design.md`](docs/design.md) + 실제 화면 [`web/`](web/) |
 | AI 작업 규칙 (Codex·Cursor / Claude Code) | [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) |
 | 사이트 코드 | [`web/`](web/) — `npm ci` 후 `npm run dev` |
-| 조사 보고서 / 예전 시안 | [`reports/`](reports/) / [`archive/design-mockups/`](archive/design-mockups/) — 참고용, 현재 기준 아님 |
+| 조사 보고서 | [`reports/`](reports/) — 결정 근거, 참고용 |
+| 작업 기록 | [`docs/worklog/`](docs/worklog/) — 작업마다 파일 하나 |
