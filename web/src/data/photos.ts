@@ -11,6 +11,20 @@ export type Photo = {
   created_at: string;
 };
 export type PhotoDraft = { credit: string; source_url: string; license: PhotoLicense; confirmed: boolean };
+export type PublishedPhoto = Omit<Photo, 'created_at'>;
+
+export function uploadedPhotoIds(values: (string | null | undefined)[]): string[] {
+  return [...new Set(values.filter((value): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)))];
+}
+
+export function validPhotoPath(path: string): boolean {
+  return /^[0-9a-f-]{36}\.webp$/.test(path);
+}
+
+export function publicPhotoUrl(supabaseUrl: string, path: string): string {
+  if (!validPhotoPath(path)) throw new Error('사진 경로 형식 오류');
+  return `${supabaseUrl.replace(/\/$/, '')}/storage/v1/object/public/food-photos/${path}`;
+}
 export const photoSizeError = '사진을 충분히 줄이지 못했어요. 더 작은 사진으로 올려 주세요.';
 
 export function photoFileError(file: { type: string; size: number } | undefined): string | undefined {

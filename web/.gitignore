@@ -48,3 +48,4 @@ next-env.d.ts
 
 # supabase CLI link 정보 (프로젝트별, 커밋 안 함)
 /supabase/.temp/
+/public/photos/

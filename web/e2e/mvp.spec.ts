@@ -25,6 +25,43 @@ const siteInfoLinks = [
   ["삭제 요청·연락처", "/about#contact"],
 ] as const;
 
+test("올린 사진 상세: 로컬 사진 로딩·출처 링크·axe·가로 넘침", async ({ page }, info) => {
+  await page.goto("/food/tuna-gimbap");
+  const image = page.getByRole("region", { name: "음식 소개", exact: true }).getByRole("img");
+  await expect(image).toHaveAttribute("src", "/photos/00000000-0000-4000-8000-000000000001.webp");
+  await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBeGreaterThan(0);
+  const credit = page.getByText("사진: 테스트 사진 작가 · CC BY", { exact: true });
+  await expect(credit).toBeVisible();
+  const link = credit.getByRole("link", { name: "테스트 사진 작가", exact: true });
+  await expect(link).toHaveAttribute("href", "https://example.com/test-photo");
+  await expect(link).toHaveAttribute("target", "_blank");
+  await expect(link).toHaveAttribute("rel", "noopener noreferrer nofollow");
+  expect(await page.locator("img").evaluateAll((images: HTMLImageElement[]) => images.every((img) => !img.src.includes("supabase")))).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await expectNoA11yViolations(page);
+  await page.screenshot({ path: `test-results/photo-credit-${info.project.name}.png`, fullPage: true });
+  // 긴 출처도 화면 밖으로 나가지 않아야 한다.
+  await link.evaluate((node) => { node.textContent = "아주긴사진출처".repeat(50); });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test("번들 사진 상세: 사진 출처 줄 없음", async ({ page }) => {
+  await page.goto("/food/dubai-chocolate");
+  await expect(page.getByText(/^사진:/)).toHaveCount(0);
+  expect(await page.locator("img").evaluateAll((images: HTMLImageElement[]) => images.every((img) => !img.src.includes("supabase")))).toBe(true);
+});
+
+test("올린 사진 메인: 카드 로컬 사진 로딩·Supabase 사진 주소 없음", async ({ page }) => {
+  await page.goto("/");
+  const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "참치 김밥", exact: true }) });
+  const image = card.getByRole("img");
+  await image.scrollIntoViewIfNeeded();
+  await expect(image).toHaveAttribute("src", "/photos/00000000-0000-4000-8000-000000000001.webp");
+  await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBeGreaterThan(0);
+  await expect(card.getByText(/^사진:/)).toHaveCount(0);
+  expect(await page.locator("img").evaluateAll((images: HTMLImageElement[]) => images.every((img) => !img.src.includes("supabase")))).toBe(true);
+});
+
 test("원본 영상 상세: 공식 iframe·출처·최소 크기·axe·가로 넘침", async ({ page }, info) => {
   await page.goto("/food/chicken-mayo-deopbap");
   const frame = page.locator("iframe");

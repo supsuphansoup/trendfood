@@ -229,7 +229,7 @@ test("사진 올리기: WebP 축소·출처 저장·선택 후 음식 적용, �
   await expect(photo.getByLabel("사진 고르기", { exact: true })).toHaveValue(saved.id);
   await expect(photo.getByRole("img", { name: "초콜릿 사진", exact: true })).toHaveAttribute("src", `${SUPABASE}/storage/v1/object/public/food-photos/${saved.path}`);
   await expect.poll(() => photo.getByRole("img").evaluate((image: HTMLImageElement) => [image.naturalWidth, image.naturalHeight])).toEqual([1600, 1067]);
-  await expect(photo.getByText("올린 사진은 다음 업데이트부터 공개 화면에 나와요. 그전까지는 대체 사진이 보여요.", { exact: true })).toBeVisible();
+  await expect(photo.getByText("올린 사진은 [사진 저장] 뒤 '사이트에 반영'을 눌러야 방문자에게 보여요.", { exact: true })).toBeVisible();
   expect(db.foods[0].image).toBe("dubai");
   await noA11y(page);
   for (const control of await photo.getByRole("textbox").or(photo.getByRole("combobox")).or(photo.getByRole("button")).or(photo.getByLabel("사진 파일", { exact: true })).all()) {

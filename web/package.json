@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "photos": "node scripts/fetch-photos.ts",
+    "prebuild": "npm run photos",
     "start": "serve out -l 3000",
     "lint": "eslint",
     "test:e2e": "playwright test",

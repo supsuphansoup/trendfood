@@ -86,7 +86,7 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
           <Label htmlFor={`${row.slug}-alt`}>사진 설명 (화면을 못 보는 사람에게 읽어 주는 글, 120자)</Label>
           <Input id={`${row.slug}-alt`} required maxLength={120} value={alt} onChange={(e) => setAlt(e.target.value)} className="h-11 text-base" />
         </div>
-        {selected && <p className="text-sm text-muted-foreground">올린 사진은 다음 업데이트부터 공개 화면에 나와요. 그전까지는 대체 사진이 보여요.</p>}
+        {selected && <p className="text-sm text-muted-foreground">{"올린 사진은 [사진 저장] 뒤 '사이트에 반영'을 눌러야 방문자에게 보여요."}</p>}
         <p className="text-sm text-muted-foreground">지금 들어 있는 사진은 모두 데모예요. 실제 서비스 전에 바꿔야 해요.</p>
         <Button type="submit" className="self-start">사진 저장</Button>
         </fieldset>

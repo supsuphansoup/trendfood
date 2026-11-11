@@ -41,7 +41,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
           preload
           sizes="100vw"
           className="object-cover"
-          placeholder="blur"
+          placeholder={(food.heroImage ?? food.image).blurDataURL ? "blur" : "empty"}
         />
         <div
           aria-hidden
@@ -104,6 +104,11 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
       </section>
 
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-5 pt-8 pb-28 lg:pb-16">
+        {food.photoCredit && <p className="text-[13px] wrap-anywhere text-muted-foreground">
+          사진: {food.photoCredit.sourceUrl ? <a href={food.photoCredit.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-block min-h-11 max-w-full content-center align-middle text-accent underline">{food.photoCredit.credit}</a> : food.photoCredit.credit}
+          {food.photoCredit.license !== "직접 촬영" && ` · ${food.photoCredit.license}`}
+        </p>}
+
         <section className="flex flex-wrap gap-8">
           <div className={`flex min-w-0 flex-[1_1_460px] flex-col gap-2.5${food.videoId ? "" : " max-w-3xl"}`}>
             <h2 className="text-2xl font-black tracking-[-0.02em]">왜 지금 뜨고 있나요</h2>

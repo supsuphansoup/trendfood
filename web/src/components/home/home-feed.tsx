@@ -185,7 +185,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
           preload
           sizes="100vw"
           className="object-cover"
-          placeholder="blur"
+          placeholder={(top.heroImage ?? top.image).blurDataURL ? "blur" : "empty"}
         />
         <div
           aria-hidden

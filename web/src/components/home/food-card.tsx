@@ -17,7 +17,7 @@ export function FoodCard({ food }: { food: Food }) {
             fill
             sizes="(max-width: 768px) 100vw, 640px"
             className="object-cover"
-            placeholder="blur"
+            placeholder={food.image.blurDataURL ? "blur" : "empty"}
           />
         </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-3 right-3" />
