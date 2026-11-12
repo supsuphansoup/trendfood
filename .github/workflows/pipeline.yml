@@ -6,6 +6,11 @@ on:
   schedule:
     - cron: "0 5,13,21 * * *" # 한국 시간 매일 06:00, 14:00, 22:00
   workflow_dispatch:
+    inputs:
+      compare_models:
+        description: "같은 영상 제목으로 Mini와 Astra 비교 (후보 저장 없음)"
+        type: boolean
+        default: false
 
 concurrency:
   group: pipeline
@@ -39,5 +44,6 @@ jobs:
           # 공급자·모델은 저장소 변수(Variables)로 바꾼다. 이번 달 openai, 그 뒤 gemini
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
           AI_MODEL: ${{ vars.AI_MODEL }}
+          PIPELINE_COMPARE_MODELS: ${{ inputs.compare_models }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

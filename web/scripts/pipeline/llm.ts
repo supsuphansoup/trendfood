@@ -15,17 +15,24 @@ export function aiConfig() {
 }
 
 /** JSON 하나를 돌려받는다. schema 는 JSON Schema (OpenAI 는 strict, Gemini 는 응답 형식 안내) */
-export async function askJson(prompt: string, schema: Record<string, unknown>): Promise<unknown> {
+export async function askJson(
+  prompt: string,
+  schema: Record<string, unknown>,
+  comparison?: { model: string; maxOutputTokens: number },
+): Promise<unknown> {
   const cfg = aiConfig();
   if (!cfg) throw new Error("AI 설정이 없어요 (AI_PROVIDER·AI_MODEL·API 키)");
+  if (comparison && cfg.provider !== "openai") throw new Error("모델 비교는 OpenAI 설정에서만 실행할 수 있어요.");
 
   if (cfg.provider === "openai") {
+    const model = comparison?.model ?? cfg.model;
     const res = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: { Authorization: `Bearer ${cfg.key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: cfg.model,
+        model,
         input: prompt,
+        max_output_tokens: comparison?.maxOutputTokens,
         text: { format: { type: "json_schema", name: "result", schema, strict: true } },
       }),
     });
@@ -42,7 +49,7 @@ export async function askJson(prompt: string, schema: Record<string, unknown>): 
     if (!res.ok) throw new Error(`OpenAI 오류 ${res.status}: ${body.error?.message ?? ""}`);
     const usage = body.usage;
     console.log("[openai-usage]", JSON.stringify({
-      model: cfg.model,
+      model,
       tokens: usage ? {
         input: usage.input_tokens,
         cachedInput: usage.input_tokens_details?.cached_tokens ?? 0,
@@ -50,6 +57,7 @@ export async function askJson(prompt: string, schema: Record<string, unknown>): 
       } : null,
     }));
     const text = body.output?.flatMap((o) => o.content ?? []).find((c) => c.type === "output_text")?.text;
+    if (comparison && !text) throw new Error(`모델 비교 응답이 비어 있어요: ${model}`);
     return JSON.parse(text ?? "{}");
   }
 

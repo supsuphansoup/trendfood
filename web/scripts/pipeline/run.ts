@@ -12,7 +12,8 @@ import { cleanExtracted, type Extracted, pickCandidates, risingMultiplier, type 
 import { naverTrend, searchYoutube, type Video } from "./sources.ts";
 
 const env = process.env;
-const dryRun = process.argv.includes("--dry-run") || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY;
+const compareModels = env.PIPELINE_COMPARE_MODELS === "true";
+const dryRun = compareModels || process.argv.includes("--dry-run") || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY;
 const SEED_QUERIES = (env.PIPELINE_QUERIES || "요즘 유행 음식,유행 디저트 만들기,편의점 신상 디저트,자취 요리 유행,SNS 화제 레시피")
   .split(",")
   .map((q) => q.trim())
@@ -29,6 +30,9 @@ async function main() {
   const summary: Record<string, unknown> = { dryRun };
 
   try {
+    if (compareModels && (!env.YOUTUBE_API_KEY || aiConfig()?.provider !== "openai")) {
+      throw new Error("모델 비교에는 YouTube와 OpenAI 연결이 필요해요.");
+    }
     if (db) {
       summary.cleaned = await cleanupOldYoutubeData(db, new Date());
       log(`30일 정리: ${summary.cleaned}개`);
@@ -54,6 +58,21 @@ async function main() {
     log(`영상 ${videos.length}개 (최신 검색 ${summary.recentVideos}개)`);
 
     // 2) 음식 이름 추출
+    if (compareModels) {
+      if (videos.length === 0) throw new Error("비교할 영상 제목이 없어요.");
+      const prompt = extractPrompt(videos.map((v) => v.title));
+      const titles = videos.map((v) => normalizeName(v.title));
+      for (const model of ["gpt-5.4-mini", "gpt-6-astra"]) {
+        const raw = await askJson(prompt, extractSchema, { model, maxOutputTokens: 4096 });
+        const names = cleanExtracted(raw).map((food) => food.name);
+        log("모델 비교", JSON.stringify({
+          model,
+          names,
+          literalMatches: names.filter((name) => titles.some((title) => title.includes(normalizeName(name)))).length,
+        }));
+      }
+      return;
+    }
     let extracted: Extracted[];
     if (aiConfig()) {
       extracted = cleanExtracted(await askJson(extractPrompt(videos.map((v) => v.title)), extractSchema));
