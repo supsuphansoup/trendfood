@@ -68,7 +68,7 @@ export const buyable = (food: Food) => food.ingredients.filter((i) => !i.pantry)
 
 export const won = (n: number) => `${n.toLocaleString("ko-KR")}원`;
 
-/** 쿠팡 파트너스 링크 자리. 승인 전에는 운영자가 수동 등록(CLAUDE.md), MVP는 쿠팡 검색 링크로 대신한다 */
+/** 수동·자동 등록된 제휴 링크가 없는 재료의 일반 쿠팡 검색 주소. 제휴 수익을 보장하지 않는다. */
 export const coupangUrl = (name: string) =>
   `https://www.coupang.com/np/search?q=${encodeURIComponent(name.replace(/\s[\d.]+\s?(g|kg|ml|매|개|개입|구|장|단).*$/, ""))}`;
 

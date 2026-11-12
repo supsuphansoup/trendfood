@@ -15,6 +15,10 @@ on:
         description: "음식 수집 없이 기존 사진 준비 중 항목만 검색"
         type: boolean
         default: false
+      links_only:
+        description: "음식·사진 수집 없이 쿠팡 재료 링크만 확인"
+        type: boolean
+        default: false
       photo_limit:
         description: "사진 검색 음식 수 (1~20, 예약 실행은 5)"
         type: string
@@ -46,7 +50,7 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npm run pipeline
-        if: inputs.photos_only != true
+        if: inputs.photos_only != true && inputs.links_only != true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -61,7 +65,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: 사진 검색·이용 조건·이미지 일치 자동 확인
-        if: inputs.compare_models != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
+        if: inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
         run: npm run photos:auto
         env:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
@@ -69,6 +73,33 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
+      - name: 쿠팡 호출 기록 복원
+        id: coupang_cache
+        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: web/data/coupang-state.json
+          key: coupang-search-v1-${{ vars.COUPANG_SUB_ID || 'unconfigured' }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            coupang-search-v1-${{ vars.COUPANG_SUB_ID || 'unconfigured' }}-
+      - name: 쿠팡 재료 상품·제휴 링크 자동 연결
+        id: coupang
+        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
+        run: npm run links:auto
+        env:
+          COUPANG_ACCESS_KEY: ${{ secrets.COUPANG_ACCESS_KEY }}
+          COUPANG_SECRET_KEY: ${{ secrets.COUPANG_SECRET_KEY }}
+          COUPANG_SUB_ID: ${{ vars.COUPANG_SUB_ID }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: 실패·미리보기를 포함한 쿠팡 호출 기록 보존
+        if: always() && steps.coupang_cache.outputs.cache-primary-key != '' && steps.coupang.outcome != 'skipped' && hashFiles('web/data/coupang-state.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: web/data/coupang-state.json
+          key: ${{ steps.coupang_cache.outputs.cache-primary-key }}
       - name: 자동 검증 결과 보관 (원문 설명란은 저장하지 않음)
         uses: actions/upload-artifact@v4
         if: always() && inputs.compare_models != true
@@ -77,6 +108,7 @@ jobs:
           path: |
             web/data/automation-report.json
             web/data/photo-report.json
+            web/data/coupang-report.json
           if-no-files-found: warn
           retention-days: 14
       - name: 페이지 변경 확인
@@ -109,7 +141,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/data/content/foods.json src/data/content/auto-photo-credits.json src/assets/curated src/lib/curated-photos.ts
-          git commit -m "콘텐츠: 자동 검증을 통과한 음식·참고 사진 반영"
+          git commit -m "콘텐츠: 자동 검증을 통과한 음식·사진·재료 링크 반영"
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -118,9 +150,10 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          for (const [path, label] of [['data/automation-report.json', '음식'], ['data/photo-report.json', '사진']]) {
+          for (const [path, label] of [['data/automation-report.json', '음식'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 링크']]) {
             if (!fs.existsSync(path)) continue;
             const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            if (report.reason) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label}: ${report.reason}\n\n`);
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label} 자동 검증 결과: 적용 가능 ${report.accepted.length}개 · 보류 ${report.deferred.length}개\n\n${report.accepted.map(item => `- 적용: ${item.name}`).join('\n')}\n${report.deferred.map(item => `- 보류: ${item.name}: ${item.reason}`).join('\n')}\n`);
           }
           NODE

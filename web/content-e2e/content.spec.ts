@@ -59,6 +59,12 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
     expect(await sources.getByRole("link").count()).toBeGreaterThan(0);
     for (const link of await sources.getByRole("link").all()) await expect(link).toHaveAttribute("href", /^https:\/\//);
     await expect(page.locator("#cart").getByText(/사용량/).first()).toBeVisible();
+    const firstIngredient = food.ingredients.find((ingredient) => !ingredient.pantry);
+    if (firstIngredient?.url) {
+      const purchase = page.locator("#cart").getByRole("link", { name: `장보기 시작: ${firstIngredient.name}`, exact: true });
+      await expect(purchase).toHaveAttribute("href", firstIngredient.url);
+      await expect(purchase).toHaveAttribute("rel", /sponsored/);
+    }
     await expect(page.getByRole("heading", { name: food.kind === "product" ? "고르고 즐기는 법" : "만드는 법" })).toBeVisible();
     if (food.history) {
       const history = page.getByRole("region", { name: /주목받은 시기/ });

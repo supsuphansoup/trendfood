@@ -29,6 +29,10 @@ Commons 공식 검색·이미지 정보 API에서 한국어·영어·통용 이�
 
 출처 표시·라이선스 링크·변경 안내는 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), 동일 라이선스로 변환본을 제공하는 조건은 [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) 안내를 기준으로 구현했다.
 
+## 쿠팡 재료 링크
+
+같은 매일 10:17 KST 작업에서 `PIPELINE_AUTO_COUPANG=true`이면 공식 파트너스 검색 API의 실제 상품별 제휴 링크를 재료에 연결한다. 설정·조건·한도·미설정 처리·실제 계정 검증은 [쿠팡 링크 자동화](coupang-automation.md)를 따른다. API 키와 등록 채널 ID가 없으면 건너뛰고 기존 검색 연결을 유지한다. 사진만 실행하는 `photos_only=true`에서는 쿠팡 검색을 하지 않으며, `links_only=true`로 음식·사진 수집 없이 링크만 확인할 수 있다.
+
 ## 설정과 중지
 
 GitHub Secrets: `YOUTUBE_API_KEY`, `NAVER_API_HUB_KEY_ID`, `NAVER_API_HUB_KEY`, 선택한 AI 공급자의 키, 기존 Supabase·Cloudflare 키. 값은 채팅·문서·코드에 쓰지 않는다. GitHub Variables는 다음과 같다.
@@ -38,6 +42,8 @@ GitHub Secrets: `YOUTUBE_API_KEY`, `NAVER_API_HUB_KEY_ID`, `NAVER_API_HUB_KEY`, 
 | `AI_PROVIDER`, `AI_MODEL` | 기존에 선택한 공급자·모델 유지. 자동화에서 모델을 임의 변경하지 않는다. |
 | `PIPELINE_AUTO_PUBLISH` | `true`는 자동 대조·반영. `false`면 기존 후보 수집만 계속한다. |
 | `PIPELINE_AUTO_PHOTOS` | 기본 활성. `false`면 사진 자동 검색·적용만 중지한다. |
+| `PIPELINE_AUTO_COUPANG` | `true`이면 쿠팡 링크 자동 연결. 키·등록 채널 ID 미설정 시 건너뛴다. `false`면 링크 자동화만 중지한다. |
+| `COUPANG_SUB_ID` | 파트너스 계정에 미리 등록한 채널 ID. 음식 slug를 임의로 사용하지 않는다. |
 | `TF_CONTENT_ONLY` | `1`이면 출처 확인 JSON이 공개 페이지의 원본이다. |
 
 공개 JSON 모드에서는 관리자 화면의 Supabase 글 편집이 JSON 글을 바꾸지 않는다. 출처 확인 글은 JSON 또는 아래 `content:import`로 수정한다. 기존 Supabase 관리·로그인·사진 업로드 기능은 보존했다. `TF_CONTENT_ONLY=0`이면 기존 DB 공개 모드로 돌아가며, JSON 자동 반영을 공개하려면 `1`을 유지한다.
@@ -52,6 +58,7 @@ npm run content:check
 npm run content:import -- 수집결과.json --approve # 사람이 확인한 초안 병합
 npm run photos:sync
 npm run photos:auto -- --dry-run # AI 키 필요. 보고서만 저장하고 사진·페이지·등록부는 보존
+npm run links:auto -- --dry-run # 쿠팡·AI 키 필요. 실제 API 호출 횟수는 기록하고 공개 콘텐츠는 보존
 npm run lint
 npm run typecheck
 npm run test:unit
