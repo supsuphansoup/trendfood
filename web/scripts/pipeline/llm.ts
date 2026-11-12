@@ -32,9 +32,23 @@ export async function askJson(prompt: string, schema: Record<string, unknown>): 
     const body = (await res.json().catch(() => ({}))) as {
       error?: { message?: string; code?: string };
       output?: { type: string; content?: { type: string; text?: string }[] }[];
+      usage?: {
+        input_tokens: number;
+        input_tokens_details?: { cached_tokens?: number };
+        output_tokens: number;
+      };
     };
     if (res.status === 429) throw new AiQuotaError(`OpenAI 한도·크레딧 소진: ${body.error?.code ?? body.error?.message ?? 429}`);
     if (!res.ok) throw new Error(`OpenAI 오류 ${res.status}: ${body.error?.message ?? ""}`);
+    const usage = body.usage;
+    console.log("[openai-usage]", JSON.stringify({
+      model: cfg.model,
+      tokens: usage ? {
+        input: usage.input_tokens,
+        cachedInput: usage.input_tokens_details?.cached_tokens ?? 0,
+        output: usage.output_tokens,
+      } : null,
+    }));
     const text = body.output?.flatMap((o) => o.content ?? []).find((c) => c.type === "output_text")?.text;
     return JSON.parse(text ?? "{}");
   }

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { draftPrompt } from "./llm.ts";
+import { askJson, draftPrompt } from "./llm.ts";
 
 test("AI 초안 프롬프트: 네이버 배수·영상 제목은 유지하고 YouTube 수치는 금지", () => {
   const prompt = draftPrompt("버터떡", 4.2, ["버터떡 만들기"]);
@@ -8,4 +8,25 @@ test("AI 초안 프롬프트: 네이버 배수·영상 제목은 유지하고 Yo
   assert.ok(prompt.includes("영상 개수·조회수·구독자 수 같은 YouTube 수치는 글에 쓰지 마세요."));
   assert.ok(prompt.includes("- 버터떡 만들기"));
   assert.ok(!prompt.includes("개에 등장"));
+});
+
+test("OpenAI 사용량: 입력·캐시·출력만 기록하고 원문과 응답 JSON은 기록하지 않는다", async (t) => {
+  const settings = { AI_PROVIDER: "openai", AI_MODEL: "test-model", OPENAI_API_KEY: "test-key" };
+  const previous = Object.entries(settings).map(([key]) => [key, process.env[key]] as const);
+  Object.assign(process.env, settings);
+  t.after(() => {
+    for (const [key, value] of previous) {
+      if (value === undefined) delete process.env[key];
+      else process.env[key] = value;
+    }
+  });
+  const log = t.mock.method(console, "log", () => {});
+  t.mock.method(globalThis, "fetch", async () => Response.json({
+    output: [{ type: "message", content: [{ type: "output_text", text: '{"foods":[]}' }] }],
+    usage: { input_tokens: 1200, input_tokens_details: { cached_tokens: 1024 }, output_tokens: 100 },
+  }));
+  assert.deepEqual(await askJson("예시 입력", {}), { foods: [] });
+  assert.deepEqual(log.mock.calls.map((call) => call.arguments), [
+    ["[openai-usage]", '{"model":"test-model","tokens":{"input":1200,"cachedInput":1024,"output":100}}'],
+  ]);
 });
