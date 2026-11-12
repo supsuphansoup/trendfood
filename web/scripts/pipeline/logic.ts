@@ -1,5 +1,5 @@
 // 수집 파이프라인의 계산 부분 (외부 호출 없음 → node --test 로 검사)
-import { type CandidateRow, normalizeName } from "../../src/data/candidates.ts";
+import { candidateIdentity, type CandidateRow } from "../../src/data/candidates.ts";
 import { categoryOptions, type Category } from "../../src/data/catalog-schema.ts";
 
 export type Extracted = { name: string; category: Category; mentions: number };
@@ -48,21 +48,20 @@ export function cleanExtracted(raw: unknown): Extracted[] {
   const list = (raw && typeof raw === "object" && Array.isArray((raw as { foods?: unknown }).foods)
     ? (raw as { foods: unknown[] }).foods
     : []) as Record<string, unknown>[];
-  const seen = new Set<string>();
-  const out: Extracted[] = [];
+  const out = new Map<string, Extracted>();
   for (const item of list) {
     const name = typeof item?.name === "string" ? item.name.trim() : "";
     if (name.length < 2 || name.length > 30) continue;
-    const key = normalizeName(name);
-    if (seen.has(key)) continue;
-    seen.add(key);
+    const key = candidateIdentity(name);
+    if (!key) continue;
     const category = (categoryOptions as readonly string[]).includes(String(item.category))
       ? (item.category as Category)
       : "간식";
     const mentions = Number.isFinite(Number(item.mentions)) ? Math.max(1, Math.round(Number(item.mentions))) : 1;
-    out.push({ name, category, mentions });
+    const previous = out.get(key);
+    if (!previous || mentions > previous.mentions) out.set(key, { name, category, mentions });
   }
-  return out;
+  return [...out.values()];
 }
 
 export type Scored = Extracted & { multiplier: number; trend: number[]; score: number; recent?: boolean };
@@ -73,10 +72,16 @@ export function pickCandidates(
   known: Iterable<string>,
   { minMultiplier = 1.3, limit = 10 } = {},
 ): Scored[] {
-  const skip = new Set([...known].map(normalizeName));
+  const skip = new Set([...known].map(candidateIdentity));
   return items
-    .filter((i) => !skip.has(normalizeName(i.name)) && (i.multiplier >= minMultiplier || i.recent))
+    .filter((i) => i.multiplier >= minMultiplier || i.recent)
     .sort((a, b) => Number(b.multiplier >= minMultiplier) - Number(a.multiplier >= minMultiplier) || b.score - a.score)
+    .filter((i) => {
+      const key = candidateIdentity(i.name);
+      if (!key || skip.has(key)) return false;
+      skip.add(key);
+      return true;
+    })
     .slice(0, limit);
 }
 

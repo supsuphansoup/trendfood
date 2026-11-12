@@ -15,6 +15,14 @@ test("그래프 값은 최댓값을 100으로", () => {
   assert.deepEqual(scaleTrend([0, 0]), [0, 0]);
 });
 
+test("같은 음식 별칭과 괄호 표기는 합치고 맛이 다른 메뉴는 구분한다", () => {
+  const names = ["두바이 쫀득쿠키", "두쫀쿠(두바이 쫀득쿠키)", "찹쌀떡", "모찌", "우유 모찌", "요거트 찹쌀떡"];
+  const extracted = cleanExtracted({ foods: names.map((name) => ({ name, category: "디저트", mentions: 2 })) });
+  assert.deepEqual(extracted.map((p) => p.name), ["두바이 쫀득쿠키", "찹쌀떡", "우유 모찌", "요거트 찹쌀떡"]);
+  const scored = extracted.map((p) => ({ ...p, multiplier: 2, score: 2, trend: [] }));
+  assert.deepEqual(pickCandidates(scored, ["두쫀쿠", "모치"]).map((p) => p.name), ["우유 모찌", "요거트 찹쌀떡"]);
+});
+
 test("LLM 결과 정리: 이상한 값·중복·잘못된 카테고리 처리", () => {
   const out = cleanExtracted({
     foods: [

@@ -5,7 +5,7 @@
 //
 // 키가 없으면 그 단계는 예시 값으로 대신하고, Supabase 키가 없거나 --dry-run 이면 DB 에 쓰지 않고 화면에만 보여 준다.
 import { createClient } from "@supabase/supabase-js";
-import { type CandidateDraft, type CandidateRow, normalizeName, weekOf } from "../../src/data/candidates.ts";
+import { candidateIdentity, type CandidateDraft, type CandidateRow, normalizeName, weekOf } from "../../src/data/candidates.ts";
 import { cleanupOldYoutubeData } from "./cleanup.ts";
 import { AiQuotaError, aiConfig, askJson, draftPrompt, draftSchema, extractPrompt, extractSchema } from "./llm.ts";
 import { cleanExtracted, type Extracted, pickCandidates, risingMultiplier, type Scored, scaleTrend, scoreOf } from "./logic.ts";
@@ -81,24 +81,26 @@ async function main() {
       return { ...e, multiplier, recent, trend: scaleTrend(series), score: scoreOf(multiplier, e.mentions) };
     });
 
-    // 4) 이미 있는 음식·이번 주 후보 제외
+    // 4) 등록된 음식, 이전 대기·승인 후보와 이번 주 반려 후보를 제외
     const known: string[] = [];
     const pending = new Map<string, CandidateRow["id"]>();
     const week = weekOf();
     if (db) {
       const [{ data: foods, error: foodError }, { data: cands, error: candidateError }] = await Promise.all([
         db.from("foods").select("name"),
-        db.from("candidates").select("id,normalized,status,origin,signals").eq("week", week),
+        db.from("candidates").select("id,name,status,origin,signals,week")
+          .or(`week.eq.${week},status.in.(대기,승인)`),
       ]);
       if (foodError || candidateError) throw new Error(`기존 후보 조회 실패: ${(foodError ?? candidateError)?.message}`);
       known.push(...(foods ?? []).map((f) => f.name as string));
       for (const c of cands ?? []) {
-        if (c.origin === "pipeline" && c.status === "대기" && c.signals?.trendPending === true) pending.set(c.normalized, c.id);
-        else known.push(c.normalized);
+        if (c.week === week && c.origin === "pipeline" && c.status === "대기" && c.signals?.trendPending === true) {
+          pending.set(candidateIdentity(c.name), c.id);
+        } else known.push(c.name);
       }
     }
     const picked = pickCandidates(
-      scored.filter((p) => !pending.has(normalizeName(p.name)) || p.multiplier >= minMultiplier),
+      scored.filter((p) => !pending.has(candidateIdentity(p.name)) || p.multiplier >= minMultiplier),
       known,
       { minMultiplier },
     );
@@ -121,7 +123,7 @@ async function main() {
       }
       const row = {
         name: p.name.slice(0, 30),
-        normalized: normalizeName(p.name),
+        normalized: candidateIdentity(p.name),
         category: p.category,
         origin: "pipeline",
         source: titles[0] ? `영상 제목: ${titles[0]}`.slice(0, 200) : "",

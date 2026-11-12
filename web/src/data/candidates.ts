@@ -7,6 +7,21 @@ export function normalizeName(name: string): string {
   return name.normalize("NFC").replace(/[\s·\-_]+/g, "").toLowerCase();
 }
 
+const candidateAliases = new Map([
+  ["두쫀쿠", "두바이쫀득쿠키"],
+  ["모찌", "찹쌀떡"],
+  ["모치", "찹쌀떡"],
+]);
+
+/** 알려진 별칭만 합친다. 맛이나 재료가 붙은 다른 메뉴는 유지한다. */
+export function candidateIdentity(name: string): string {
+  const key = normalizeName(name.normalize("NFKC"));
+  const canonical = (value: string) => candidateAliases.get(value) ?? value;
+  const pair = /^([^()]+)\(([^()]+)\)$/.exec(key);
+  if (pair && canonical(pair[1]) === canonical(pair[2])) return canonical(pair[1]);
+  return canonical(key);
+}
+
 /** 이번 주 월요일 (candidates.week 기본값과 같은 규칙, UTC 기준) */
 export function weekOf(date = new Date()): string {
   const d = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
