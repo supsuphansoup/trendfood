@@ -29,6 +29,14 @@ test("공식 사진 메타데이터: 허용 이용 조건·작가·크기·출�
   publicDomain.imageinfo[0].extmetadata.LicenseShortName.value = "Public domain";
   publicDomain.imageinfo[0].extmetadata.Copyrighted.value = "False";
   assert.equal(licensedPhoto(publicDomain, "2026-11-12")?.license, "Public domain");
+  for (const [name, path] of [["CC BY 4.0", "by"], ["CC BY-SA 4.0", "by-sa"]]) {
+    const value = page();
+    value.imageinfo[0].extmetadata.LicenseShortName.value = name;
+    value.imageinfo[0].extmetadata.LicenseUrl.value = `https://creativecommons.org/licenses/${path}/4.0/`;
+    assert.equal(licensedPhoto(value, "2026-11-12")?.license, name);
+    value.imageinfo[0].extmetadata.LicenseShortName.value = "CC BY-NC 4.0";
+    assert.equal(licensedPhoto(value, "2026-11-12"), null);
+  }
   for (const edit of [
     (value: ReturnType<typeof page>) => { value.imageinfo[0].extmetadata.LicenseShortName.value = "CC BY-SA 4.0"; },
     (value: ReturnType<typeof page>) => { value.imageinfo[0].extmetadata.LicenseUrl.value = "https://creativecommons.org.evil.example/publicdomain/zero/1.0/"; },

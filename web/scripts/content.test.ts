@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { test } from "node:test";
 import { contentToRecords, mergeContent, parseContent } from "../src/data/content.ts";
 import { draftSnapshot } from "./pipeline/content.ts";
-import { photoCredits } from "../src/data/photo-credits.ts";
+import { curatedLicenses, photoCredits } from "../src/data/photo-credits.ts";
 
 const target = new URL("../src/data/content/foods.json", import.meta.url);
 const input = JSON.parse(await readFile(target, "utf8"));
@@ -38,12 +38,17 @@ test("기존 열 개 주소를 보존하고 2020~2026년 모두 근거 있는 �
   assert.deepEqual(foods.filter((food) => food.kind === "product").map((food) => food.slug).sort(), ["meoktaekkang", "pokemon-bread", "yonsei-cream-bread"]);
 });
 
-test("확보한 사진은 CC0·퍼블릭 도메인 출처와 파일을 보존하고 나머지는 준비 중이다", async () => {
+test("확보한 사진은 허용 라이선스·출처와 파일을 보존하고 나머지는 준비 중이다", async () => {
   const { foods } = parseContent(input);
   for (const food of foods.filter((food) => food.image !== "pending")) {
     const credit = photoCredits[food.image];
     assert.ok(credit.author && credit.note && credit.verifiedAt);
-    assert.ok(["CC0", "Public domain"].includes(credit.license));
+    assert.ok(curatedLicenses.includes(credit.license));
+    if (credit.automatic) {
+      assert.ok(credit.pageId && credit.sha1 && credit.licenseUrl);
+      assert.match(credit.note, /개별 검수는 하지 않았어요/);
+      if (credit.license.startsWith("CC BY")) assert.match(credit.licenseUrl, /^https:\/\/creativecommons\.org\/licenses\/(?:by|by-sa)\/4\.0\/?$/);
+    }
     assert.equal(new URL(credit.url).hostname, "commons.wikimedia.org");
     const bytes = await readFile(new URL(`../src/assets/curated/${food.image}.webp`, import.meta.url));
     assert.ok(bytes.length > 1000);

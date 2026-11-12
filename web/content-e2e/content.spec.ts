@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import type { ContentSnapshot } from "../src/data/content";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
+const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { licenseUrl: string; license: string; title: string }>;
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
   await page.goto("/");
@@ -70,6 +71,13 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
     } else {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toBeVisible();
       await expect(page.locator('section[aria-label="음식 소개"] img')).toBeVisible();
+      const automatic = automaticPhotos[food.image];
+      if (automatic) {
+        await expect(sources.getByText(automatic.title, { exact: true })).toBeVisible();
+        await expect(sources.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", automatic.licenseUrl);
+        await expect(sources.getByText(/운영자의 개별 검수는 하지 않았어요/)).toBeVisible();
+        if (automatic.license.startsWith("CC BY")) await expect(sources.getByText(/변환본은 원본과 같은/)).toBeVisible();
+      }
     }
     await expect(page.getByText(/원본 영상 자리|좋아요 \d|참고 금액|검수했어요/)).toHaveCount(0);
     await expect(page.getByRole("img", { name: /검색량.*그래프/ })).toHaveCount(0);

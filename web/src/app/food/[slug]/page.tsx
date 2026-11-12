@@ -134,7 +134,10 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               </ul>
               {food.photoCredit && "note" in food.photoCredit && <div className="border-t pt-3 text-sm leading-relaxed text-body">
                 <p>{food.photoCredit.note}</p>
+                <p className="wrap-anywhere">{food.photoCredit.title}</p>
+                {food.photoCredit.attributionNotice && <p className="wrap-anywhere">{food.photoCredit.attributionNotice}</p>}
                 <a href={food.photoCredit.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-bold underline underline-offset-4">사진 출처 · {food.photoCredit.author} · {food.photoCredit.license} ↗<span className="sr-only"> (새 창)</span></a>
+                {food.photoCredit.licenseUrl && <p><a href={food.photoCredit.licenseUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-4">사진 라이선스 · {food.photoCredit.license} ↗<span className="sr-only"> (새 창)</span></a></p>}
               </div>}
             </section>
           ) : null}

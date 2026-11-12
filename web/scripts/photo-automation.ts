@@ -27,13 +27,17 @@ export function licensedPhoto(page: CommonsPage, checkedAt: string): PhotoCandid
   const name = field("LicenseShortName");
   const licenseUrl = field("LicenseUrl");
   const license = name === "CC0" && /^https?:\/\/creativecommons\.org\/publicdomain\/zero\/1\.0(?:\/|$)/.test(licenseUrl) ? "CC0"
-    : name === "Public domain" && field("Copyrighted").toLowerCase() === "false" ? "Public domain" : null;
+    : name === "Public domain" && field("Copyrighted").toLowerCase() === "false" ? "Public domain"
+    : name === "CC BY 4.0" && /^https?:\/\/creativecommons\.org\/licenses\/by\/4\.0\/?$/.test(licenseUrl) ? "CC BY 4.0"
+    : name === "CC BY-SA 4.0" && /^https?:\/\/creativecommons\.org\/licenses\/by-sa\/4\.0\/?$/.test(licenseUrl) ? "CC BY-SA 4.0" : null;
   if (!license || !field("Artist") || field("Restrictions") || /\b(?:AI-generated|AI generated|synthetic media|generative AI)\b/i.test(`${page.title} ${field("Categories")} ${field("ImageDescription")}`)) return null;
   const imageUrl = info.thumburl ?? info.url;
   if (!trustedPhotoUrl(imageUrl) || !trustedPhotoUrl(info.descriptionurl, true) || !Number.isInteger(page.pageid) || !/^[a-z0-9]{31,40}$/i.test(info.sha1)) return null;
   return {
     title: page.title.replace(/^File:/, ""), author: field("Artist").slice(0, 500), url: info.descriptionurl,
     license, imageUrl, verifiedAt: checkedAt, automatic: true, pageId: page.pageid, sha1: info.sha1,
+    licenseUrl: license === "Public domain" ? "https://commons.wikimedia.org/wiki/Help:Public_domain" : licenseUrl.replace(/^http:/, "https:"),
+    attributionNotice: [field("Attribution"), field("Credit"), field("Copyright")].filter(Boolean).join(" · ").slice(0, 2000),
     description: field("ImageDescription").slice(0, 1800), note: "",
   };
 }
@@ -100,7 +104,7 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
       for (const query of searches) {
         for (const photo of await dependencies.search(query, checkedAt)) if (!used.has(photo.url)) candidates.set(photo.url, photo);
       }
-      let reason = "음식에 맞는 CC0·퍼블릭 도메인 사진 없음";
+      let reason = "음식과 이용 조건에 맞는 공개 라이선스 사진 없음";
       for (const candidate of [...candidates.values()].slice(0, 3)) {
         try {
           const bytes = await dependencies.download(candidate);
@@ -117,14 +121,17 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
             context, JSON.stringify({ title: candidate.title, description: candidate.description }),
           ].join("\n");
           const verdict = await dependencies.generate(prompt, matchSchema, [{ mimeType: "image/webp", data: preview.toString("base64") }]) as Record<string, unknown>;
-          if (!verdict || verdict.match !== true || verdict.photograph !== true || verdict.unobstructed !== true || verdict.metadataMatches !== true || typeof verdict.confidence !== "number" || !Number.isFinite(verdict.confidence) || verdict.confidence < 0.95 || verdict.confidence > 1) { reason = "이미지와 메뉴의 일치 여부를 확신할 수 없음"; continue; }
+          if (!verdict || verdict.match !== true || verdict.photograph !== true || verdict.unobstructed !== true || verdict.metadataMatches !== true || typeof verdict.confidence !== "number" || !Number.isFinite(verdict.confidence) || verdict.confidence < 0.95 || verdict.confidence > 1) {
+            reason = `이미지 판별 보류${typeof verdict?.reason === "string" ? `: ${verdict.reason.replace(/\s+/g, " ").slice(0, 180)}` : ""}`;
+            continue;
+          }
           const key = `photo-auto-${food.slug}`;
           if (registered[key]) throw new Error("이미 등록된 사진 키");
           const output = await image.rotate().resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 85 }).toBuffer();
           if (output.length > 2 * 1024 * 1024) throw new Error("변환 사진이 2MB를 넘음");
           const { description: _description, ...credit } = candidate;
           void _description;
-          credits[key] = { ...credit, note: `${food.name} 참고 사진이에요. 공식 메타데이터의 이용 조건과 이미지·메뉴 일치를 AI로 자동 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 레시피를 직접 조리한 사진은 아니에요. 표시용 WebP로 크기와 형식을 바꿨어요.` };
+          credits[key] = { ...credit, note: `${food.name} 참고 사진이에요. 공식 메타데이터의 이용 조건과 이미지·메뉴 일치를 AI로 자동 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 레시피를 직접 조리한 사진은 아니에요. 표시용 WebP로 크기와 형식을 바꿨어요.${credit.license.startsWith("CC BY") ? ` 사진과 변환본은 원본과 같은 ${credit.license} 조건으로 제공해요.` : ""}` };
           food.image = key; food.alt = `${food.name} 참고 사진`;
           assets.set(key, output); used.add(candidate.url);
           accepted.push({ name: food.name, slug: food.slug, key, source: candidate.url, license: candidate.license });
