@@ -38,7 +38,7 @@ export type CandidateDraft = {
   cookMinutes?: number;
   difficulty?: "쉬움" | "보통" | "어려움";
   servings?: string;
-  ingredients?: { name: string; hard?: boolean; pantry?: boolean }[];
+  ingredients?: { name: string; amount?: string; hard?: boolean; pantry?: boolean }[];
   steps?: { text: string; timerMinutes?: number }[];
   tip?: string;
 };

@@ -1,9 +1,9 @@
 import { ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdSlot } from "@/components/ad-slot";
+import { FoodImage } from "@/components/food-image";
 import { IngredientCart } from "@/components/detail/ingredient-cart";
 import { ShareButton } from "@/components/detail/share-button";
 import { StepTimer } from "@/components/detail/step-timer";
@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/food/[slug]">): Promise<Metadata> {
   const food = await getPublishedFood((await params).slug);
-  return food ? { title: `${food.name} 레시피와 재료 | 트렌드푸드`, description: food.why } : {};
+  return food ? { title: `${food.name} ${food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`, description: food.why } : {};
 }
 
 export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
@@ -34,15 +34,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
   return (
     <>
       <section aria-label="음식 소개" className="relative h-[440px] overflow-hidden bg-primary lg:h-[520px]">
-        <Image
-          src={food.heroImage ?? food.image}
-          alt={food.heroAlt ?? food.alt}
-          fill
-          preload
-          sizes="100vw"
-          className="object-cover"
-          placeholder={(food.heroImage ?? food.image).blurDataURL ? "blur" : "empty"}
-        />
+        <FoodImage food={food} hero preload sizes="100vw" />
         <div
           aria-hidden
           className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,12,8,0.6)_0%,rgba(20,12,8,0)_30%,rgba(20,12,8,0)_38%,rgba(20,12,8,0.88)_100%)]"
@@ -54,7 +46,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               className="flex items-center gap-1.5 rounded-full bg-scrim/45 py-2.5 pr-3.5 pl-2 text-[15px] font-bold text-white hover:text-white"
             >
               <ChevronLeft className="size-5" aria-hidden />
-              순위로
+              {food.editorial ? "목록으로" : "순위로"}
             </Link>
             <Link href="/" className="text-[22px] font-black tracking-[-0.03em] text-white hover:text-white">
               트렌드푸드
@@ -95,30 +87,57 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                   {c}
                 </li>
               ))}
-              <li className="rounded-full bg-scrim/55 px-3 py-[7px] text-sm">
+              {!food.editorial && <li className="rounded-full bg-scrim/55 px-3 py-[7px] text-sm">
                 좋아요 {food.likes.toLocaleString("ko-KR")}
-              </li>
+              </li>}
             </ul>
+            {food.editorial && <p className="text-xs text-white">{food.imageAvailable ? "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요." : "사진 준비 중 · 음식 소개와 출처를 먼저 확인하세요."}</p>}
           </div>
         </div>
       </section>
 
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-5 pt-8 pb-28 lg:pb-16">
-        {food.photoCredit && <p className="text-[13px] wrap-anywhere text-muted-foreground">
+        {food.photoCredit && "credit" in food.photoCredit && <p className="text-[13px] wrap-anywhere text-muted-foreground">
           사진: {food.photoCredit.sourceUrl ? <a href={food.photoCredit.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-block min-h-11 max-w-full content-center align-middle text-accent underline">{food.photoCredit.credit}</a> : food.photoCredit.credit}
           {food.photoCredit.license !== "직접 촬영" && ` · ${food.photoCredit.license}`}
         </p>}
 
         <section className="flex flex-wrap gap-8">
           <div className={`flex min-w-0 flex-[1_1_460px] flex-col gap-2.5${food.videoId ? "" : " max-w-3xl"}`}>
-            <h2 className="text-2xl font-black tracking-[-0.02em]">왜 지금 뜨고 있나요</h2>
+            <h2 className="text-2xl font-black tracking-[-0.02em]">{food.editorial ? "어떤 음식인가요" : "왜 지금 뜨고 있나요"}</h2>
             <p className="text-base leading-[1.75] text-body md:text-[17px]">{food.summary}</p>
-            <TrendChart data={food.trend} multiplier={food.multiplier} />
+            {food.history ? <section aria-labelledby="history-title" className="mt-2 rounded-2xl border p-4">
+              <h2 id="history-title" className="text-lg font-black">주목받은 시기 · {food.history.years.map((year) => `${year}년`).join(" · ")}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-body">{food.history.note}</p>
+              <ul className="mt-2 list-none space-y-1 p-0">
+                {food.history.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">{source.title} ↗<span className="sr-only"> (새 창)</span></a></li>)}
+              </ul>
+            </section> : food.editorial && <p className="text-sm text-muted-foreground">일상 레시피 · 이 항목은 특정 연도 유행 음식으로 분류하지 않았어요.</p>}
+            {!food.editorial && <TrendChart data={food.trend} multiplier={food.multiplier} />}
             <p className="text-[13px] text-muted-foreground">
               <span className="mr-1.5 rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-bold text-foreground">AI 요약</span>
-              AI가 공개 검색량과 영상 제목을 바탕으로 요약했고, 운영자가 검수했어요.
+              {food.editorial ? food.editorial.recipeNote : "AI가 공개 검색량과 영상 제목을 바탕으로 요약했고, 운영자가 검수했어요."}
             </p>
           </div>
+          {food.editorial ? (
+            <section aria-labelledby="sources-title" className="flex min-w-0 flex-[1_1_460px] flex-col gap-3 rounded-2xl bg-muted p-5">
+              <h2 id="sources-title" className="text-xl font-black">참고한 출처</h2>
+              <p className="text-sm text-muted-foreground">확인 날짜 {food.editorial.checkedAt} · 실시간 인기 순위는 아직 집계하지 않았어요.</p>
+              <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                {food.editorial.sources.map((source) => (
+                  <li key={source.url}>
+                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">
+                      {source.title} ↗<span className="sr-only"> (새 창)</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              {food.photoCredit && "note" in food.photoCredit && <div className="border-t pt-3 text-sm leading-relaxed text-body">
+                <p>{food.photoCredit.note}</p>
+                <a href={food.photoCredit.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-bold underline underline-offset-4">사진 출처 · {food.photoCredit.author} · {food.photoCredit.license} ↗<span className="sr-only"> (새 창)</span></a>
+              </div>}
+            </section>
+          ) : null}
           {food.videoId && <figure className="m-0 flex min-w-0 flex-[1_1_460px] flex-col gap-2">
             <div className="relative aspect-video min-h-[200px] overflow-hidden rounded-2xl bg-primary">
               <iframe
@@ -157,7 +176,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
 
             <section>
               <div className="flex items-baseline justify-between gap-2.5 pb-2">
-                <h2 className="text-2xl font-black tracking-[-0.02em]">만드는 법</h2>
+              <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
                 <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>
               </div>
               <ol className="m-0 list-none p-0">

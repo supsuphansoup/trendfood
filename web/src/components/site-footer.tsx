@@ -17,11 +17,11 @@ export function SiteFooter() {
           ))}
         </nav>
         <p className="leading-relaxed">
-          이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. 트렌드 요약은 AI가
-          쓰고 운영자가 검수합니다.
+          이 사이트는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다. AI가 작성한 조리 안내는
+          상세 페이지의 참고 출처와 함께 확인해 주세요.
         </p>
         <p className="leading-relaxed text-footer-muted">
-          데모 사진: Wikimedia Commons (CC0, CC BY, CC BY-SA). 실제 서비스에서는 쓰지 않습니다.
+          공개 콘텐츠의 참고 사진은 Wikimedia Commons의 CC0·퍼블릭 도메인 자료예요. 개별 출처와 사진 설명은 상세 페이지에 표시해요. 확인하지 못한 사진은 준비 중으로 안내해요.
         </p>
       </div>
     </footer>

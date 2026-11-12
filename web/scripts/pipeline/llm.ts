@@ -1,7 +1,7 @@
 // LLM 호출. 공급자는 환경변수로 바꾼다 (코드에 모델 이름을 박지 않는다).
 //   AI_PROVIDER=openai  + OPENAI_API_KEY + AI_MODEL   (이번 달: ChatGPT Pro 의 API 크레딧)
 //   AI_PROVIDER=gemini  + GEMINI_API_KEY + AI_MODEL   (그 뒤: Gemini 무료 등급)
-// 입력은 공개 영상 제목·검색량뿐이다 (개인정보 없음).
+// 입력은 공개 영상 제목·검색량과 자동 검증에 쓰는 공개 설명란이다.
 
 export class AiQuotaError extends Error {}
 
@@ -136,9 +136,10 @@ export const draftSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["name", "hard", "pantry"],
+        required: ["name", "amount", "hard", "pantry"],
         properties: {
           name: { type: "string", description: "쿠팡에서 검색할 수 있는 재료 이름" },
+          amount: { type: "string", description: "레시피 사용량 (예: 200g, 2큰술). 구매 포장 용량과 구분" },
           hard: { type: "boolean", description: "구하기 어려운 핵심 재료" },
           pantry: { type: "boolean", description: "설탕·소금처럼 집에 흔한 재료" },
         },
@@ -167,6 +168,7 @@ export function draftPrompt(name: string, multiplier: number, titles: string[]):
     "영상 개수·조회수·구독자 수 같은 YouTube 수치는 글에 쓰지 마세요.",
     "summary 에는 위 수치와 아래 제목에서 알 수 있는 사실만 쓰고, 출처 없는 숫자·유행 원인을 지어내지 마세요.",
     "조리법은 일반적인 가정용 레시피로 6단계 이내, 재료는 12개 이내로 쓰세요.",
+    "조리 시간에는 굳히기·휴지·식힘을 포함하세요. 재료명과 사용량(amount)은 구분하세요. 제목만으로 확인할 수 없는 조리법·분량은 가정용 제안입니다.",
     "",
     "관련 영상 제목:",
     ...titles.slice(0, 10).map((t) => `- ${t}`),

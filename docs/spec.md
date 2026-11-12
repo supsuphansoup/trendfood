@@ -1,5 +1,7 @@
 # Spec: 트렌드푸드
 
+> 2026-11-12 변경: 팀장이 향후 새 트렌드 음식의 자동 진행을 요청했다. 원문·신호·전체 검사 조건을 통과한 새 레시피는 개별 승인 없이 공개 JSON에 추가·배포한다. 조건·미검수 표시·보류·사진 처리·중지 방법은 [자동 반영 운영 안내](automation.md)가 이 경로의 기준이다. 아래의 개별 승인 규칙은 그 밖의 AI 초안과 기존 Supabase 게시 경로에 적용한다.
+
 Status: approved for current build (2026-11-05). `docs/intent.md` 를 구체적인 숫자·규칙으로 바꾼 문서.
 기능·준수 사항은 이 문서, 시각 규칙은 `docs/design.md`, 남은 작업은 `docs/plan.md` 가 기준. 데이터 규칙의 구현은 `web/supabase/migrations/0001_init.sql`·`web/supabase/migrations/0002_video.sql`.
 표시: ✅ 구현됨 · 🟡 일부/임시 · ⬜ 아직 (→ `docs/plan.md`)

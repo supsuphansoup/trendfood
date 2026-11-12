@@ -1,7 +1,8 @@
 // 공식 API 만 쓴다 (CLAUDE.md: SNS·커뮤니티 크롤링, 영상 자막 추출 금지)
 import { ymd } from "./logic.ts";
 
-export type Video = { id: string; title: string };
+export type Video = { id: string; title: string; channelId?: string; publishedAt?: string };
+export type RecipeVideo = Video & { description: string };
 
 const entities: Record<string, string> = { "#39": "'", quot: '"', amp: "&", lt: "<", gt: ">" };
 const decodeEntities = (s: string) => s.replace(/&(#39|quot|amp|lt|gt);/g, (m, e: string) => entities[e] ?? m);
@@ -22,12 +23,31 @@ export async function searchYoutube(query: string, key: string, days = 7, order:
   const res = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
   const body = (await res.json()) as {
     error?: { message?: string };
-    items?: { id?: { videoId?: string }; snippet?: { title?: string } }[];
+    items?: { id?: { videoId?: string }; snippet?: { title?: string; channelId?: string; publishedAt?: string } }[];
   };
   if (!res.ok) throw new Error(`YouTube 오류 ${res.status}: ${body.error?.message ?? ""}`);
   return (body.items ?? [])
     .filter((i) => i.id?.videoId && i.snippet?.title)
-    .map((i) => ({ id: i.id!.videoId!, title: decodeEntities(i.snippet!.title!) }));
+    .map((i) => ({ id: i.id!.videoId!, title: decodeEntities(i.snippet!.title!), ...(i.snippet!.channelId ? { channelId: i.snippet!.channelId } : {}), ...(i.snippet!.publishedAt ? { publishedAt: i.snippet!.publishedAt } : {}) }));
+}
+
+/** 공식 videos.list의 설명란만 읽는다. 자막·웹페이지·썸네일은 수집하지 않는다. */
+export async function recipeDescriptions(ids: string[], key: string): Promise<RecipeVideo[]> {
+  const unique = [...new Set(ids)].filter((id) => /^[a-zA-Z0-9_-]{11}$/.test(id));
+  const videos: RecipeVideo[] = [];
+  for (let i = 0; i < unique.length; i += 50) {
+    const params = new URLSearchParams({ part: "snippet", id: unique.slice(i, i + 50).join(","), key });
+    const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`, { signal: AbortSignal.timeout(30_000) });
+    if (!response.ok) throw new Error(`YouTube 설명란 조회 실패: ${response.status}`);
+    const body = await response.json() as { items?: { id: string; snippet?: { title?: string; description?: string; channelId?: string; publishedAt?: string } }[] };
+    for (const item of body.items ?? []) {
+      if (item.snippet?.title && item.snippet.description) videos.push({
+        id: item.id, title: decodeEntities(item.snippet.title), description: item.snippet.description,
+        channelId: item.snippet.channelId, publishedAt: item.snippet.publishedAt,
+      });
+    }
+  }
+  return videos;
 }
 
 /**

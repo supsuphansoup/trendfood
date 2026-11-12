@@ -20,6 +20,8 @@
 5. 끝나면 `worker_done` 으로 보고: ① 바꾼 파일 목록 ② 아래 검사 명령과 **실제 출력 끝부분** ③ 새로 추가한 테스트 ④ 임의 결정·남은 문제. 실패한 검사를 숨기거나 "아마 될 것"이라고 쓰지 않는다.
 
 ## Commands
+2026-11-12 팀장이 새 트렌드 음식의 자동 진행을 요청했다. `PIPELINE_AUTO_PUBLISH=true`에서는 `docs/automation.md`의 원문 대조·신호·전체 검사 조건을 통과한 새 레시피만 개별 승인 없이 반영한다. 기존 "AI 글 승인 후 게시" 규칙은 그 밖의 AI 초안에 적용한다. 새 자동 글에는 개별 운영자 미검수 표시가 필수다. 공개 JSON 모드(`TF_CONTENT_ONLY=1`)의 글은 JSON 또는 `content:import`로 수정한다.
+
 `web/` 에서 실행 (Node 24, Windows · Git Bash/PowerShell):
 - `npm ci` 설치 · `npm run dev` 개발 서버 3000 · `npm run build` 정적 빌드 → `out/` · `npm start` 빌드 결과 보기
 - `npm run lint` · `npm run typecheck` · `npm run test:unit` (node --test) · `npm run test:e2e` (빌드 후 3100 포트, 모바일 390px·PC 1280px + axe, 관리자는 가짜 Supabase)

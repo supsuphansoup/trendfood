@@ -1,9 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import { type FoodRow, rowsToRecords } from "@/data/db-mapping";
-import { type Food, foods as seed, toFood } from "@/lib/foods";
+import { type Food, toFood } from "@/lib/foods";
 import { supabaseConfig } from "@/lib/supabase-config";
 import { type PublishedPhoto, uploadedPhotoIds } from "@/data/photos";
 import { seedFoods } from "@/data/seed-foods";
+import content from "@/data/content/foods.json";
+import { contentToRecords, parseContent } from "@/data/content";
 
 // 빌드할 때 한 번만 읽는다 (정적 사이트). Supabase 가 설정돼 있으면 게시된 음식, 없으면 예시 데이터.
 // 운영자가 관리자 화면에서 '사이트에 반영'을 누르면 GitHub Actions 가 다시 빌드한다.
@@ -18,7 +20,7 @@ async function load(): Promise<Food[]> {
     const photo: PublishedPhoto = { id, path: `${id}.webp`, width: 32, height: 24, credit: "테스트 사진 작가", source_url: "https://example.com/test-photo", license: "CC BY" };
     return seedFoods.map((record) => toFood(record.slug === "tuna-gimbap" ? { ...record, image: id } : record, [photo]));
   }
-  if (!cfg) return seed;
+  if (!cfg || process.env.TF_CONTENT_ONLY === "1") return contentToRecords(parseContent(content)).map((record) => toFood(record));
   const db = createClient(cfg.url, cfg.anonKey, { auth: { persistSession: false } });
   const { data, error } = await db.from("published_foods").select("*");
   if (error) throw new Error(`Supabase 에서 음식 목록을 못 읽었어요: ${error.message}`);

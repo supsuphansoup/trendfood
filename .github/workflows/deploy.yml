@@ -9,6 +9,12 @@ on:
   repository_dispatch:
     types: [publish]
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      revision:
+        description: "수집 검사와 저장을 통과한 커밋"
+        type: string
+        required: true
 
 # 반영 버튼을 여러 번 눌러도 마지막 것 하나만 끝까지 돈다
 concurrency:
@@ -27,6 +33,8 @@ jobs:
         working-directory: web
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.revision || github.sha }}
       - uses: actions/setup-node@v5
         with:
           node-version: 24
@@ -41,6 +49,7 @@ jobs:
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          TF_CONTENT_ONLY: ${{ vars.TF_CONTENT_ONLY || '0' }}
       - name: Cloudflare 키 확인
         id: cloudflare
         env:

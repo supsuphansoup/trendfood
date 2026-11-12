@@ -13,7 +13,12 @@
     "typecheck": "next typegen && tsc --noEmit",
     "db:seed-sql": "node scripts/make-seed-sql.ts",
     "test:unit": "node --test \"scripts/**/*.test.ts\"",
-    "pipeline": "node scripts/pipeline/run.ts"
+    "pipeline": "node scripts/pipeline/run.ts",
+    "content:check": "node scripts/content.ts check",
+    "photos:sync": "node scripts/photos.ts",
+    "content:import": "node scripts/content.ts import",
+    "content:build": "npm run content:check && npm run build",
+    "test:content": "playwright test --config playwright.content.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -38,6 +43,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "serve": "^14.2.6",
+    "sharp": "0.35.5",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

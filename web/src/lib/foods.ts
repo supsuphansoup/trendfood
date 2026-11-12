@@ -13,12 +13,15 @@ import tteokbokki from "@/assets/demo/tteokbokki.jpg";
 import { type FoodRecord, type Ingredient, type Step } from "@/data/catalog-schema";
 import { seedFoods } from "@/data/seed-foods";
 import { type PublishedPhoto, uploadedPhotoIds, validPhotoPath } from "@/data/photos";
+import { photoCredits, type PhotoCredit } from "@/data/photo-credits";
+import { curatedPhotos } from "@/lib/curated-photos";
 
 export { categoryOptions, sortOptions, tagOptions } from "@/data/catalog-schema";
 export type { FoodRecord, Ingredient, Step };
 
 // 사진 키 → 번들 사진. 올린 사진은 빌드 때 내려받은 /photos/ 경로로 연결한다.
 export const photos: Record<string, StaticImageData> = {
+  ...curatedPhotos,
   bagel,
   deopbap,
   dubai,
@@ -36,7 +39,8 @@ const FALLBACK_PHOTO = "dubai";
 export type Food = Omit<FoodRecord, "image" | "heroImage"> & {
   image: StaticImageData;
   heroImage?: StaticImageData;
-  photoCredit?: { credit: string; sourceUrl: string; license: string };
+  imageAvailable: boolean;
+  photoCredit?: { credit: string; sourceUrl: string; license: string } & Partial<Omit<PhotoCredit, "license">>;
 };
 
 export const toFood = (r: FoodRecord, uploaded: PublishedPhoto[] = []): Food => {
@@ -46,10 +50,13 @@ export const toFood = (r: FoodRecord, uploaded: PublishedPhoto[] = []): Food => 
   const hero = find(r.heroImage);
   const heroImage = hero ? localImage(hero) : r.heroImage ? photos[r.heroImage] : undefined;
   const visiblePhoto = heroImage ? hero : image;
+  const curatedCredit = photoCredits[r.heroImage ?? r.image];
   return {
     ...r,
     image: image ? localImage(image) : photos[r.image] ?? photos[FALLBACK_PHOTO],
     heroImage,
+    imageAvailable: !!image || (!!photos[r.image] && r.image !== "pending"),
+    photoCredit: curatedCredit ? { ...curatedCredit, credit: curatedCredit.author, sourceUrl: curatedCredit.url } : undefined,
     ...(visiblePhoto ? { photoCredit: { credit: visiblePhoto.credit, sourceUrl: visiblePhoto.source_url, license: visiblePhoto.license } } : {}),
   };
 };

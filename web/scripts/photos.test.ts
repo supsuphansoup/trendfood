@@ -100,6 +100,8 @@ runInNewContext(compiled.outputText, {
     if (specifier.startsWith("@/assets/demo/")) return { default: { src: specifier, width: 640, height: 480, blurDataURL: "data:image/jpeg;base64,dGVzdA==" } };
     if (specifier === "@/data/seed-foods") return { seedFoods };
     if (specifier === "@/data/photos") return photoData;
+    if (specifier === "@/data/photo-credits") return { photoCredits: {} };
+    if (specifier === "@/lib/curated-photos") return { curatedPhotos: {} };
     if (specifier === "@/data/catalog-schema") return {};
     throw new Error(`예상하지 못한 import: ${specifier}`);
   },

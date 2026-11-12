@@ -30,6 +30,7 @@ export function IngredientCart({ food }: { food: Food }) {
   const next = toBuy.find((r) => !r.done);
   const lastDone = [...toBuy].reverse().find((r) => r.done);
   const total = toBuy.reduce((sum, r) => sum + (r.price ?? 0), 0);
+  const hasPrices = toBuy.some((r) => r.price !== undefined);
 
   const toggleRow = (r: (typeof rows)[number]) => {
     if (r.pantry) need.toggle(r.key, r.home);
@@ -42,7 +43,7 @@ export function IngredientCart({ food }: { food: Food }) {
   };
 
   const listText = () =>
-    `[트렌드푸드] ${food.name} 재료\n` + toBuy.map((r) => `- ${r.name}${r.price ? ` (${won(r.price)})` : ""}`).join("\n");
+    `[트렌드푸드] ${food.name} 재료\n` + toBuy.map((r) => `- ${r.name}${r.amount ? ` ${r.amount}` : ""}${r.price ? ` (${won(r.price)})` : ""}`).join("\n");
 
   const nextLink = next && {
     href: next.url ?? coupangUrl(next.name),
@@ -69,7 +70,7 @@ export function IngredientCart({ food }: { food: Food }) {
         </p>
         <div className="flex items-baseline justify-between gap-2.5">
           <h2 id="cart-title" className="text-2xl font-black tracking-[-0.02em]">
-            재료 장바구니
+            {food.kind === "product" ? "제품 장바구니" : "재료 장바구니"}
           </h2>
           <p className="text-sm font-bold tabular-nums">
             {doneCount}/{toBuy.length} 담음
@@ -98,7 +99,10 @@ export function IngredientCart({ food }: { food: Food }) {
                 onChange={() => toggleRow(r)}
                 className="m-0 size-6 shrink-0 accent-primary"
               />
-              <span className={cn(r.done && "text-muted-foreground line-through")}>{r.name}</span>
+              <span className={cn(r.done && "text-muted-foreground line-through")}>
+                {r.name}
+                {r.amount && <span className="block text-sm text-muted-foreground">사용량 {r.amount}</span>}
+              </span>
               {r.hard && !r.home && (
                 <span className="rounded-sm bg-key-bg px-2 py-0.5 text-xs font-bold whitespace-nowrap text-key">
                   구하기 어려움
@@ -121,10 +125,10 @@ export function IngredientCart({ food }: { food: Food }) {
         </p>
         <div>
           <p className="text-base">
-            {toBuy.length}개 선택, 참고 금액 <b>{won(total)}</b>
+            {toBuy.length}개 선택{hasPrices && <>, 참고 금액 <b>{won(total)}</b></>}
           </p>
           <p className="text-xs leading-normal text-muted-foreground">
-            {PRICE_AT} 기준 참고 가격이에요. 실제 가격과 다를 수 있어요.
+            {hasPrices ? `${PRICE_AT} 기준 참고 가격이에요. 실제 가격과 다를 수 있어요.` : "가격은 구매 페이지에서 확인해 주세요. 사용량은 레시피 기준이며 상품 포장 용량과 달라요."}
           </p>
         </div>
 

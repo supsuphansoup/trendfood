@@ -1,28 +1,58 @@
 // 매일 트렌드 후보 수집 (GitHub Actions가 하루 3번 실행, 손으로는 npm run pipeline)
 // 1) YouTube 인기 음식 영상 제목  2) LLM 이 음식 이름 추출  3) 네이버 검색량 급상승 배수
 // 4) 이미 있는 음식 빼고 상위 후보를 candidates 표에 '대기'로 넣음 (+ 상위 몇 개는 AI 상세 글 초안)
-// 운영자가 관리자 화면 '후보 큐'에서 승인해야 사이트에 올라간다. 자동 게시는 하지 않는다.
+// 자동 게시가 켜져 있으면 실제 설명란 근거를 검증한 레시피만 JSON에 추가한다. 나머지는 후보 큐에 남긴다.
 //
 // 키가 없으면 그 단계는 예시 값으로 대신하고, Supabase 키가 없거나 --dry-run 이면 DB 에 쓰지 않고 화면에만 보여 준다.
 import { createClient } from "@supabase/supabase-js";
 import { candidateIdentity, type CandidateDraft, type CandidateRow, normalizeName, weekOf } from "../../src/data/candidates.ts";
 import { cleanupOldYoutubeData } from "./cleanup.ts";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { AiQuotaError, aiConfig, askJson, draftPrompt, draftSchema, extractPrompt, extractSchema } from "./llm.ts";
 import { cleanExtracted, type Extracted, pickCandidates, risingMultiplier, type Scored, scaleTrend, scoreOf } from "./logic.ts";
-import { naverTrend, searchYoutube, type Video } from "./sources.ts";
+import { naverTrend, recipeDescriptions, searchYoutube, type Video } from "./sources.ts";
+import { type ContentCandidate, draftSnapshot } from "./content.ts";
+import { parseContent } from "../../src/data/content.ts";
+import { automaticUpdate } from "./autopublish.ts";
 
 const env = process.env;
 const compareModels = env.PIPELINE_COMPARE_MODELS === "true";
+const autoPublish = !compareModels && (process.argv.includes("--auto-publish") || env.PIPELINE_AUTO_PUBLISH === "true");
 const dryRun = compareModels || process.argv.includes("--dry-run") || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY;
 const SEED_QUERIES = (env.PIPELINE_QUERIES || "요즘 유행 음식,유행 디저트 만들기,편의점 신상 디저트,자취 요리 유행,SNS 화제 레시피")
   .split(",")
   .map((q) => q.trim())
   .filter(Boolean);
 const DRAFT_LIMIT = Number(env.PIPELINE_DRAFTS || 3);
+const outputIndex = process.argv.indexOf("--output");
+const outputPath = outputIndex === -1 ? null : process.argv[outputIndex + 1];
 
 const log = (...a: unknown[]) => console.log("[pipeline]", ...a);
+async function atomicJson(path: string | URL, value: unknown) {
+  const target = typeof path === "string" ? resolve(path) : path;
+  await mkdir(dirname(typeof target === "string" ? target : fileURLToPath(target)), { recursive: true });
+  const temporary = typeof target === "string" ? `${target}.${process.pid}.tmp` : new URL(`./foods.${process.pid}.tmp`, target);
+  await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await rename(temporary, target);
+}
 
 async function main() {
+  // 실제 저장·파일 내보내기에는 예시 신호를 섞지 않는다. 키 없는 dry-run만 예시를 허용한다.
+  const missing = [
+    !env.YOUTUBE_API_KEY && "YOUTUBE_API_KEY",
+    !env.NAVER_API_HUB_KEY_ID && "NAVER_API_HUB_KEY_ID",
+    !env.NAVER_API_HUB_KEY && "NAVER_API_HUB_KEY",
+    !aiConfig() && "AI_MODEL·AI API 키",
+  ].filter(Boolean);
+  if ((outputIndex !== -1 && (!outputPath || outputPath.startsWith("--"))) || ((!dryRun || outputPath || autoPublish) && missing.length)) {
+    console.error("[pipeline] 실패:", outputIndex !== -1 && (!outputPath || outputPath.startsWith("--"))
+      ? "--output 뒤에 JSON 파일 경로를 지정하세요"
+      : `실제 콘텐츠 수집에 필요한 설정이 없어요: ${missing.join(", ")}. 예시 데이터는 저장·내보내지 않아요.`);
+    process.exitCode = 1;
+    return;
+  }
   const db = dryRun ? null : createClient(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } });
   const runId = db
     ? ((await db.from("pipeline_runs").insert({}).select("id").single()).data?.id as number | undefined)
@@ -128,9 +158,11 @@ async function main() {
     // 5) 상위 몇 개는 AI 상세 글 초안
     const rows = [];
     let updated = 0;
+    const contentCandidates: ContentCandidate[] = [];
     for (const [i, p] of picked.entries()) {
+      const sourceVideos = videos.filter((v) => normalizeName(v.title).includes(normalizeName(p.name)));
       const trendPending = p.multiplier < minMultiplier;
-      const titles = videos.map((v) => v.title).filter((t) => normalizeName(t).includes(normalizeName(p.name)));
+      const titles = sourceVideos.map((v) => v.title);
       let draft: CandidateDraft | null = null;
       if (!trendPending && i < DRAFT_LIMIT && aiConfig()) {
         try {
@@ -160,6 +192,12 @@ async function main() {
         if (error) throw new Error(`기존 후보 갱신 실패: ${error.message}`);
         updated += count ?? 0;
       } else rows.push(row);
+      contentCandidates.push({ name: p.name, category: p.category, draft, sources: sourceVideos });
+    }
+    if (outputPath && contentCandidates.some((candidate) => candidate.draft && candidate.sources.length)) {
+      const snapshot = draftSnapshot(contentCandidates);
+      await atomicJson(outputPath, snapshot);
+      log(`검수용 초안 ${snapshot.foods.length}개 저장: ${outputPath}`);
     }
     summary.updated = updated;
     summary.pendingTrend = rows.filter((row) => row.signals.trendPending).length;
@@ -173,6 +211,19 @@ async function main() {
     } else {
       summary.inserted = 0;
       if (dryRun) log("DB 에 쓰지 않음 (dry-run). 넣었을 후보:", JSON.stringify(rows, null, 2));
+    }
+    if (autoPublish) {
+      const target = new URL("../../src/data/content/foods.json", import.meta.url);
+      const current = parseContent(JSON.parse(await readFile(target, "utf8")));
+      const result = await automaticUpdate(current, scored, videos, {
+        descriptions: (ids) => recipeDescriptions(ids, env.YOUTUBE_API_KEY!),
+        generate: (prompt, schema) => askJson(prompt, schema, aiConfig()?.provider === "openai" ? { model: env.AI_MODEL!, maxOutputTokens: 6000 } : undefined),
+      }, new Date().toISOString().slice(0, 10));
+      const preview = process.argv.includes("--dry-run");
+      await atomicJson("data/automation-report.json", { checkedAt: new Date().toISOString().slice(0, 10), preview, accepted: result.accepted, deferred: result.deferred });
+      if (result.accepted.length && !preview) await atomicJson(target, result.snapshot);
+      summary.automatic = { accepted: result.accepted, deferred: result.deferred, preview };
+      log(`자동 검증: 추가 ${result.accepted.length}개 · 보류 ${result.deferred.length}개${preview ? " (미리보기, 페이지 변경 없음)" : ""}`);
     }
     if (db && runId) await db.from("pipeline_runs").update({ finished_at: new Date().toISOString(), ok: true, summary }).eq("id", runId);
     log("완료", summary);

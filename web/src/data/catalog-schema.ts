@@ -8,6 +8,8 @@ export type Category = (typeof categoryOptions)[number];
 
 export type Ingredient = {
   name: string;
+  /** 레시피에 실제로 사용하는 양 (구매 포장 단위와 구분) */
+  amount?: string;
   /** 참고 가격(원). 없으면 집에 흔한 재료 */
   price?: number;
   /** 구하기 어려운 핵심 재료 */
@@ -22,6 +24,13 @@ export type Step = { text: string; timerMinutes?: number };
 
 export type FoodRecord = {
   slug: string;
+  kind?: "recipe" | "product";
+  /** 국내에서 주목받은 시기. 최초 발명 연도나 현재 인기 순위가 아니다. */
+  history?: {
+    years: number[];
+    note: string;
+    sources: { title: string; url: string }[];
+  };
   rank: number;
   name: string;
   change: string;
@@ -48,5 +57,11 @@ export type FoodRecord = {
   steps: Step[];
   tip: string;
   convenience: { place: string; desc: string }[];
+  /** 출처를 확인한 큐레이션. 검색량 순위·좋아요 실측값은 제공하지 않는다. */
+  editorial?: {
+    checkedAt: string;
+    sources: { title: string; url: string }[];
+    recipeNote: string;
+  };
 };
 
