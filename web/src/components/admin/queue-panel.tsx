@@ -123,7 +123,9 @@ export function QueuePanel({ db }: { db: SupabaseClient }) {
                   <span className="rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-bold">{c.status}</span>
                   <span className="text-xs text-muted-foreground">
                     {c.category} · {c.origin === "pipeline" ? "자동 수집" : "직접 추가"}
-                    {c.score != null && ` · 급상승 ${Number(c.score).toFixed(1)}배`}
+                    {c.signals?.trendPending === true
+                      ? " · 상승률 확인 전"
+                      : typeof c.signals?.multiplier === "number" && ` · 검색 상승률 ${c.signals.multiplier.toFixed(1)}배`}
                     {c.draft && " · AI 초안 있음"}
                   </span>
                 </div>

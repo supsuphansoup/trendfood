@@ -65,9 +65,9 @@ export function cleanExtracted(raw: unknown): Extracted[] {
   return out;
 }
 
-export type Scored = Extracted & { multiplier: number; trend: number[]; score: number };
+export type Scored = Extracted & { multiplier: number; trend: number[]; score: number; recent?: boolean };
 
-/** 이미 사이트에 있거나 이번 주 후보에 있는 음식은 빼고, 급상승 배수 기준으로 고른다 */
+/** 중복을 빼고 상승 기준을 충족한 음식부터 고른 뒤, 최신 영상에 나온 후보로 남은 자리를 채운다. */
 export function pickCandidates(
   items: Scored[],
   known: Iterable<string>,
@@ -75,8 +75,8 @@ export function pickCandidates(
 ): Scored[] {
   const skip = new Set([...known].map(normalizeName));
   return items
-    .filter((i) => !skip.has(normalizeName(i.name)) && i.multiplier >= minMultiplier)
-    .sort((a, b) => b.score - a.score)
+    .filter((i) => !skip.has(normalizeName(i.name)) && (i.multiplier >= minMultiplier || i.recent))
+    .sort((a, b) => Number(b.multiplier >= minMultiplier) - Number(a.multiplier >= minMultiplier) || b.score - a.score)
     .slice(0, limit);
 }
 

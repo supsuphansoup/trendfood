@@ -51,6 +51,19 @@ test("이름 비교·주 시작일", () => {
   assert.equal(weekOf(new Date("2026-11-02T00:00:00Z")), "2026-11-02");
 });
 
+test("최신 영상 후보: 상승 기준을 넘은 후보 다음에 넣고 중복·오래된 후보는 제외", () => {
+  const mk = (name: string, multiplier: number, recent: boolean, score: number) =>
+    ({ name, category: "간식" as const, mentions: 1, multiplier, recent, trend: [], score });
+  const items = [
+    mk("말차 티라미수", 1, true, 9),
+    mk("버터떡", 1.5, false, 2),
+    mk("탕후루", 1.2, false, 8),
+    mk("두바이 초콜릿", 1, true, 10),
+  ];
+  assert.deepEqual(pickCandidates(items, ["두바이초콜릿"]).map((p) => p.name), ["버터떡", "말차 티라미수"]);
+  assert.deepEqual(pickCandidates(items, [], { limit: 1 }).map((p) => p.name), ["버터떡"]);
+});
+
 test("승인 초안 → foods 행: 주소 검사·길이 자르기·재료 중복 제거", () => {
   const base = { name: "버터떡", category: "간식", signals: { multiplier: 2.345, trend: [1, 2], videos: 3 } };
   assert.equal(draftToRows({ ...base, draft: null }), null);

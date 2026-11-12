@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, mock, test } from "node:test";
-import { naverTrend } from "./sources.ts";
+import { naverTrend, searchYoutube } from "./sources.ts";
 
 const originalUrl = process.env.NAVER_DATALAB_URL;
 
@@ -13,6 +13,20 @@ afterEach(() => {
   mock.restoreAll();
   if (originalUrl === undefined) delete process.env.NAVER_DATALAB_URL;
   else process.env.NAVER_DATALAB_URL = originalUrl;
+});
+
+test("유튜브 검색: 7일 인기 영상과 48시간 최신 영상의 기간·정렬을 구분한다", async (t) => {
+  const requests: URLSearchParams[] = [];
+  t.mock.method(globalThis, "fetch", async (url: string) => {
+    requests.push(new URL(url).searchParams);
+    return Response.json({ items: [{ id: { videoId: "video" }, snippet: { title: "버터떡" } }] });
+  });
+  assert.deepEqual(await searchYoutube("음식", "test-key"), [{ id: "video", title: "버터떡" }]);
+  await searchYoutube("음식", "test-key", 2, "date");
+  assert.deepEqual(requests.map((p) => [p.get("order"), p.get("publishedAfter")]), [
+    ["viewCount", "2026-11-03T03:00:00.000Z"],
+    ["date", "2026-11-08T03:00:00.000Z"],
+  ]);
 });
 
 test("네이버 HUB 요청: 주소·인증 헤더·14일 본문과 5개씩 그룹 묶기", async (t) => {

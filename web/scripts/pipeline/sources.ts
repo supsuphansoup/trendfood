@@ -6,15 +6,15 @@ export type Video = { id: string; title: string };
 const entities: Record<string, string> = { "#39": "'", quot: '"', amp: "&", lt: "<", gt: ">" };
 const decodeEntities = (s: string) => s.replace(/&(#39|quot|amp|lt|gt);/g, (m, e: string) => entities[e] ?? m);
 
-/** YouTube Data API v3 search.list (호출당 100 유닛, 하루 10,000 유닛 무료) */
-export async function searchYoutube(query: string, key: string, days = 7): Promise<Video[]> {
+/** YouTube Data API v3 search.list. 검색 쿼리 한도는 Google Cloud 콘솔에서 확인한다. */
+export async function searchYoutube(query: string, key: string, days = 7, order: "viewCount" | "date" = "viewCount"): Promise<Video[]> {
   const params = new URLSearchParams({
     part: "snippet",
     type: "video",
     q: query,
     regionCode: "KR",
     relevanceLanguage: "ko",
-    order: "viewCount",
+    order,
     maxResults: "25",
     publishedAfter: new Date(Date.now() - days * 86_400_000).toISOString(),
     key,

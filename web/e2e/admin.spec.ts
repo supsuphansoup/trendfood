@@ -1029,8 +1029,16 @@ test("재료 링크: 쿠팡 주소만 저장된다", async ({ page }) => {
 
 test("후보 큐: 직접 추가·중복 막기·승인하면 초안 글이 생긴다", async ({ page }, info) => {
   const db = await installFake(page);
+  db.candidates.push({
+    id: "c2", name: "말차 티라미수", category: "디저트", origin: "pipeline", status: "대기",
+    score: null, signals: { multiplier: 1.1, trendPending: true }, draft: null,
+  });
   await login(page);
   await page.getByRole("button", { name: "후보 큐" }).click();
+  const pending = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "말차 티라미수" }) });
+  await expect(pending.getByText("상승률 확인 전", { exact: false })).toBeVisible();
+  await expect(pending.getByText("검색 상승률", { exact: false })).toHaveCount(0);
+  await expect(page.getByText("검색 상승률 4.2배", { exact: false })).toBeVisible();
 
   await page.getByLabel("음식 이름").fill("약과 쿠키");
   await page.getByLabel("카테고리").selectOption("디저트");
