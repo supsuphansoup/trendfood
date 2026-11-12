@@ -2,6 +2,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { parseContent } from "../src/data/content.ts";
 import { aiConfig, askJson } from "./pipeline/llm.ts";
 import { automaticLinks, coupangConfig, emptyLinkState, parseLinkState, searchProducts } from "./coupang-automation.ts";
+import { directProductUrl, searchWebProducts } from "./web-products.ts";
 
 async function atomic(path: string, value: unknown) {
   const temporary = `${path}.${process.pid}.tmp`;
@@ -11,13 +12,15 @@ async function atomic(path: string, value: unknown) {
 
 async function main() {
   const preview = process.argv.includes("--dry-run");
-  const reportPath = "data/coupang-report.json";
-  const statePath = "data/coupang-state.json";
+  const webProducts = process.argv.includes("--web-products");
+  const reportPath = webProducts ? "data/product-link-report.json" : "data/coupang-report.json";
+  const statePath = webProducts ? "data/product-link-state.json" : "data/coupang-state.json";
   const checkedAt = new Date().toISOString();
   await mkdir("data", { recursive: true });
-  const config = coupangConfig();
-  if (!config || !aiConfig()) {
-    const reason = !config ? "쿠팡 API 키·등록 채널 ID 미설정" : "AI 공급자·모델·키 미설정";
+  const config = webProducts ? null : coupangConfig();
+  const ai = aiConfig();
+  if (webProducts ? !ai || ai.provider !== "openai" : !config || !ai) {
+    const reason = webProducts ? "일반 상품 검색용 OpenAI 공급자·모델·키 미설정" : !config ? "쿠팡 API 키·등록 채널 ID 미설정" : "AI 공급자·모델·키 미설정";
     await atomic(reportPath, { checkedAt, preview, status: "skipped", reason, accepted: [], deferred: [] });
     console.log(`[links:auto] 건너뜀: ${reason}. 기존 링크·검색 연결을 유지해요`);
     return;
@@ -29,11 +32,15 @@ async function main() {
     throw error;
   });
   const result = await automaticLinks(current, state, {
-    search: (query) => searchProducts(query, config),
+    search: webProducts ? searchWebProducts : (query) => searchProducts(query, config!),
+    validUrl: webProducts ? (url, id) => {
+      const canonical = directProductUrl(url);
+      return canonical !== null && canonical === url && Number(new URL(canonical).pathname.split("/").at(-1)) === id;
+    } : undefined,
     choose: (prompt, schema) => askJson(prompt, schema, aiConfig()?.provider === "openai" ? { model: aiConfig()!.model, maxOutputTokens: 1200 } : undefined),
     persist: (value) => atomic(statePath, value),
   });
-  await atomic(reportPath, { checkedAt, preview, status: "checked", accepted: result.accepted, deferred: result.deferred, remaining: result.remaining });
+  await atomic(reportPath, { checkedAt, preview, status: "checked", ...(webProducts ? { mode: "indexed-product", affiliate: false } : {}), accepted: result.accepted, deferred: result.deferred, remaining: result.remaining });
   if (!preview && result.accepted.length) await atomic(target, parseContent(result.snapshot));
   console.log(`[links:auto] 상품 ${result.accepted.length}종 · 재료 링크 ${result.accepted.reduce((sum, item) => sum + item.count, 0)}개 · 보류 ${result.deferred.length}종${preview ? " (미리보기, 공개 파일 변경 없음)" : ""}`);
 }

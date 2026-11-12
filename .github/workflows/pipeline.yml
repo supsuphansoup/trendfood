@@ -100,6 +100,29 @@ jobs:
         with:
           path: web/data/coupang-state.json
           key: ${{ steps.coupang_cache.outputs.cache-primary-key }}
+      - name: 일반 상품 검색 기록 복원
+        id: product_cache
+        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: web/data/product-link-state.json
+          key: product-links-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            product-links-v1-
+      - name: 일반 쿠팡 상품 상세주소 검색·재료 대조
+        id: products
+        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
+        run: npm run links:auto -- --web-products
+        env:
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      - name: 일반 상품 검색 기록 보존
+        if: always() && steps.product_cache.outputs.cache-primary-key != '' && steps.products.outcome != 'skipped' && hashFiles('web/data/product-link-state.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: web/data/product-link-state.json
+          key: ${{ steps.product_cache.outputs.cache-primary-key }}
       - name: 자동 검증 결과 보관 (원문 설명란은 저장하지 않음)
         uses: actions/upload-artifact@v4
         if: always() && inputs.compare_models != true
@@ -109,6 +132,7 @@ jobs:
             web/data/automation-report.json
             web/data/photo-report.json
             web/data/coupang-report.json
+            web/data/product-link-report.json
           if-no-files-found: warn
           retention-days: 14
       - name: 페이지 변경 확인
@@ -150,7 +174,7 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          for (const [path, label] of [['data/automation-report.json', '음식'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 링크']]) {
+          for (const [path, label] of [['data/automation-report.json', '음식'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 제휴 링크'], ['data/product-link-report.json', '일반 상품 링크']]) {
             if (!fs.existsSync(path)) continue;
             const report = JSON.parse(fs.readFileSync(path, 'utf8'));
             if (report.reason) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label}: ${report.reason}\n\n`);
