@@ -8,6 +8,9 @@ import photo6 from "@/assets/curated/photo-salt-bread.webp";
 import photo7 from "@/assets/curated/photo-tanghulu.webp";
 import photo8 from "@/assets/curated/photo-matcha-latte.webp";
 import photo9 from "@/assets/curated/photo-mala-tang.webp";
+import photo10 from "@/assets/curated/photo-auto-dubai-chewy-cookie.webp";
+import photo11 from "@/assets/curated/photo-auto-ube-latte.webp";
+import photo12 from "@/assets/curated/photo-auto-yakgwa.webp";
 
 export const curatedPhotos = {
   "photo-dubai-chocolate": photo0,
@@ -20,4 +23,7 @@ export const curatedPhotos = {
   "photo-tanghulu": photo7,
   "photo-matcha-latte": photo8,
   "photo-mala-tang": photo9,
+  "photo-auto-dubai-chewy-cookie": photo10,
+  "photo-auto-ube-latte": photo11,
+  "photo-auto-yakgwa": photo12,
 };
