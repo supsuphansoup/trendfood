@@ -82,7 +82,7 @@ export function photoBatch(foods: ContentFood[], now: Date, limit = 5): ContentF
   const pending = foods.filter((food) => food.image === "pending");
   if (!pending.length) return [];
   const count = Math.min(20, Math.max(1, Math.floor(limit)));
-  const start = (Math.floor(now.getTime() / (8 * 3_600_000)) * 5) % pending.length;
+  const start = (Math.floor(now.getTime() / 86_400_000) * 5) % pending.length;
   return [...pending.slice(start), ...pending.slice(0, start)].slice(0, count);
 }
 

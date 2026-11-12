@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, mock, test } from "node:test";
+import { readFile } from "node:fs/promises";
 import { naverTrend, searchYoutube } from "./sources.ts";
 
 const originalUrl = process.env.NAVER_DATALAB_URL;
@@ -62,6 +63,23 @@ test("네이버 HUB 요청: 주소·인증 헤더·14일 본문과 5개씩 그�
   assert.deepEqual(groups.map((group) => group.length), [5, 5, 1]);
   assert.deepEqual(groups.flat(), names);
   assert.deepEqual([...result.keys()], names);
+});
+
+test("하루 한 번 한국 시간 10:17 예약은 네이버에 전날 날짜를 요청한다", async (t) => {
+  const workflow = await readFile(new URL("../../../.github/workflows/pipeline.yml", import.meta.url), "utf8");
+  const schedules = [...workflow.matchAll(/^\s+- cron: "([^"]+)"/gm)].map((match) => match[1]);
+  assert.deepEqual(schedules, ["17 1 * * *"]);
+  const [minute, hour] = schedules[0].split(" ").map(Number);
+  const scheduled = new Date(Date.UTC(2026, 10, 12, hour, minute));
+  const korean = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Seoul", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }).format(scheduled);
+  assert.equal(korean, "10:17");
+  t.mock.method(Date, "now", () => scheduled.getTime());
+  const fetch = t.mock.method(globalThis, "fetch", async (_url: string | URL | Request, init?: RequestInit) => {
+    assert.equal(JSON.parse(String(init?.body)).endDate, "2026-11-11");
+    return Response.json({ results: [] });
+  });
+  await naverTrend(["약과"], "test-key-id", "test-key");
+  assert.equal(fetch.mock.callCount(), 1);
 });
 
 test("네이버 HUB 응답: 빠진 날짜는 0, 날짜순 14일과 소수 비율 유지", async (t) => {

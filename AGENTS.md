@@ -39,7 +39,7 @@
 ## Architecture
 - `web/src/app/` 화면: `/`(home-feed), `/food/[slug]`, `/about`, `/privacy`, `/terms`, `/admin`, 404. 빌드 때 `src/lib/catalog.ts` 가 Supabase `published_foods` 뷰를 읽고, 설정이 없으면 `src/data/seed-foods.ts` 예시 10개. 사진은 `src/lib/foods.ts` 의 키→import, 운영자가 올린 사진은 빌드 전 `scripts/fetch-photos.ts` 가 `public/photos/` 로 내려받는다.
 - `/admin`(`src/components/admin/`): 브라우저에서 Supabase Auth + RLS 로 직접 읽고 쓴다(공개 화면에 링크 금지, noindex). [사이트에 반영] → Edge Function `web/supabase/functions/request-publish` → GitHub `repository_dispatch` → `.github/workflows/deploy.yml` → Cloudflare Pages.
-- 자동 수집: `.github/workflows/pipeline.yml`(매일 06:00 KST) → `web/scripts/pipeline/run.ts`(YouTube → `llm.ts` → 네이버 데이터랩 → `candidates` 대기). 계산은 `logic.ts`(외부 호출 없음, 단위 테스트 대상). AI 공급자는 `AI_PROVIDER`·`AI_MODEL` 환경변수.
+- 자동 수집: `.github/workflows/pipeline.yml`(매일 10:17 KST, 하루 1회) → `web/scripts/pipeline/run.ts`(YouTube → `llm.ts` → 네이버 데이터랩 → `candidates` 대기). 계산은 `logic.ts`(외부 호출 없음, 단위 테스트 대상). AI 공급자는 `AI_PROVIDER`·`AI_MODEL` 환경변수.
 - 테스트: `web/e2e/mvp.spec.ts`(공개 화면), `web/e2e/admin.spec.ts`(`page.route` 로 가짜 Supabase `127.0.0.1:54321`), `web/scripts/pipeline/*.test.ts`.
 
 ## Verifying your work

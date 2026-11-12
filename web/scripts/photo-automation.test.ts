@@ -116,12 +116,18 @@ test("검색 실패·불량 파일·같은 사진 재사용을 보류하며 AI �
 
 test("사진 준비 중 항목을 날짜별로 순환하며 제한을 넘기지 않고 import 키를 검증한다", () => {
   const foods = Array.from({ length: 20 }, (_, i) => ({ ...current().foods[1], slug: `pending-${i}` }));
-  const seen = new Set<string>();
-  for (let i = 0; i < 4; i++) {
-    const batch = photoBatch(foods, new Date(now.getTime() + i * 8 * 3_600_000));
-    assert.equal(batch.length, 5); for (const food of batch) seen.add(food.slug);
+  // 기존 8시간 순환은 하루 한 번 실행하면 준비 중 15개 중 같은 5개만 반복했다.
+  for (const total of [15, 20]) {
+    const pending = foods.slice(0, total);
+    const seen = new Set<string>();
+    for (let day = 0; day < total / 5; day++) {
+      const scheduled = new Date(Date.parse("2026-11-12T01:17:00Z") + day * 86_400_000);
+      const batch = photoBatch(pending, scheduled);
+      assert.equal(batch.length, 5); for (const food of batch) seen.add(food.slug);
+      assert.deepEqual(photoBatch(pending, new Date(scheduled.getTime() + 60_000)), batch);
+    }
+    assert.equal(seen.size, total);
   }
-  assert.equal(seen.size, 20);
   assert.equal(photoBatch(foods, now, 999).length, 20);
   assert.match(photoModule(["photo-auto-test"]), /@\/assets\/curated\/photo-auto-test.webp/);
   assert.throws(() => photoModule(["../outside"]));
