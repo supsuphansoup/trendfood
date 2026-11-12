@@ -1059,3 +1059,12 @@ test("후보 큐: 직접 추가·중복 막기·승인하면 초안 글이 생�
   await noA11y(page);
   await page.screenshot({ path: `test-results/admin-queue-${info.project.name}.png`, fullPage: true });
 });
+
+test("빈 후보 큐에 하루 세 번 자동 수집 시간을 안내한다", async ({ page }, info) => {
+  const db = await installFake(page);
+  db.candidates.length = 0;
+  await login(page);
+  await page.getByRole("button", { name: "후보 큐" }).click();
+  await expect(page.getByText("후보가 아직 없어요. 자동 수집은 한국 시간 오전 6시, 오후 2시, 밤 10시에 시작해요.")).toBeVisible();
+  await page.screenshot({ path: `test-results/admin-queue-empty-${info.project.name}.png`, fullPage: true });
+});

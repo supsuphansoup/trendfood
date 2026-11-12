@@ -32,7 +32,7 @@ export async function searchYoutube(query: string, key: string, days = 7, order:
 
 /**
  * 네이버 API HUB 검색어 트렌드 (한 번에 키워드 그룹 5개, HUB 안내 기준 월 50,000회).
- * 하루 1회 수집에서 음식 후보 수 ÷ 5를 올림한 만큼 호출 (최대 20개 추출 시 하루 4회).
+ * 수집 1회마다 음식 후보 수 ÷ 5를 올림한 만큼 호출한다.
  * 문서 간 일 한도 충돌은 reports/트렌드푸드 인스타·네이버 데이터 조사.md 참고.
  * 값은 요청 안에서 가장 큰 값을 100으로 둔 상대값이라, 배수는 그룹마다 따로 계산해야 맞다.
  * 주소는 NAVER_DATALAB_URL 로 바꿀 수 있다.

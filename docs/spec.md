@@ -40,7 +40,7 @@ Status: approved for current build (2026-11-05). `docs/intent.md` 를 구체적�
 
 ### 시스템 구조
 ```
-GitHub Actions pipeline (매일 21:00 UTC = 06:00 KST)
+GitHub Actions pipeline (매일 06:00·14:00·22:00 KST)
   └▶ YouTube search.list → LLM → 네이버 데이터랩 → Supabase candidates (service_role)
 운영자 브라우저 /admin ──(anon 키 + 로그인 JWT, RLS)──▶ Supabase foods·ingredients·candidates·takedown_log
   └▶ [사이트에 반영] → Edge Function request-publish → GitHub repository_dispatch(publish)
@@ -85,7 +85,7 @@ GitHub Actions deploy → npm run build (published_foods 뷰 읽기) → out/ �
 | AI 공급자 | `AI_PROVIDER`(openai·gemini) + `AI_MODEL` 환경변수. 429 → "AI 크레딧·무료 한도 소진" 기록 |
 | 키 없을 때 | 그 단계만 예시 값, Supabase 키 없거나 `--dry-run` 이면 DB 에 쓰지 않음 |
 
-DataLab은 **입력한 키워드의 추이만** 반환하므로 후보 찾기와 점수 매기기를 나눈다. 운영자 시드 키워드를 보충하며, 오픈 직후에는 운영자가 후보를 직접 입력하고 점수만 자동으로 돌려도 된다. 수집은 GitHub Actions 하루 1회이며 AI 초안은 운영자가 10~20분 검수한 뒤 게시한다.
+DataLab은 **입력한 키워드의 추이만** 반환하므로 후보 찾기와 점수 매기기를 나눈다. 운영자 시드 키워드를 보충하며, 오픈 직후에는 운영자가 후보를 직접 입력하고 점수만 자동으로 돌려도 된다. 수집은 GitHub Actions에서 한국 시간 오전 6시, 오후 2시, 밤 10시에 예약한다. AI 초안은 운영자가 10~20분 검수한 뒤 게시한다.
 
 | 소스 | 역할·제약 |
 | :--- | :--- |

@@ -112,7 +112,7 @@ export function QueuePanel({ db }: { db: SupabaseClient }) {
       {!rows ? (
         <p className="text-base text-muted-foreground">불러오는 중이에요…</p>
       ) : rows.length === 0 ? (
-        <p className="text-base text-muted-foreground">후보가 아직 없어요. 자동 수집은 매일 아침 6시에 돌아요.</p>
+        <p className="text-base text-muted-foreground">후보가 아직 없어요. 자동 수집은 한국 시간 오전 6시, 오후 2시, 밤 10시에 시작해요.</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {rows.map((c) => (
