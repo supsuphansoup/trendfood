@@ -20,15 +20,18 @@
       "ingredients": [
         {
           "name": "볶은 카다이프",
-          "amount": "30g"
+          "amount": "30g",
+          "url": "https://www.coupang.com/vp/products/9352422766"
         },
         {
           "name": "피스타치오 스프레드",
-          "amount": "47g"
+          "amount": "47g",
+          "url": "https://www.coupang.com/vp/products/9480725429"
         },
         {
           "name": "코팅 다크초콜릿",
-          "amount": "70g"
+          "amount": "70g",
+          "url": "https://www.coupang.com/vp/products/6063758528?itemId=11162571057&vendorItemId=88069989393"
         }
       ],
       "steps": [
@@ -93,16 +96,19 @@
         {
           "name": "구운 카다이프",
           "amount": "200g",
-          "hard": true
+          "hard": true,
+          "url": "https://www.coupang.com/vp/products/9434498273"
         },
         {
           "name": "피스타치오 스프레드",
           "amount": "400g",
-          "hard": true
+          "hard": true,
+          "url": "https://www.coupang.com/vp/products/9480725429"
         },
         {
           "name": "마시멜로",
-          "amount": "350g"
+          "amount": "350g",
+          "url": "https://www.coupang.com/vp/products/9583252362"
         },
         {
           "name": "무염 버터",
