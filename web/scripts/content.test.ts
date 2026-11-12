@@ -40,7 +40,6 @@ test("기존 열 개 주소를 보존하고 2020~2026년 모두 근거 있는 �
 
 test("확보한 사진은 CC0·퍼블릭 도메인 출처와 파일을 보존하고 나머지는 준비 중이다", async () => {
   const { foods } = parseContent(input);
-  assert.ok(foods.filter((food) => food.image === "pending").length >= 20);
   for (const food of foods.filter((food) => food.image !== "pending")) {
     const credit = photoCredits[food.image];
     assert.ok(credit.author && credit.note && credit.verifiedAt);

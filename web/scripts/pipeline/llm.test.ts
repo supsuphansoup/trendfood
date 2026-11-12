@@ -30,3 +30,22 @@ test("OpenAI 사용량: 입력·캐시·출력만 기록하고 원문과 응답 
     ["[openai-usage]", '{"model":"test-model","tokens":{"input":1200,"cachedInput":1024,"output":100}}'],
   ]);
 });
+
+test("이미지 검증은 선택한 공급자에 실제 이미지 바이트를 보내고 기존 텍스트 호출을 유지한다", async (t) => {
+  const settings = { AI_PROVIDER: "openai", AI_MODEL: "test-model", OPENAI_API_KEY: "test-key", GEMINI_API_KEY: "test-key" };
+  const previous = Object.keys(settings).map((key) => [key, process.env[key]] as const);
+  Object.assign(process.env, settings);
+  t.after(() => { for (const [key, value] of previous) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } });
+  t.mock.method(console, "log", () => {});
+  const bodies: Record<string, unknown>[] = [];
+  t.mock.method(globalThis, "fetch", async (_url: unknown, init?: RequestInit) => {
+    bodies.push(JSON.parse(String(init?.body)));
+    return Response.json(process.env.AI_PROVIDER === "openai" ? { output: [{ content: [{ type: "output_text", text: "{}" }] }] } : { candidates: [{ content: { parts: [{ text: "{}" }] } }] });
+  });
+  await askJson("확인", {}, undefined, [{ mimeType: "image/webp", data: "dGVzdA==" }]);
+  assert.deepEqual(bodies[0].input, [{ role: "user", content: [{ type: "input_text", text: "확인" }, { type: "input_image", image_url: "data:image/webp;base64,dGVzdA==", detail: "high" }] }]);
+  process.env.AI_PROVIDER = "gemini";
+  await askJson("확인", {}, undefined, [{ mimeType: "image/webp", data: "dGVzdA==" }]);
+  assert.deepEqual((bodies[1].contents as { parts: unknown[] }[])[0].parts[1], { inline_data: { mime_type: "image/webp", data: "dGVzdA==" } });
+  assert.equal(bodies[0].model, "test-model");
+});

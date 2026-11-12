@@ -16,6 +16,7 @@
     "pipeline": "node scripts/pipeline/run.ts",
     "content:check": "node scripts/content.ts check",
     "photos:sync": "node scripts/photos.ts",
+    "photos:auto": "node scripts/auto-photos.ts",
     "content:import": "node scripts/content.ts import",
     "content:build": "npm run content:check && npm run build",
     "test:content": "playwright test --config playwright.content.config.ts"

@@ -11,6 +11,14 @@ on:
         description: "같은 영상 제목으로 Mini와 Astra 비교 (후보 저장 없음)"
         type: boolean
         default: false
+      photos_only:
+        description: "음식 수집 없이 기존 사진 준비 중 항목만 검색"
+        type: boolean
+        default: false
+      photo_limit:
+        description: "사진 검색 음식 수 (1~20, 예약 실행은 5)"
+        type: string
+        default: "5"
 
 concurrency:
   group: pipeline
@@ -38,6 +46,7 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - run: npm ci
       - run: npm run pipeline
+        if: inputs.photos_only != true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -51,12 +60,23 @@ jobs:
           PIPELINE_AUTO_PUBLISH: ${{ vars.PIPELINE_AUTO_PUBLISH || 'true' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: 사진 검색·이용 조건·이미지 일치 자동 확인
+        if: inputs.compare_models != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
+        run: npm run photos:auto
+        env:
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+          AI_MODEL: ${{ vars.AI_MODEL }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
       - name: 자동 검증 결과 보관 (원문 설명란은 저장하지 않음)
         uses: actions/upload-artifact@v4
         if: always() && inputs.compare_models != true
         with:
           name: automation-report
-          path: web/data/automation-report.json
+          path: |
+            web/data/automation-report.json
+            web/data/photo-report.json
           if-no-files-found: warn
           retention-days: 14
       - name: 페이지 변경 확인
@@ -88,8 +108,8 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/content/foods.json
-          git commit -m "콘텐츠: 원문 검증을 통과한 새 트렌드 음식 추가"
+          git add src/data/content/foods.json src/data/content/auto-photo-credits.json src/assets/curated src/lib/curated-photos.ts
+          git commit -m "콘텐츠: 자동 검증을 통과한 음식·참고 사진 반영"
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -98,10 +118,11 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          const path = 'data/automation-report.json';
-          if (!fs.existsSync(path)) process.exit(0);
-          const report = JSON.parse(fs.readFileSync(path, 'utf8'));
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `자동 검증 결과: 추가 가능 ${report.accepted.length}개 · 보류 ${report.deferred.length}개\n\n${report.deferred.map(item => `- ${item.name}: ${item.reason}`).join('\n')}\n`);
+          for (const [path, label] of [['data/automation-report.json', '음식'], ['data/photo-report.json', '사진']]) {
+            if (!fs.existsSync(path)) continue;
+            const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label} 자동 검증 결과: 적용 가능 ${report.accepted.length}개 · 보류 ${report.deferred.length}개\n\n${report.accepted.map(item => `- 적용: ${item.name}`).join('\n')}\n${report.deferred.map(item => `- 보류: ${item.name}: ${item.reason}`).join('\n')}\n`);
+          }
           NODE
   publish:
     needs: collect

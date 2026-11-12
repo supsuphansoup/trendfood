@@ -19,6 +19,7 @@ export async function askJson(
   prompt: string,
   schema: Record<string, unknown>,
   comparison?: { model: string; maxOutputTokens: number },
+  images: { mimeType: "image/webp"; data: string }[] = [],
 ): Promise<unknown> {
   const cfg = aiConfig();
   if (!cfg) throw new Error("AI 설정이 없어요 (AI_PROVIDER·AI_MODEL·API 키)");
@@ -31,7 +32,10 @@ export async function askJson(
       headers: { Authorization: `Bearer ${cfg.key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
         model,
-        input: prompt,
+        input: images.length ? [{ role: "user", content: [
+          { type: "input_text", text: prompt },
+          ...images.map((image) => ({ type: "input_image", image_url: `data:${image.mimeType};base64,${image.data}`, detail: "high" })),
+        ] }] : prompt,
         max_output_tokens: comparison?.maxOutputTokens,
         text: { format: { type: "json_schema", name: "result", schema, strict: true } },
       }),
@@ -67,7 +71,10 @@ export async function askJson(
       method: "POST",
       headers: { "x-goog-api-key": cfg.key, "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: `${prompt}\n\n다음 JSON Schema 형식으로만 답하세요:\n${JSON.stringify(schema)}` }] }],
+        contents: [{ parts: [
+          { text: `${prompt}\n\n다음 JSON Schema 형식으로만 답하세요:\n${JSON.stringify(schema)}` },
+          ...images.map((image) => ({ inline_data: { mime_type: image.mimeType, data: image.data } })),
+        ] }],
         generationConfig: { responseMimeType: "application/json" },
       }),
     },

@@ -1,7 +1,10 @@
-export type PhotoCredit = { title: string; author: string; url: string; license: "CC0" | "Public domain"; note: string; imageUrl: string; verifiedAt: string };
+import automaticPhotos from "./content/auto-photo-credits.json" with { type: "json" };
+
+export type PhotoCredit = { title: string; author: string; url: string; license: "CC0" | "Public domain"; note: string; imageUrl: string; verifiedAt: string; automatic?: boolean; pageId?: number; sha1?: string };
 
 /** 메뉴와 이용 조건을 확인한 사진. 출처와 확인 날짜를 보존한다. */
 export const photoCredits: Record<string, PhotoCredit> = {
+  ...automaticPhotos as Record<string, PhotoCredit>,
   "photo-dubai-chocolate": {
     "title": "Food Dubai chocolate 003 (54517970045).jpg",
     "author": "Jan Helebrant",
