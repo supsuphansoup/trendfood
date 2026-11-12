@@ -12,7 +12,7 @@ const measures = (text: string) => [...text.matchAll(/(?<![\d./])(\d+(?:\.\d+)?(
 /** 서로 다른 단위·범위·추가 사용량을 추측해 환산하지 않는다. */
 export function recipeQuantity(amount: string | undefined): Quantity | null {
   const text = normalized(amount ?? "");
-  if (/[~〜～]|\d\s*-\s*\d|약간|충분히|적당량/.test(text)) return null;
+  if (/[~〜～]|\d\s*-\s*\d|\d,\d|약간|충분히|적당량/.test(text)) return null;
   const quantities = measures(text);
   const weighted = quantities.filter((quantity) => quantity.unit !== "count");
   const selected = weighted.length ? weighted : quantities;
@@ -24,7 +24,7 @@ export function recipeQuantity(amount: string | undefined): Quantity | null {
 /** 상품 제목의 단위 용량과 묶음 수량을 곱한다. 여러 중량·옵션·혼합 세트는 보류한다. */
 export function packageQuantity(title: string): Quantity | null {
   let text = normalized(title).replace(/\s+-\s+[^|]+\|\s*쿠팡\s*$/u, "");
-  if (/[+~〜～]|업소|대용량|벌크|도매|박스|세트|묶음|혼합|랜덤|골라|옵션|선택|\d\s*종/.test(text)) return null;
+  if (/[+~〜～]|\d\s*-\s*\d|\d,\d|업소|대용량|벌크|도매|박스|세트|묶음|혼합|랜덤|골라|옵션|선택|\d\s*종/.test(text)) return null;
   text = text.replace(/(?<![\d.])(\d+)\s*[x×*]\s*(?=\d+(?:\.\d+)?\s*(?:kg|ml|g|l)(?![a-z]))/g, "$1개 ")
     .replace(/[x×*]\s*(\d+)\s*(?=$|[, )-])/g, " $1개");
   const quantities = measures(text);
