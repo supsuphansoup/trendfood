@@ -35,7 +35,7 @@ async function main() {
     search: webProducts ? searchWebProducts : (query) => searchProducts(query, config!),
     validUrl: webProducts ? (url, id) => {
       const canonical = directProductUrl(url);
-      return canonical !== null && canonical === url && Number(new URL(canonical).pathname.split("/").at(-1)) === id;
+      return canonical !== null && canonical === url && new URL(canonical).searchParams.has("itemId") && Number(new URL(canonical).pathname.split("/").at(-1)) === id;
     } : undefined,
     choose: (prompt, schema) => askJson(prompt, schema, aiConfig()?.provider === "openai" ? { model: aiConfig()!.model, maxOutputTokens: 1200 } : undefined),
     persist: (value) => atomic(statePath, value),

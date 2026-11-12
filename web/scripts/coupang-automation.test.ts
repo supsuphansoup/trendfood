@@ -114,6 +114,31 @@ test("자동 링크: 불일치·비식품·낮은 신뢰·NaN·없는 인덱스�
   }
 });
 
+test("자동 링크: 같은 재료도 필요량별로 다른 포장을 연결하고 최소 용량부터 대조한다", async () => {
+  const original = current();
+  original.foods[0].ingredients[0].amount = "47g";
+  original.foods[1].ingredients[0].amount = "400g";
+  let searches = 0, choices = 0;
+  const products = [5000, 500, 100].map((g) => ({ id: g, name: `무염 버터 ${g}g, 1개`, url: `https://link.coupang.com/re/AFFSDP?pageKey=${g}` }));
+  const result = await automaticLinks(original, emptyLinkState(), {
+    persist: async () => {}, search: async (_, contexts) => { searches++; assert.equal(contexts.length, 2); return products; },
+    choose: async (prompt) => { choices++; assert.doesNotMatch(prompt, /5000g/); return verdict; },
+  }, now);
+  assert.equal(searches, 1); assert.equal(choices, 2);
+  assert.equal(result.snapshot.foods[0].ingredients[0].url, products[2].url);
+  assert.equal(result.snapshot.foods[1].ingredients[0].url, products[1].url);
+  assert.equal(result.remaining, 0);
+});
+
+test("자동 링크: 용량 불명·부족·업소용만 있으면 AI가 승인해도 연결하지 않는다", async () => {
+  for (const title of ["무염 버터", "무염 버터 10g", "무염 버터 5kg", "무염 버터 200g, 6개"]) {
+    const original = current();
+    let choices = 0;
+    const result = await automaticLinks(original, emptyLinkState(), { persist: async () => {}, search: async () => [{ ...product, name: title }], choose: async () => { choices++; return verdict; } }, now);
+    assert.equal(choices, 0); assert.deepEqual(result.snapshot, original); assert.equal(result.accepted.length, 0);
+  }
+});
+
 test("자동 링크: 다른 상품·비식품·복수 선택 재료는 자동 선택하지 않는다", async () => {
   const original = current();
   original.foods[0].ingredients.push({ name: "우유 또는 생크림", amount: "20ml" });
@@ -136,6 +161,20 @@ test("자동 링크: 미발견 재료도 순환하고 한도 오류 뒤에는 �
   const result = await automaticLinks(original, blocked, { ...dependencies, persist: async () => { saves++; }, search: async () => { calls++; throw new CoupangStopError("한도", true); } }, now);
   assert.equal(calls, 1); assert.equal(saves, 2); assert.equal(result.accepted.length, 0);
   assert.equal(blocked.blockedUntil, now.getTime() + 86_400_000);
+});
+
+test("자동 링크: 필요량 불명은 유료 검색 없이 보류하고 다음 재료로 순환한다", async () => {
+  const original = current();
+  original.foods = [{ ...original.foods[0], ingredients: [{ name: "소금", amount: "약간" }, { name: "무염 버터" }] }];
+  const state = emptyLinkState();
+  let searches = 0;
+  const result = await automaticLinks(original, state, {
+    persist: async () => {}, search: async () => { searches++; return [product]; }, choose: async () => verdict,
+  }, now);
+  assert.equal(searches, 0); assert.equal(state.calls.length, 0);
+  assert.deepEqual(Object.values(state.attempted), [now.getTime(), now.getTime()]);
+  assert.equal(result.deferred.length, 2); assert.equal(result.remaining, 0);
+  assert.deepEqual(result.snapshot, original);
 });
 
 test("키 없는 링크 CLI는 건너뛰며 공개 콘텐츠를 바꾸지 않는다", async () => {

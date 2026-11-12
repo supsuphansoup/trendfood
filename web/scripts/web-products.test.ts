@@ -42,10 +42,10 @@ test("공식 검색 요청: 기존 모델·쿠팡 도메인·색인 전용·도�
     assert.equal(body.model, "configured-model"); assert.equal(body.max_tool_calls, 1); assert.equal(body.tool_choice, "required");
     assert.deepEqual(body.include, ["web_search_call.action.sources"]);
     assert.deepEqual(body.tools, [{ type: "web_search", external_web_access: false, filters: { allowed_domains: ["www.coupang.com"] } }]);
-    assert.match(body.input, /무염 버터/); assert.equal(options.redirect, "error"); assert.ok(options.signal);
+    assert.match(body.input, /무염 버터/); assert.match(body.input, /47g/); assert.equal(options.redirect, "error"); assert.ok(options.signal);
     return Response.json(response());
   });
-  assert.deepEqual(await searchWebProducts("무염 버터"), [{ id: 123, name: title, url }]);
+  assert.deepEqual(await searchWebProducts("무염 버터", [{ food: "시험 음식", ingredient: "무염 버터", amount: "47g" }]), [{ id: 123, name: title, url }]);
   assert.equal(fetch.mock.callCount(), 1);
 });
 
@@ -86,7 +86,7 @@ test("일반 상품 CLI: 파트너스 키 없이 검색·대조하고 미리보�
   const preload = resolve(workspace, "mock-api.mjs");
   await writeFile(preload, `globalThis.fetch = async (url, options) => {
     if (String(url) !== 'https://api.openai.com/v1/responses') throw new Error('쿠팡 직접 요청 금지');
-    if (JSON.parse(options.body).tools) return Response.json(${JSON.stringify(response())});
+    if (JSON.parse(options.body).tools) return Response.json(JSON.parse(${JSON.stringify(JSON.stringify(response()))}.replaceAll(${JSON.stringify(url)}, process.env.TEST_NO_OPTION === '1' ? 'https://www.coupang.com/vp/products/123' : ${JSON.stringify(url)})));
     return Response.json({output:[{type:'message',content:[{type:'output_text',text:'{"candidateIndex":0,"sameIngredient":true,"foodProduct":true,"confidence":0.99}'}]}]});
   };`);
   const run = (args: string[], env = {}) => spawnSync(process.execPath, ["--import", pathToFileURL(preload).href, fileURLToPath(new URL("./auto-coupang.ts", import.meta.url)), "--web-products", ...args], {
@@ -95,6 +95,9 @@ test("일반 상품 CLI: 파트너스 키 없이 검색·대조하고 미리보�
   const skipped = run([], { OPENAI_API_KEY: "" });
   assert.equal(skipped.status, 0, skipped.stderr); assert.match(skipped.stdout, /건너뜀/);
   assert.equal(await readFile(target, "utf8"), original);
+  const noOption = run(["--dry-run"], { TEST_NO_OPTION: "1" });
+  assert.equal(noOption.status, 0, noOption.stderr); assert.equal(await readFile(target, "utf8"), original);
+  assert.equal(JSON.parse(await readFile(resolve(workspace, "data/product-link-report.json"), "utf8")).accepted.length, 0);
   const dry = run(["--dry-run"]);
   assert.equal(dry.status, 0, dry.stderr); assert.equal(await readFile(target, "utf8"), original);
   const applied = run([]); assert.equal(applied.status, 0, applied.stderr);
@@ -102,10 +105,10 @@ test("일반 상품 CLI: 파트너스 키 없이 검색·대조하고 미리보�
   assert.equal(saved.foods[0].ingredients[0].url, url); assert.equal(saved.foods[0].ingredients[1].url, manual);
   assert.equal(saved.checkedAt, content.checkedAt); assert.deepEqual(saved.foods[0].steps, content.foods[0].steps);
   const ledger = resolve(workspace, "data/product-link-state.json");
-  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 2);
+  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 3);
   const again = run([]); assert.equal(again.status, 0, again.stderr);
   assert.deepEqual(JSON.parse(await readFile(target, "utf8")), saved);
-  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 2);
+  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 3);
   const report = JSON.parse(await readFile(resolve(workspace, "data/product-link-report.json"), "utf8"));
   assert.equal(report.affiliate, false); assert.equal(report.mode, "indexed-product");
 });
