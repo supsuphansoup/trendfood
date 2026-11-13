@@ -1,7 +1,8 @@
 import { categoryOptions, tagOptions, type FoodRecord } from "./catalog-schema.ts";
 import { photoCredits } from "./photo-credits.ts";
+import { generatedImages } from "./generated-images.ts";
 
-export const contentImages = ["pending", ...Object.keys(photoCredits)];
+export const contentImages = ["pending", ...Object.keys(photoCredits).filter((key) => !photoCredits[key].rejectedReason), ...Object.keys(generatedImages)];
 
 export type ContentFood = Omit<FoodRecord, "rank" | "change" | "likes" | "videos" | "multiplier" | "trend" | "cookLabel" | "editorial" | "videoId"> & {
   videoId?: string | null;
@@ -53,6 +54,10 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
     if (!(categoryOptions as readonly unknown[]).includes(f.category) || !["쉬움", "보통", "어려움"].includes(String(f.difficulty))) return fail(`${label}: 분류·난이도가 잘못됐어요`);
     if (!positive(f.cookMinutes)) return fail(`${label}: 조리 시간은 1~1440분이어야 해요`);
     if (!contentImages.includes(String(f.image)) || (f.heroImage !== undefined && !contentImages.includes(String(f.heroImage)))) return fail(`${label}: 등록된 사진 키를 사용해 주세요`);
+    for (const [key, alt] of [[f.image, f.alt], [f.heroImage, f.heroAlt ?? f.alt]]) {
+      const generated = generatedImages[String(key)];
+      if (generated && (generated.slug !== f.slug || !String(alt).includes("AI 생성"))) return fail(`${label}: 생성 이미지는 해당 음식에만 연결하고 AI 생성 설명을 적어 주세요`);
+    }
     if (f.heroAlt !== undefined && !text(f.heroAlt)) return fail(`${label}: 큰 사진 설명이 잘못됐어요`);
     if (!Array.isArray(f.tags) || f.tags.some((t) => !(tagOptions as readonly unknown[]).includes(t))) return fail(`${label}: 태그가 잘못됐어요`);
     if (!Array.isArray(f.ingredients) || !f.ingredients.length || f.ingredients.length > 20) return fail(`${label}: 재료를 채워 주세요`);

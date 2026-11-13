@@ -6,6 +6,7 @@ import ts from "typescript";
 import * as photoData from "../src/data/photos.ts";
 import { seedFoods } from "../src/data/seed-foods.ts";
 import { downloadPhoto } from "./fetch-photos.ts";
+import { generatedImages } from "../src/data/generated-images.ts";
 import { cleanPhotoDraft, photoDimensions, photoFileError, photoLabel, photoLicenses, publicPhotoUrl, uploadedPhotoIds, validPhotoPath, type PhotoDraft, type PublishedPhoto } from "../src/data/photos.ts";
 
 const draft: PhotoDraft = { credit: "트렌드푸드 직접 촬영", source_url: "", license: "직접 촬영", confirmed: true };
@@ -102,6 +103,8 @@ runInNewContext(compiled.outputText, {
     if (specifier === "@/data/photos") return photoData;
     if (specifier === "@/data/photo-credits") return { photoCredits: {} };
     if (specifier === "@/lib/curated-photos") return { curatedPhotos: {} };
+    if (specifier === "@/data/generated-images") return { generatedImages };
+    if (specifier === "@/lib/generated-photos") return { generatedPhotos: Object.fromEntries(Object.keys(generatedImages).map((key) => [key, { src: `/generated/${key}.webp`, width: 1200, height: 800 }])) };
     if (specifier === "@/data/catalog-schema") return {};
     throw new Error(`예상하지 못한 import: ${specifier}`);
   },
@@ -131,4 +134,18 @@ test("toFood 출처: 실제 표시되는 히어로 우선, 번들 히어로에�
   assert.equal(bundledHero.photoCredit, undefined);
   assert.equal(toFood({ ...record, image: id, heroImage: "missing" }, [uploaded]).photoCredit?.credit, uploaded.credit);
   assert.equal(toFood({ ...record, image: id, heroImage: undefined }, [{ ...uploaded, path: "../bad.webp" }]).image, photos.dubai);
+});
+
+test("toFood 생성 이미지: 카드·히어로에 표시하는 이미지의 안내만 연결하고 실사 출처를 만들지 않는다", () => {
+  const key = Object.keys(generatedImages)[0];
+  const { toFood, photos } = foodExports;
+  const record = { ...seedFoods[0], image: key, heroImage: undefined };
+  const food = toFood(record);
+  assert.equal(food.image, photos[key]);
+  assert.equal(food.imageAvailable, true);
+  assert.equal(food.generatedImage, generatedImages[key]);
+  assert.equal(food.photoCredit, undefined);
+  assert.equal(toFood({ ...record, image: "dubai", heroImage: key }).generatedImage, generatedImages[key]);
+  assert.equal(toFood({ ...record, heroImage: id }, [uploaded]).generatedImage, undefined);
+  assert.equal(toFood({ ...record, image: id }, [uploaded]).generatedImage, undefined);
 });

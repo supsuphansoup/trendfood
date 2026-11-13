@@ -21,7 +21,7 @@ export function SiteFooter() {
           상세 페이지의 참고 출처와 함께 확인해 주세요.
         </p>
         <p className="leading-relaxed text-footer-muted">
-          공개 콘텐츠의 참고 사진은 Wikimedia Commons의 CC0·퍼블릭 도메인·CC BY 4.0·CC BY-SA 4.0 자료예요. 개별 출처·이용 조건·사진 설명은 상세 페이지에 표시해요. 확인하지 못한 사진은 준비 중으로 안내해요.
+          참고 사진은 이용 조건을 확인한 Wikimedia Commons·Openverse 자료와 <a href="https://www.pexels.com" target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-footer-foreground underline">Pexels 제공 사진</a>을 사용해요. 작가·원문·이용 조건은 상세 페이지에 표시해요. AI로 만든 이미지는 ‘AI 생성 예시’로 표시하며 실제 조리·제품 사진과 다를 수 있어요.
         </p>
       </div>
     </footer>

@@ -5,6 +5,7 @@ import type { ContentSnapshot } from "../src/data/content";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { licenseUrl: string; license: string; title: string }>;
+const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, { note: string }>;
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
   await page.goto("/");
@@ -72,8 +73,21 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
       expect(await history.getByRole("link").count()).toBeGreaterThan(0);
     } else await expect(page.getByText(/일상 레시피 ·/)).toBeVisible();
     if (food.image === "pending") {
-      await expect(page.getByRole("img", { name: `${food.name} 사진 준비 중`, exact: true })).toBeVisible();
-      await expect(page.locator('section[aria-label="음식 소개"] img')).toHaveCount(0);
+      const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
+      await expect(introduction.locator('img, [role="img"]')).toHaveCount(0);
+      await expect(page.getByText(/사진 준비 중/)).toHaveCount(0);
+      expect((await introduction.boundingBox())!.height).toBeLessThan(440);
+      if (food.slug === "matcha-latte") await page.screenshot({ path: `test-results/content/photo-review-${info.project.name}.png`, fullPage: true });
+      if (food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/photo-review-dubai-chewy-cookie-${info.project.name}.png`, fullPage: true });
+    } else if (generatedImages[food.image]) {
+      const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
+      await expect(introduction.getByRole("img", { name: food.alt, exact: true })).toBeVisible();
+      await expect(introduction.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toBeVisible();
+      await expect(sources.getByText("AI 생성 예시 이미지", { exact: true })).toBeVisible();
+      await expect(sources.getByText(generatedImages[food.image].note, { exact: true })).toBeVisible();
+      await expect(page.getByRole("link", { name: /사진 출처|사진 라이선스/ })).toHaveCount(0);
+      expect(await introduction.locator("img").evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+      if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });
     } else {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toBeVisible();
       await expect(page.locator('section[aria-label="음식 소개"] img')).toBeVisible();
@@ -90,4 +104,31 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
   }
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: `test-results/content/detail-${info.project.name}.png`, fullPage: true });
+});
+
+test("전체 카드의 이미지를 로드하고 생성 표시·찜·상세·재료 담기를 유지한다", async ({ page }, info) => {
+  const food = snapshot.foods.find((food, index) => index > 0 && generatedImages[food.image])!;
+  expect(snapshot.foods.every((item) => item.image !== "pending")).toBe(true);
+  await page.goto("/");
+  const cards = page.locator("#list li").filter({ has: page.getByRole("heading", { level: 3 }) });
+  for (const item of await cards.all()) {
+    const image = item.locator("img");
+    await image.scrollIntoViewIfNeeded();
+    await expect(image).toBeVisible();
+    await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  }
+  await expect(cards.getByText("AI 생성 예시", { exact: true })).toHaveCount(snapshot.foods.slice(1).filter((item) => generatedImages[item.image]).length);
+  const card = cards.filter({ has: page.getByRole("heading", { level: 3, name: food.name, exact: true }) });
+  await expect(card.getByText(food.why, { exact: true })).toBeVisible();
+  await expect(page.getByText(/사진 준비 중/)).toHaveCount(0);
+  const like = card.getByRole("button", { name: `${food.name} 찜하기`, exact: true });
+  await like.click(); await expect(like).toHaveAttribute("aria-pressed", "true");
+  await card.screenshot({ path: `test-results/content/ai-card-${info.project.name}.png` });
+  await card.getByRole("heading", { level: 3 }).getByRole("link").click();
+  await expect(page).toHaveURL(new RegExp(`/food/${food.slug}$`));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(food.name);
+  await expect(page.getByRole("button", { name: `${food.name} 찜하기`, exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator("#cart")).toBeVisible();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
 });

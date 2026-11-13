@@ -12,7 +12,7 @@ on:
         type: boolean
         default: false
       photos_only:
-        description: "음식 수집 없이 기존 사진 준비 중 항목만 검색"
+        description: "음식 수집 없이 빈 사진·생성 예시의 실사 검색"
         type: boolean
         default: false
       links_only:
@@ -73,6 +73,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
       - name: 쿠팡 호출 기록 복원
         id: coupang_cache
         if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'

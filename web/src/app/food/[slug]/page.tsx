@@ -33,7 +33,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
 
   return (
     <>
-      <section aria-label="음식 소개" className="relative h-[440px] overflow-hidden bg-primary lg:h-[520px]">
+      <section aria-label="음식 소개" className={`relative overflow-hidden bg-primary${food.imageAvailable ? " h-[440px] lg:h-[520px]" : ""}`}>
         <FoodImage food={food} hero preload sizes="100vw" />
         <div
           aria-hidden
@@ -58,7 +58,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             </div>
           </div>
         </header>
-        <div className="absolute inset-x-0 bottom-0">
+        <div className={food.imageAvailable ? "absolute inset-x-0 bottom-0" : "relative pt-6"}>
           <div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-5 pb-9 text-white">
             <nav aria-label="현재 위치" className="text-sm">
               <ol className="m-0 flex list-none gap-2 p-0">
@@ -91,7 +91,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                 좋아요 {food.likes.toLocaleString("ko-KR")}
               </li>}
             </ul>
-            {food.editorial && <p className="text-xs text-white">{food.imageAvailable ? "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요." : "사진 준비 중 · 음식 소개와 출처를 먼저 확인하세요."}</p>}
+            {food.editorial && food.imageAvailable && <p className="text-xs text-white">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>}
           </div>
         </div>
       </section>
@@ -132,11 +132,17 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                   </li>
                 ))}
               </ul>
+              {food.generatedImage && <div className="border-t pt-3 text-sm leading-relaxed text-body" aria-label="이미지 안내">
+                <p className="font-bold">AI 생성 예시 이미지</p>
+                <p>{food.generatedImage.note}</p>
+                <p>제작: {food.generatedImage.tool} · {food.generatedImage.generatedAt}</p>
+              </div>}
               {food.photoCredit && "note" in food.photoCredit && <div className="border-t pt-3 text-sm leading-relaxed text-body">
                 <p>{food.photoCredit.note}</p>
                 <p className="wrap-anywhere">{food.photoCredit.title}</p>
                 {food.photoCredit.attributionNotice && <p className="wrap-anywhere">{food.photoCredit.attributionNotice}</p>}
                 <a href={food.photoCredit.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-bold underline underline-offset-4">사진 출처 · {food.photoCredit.author} · {food.photoCredit.license} ↗<span className="sr-only"> (새 창)</span></a>
+                {food.photoCredit.creatorUrl && <p><a href={food.photoCredit.creatorUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-4">사진 작가 · {food.photoCredit.author} ↗<span className="sr-only"> (새 창)</span></a></p>}
                 {food.photoCredit.licenseUrl && <p><a href={food.photoCredit.licenseUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-4">사진 라이선스 · {food.photoCredit.license} ↗<span className="sr-only"> (새 창)</span></a></p>}
               </div>}
             </section>

@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import sharp from "sharp";
 import type { ContentSnapshot } from "../src/data/content.ts";
+import { generatedImages } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { automaticPhotos, downloadCandidate, licensedPhoto, photoBatch, searchPhotos, trustedPhotoUrl } from "./photo-automation.ts";
 import { photoModule } from "./photo-assets.ts";
@@ -17,7 +18,7 @@ const page = () => ({ pageid: 123, title: "File:Test food.jpg", imageinfo: [{
 }] });
 const candidate = () => licensedPhoto(page(), "2026-11-12")!;
 const bytes = await sharp({ create: { width: 800, height: 600, channels: 3, background: "#ddaa55" } }).jpeg().toBuffer();
-const verdict = { match: true, confidence: 0.99, photograph: true, unobstructed: true, metadataMatches: true, reason: "메뉴와 일치" };
+const verdict = { match: true, confidence: 0.99, photograph: true, unobstructed: true, metadataMatches: true, recipeMatches: true, presentationSuitable: true, reason: "메뉴와 일치" };
 const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [structuredClone(input.foods[0]), { ...structuredClone(input.foods[1]), image: "pending", slug: "test-pending" }] });
 
 test("공식 사진 메타데이터: 허용 이용 조건·작가·크기·출처를 확인한다", () => {
@@ -78,7 +79,18 @@ test("일치 사진만 WebP·출처 등록부·콘텐츠로 연결하고 기존 
   let imageCalls = 0;
   const result = await automaticPhotos(original, {}, {
     search: async () => [candidate()], download: async () => bytes,
-    generate: async (_prompt, _schema, images) => { if (images?.length) { imageCalls++; assert.equal(images[0].mimeType, "image/webp"); return verdict; } return { queries: ["same food", "same food"] }; },
+    generate: async (prompt, schema, images) => {
+      if (!images?.length) return { queries: ["same food", "same food"] };
+      imageCalls++;
+      assert.equal(images.length, 2); assert.equal(images[0].mimeType, "image/webp");
+      const crop = await sharp(Buffer.from(images[1].data, "base64")).metadata();
+      assert.equal(crop.width, 768); assert.equal(crop.height, 512);
+      assert.match(prompt, /steps/); assert.match(prompt, /음료가 함께/);
+      assert.match(prompt, /일회용 포장 용기/); assert.match(prompt, /kind=product/);
+      assert.ok((schema.required as string[]).includes("recipeMatches"));
+      assert.ok((schema.required as string[]).includes("presentationSuitable"));
+      return verdict;
+    },
   }, now);
   assert.equal(result.accepted.length, 1);
   assert.equal(imageCalls, 1);
@@ -93,8 +105,20 @@ test("일치 사진만 WebP·출처 등록부·콘텐츠로 연결하고 기존 
   assert.equal(repeated.accepted.length, 0);
 });
 
+test("검토에서 내린 자동 사진을 보존하면서 다른 적합 사진은 새 키로 교체한다", async () => {
+  const old = { ...candidate(), rejectedReason: "사용자 검토에서 제외" };
+  const registered = { "photo-auto-test-pending": old };
+  const next = { ...candidate(), url: "https://commons.wikimedia.org/wiki/File:New_food.jpg" };
+  const result = await automaticPhotos(current(), registered, { search: async () => [old, next], download: async () => bytes, generate: async (_prompt, _schema, images) => images?.length ? verdict : { queries: [] } }, now);
+  assert.equal(result.accepted.length, 1);
+  assert.equal(result.snapshot.foods[1].image, "photo-auto-test-pending-2");
+  assert.equal(result.credits["photo-auto-test-pending-2"].url, next.url);
+  assert.equal(result.credits["photo-auto-test-pending"], undefined);
+  assert.deepEqual(registered, { "photo-auto-test-pending": old });
+});
+
 test("불일치·낮은 신뢰·가림·합성·메타데이터 불일치·빈 응답은 사진 준비 중으로 남긴다", async () => {
-  for (const answer of [{ ...verdict, match: false }, { ...verdict, confidence: 0.94 }, { ...verdict, confidence: NaN }, { ...verdict, photograph: false }, { ...verdict, unobstructed: false }, { ...verdict, metadataMatches: false }, null]) {
+  for (const answer of [{ ...verdict, match: false }, { ...verdict, confidence: 0.94 }, { ...verdict, confidence: NaN }, { ...verdict, photograph: false }, { ...verdict, unobstructed: false }, { ...verdict, metadataMatches: false }, { ...verdict, recipeMatches: false }, { ...verdict, presentationSuitable: false }, { ...verdict, recipeMatches: undefined }, { ...verdict, presentationSuitable: undefined }, null]) {
     const result = await automaticPhotos(current(), {}, { search: async () => [candidate()], download: async () => bytes, generate: async (_prompt, _schema, images) => images?.length ? answer : { queries: [] } }, now);
     assert.equal(result.accepted.length, 0); assert.equal(result.assets.size, 0); assert.equal(result.deferred.length, 1); assert.equal(result.snapshot.foods[1].image, "pending");
   }
@@ -131,6 +155,73 @@ test("사진 준비 중 항목을 날짜별로 순환하며 제한을 넘기지 
   assert.equal(photoBatch(foods, now, 999).length, 20);
   assert.match(photoModule(["photo-auto-test"]), /@\/assets\/curated\/photo-auto-test.webp/);
   assert.throws(() => photoModule(["../outside"]));
+});
+
+test("실사는 보존하고 등록된 생성 예시와 준비 중 사진을 매일 5개씩 순환 검색한다", () => {
+  const generated = input.foods.filter((food) => generatedImages[food.image]);
+  assert.ok(generated.length > 0);
+  const real = input.foods.find((food) => food.image !== "pending" && !generatedImages[food.image])!;
+  const protectedHero = { ...generated[0], slug: generated[0].slug, heroImage: real.image };
+  const unknown = { ...generated[0], image: "photo-ai-unregistered" };
+  const mismatched = { ...generated[0], slug: "other-food" };
+  const pending = current().foods[1];
+  const foods = [real, protectedHero, unknown, mismatched, ...generated, pending];
+  const seen = new Set<string>();
+  for (let day = 0; day < generated.length + 1; day++) {
+    const batch = photoBatch(foods, new Date(now.getTime() + day * 86_400_000));
+    assert.equal(batch.length, Math.min(5, generated.length + 1));
+    assert.ok(batch.every((food) => food === pending || generated.includes(food)));
+    for (const food of batch) seen.add(food.slug);
+  }
+  assert.equal(seen.size, generated.length + 1);
+});
+
+test("검증을 통과한 실사만 생성 예시와 히어로를 교체하고 조리법·날짜는 보존한다", async () => {
+  const generated = structuredClone(input.foods.find((food) => generatedImages[food.image])!);
+  generated.heroImage = generated.image; generated.heroAlt = generated.alt;
+  const original = { ...current(), foods: [current().foods[0], generated] };
+  const before = structuredClone(original);
+  const registryBefore = structuredClone(generatedImages);
+  const result = await automaticPhotos(original, {}, { search: async () => [candidate()], download: async () => bytes, generate: async (_prompt, _schema, images) => images?.length ? verdict : { queries: [] } }, now);
+  assert.equal(result.accepted.length, 1);
+  assert.equal(result.accepted[0].replacedGenerated, true);
+  assert.equal(result.deferred.length, 0);
+  assert.equal(result.snapshot.foods[1].image, `photo-auto-${generated.slug}`);
+  assert.equal(result.snapshot.foods[1].heroImage, undefined);
+  assert.equal(result.snapshot.foods[1].heroAlt, undefined);
+  assert.doesNotMatch(result.snapshot.foods[1].alt, /AI 생성/);
+  const { image: _image, alt: _alt, heroImage: _hero, heroAlt: _heroAlt, ...content } = result.snapshot.foods[1];
+  void _image; void _alt; void _hero; void _heroAlt;
+  const { image: _oldImage, alt: _oldAlt, heroImage: _oldHero, heroAlt: _oldHeroAlt, ...oldContent } = before.foods[1];
+  void _oldImage; void _oldAlt; void _oldHero; void _oldHeroAlt;
+  assert.deepEqual(content, oldContent);
+  assert.deepEqual(result.snapshot.foods[0], before.foods[0]);
+  assert.deepEqual(original, before);
+  assert.deepEqual(generatedImages, registryBefore);
+});
+
+test("실사 없음·불일치·다운로드/검색 실패에는 생성 예시와 안내를 그대로 유지하고 보류를 기록한다", async () => {
+  const generated = structuredClone(input.foods.find((food) => generatedImages[food.image])!);
+  generated.heroImage = generated.image; generated.heroAlt = generated.alt;
+  const original = { ...current(), foods: [generated] };
+  const before = structuredClone(original);
+  const dependencies = { search: async () => [candidate()], download: async () => bytes, generate: async (_prompt: string, _schema: Record<string, unknown>, images?: unknown[]) => images?.length ? verdict : { queries: [] } };
+  for (const overrides of [
+    { search: async () => [] },
+    { generate: async (_prompt: string, _schema: Record<string, unknown>, images?: unknown[]) => images?.length ? { ...verdict, recipeMatches: false } : { queries: [] } },
+    { download: async () => { throw new Error("EACCES"); } },
+    { search: async () => { throw new Error("검색 실패"); } },
+  ]) {
+    const result = await automaticPhotos(original, {}, { ...dependencies, ...overrides }, now);
+    assert.deepEqual(result.snapshot, before);
+    assert.equal(result.accepted.length, 0); assert.equal(result.assets.size, 0);
+    assert.deepEqual(result.credits, {});
+    assert.equal(result.deferred.length, 1);
+    assert.equal(result.deferred[0].retainedGenerated, true);
+    assert.ok(result.deferred[0].reason);
+  }
+  await assert.rejects(automaticPhotos(original, {}, { ...dependencies, generate: async () => { throw new AiQuotaError("한도"); } }, now), AiQuotaError);
+  assert.deepEqual(original, before);
 });
 
 test("키 없는 사진 실행은 기존 사진·등록부·페이지를 바꾸지 않는다", async () => {

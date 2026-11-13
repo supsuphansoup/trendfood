@@ -1,7 +1,8 @@
 import automaticPhotos from "./content/auto-photo-credits.json" with { type: "json" };
 
-export const curatedLicenses = ["CC0", "Public domain", "CC BY 4.0", "CC BY-SA 4.0"] as const;
-export type PhotoCredit = { title: string; author: string; url: string; license: typeof curatedLicenses[number]; note: string; imageUrl: string; verifiedAt: string; automatic?: boolean; pageId?: number; sha1?: string; licenseUrl?: string; attributionNotice?: string };
+export const curatedLicenses = ["CC0", "Public domain", "CC BY 4.0", "CC BY-SA 4.0", "Pexels License"] as const;
+export type PhotoProvider = "commons" | "openverse" | "pexels";
+export type PhotoCredit = { title: string; author: string; url: string; license: typeof curatedLicenses[number]; note: string; imageUrl: string; verifiedAt: string; rejectedReason?: string; automatic?: boolean; pageId?: number; sha1?: string; licenseUrl?: string; attributionNotice?: string; provider?: PhotoProvider; providerId?: string; creatorUrl?: string };
 
 /** 메뉴와 이용 조건을 확인한 사진. 출처와 확인 날짜를 보존한다. */
 export const photoCredits: Record<string, PhotoCredit> = {
@@ -16,6 +17,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-shrimp-rose-tteokbokki": {
+    "rejectedReason": "새우가 확인되지 않고 어두운 식당 사진으로 레시피의 완성 모습을 보여주지 못함",
     "title": "Rose tteokboki from Oseyo restaurant.jpg",
     "author": "Ser Amantio di Nicolao",
     "url": "https://commons.wikimedia.org/wiki/File:Rose_tteokboki_from_Oseyo_restaurant.jpg",
@@ -25,6 +27,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-airfryer-gyeranppang": {
+    "rejectedReason": "완성 접시 대신 매대의 조리 중 철판이 주인공이며 에어프라이어 레시피와 조리 형태가 다름",
     "title": "Gyeranppang (egg bread) (Seoul street food).jpg",
     "author": "tragrpx",
     "url": "https://commons.wikimedia.org/wiki/File:Gyeranppang_(egg_bread)_(Seoul_street_food).jpg",
@@ -34,6 +37,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-shrimp-cream-risotto": {
+    "rejectedReason": "레몬·차이브 리조또로 생크림·버섯을 넣는 레시피와 다름",
     "title": "Grilled shrimp with lemon chive rosotto.jpg",
     "author": "Jon Sullivan",
     "url": "https://commons.wikimedia.org/wiki/File:Grilled_shrimp_with_lemon_chive_rosotto.jpg",
@@ -43,6 +47,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-dalgona-coffee": {
+    "rejectedReason": "책상·컴퓨터·약병 배경이 두드러져 음식 대표 사진으로 부적합",
     "title": "Homemade Dalgona Coffee - Odisha.jpg",
     "author": "Sangram Keshari Senapati",
     "url": "https://commons.wikimedia.org/wiki/File:Homemade_Dalgona_Coffee_-_Odisha.jpg",
@@ -52,6 +57,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-croffle": {
+    "rejectedReason": "오레오·크림이 기본 크로플을 가리며 레시피에 없는 토핑이 주인공임",
     "title": "Oreo Croffle - Fluffy Fluffy Dessert Cafe 2025-06-10.jpg",
     "author": "Andy Li",
     "url": "https://commons.wikimedia.org/wiki/File:Oreo_Croffle_-_Fluffy_Fluffy_Dessert_Cafe_2025-06-10.jpg",
@@ -61,6 +67,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-salt-bread": {
+    "rejectedReason": "매장 진열대와 가격표가 포함된 판매 현장 사진으로 완성 음식 대표 사진에 부적합",
     "title": "Salt bread (sold at supermarkets in Otaru).jpg",
     "author": "User:逃亡者 (ja:利用者:逃亡者)",
     "url": "https://commons.wikimedia.org/wiki/File:Salt_bread_(sold_at_supermarkets_in_Otaru).jpg",
@@ -70,6 +77,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-tanghulu": {
+    "rejectedReason": "매대의 산사 등 다른 과일 꼬치이며 청포도 레시피와 다름",
     "title": "TangHuLu.JPG",
     "author": "Popo le Chien",
     "url": "https://commons.wikimedia.org/wiki/File:TangHuLu.JPG",
@@ -79,6 +87,7 @@ export const photoCredits: Record<string, PhotoCredit> = {
     "verifiedAt": "2026-11-12"
   },
   "photo-matcha-latte": {
+    "rejectedReason": "호지차와 아이스 말차 두 잔 사진으로 따뜻한 말차 라떼 레시피와 다름",
     "title": "Iced Hojicha Latte and Iced Matcha Latte - Rawlab Juice & Tea 2025-07-12.jpg",
     "author": "Andy Li",
     "url": "https://commons.wikimedia.org/wiki/File:Iced_Hojicha_Latte_and_Iced_Matcha_Latte_-_Rawlab_Juice_%26_Tea_2025-07-12.jpg",

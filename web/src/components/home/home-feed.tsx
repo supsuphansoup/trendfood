@@ -180,7 +180,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
 
   return (
     <>
-      <section aria-label={curated ? "오늘의 레시피" : "오늘의 1위"} className="relative h-[560px] overflow-hidden bg-primary md:h-[640px]">
+      <section aria-label={curated ? "오늘의 레시피" : "오늘의 1위"} className={cn("relative overflow-hidden bg-primary", top.imageAvailable && "h-[560px] md:h-[640px]")}>
         <FoodImage food={top} hero preload sizes="100vw" />
         <div
           aria-hidden
@@ -254,7 +254,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             </nav>
           </div>
         </header>
-        <div className="absolute inset-x-0 bottom-0">
+        <div className={top.imageAvailable ? "absolute inset-x-0 bottom-0" : "relative pt-8"}>
           <div className="mx-auto flex max-w-[1200px] flex-col gap-3.5 px-5 pb-11 text-white">
             <p className="text-base font-bold">{curated ? `2020–${Math.max(2026, ...years)}, 출처로 살펴보는 유행 음식` : "오늘 가장 많이 찾은 음식, 1위"}</p>
             <h1 className="text-5xl leading-none font-black tracking-[-0.04em] md:text-hero">{top.name}</h1>
@@ -275,7 +275,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
               <span className="text-sm">{curated ? "예상" : "조리"} {top.cookMinutes}분</span>
             </div>
             <p className="text-xs text-footer-muted">
-              {curated ? `출처 확인 ${top.editorial!.checkedAt} · 실시간 순위 집계 전 · AI 조리 안내 · 참고 사진` : "AI 요약, 운영자 검수 완료. 데모 사진"}
+              {curated ? `출처 확인 ${top.editorial!.checkedAt} · 실시간 순위 집계 전 · AI 조리 안내${top.imageAvailable ? top.generatedImage ? " · AI 생성 예시" : " · 참고 사진" : ""}` : "AI 요약, 운영자 검수 완료. 데모 사진"}
             </p>
           </div>
         </div>
@@ -390,7 +390,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             ) : list.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-16 text-center">
                 <p className="text-base text-body">
-                  {tab === "찜" ? "아직 찜한 음식이 없어요. 사진 위 하트를 눌러 보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
+                  {tab === "찜" ? "아직 찜한 음식이 없어요. 음식 옆 하트를 눌러 보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
                 </p>
                 <button type="button" onClick={reset} className="min-h-11 rounded-lg bg-primary px-5 font-bold text-white">
                   전체 순위 보기

@@ -370,6 +370,7 @@ test("메인: 카테고리 탭, 주소에 필터 기억, 뒤로가기", async ({
 });
 
 test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근성", async ({ page, context }, info) => {
+  await context.route("https://www.coupang.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>상품 링크 테스트</p>" }));
   await page.goto("/");
   await page.getByRole("link", { name: "레시피 보기" }).first().click();
   await expect(page).toHaveURL(/\/food\/dubai-chocolate$/);

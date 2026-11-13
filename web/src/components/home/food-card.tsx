@@ -8,15 +8,15 @@ import { cn } from "@/lib/utils";
 export function FoodCard({ food }: { food: Food }) {
   const href = `/food/${food.slug}`;
   return (
-    <li className="grid items-center gap-[14px] border-b py-5 md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] md:gap-9 md:py-7">
-      <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-secondary md:rounded-3xl">
-        <Link href={href} aria-label={`${food.name}${food.imageAvailable ? "" : " 사진 준비 중"} 상세 보기`} className="absolute inset-0">
+    <li className={cn("relative grid items-center gap-[14px] border-b py-5 md:gap-9 md:py-7", food.imageAvailable && "md:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]")}>
+      {food.imageAvailable ? <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-secondary md:rounded-3xl">
+        <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0">
           <FoodImage food={food} sizes="(max-width: 768px) 100vw, 640px" />
         </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-3 right-3" />
-        {food.editorial && food.imageAvailable && <span className="absolute bottom-3 left-3 rounded bg-primary px-2 py-1 text-xs text-white">참고 사진</span>}
-      </div>
-      <div className="flex flex-col gap-2.5">
+        {food.editorial && food.imageAvailable && <span className="absolute bottom-3 left-3 rounded bg-primary px-2 py-1 text-xs text-white">{food.generatedImage ? "AI 생성 예시" : "참고 사진"}</span>}
+      </div> : <LikeButton slug={food.slug} name={food.name} className="absolute top-5 right-0 md:top-7" />}
+      <div className={cn("flex flex-col gap-2.5", !food.imageAvailable && "pr-14")}>
         <div className="flex items-baseline gap-3">
           <span className="text-[40px] leading-[0.9] font-black tracking-[-0.04em] text-accent tabular-nums md:text-rank">
             <span className="sr-only">{food.editorial ? "추천 " : "순위 "}</span>

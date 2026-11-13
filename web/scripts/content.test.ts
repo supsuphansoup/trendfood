@@ -8,6 +8,9 @@ import { test } from "node:test";
 import { contentToRecords, mergeContent, parseContent } from "../src/data/content.ts";
 import { draftSnapshot } from "./pipeline/content.ts";
 import { curatedLicenses, photoCredits } from "../src/data/photo-credits.ts";
+import { validPhotoSource } from "../src/data/photo-source.ts";
+import { generatedImages } from "../src/data/generated-images.ts";
+import sharp from "sharp";
 
 const target = new URL("../src/data/content/foods.json", import.meta.url);
 const input = JSON.parse(await readFile(target, "utf8"));
@@ -38,22 +41,63 @@ test("기존 열 개 주소를 보존하고 2020~2026년 모두 근거 있는 �
   assert.deepEqual(foods.filter((food) => food.kind === "product").map((food) => food.slug).sort(), ["meoktaekkang", "pokemon-bread", "yonsei-cream-bread"]);
 });
 
-test("확보한 사진은 허용 라이선스·출처와 파일을 보존하고 나머지는 준비 중이다", async () => {
+test("실사 사진은 허용 라이선스·출처와 파일을 보존한다", async () => {
   const { foods } = parseContent(input);
-  for (const food of foods.filter((food) => food.image !== "pending")) {
+  for (const food of foods.filter((food) => food.image !== "pending" && !generatedImages[food.image])) {
     const credit = photoCredits[food.image];
     assert.ok(credit.author && credit.note && credit.verifiedAt);
     assert.ok(curatedLicenses.includes(credit.license));
     if (credit.automatic) {
-      assert.ok(credit.pageId && credit.sha1 && credit.licenseUrl);
+      assert.ok(credit.licenseUrl);
+      if (!credit.provider || credit.provider === "commons") assert.ok(credit.pageId && credit.sha1);
+      else assert.ok(credit.providerId);
       assert.match(credit.note, /개별 검수는 하지 않았어요/);
       if (credit.license.startsWith("CC BY")) assert.match(credit.licenseUrl, /^https:\/\/creativecommons\.org\/licenses\/(?:by|by-sa)\/4\.0\/?$/);
     }
-    assert.equal(new URL(credit.url).hostname, "commons.wikimedia.org");
+    assert.ok(validPhotoSource(credit), food.image);
     const bytes = await readFile(new URL(`../src/assets/curated/${food.image}.webp`, import.meta.url));
     assert.ok(bytes.length > 1000);
     assert.equal(bytes.subarray(8, 12).toString(), "WEBP");
   }
+});
+
+test("모든 음식에 개별 이미지가 있고 생성 예시는 실사 출처와 구분해 파일·프롬프트를 보존한다", async () => {
+  const { foods } = parseContent(input);
+  const keys = foods.map((food) => food.image);
+  assert.ok(keys.every((key) => key !== "pending"));
+  assert.equal(new Set(keys).size, keys.length);
+  const bundle = await readFile(new URL("../src/lib/generated-photos.ts", import.meta.url), "utf8");
+  for (const food of foods.filter((food) => generatedImages[food.image])) {
+    const image = generatedImages[food.image];
+    assert.equal(image.slug, food.slug);
+    assert.equal(image.tool, "OpenAI image_gen");
+    assert.match(image.generatedAt, /^\d{4}-\d{2}-\d{2}$/);
+    assert.ok(image.prompt.length > 100);
+    assert.match(image.note, /AI 생성/);
+    assert.match(food.alt, /AI 생성/);
+    assert.equal(photoCredits[food.image], undefined);
+    assert.ok(bundle.includes(`${food.image}.webp`));
+    const bytes = await readFile(new URL(`../src/assets/generated/${food.image}.webp`, import.meta.url));
+    const metadata = await sharp(bytes).metadata();
+    assert.equal(metadata.format, "webp");
+    assert.equal(metadata.width, 1200);
+    assert.equal(metadata.height, 800);
+    assert.ok(bytes.length > 1000 && bytes.length < 300_000);
+  }
+});
+
+test("다른 음식의 생성 이미지 연결과 AI 설명 누락을 본문·히어로 모두 거절한다", () => {
+  const food = input.foods.find((food: { image: string }) => generatedImages[food.image]);
+  assert.ok(food);
+  for (const field of ["image", "heroImage"]) {
+    const snapshot = fresh();
+    snapshot.foods[0][field] = food.image;
+    snapshot.foods[0].alt = "AI 생성 예시";
+    assert.throws(() => parseContent(snapshot), /생성 이미지/);
+  }
+  const snapshot = fresh();
+  snapshot.foods.find((item: { slug: string }) => item.slug === food.slug).alt = "직접 촬영한 사진";
+  assert.throws(() => parseContent(snapshot), /AI 생성 설명/);
 });
 
 test("근거 없는 연도·잘못된 유형·기존 데모 사진을 공개하지 않는다", () => {
@@ -72,6 +116,21 @@ test("근거 없는 연도·잘못된 유형·기존 데모 사진을 공개하�
     const snapshot = fresh();
     Object.assign(snapshot.foods[0], patch);
     assert.throws(() => parseContent(snapshot), /콘텐츠 검증 실패/);
+  }
+});
+
+test("검토에서 내린 사진은 본문·히어로에 다시 연결할 수 없고 공개 목록에도 남기지 않는다", () => {
+  for (const food of input.foods) if (food.image === "pending") assert.equal(food.alt, `${food.name} 사진 준비 중`);
+  const rejected = Object.entries(photoCredits).filter(([, photo]) => photo.rejectedReason);
+  assert.ok(rejected.length > 0);
+  assert.ok(rejected.some(([, photo]) => photo.automatic), "자동 등록 사진도 검토 후 재연결을 거절한다");
+  for (const [key] of rejected) {
+    assert.ok(input.foods.every((food: { image: string; heroImage?: string }) => food.image !== key && food.heroImage !== key), key);
+    for (const field of ["image", "heroImage"]) {
+      const snapshot = fresh();
+      snapshot.foods[0][field] = key;
+      assert.throws(() => parseContent(snapshot), /등록된 사진 키/);
+    }
   }
 });
 
@@ -143,7 +202,7 @@ test("새 수집 결과는 기존 레시피·출처 확인 날짜를 보존하�
   const current = parseContent(previous);
   const incoming = parseContent({ ...fresh(), foods: [
     { ...input.foods[0], why: "갱신한 소개" },
-    { ...input.foods[1], slug: "new-butter-recipe" },
+    { ...input.foods[1], slug: "new-butter-recipe", image: "pending", alt: "새 음식 사진 준비 중" },
   ] });
   const merged = mergeContent(current, incoming);
   const foods = contentToRecords(merged);
