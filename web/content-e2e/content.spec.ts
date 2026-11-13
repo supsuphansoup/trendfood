@@ -90,7 +90,12 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
       if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });
     } else {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toBeVisible();
-      await expect(page.locator('section[aria-label="음식 소개"] img')).toBeVisible();
+      const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
+      const image = introduction.getByRole("img", { name: food.alt, exact: true });
+      await expect(image).toBeVisible();
+      await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+      await expect(page.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toHaveCount(0);
+      await expect(sources.getByText("AI 생성 예시 이미지", { exact: true })).toHaveCount(0);
       const automatic = automaticPhotos[food.image];
       if (automatic) {
         await expect(sources.getByText(automatic.title, { exact: true })).toBeVisible();
@@ -98,6 +103,7 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
         await expect(sources.getByText(/운영자의 개별 검수는 하지 않았어요/)).toBeVisible();
         if (automatic.license.startsWith("CC BY")) await expect(sources.getByText(/변환본은 원본과 같은/)).toBeVisible();
       }
+      if (food.image.startsWith("photo-reviewed-")) await page.screenshot({ path: `test-results/content/real-${food.slug}-${info.project.name}.png` });
     }
     await expect(page.getByText(/원본 영상 자리|좋아요 \d|참고 금액|검수했어요/)).toHaveCount(0);
     await expect(page.getByRole("img", { name: /검색량.*그래프/ })).toHaveCount(0);
@@ -118,6 +124,7 @@ test("전체 카드의 이미지를 로드하고 생성 표시·찜·상세·재
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   }
   await expect(cards.getByText("AI 생성 예시", { exact: true })).toHaveCount(snapshot.foods.slice(1).filter((item) => generatedImages[item.image]).length);
+  await expect(cards.getByText("참고 사진", { exact: true })).toHaveCount(snapshot.foods.slice(1).filter((item) => item.image !== "pending" && !generatedImages[item.image]).length);
   const card = cards.filter({ has: page.getByRole("heading", { level: 3, name: food.name, exact: true }) });
   await expect(card.getByText(food.why, { exact: true })).toBeVisible();
   await expect(page.getByText(/사진 준비 중/)).toHaveCount(0);
