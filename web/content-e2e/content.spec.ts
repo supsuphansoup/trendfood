@@ -94,6 +94,13 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
       const image = introduction.getByRole("img", { name: food.alt, exact: true });
       await expect(image).toBeVisible();
       await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+      const portrait = await image.evaluate((img: HTMLImageElement) => img.naturalWidth / img.naturalHeight < 1.5);
+      await expect(image).toHaveCSS("object-fit", portrait ? "contain" : "cover");
+      if (portrait) {
+        await expect(introduction.getByRole("img")).toHaveCount(1);
+        await expect(introduction.locator('img[aria-hidden="true"]')).toHaveCount(1);
+        await expect(image).toHaveCSS("object-position", info.project.name === "desktop" ? "100% 50%" : "50% 50%");
+      }
       await expect(page.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toHaveCount(0);
       await expect(sources.getByText("AI 생성 예시 이미지", { exact: true })).toHaveCount(0);
       const automatic = automaticPhotos[food.image];

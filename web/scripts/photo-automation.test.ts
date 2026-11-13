@@ -8,6 +8,7 @@ import { generatedImages } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { automaticPhotos, downloadCandidate, licensedPhoto, photoBatch, searchPhotos, trustedPhotoUrl } from "./photo-automation.ts";
 import { photoModule } from "./photo-assets.ts";
+import { photoHeroFit } from "../src/data/photo-presentation.ts";
 
 const input = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const now = new Date("2026-11-12T06:00:00Z");
@@ -82,10 +83,15 @@ test("일치 사진만 WebP·출처 등록부·콘텐츠로 연결하고 기존 
     generate: async (prompt, schema, images) => {
       if (!images?.length) return { queries: ["same food", "same food"] };
       imageCalls++;
-      assert.equal(images.length, 2); assert.equal(images[0].mimeType, "image/webp");
+      assert.equal(images.length, 4); assert.equal(images[0].mimeType, "image/webp");
       const crop = await sharp(Buffer.from(images[1].data, "base64")).metadata();
       assert.equal(crop.width, 768); assert.equal(crop.height, 512);
+      for (const [index, width, height] of [[2, 1280, 520], [3, 390, 440]]) {
+        const detail: { width?: number; height?: number } = await sharp(Buffer.from(images[index].data, "base64")).metadata();
+        assert.equal(detail.width, width); assert.equal(detail.height, height);
+      }
       assert.match(prompt, /steps/); assert.match(prompt, /음료가 함께/);
+      assert.match(prompt, /PC 상세/); assert.match(prompt, /먹음직스럽게/);
       assert.match(prompt, /일회용 포장 용기/); assert.match(prompt, /kind=product/);
       assert.ok((schema.required as string[]).includes("recipeMatches"));
       assert.ok((schema.required as string[]).includes("presentationSuitable"));
@@ -103,6 +109,30 @@ test("일치 사진만 WebP·출처 등록부·콘텐츠로 연결하고 기존 
   assert.deepEqual(original, before);
   const repeated = await automaticPhotos(result.snapshot, result.credits, { search: async () => { throw new Error("호출되면 안 됨"); }, download: async () => bytes, generate: async () => { throw new Error("호출되면 안 됨"); } }, now);
   assert.equal(repeated.accepted.length, 0);
+});
+
+test("세로 실사는 PC·모바일 상세 검사에서도 상하 음식 영역을 보존한다", async () => {
+  assert.equal(photoHeroFit(800, 1200), "contain");
+  assert.equal(photoHeroFit(800, 800), "contain");
+  assert.equal(photoHeroFit(1200, 800), "cover");
+  const portrait = await sharp({ create: { width: 600, height: 1200, channels: 3, background: "red" } })
+    .composite([{ input: await sharp({ create: { width: 600, height: 600, channels: 3, background: "blue" } }).png().toBuffer(), top: 600, left: 0 }]).jpeg().toBuffer();
+  let inspected = false;
+  const result = await automaticPhotos(current(), {}, { search: async () => [candidate()], download: async () => portrait, generate: async (_prompt, _schema, images) => {
+    if (!images?.length) return { queries: [] };
+    inspected = true;
+    for (const index of [2, 3]) {
+      const { data, info } = await sharp(Buffer.from(images[index].data, "base64")).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      const x = index === 2 ? info.width - 130 : Math.floor(info.width / 2);
+      const pixel = (y: number) => [...data.subarray((y * info.width + x) * 4, (y * info.width + x) * 4 + 4)];
+      assert.ok(pixel(10)[0] > 200 && pixel(10)[2] < 50);
+      assert.ok(pixel(info.height - 11)[2] > 200 && pixel(info.height - 11)[0] < 50);
+    }
+    return { ...verdict, presentationSuitable: false, reason: "음식 표시 품질 부족" };
+  } }, now);
+  assert.equal(inspected, true);
+  assert.equal(result.accepted.length, 0);
+  assert.equal(result.snapshot.foods[1].image, "pending");
 });
 
 test("검토에서 내린 자동 사진을 보존하면서 다른 적합 사진은 새 키로 교체한다", async () => {
