@@ -112,7 +112,8 @@
         },
         {
           "name": "무염 버터",
-          "amount": "80g"
+          "amount": "80g",
+          "url": "https://www.coupang.com/vp/products/8414450418?itemId=25540370254&vendorItemId=92531933265"
         },
         {
           "name": "코코아 파우더",
@@ -120,7 +121,8 @@
         },
         {
           "name": "탈지분유",
-          "amount": "15g"
+          "amount": "15g",
+          "url": "https://www.coupang.com/vp/products/7418175434?itemId=28273238680&vendorItemId=95226326958"
         }
       ],
       "steps": [
@@ -203,7 +205,8 @@
         {
           "name": "타피오카 전분",
           "amount": "20g",
-          "hard": true
+          "hard": true,
+          "url": "https://www.coupang.com/vp/products/9457685541?itemId=28093311725&vendorItemId=95049613439"
         },
         {
           "name": "무염 버터",
