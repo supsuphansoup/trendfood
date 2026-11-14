@@ -228,7 +228,8 @@
         {
           "name": "소금",
           "amount": "1g",
-          "pantry": true
+          "pantry": true,
+          "url": "https://www.coupang.com/vp/products/9253673779?itemId=27372338159&vendorItemId=94338275272"
         },
         {
           "name": "바닐라 에센스",
@@ -1452,7 +1453,8 @@
         {
           "name": "소금",
           "amount": "2g",
-          "pantry": true
+          "pantry": true,
+          "url": "https://www.coupang.com/vp/products/9253673779?itemId=27372338159&vendorItemId=94338275272"
         },
         {
           "name": "시나몬가루",
