@@ -102,6 +102,8 @@ type Dependencies = {
   choose: (prompt: string, schema: Record<string, unknown>) => Promise<unknown>;
   persist: (state: LinkState) => Promise<void>;
   validUrl?: (url: unknown, productId: number) => boolean;
+  /** 선택 옵션의 현재 구매 가능 여부를 확인한다. 검색 색인·AI 추정은 근거로 쓰지 않는다. */
+  available?: (product: Product) => Promise<boolean | null>;
 };
 
 /** 수동 링크·조리법·확인 날짜를 보존하고, 실제 검색 상품 중 확실히 맞는 하나만 연결한다. */
@@ -118,6 +120,10 @@ export async function automaticLinks(current: ContentSnapshot, state: LinkState,
   const queries = [...groups].sort(([a], [b]) => (state.attempted[a] ?? 0) - (state.attempted[b] ?? 0));
   const accepted: { name: string; productId: number; productName: string; url: string; count: number }[] = [];
   const deferred: { name: string; reason: string }[] = [];
+  if (!dependencies.available) {
+    const reason = "선택 옵션의 현재 재고를 확인할 수 없어 신규 상품 링크 등록을 보류해요";
+    return { snapshot, accepted, deferred: queries.map(([, group]) => ({ name: group[0].name, reason })), remaining: queries.length, reason };
+  }
   let processed = 0;
   for (const [key, group] of queries.slice(0, 5)) {
     processed++;
@@ -131,9 +137,16 @@ export async function automaticLinks(current: ContentSnapshot, state: LinkState,
       reserveSearch(state, key, now.getTime());
       // 실제 호출보다 먼저 기록해 중간 실패·재실행도 한도에 포함한다.
       await dependencies.persist(state);
-      const products = (await dependencies.search(name, group.map((item) => ({ food: item.food, ingredient: item.name, amount: item.ingredient.amount ?? "" })))).filter((product) => (dependencies.validUrl ?? affiliateProductUrl)(product.url, product.id) &&
+      const found = (await dependencies.search(name, group.map((item) => ({ food: item.food, ingredient: item.name, amount: item.ingredient.amount ?? "" })))).filter((product) => (dependencies.validUrl ?? affiliateProductUrl)(product.url, product.id) &&
         compact(product.name).includes(key) && !nonFood.test(product.name)).slice(0, 10);
-      if (!products.length) { deferred.push({ name, reason: "정확한 재료 이름을 포함하는 식품 상품·구매 링크가 없어요" }); continue; }
+      if (!found.length) { deferred.push({ name, reason: "정확한 재료 이름을 포함하는 식품 상품·구매 링크가 없어요" }); continue; }
+      const products: Product[] = [];
+      for (const product of found) {
+        // 조회 실패·불명확한 응답은 구매 가능으로 취급하지 않는다.
+        const available = await dependencies.available(product).catch(() => null);
+        if (available === true) products.push(product);
+      }
+      if (!products.length) { deferred.push({ name, reason: "품절·판매 중지·재고 확인 실패로 구매 가능한 상품 옵션이 없어요" }); continue; }
       const batches = new Map<string, { products: Product[]; items: typeof group }>();
       for (const item of group) {
         const candidates = suitableProducts(products, item.ingredient.amount).slice(0, 3);
@@ -153,6 +166,9 @@ export async function automaticLinks(current: ContentSnapshot, state: LinkState,
           deferred.push({ name, reason: "같은 식재료 상품인지 자동 대조 기준을 충족하지 못했어요" }); continue;
         }
         const product = batch.products[index];
+        if (await dependencies.available(product).catch(() => null) !== true) {
+          deferred.push({ name, reason: "등록 직전 재고 확인에 실패해 상품 링크를 저장하지 않아요" }); continue;
+        }
         for (const item of batch.items) item.ingredient.url = product.url;
         const previous = accepted.find((item) => item.name === name && item.url === product.url);
         if (previous) previous.count += batch.items.length;

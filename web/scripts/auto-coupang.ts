@@ -40,7 +40,11 @@ async function main() {
     choose: (prompt, schema) => askJson(prompt, schema, aiConfig()?.provider === "openai" ? { model: aiConfig()!.model, maxOutputTokens: 1200 } : undefined),
     persist: (value) => atomic(statePath, value),
   });
-  await atomic(reportPath, { checkedAt, preview, status: "checked", ...(webProducts ? { mode: "indexed-product", affiliate: false } : {}), accepted: result.accepted, deferred: result.deferred, remaining: result.remaining });
+  await atomic(reportPath, { checkedAt, preview, status: result.reason ? "skipped" : "checked", reason: result.reason, ...(webProducts ? { mode: "indexed-product", affiliate: false } : {}), accepted: result.accepted, deferred: result.deferred, remaining: result.remaining });
+  if (result.reason) {
+    console.log(`[links:auto] 건너뜀: ${result.reason}. 상품 검색·AI 대조를 호출하지 않고 기존 링크를 유지해요`);
+    return;
+  }
   if (!preview && result.accepted.length) await atomic(target, parseContent(result.snapshot));
   console.log(`[links:auto] 상품 ${result.accepted.length}종 · 재료 링크 ${result.accepted.reduce((sum, item) => sum + item.count, 0)}개 · 보류 ${result.deferred.length}종${preview ? " (미리보기, 공개 파일 변경 없음)" : ""}`);
 }

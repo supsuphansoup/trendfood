@@ -11,6 +11,7 @@ const now = new Date("2026-11-12T01:17:00Z");
 const config = { accessKey: "test-access", secretKey: "test-secret", subId: "trendfood" };
 const product = { id: 123, name: "무염 버터 200g", url: "https://link.coupang.com/re/AFFSDP?pageKey=123&subid=trendfood" };
 const verdict = { candidateIndex: 0, sameIngredient: true, foodProduct: true, confidence: 0.99 };
+const available = async () => true;
 const input = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [
   { ...structuredClone(input.foods[0]), ingredients: [{ name: "무염 버터", amount: "20g" }, { name: "설탕", amount: "10g", url: "https://link.coupang.com/a/Manual" }] },
@@ -90,6 +91,7 @@ test("자동 링크: 실제 검색 상품 하나를 중복 재료에 연결하�
   const state = emptyLinkState();
   let persisted = 0, searches = 0;
   const dependencies = {
+    available,
     persist: async () => { persisted++; },
     search: async (query: string) => { assert.equal(persisted, 1); assert.equal(query, "무염 버터"); searches++; return [product]; },
     choose: async (prompt: string) => { assert.match(prompt, /20g/); assert.match(prompt, /30g/); return verdict; },
@@ -109,7 +111,7 @@ test("자동 링크: 실제 검색 상품 하나를 중복 재료에 연결하�
 test("자동 링크: 불일치·비식품·낮은 신뢰·NaN·없는 인덱스·null은 연결하지 않는다", async () => {
   for (const reply of [null, { ...verdict, sameIngredient: false }, { ...verdict, foodProduct: false }, { ...verdict, confidence: 0.94 }, { ...verdict, confidence: NaN }, { ...verdict, confidence: 2 }, { ...verdict, candidateIndex: -1 }, { ...verdict, candidateIndex: 2 }, { ...verdict, candidateIndex: 0.5 }]) {
     const original = current();
-    const result = await automaticLinks(original, emptyLinkState(), { persist: async () => {}, search: async () => [product], choose: async () => reply }, now);
+    const result = await automaticLinks(original, emptyLinkState(), { available, persist: async () => {}, search: async () => [product], choose: async () => reply }, now);
     assert.equal(result.accepted.length, 0); assert.deepEqual(result.snapshot, original);
   }
 });
@@ -121,6 +123,7 @@ test("자동 링크: 같은 재료도 필요량별로 다른 포장을 연결하
   let searches = 0, choices = 0;
   const products = [5000, 500, 100].map((g) => ({ id: g, name: `무염 버터 ${g}g, 1개`, url: `https://link.coupang.com/re/AFFSDP?pageKey=${g}` }));
   const result = await automaticLinks(original, emptyLinkState(), {
+    available,
     persist: async () => {}, search: async (_, contexts) => { searches++; assert.equal(contexts.length, 2); return products; },
     choose: async (prompt) => { choices++; assert.doesNotMatch(prompt, /5000g/); return verdict; },
   }, now);
@@ -134,7 +137,7 @@ test("자동 링크: 용량 불명·부족·업소용만 있으면 AI가 승인�
   for (const title of ["무염 버터", "무염 버터 10g", "무염 버터 5kg", "무염 버터 200g, 6개"]) {
     const original = current();
     let choices = 0;
-    const result = await automaticLinks(original, emptyLinkState(), { persist: async () => {}, search: async () => [{ ...product, name: title }], choose: async () => { choices++; return verdict; } }, now);
+    const result = await automaticLinks(original, emptyLinkState(), { available, persist: async () => {}, search: async () => [{ ...product, name: title }], choose: async () => { choices++; return verdict; } }, now);
     assert.equal(choices, 0); assert.deepEqual(result.snapshot, original); assert.equal(result.accepted.length, 0);
   }
 });
@@ -143,7 +146,7 @@ test("자동 링크: 다른 상품·비식품·복수 선택 재료는 자동 �
   const original = current();
   original.foods[0].ingredients.push({ name: "우유 또는 생크림", amount: "20ml" });
   let choices = 0, searches = 0;
-  const result = await automaticLinks(original, emptyLinkState(), { persist: async () => {}, search: async () => {
+  const result = await automaticLinks(original, emptyLinkState(), { available, persist: async () => {}, search: async () => {
     searches++; return [{ ...product, name: "무염 버터 모형 소품" }, { ...product, name: "가염 버터" }, { ...product, url: "https://evil.test" }];
   }, choose: async () => { choices++; return verdict; } }, now);
   assert.equal(searches, 1); assert.equal(choices, 0); assert.deepEqual(result.snapshot, original);
@@ -153,7 +156,7 @@ test("자동 링크: 미발견 재료도 순환하고 한도 오류 뒤에는 �
   const original = current();
   original.foods = [{ ...original.foods[0], ingredients: Array.from({ length: 15 }, (_, i) => ({ name: `재료${i}`, amount: "1개" })) }];
   const state = emptyLinkState(), seen = new Set<string>();
-  const dependencies = { persist: async () => {}, search: async (query: string) => { seen.add(query); return []; }, choose: async () => verdict };
+  const dependencies = { available, persist: async () => {}, search: async (query: string) => { seen.add(query); return []; }, choose: async () => verdict };
   for (let day = 0; day < 3; day++) await automaticLinks(original, state, dependencies, new Date(now.getTime() + day * 86_400_000));
   assert.equal(seen.size, 15);
   let calls = 0, saves = 0;
@@ -169,12 +172,59 @@ test("자동 링크: 필요량 불명은 유료 검색 없이 보류하고 다�
   const state = emptyLinkState();
   let searches = 0;
   const result = await automaticLinks(original, state, {
+    available,
     persist: async () => {}, search: async () => { searches++; return [product]; }, choose: async () => verdict,
   }, now);
   assert.equal(searches, 0); assert.equal(state.calls.length, 0);
   assert.deepEqual(Object.values(state.attempted), [now.getTime(), now.getTime()]);
   assert.equal(result.deferred.length, 2); assert.equal(result.remaining, 0);
   assert.deepEqual(result.snapshot, original);
+});
+
+test("자동 링크: 재고 확인 기능이 없으면 검색·AI·호출 기록 없이 기존 콘텐츠를 보존한다", async () => {
+  const original = current(), state = emptyLinkState();
+  const unexpected = async () => { assert.fail("재고 확인 기능이 없으면 호출하면 안 돼요"); };
+  const result = await automaticLinks(original, state, { search: unexpected, choose: unexpected, persist: unexpected }, now);
+  assert.deepEqual(result.snapshot, original); assert.deepEqual(state, emptyLinkState());
+  assert.deepEqual(result.accepted, []); assert.match(result.reason!, /현재 재고/);
+  assert.equal(result.deferred.length, 1); assert.equal(result.remaining, 1);
+});
+
+test("자동 링크: 품절·재고 미확인·조회 실패 상품은 AI 판정 전에 제외한다", async () => {
+  for (const check of [async () => false, async () => null, async () => { throw new Error("조회 실패"); }]) {
+    const original = current();
+    const result = await automaticLinks(original, emptyLinkState(), {
+      available: check, persist: async () => {}, search: async () => [product],
+      choose: async () => { assert.fail("구매 가능 확인 전 AI를 호출하면 안 돼요"); },
+    }, now);
+    assert.deepEqual(result.snapshot, original); assert.deepEqual(result.accepted, []);
+    assert.match(result.deferred[0].reason, /품절/);
+  }
+});
+
+test("자동 링크: 품절 후보를 건너뛰고 구매 가능한 정확한 상품 옵션만 등록한다", async () => {
+  const alternative = { ...product, id: 456, url: "https://link.coupang.com/re/AFFSDP?pageKey=456" };
+  const checked: string[] = [];
+  const result = await automaticLinks(current(), emptyLinkState(), {
+    available: async (candidate) => { checked.push(candidate.url); return candidate.url === alternative.url; },
+    persist: async () => {}, search: async () => [product, alternative], choose: async () => verdict,
+  }, now);
+  assert.deepEqual(checked, [product.url, alternative.url, alternative.url]);
+  assert.equal(result.accepted[0].productId, alternative.id); assert.equal(result.accepted[0].count, 2);
+  assert.equal(result.snapshot.foods[0].ingredients[0].url, alternative.url);
+});
+
+test("자동 링크: 후보 선정 후 등록 직전에 품절·미확인·오류가 되면 저장하지 않는다", async () => {
+  for (const check of [async () => false, async () => null, async () => { throw new Error("조회 실패"); }]) {
+    let matched = false;
+    const original = current();
+    const result = await automaticLinks(original, emptyLinkState(), {
+      available: async () => matched ? check() : true, persist: async () => {}, search: async () => [product],
+      choose: async () => { matched = true; return verdict; },
+    }, now);
+    assert.equal(matched, true); assert.deepEqual(result.accepted, []); assert.deepEqual(result.snapshot, original);
+    assert.match(result.deferred[0].reason, /등록 직전/);
+  }
 });
 
 test("키 없는 링크 CLI는 건너뛰며 공개 콘텐츠를 바꾸지 않는다", async () => {
@@ -187,7 +237,7 @@ test("키 없는 링크 CLI는 건너뛰며 공개 콘텐츠를 바꾸지 않는
   assert.equal(report.status, "skipped"); assert.deepEqual(report.accepted, []);
 });
 
-test("격리한 링크 CLI: 미리보기는 호출만 기록하고 적용·재실행은 공개 파일을 올바르게 저장한다", async () => {
+test("격리한 제휴 CLI: 키가 있어도 재고 확인 기능 없이는 검색·AI 호출과 신규 등록을 보류한다", async () => {
   const workspace = await mkdtemp(resolve("data/coupang-cli-"));
   const target = resolve(workspace, "src/data/content/foods.json");
   await mkdir(resolve(workspace, "src/data/content"), { recursive: true });
@@ -195,27 +245,23 @@ test("격리한 링크 CLI: 미리보기는 호출만 기록하고 적용·재�
   await writeFile(target, original);
   const preload = resolve(workspace, "mock-api.mjs");
   await writeFile(preload, `
-    globalThis.fetch = async (url) => {
-      if (String(url).startsWith('https://api-gateway.coupang.com/')) return Response.json({rCode:'0',data:{productData:[${JSON.stringify({ productId: product.id, productName: product.name, productUrl: product.url })}]}});
-      if (String(url) === 'https://api.openai.com/v1/responses') return Response.json({output:[{type:'message',content:[{type:'output_text',text:${JSON.stringify(JSON.stringify(verdict))}}]}]});
-      throw new Error('테스트에서 실제 네트워크 요청을 허용하지 않아요');
+    import { writeFileSync } from 'node:fs';
+    globalThis.fetch = async () => {
+      writeFileSync('unexpected-network', '호출됨');
+      throw new Error('재고 확인 기능 없이 네트워크 요청을 허용하지 않아요');
     };
   `);
   const run = (args: string[]) => spawnSync(process.execPath, ["--import", pathToFileURL(preload).href, fileURLToPath(new URL("./auto-coupang.ts", import.meta.url)), ...args], {
     cwd: workspace, encoding: "utf8", env: { ...process.env, COUPANG_ACCESS_KEY: "test-access", COUPANG_SECRET_KEY: "test-secret", COUPANG_SUB_ID: "trendfood", AI_PROVIDER: "openai", AI_MODEL: "test-model", OPENAI_API_KEY: "test-key" },
   });
-  const dry = run(["--dry-run"]);
-  assert.equal(dry.status, 0, dry.stderr); assert.equal(await readFile(target, "utf8"), original);
-  const ledger = resolve(workspace, "data/coupang-state.json");
-  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 1);
-  const applied = run([]);
-  assert.equal(applied.status, 0, applied.stderr);
-  const saved = JSON.parse(await readFile(target, "utf8")) as ContentSnapshot;
-  assert.equal(saved.foods[0].ingredients[0].url, product.url);
-  assert.equal(saved.foods[1].ingredients[0].url, product.url);
-  assert.equal(saved.foods[0].ingredients[1].url, current().foods[0].ingredients[1].url);
-  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 2);
-  const again = run([]); assert.equal(again.status, 0, again.stderr);
-  assert.deepEqual(JSON.parse(await readFile(target, "utf8")), saved);
-  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 2);
+  for (const args of [["--dry-run"], [], []]) {
+    const result = run(args);
+    assert.equal(result.status, 0, result.stderr); assert.match(result.stdout, /현재 재고/);
+    assert.equal(await readFile(target, "utf8"), original);
+    const report = JSON.parse(await readFile(resolve(workspace, "data/coupang-report.json"), "utf8"));
+    assert.equal(report.status, "skipped"); assert.match(report.reason, /현재 재고/);
+    assert.deepEqual(report.accepted, []); assert.equal(report.deferred.length, 1);
+  }
+  await assert.rejects(readFile(resolve(workspace, "data/coupang-state.json")), { code: "ENOENT" });
+  await assert.rejects(readFile(resolve(workspace, "unexpected-network")), { code: "ENOENT" });
 });

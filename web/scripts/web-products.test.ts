@@ -74,7 +74,7 @@ test("다른 공급자·키 미설정은 검색을 호출하지 않는다", asyn
   assert.equal(fetch.mock.callCount(), 0);
 });
 
-test("일반 상품 CLI: 파트너스 키 없이 검색·대조하고 미리보기·수동 링크·재실행을 보존한다", async () => {
+test("일반 상품 CLI: 검색 색인을 재고 근거로 쓰지 않고 유료 호출·신규 등록을 보류한다", async () => {
   const workspace = await mkdtemp(resolve("data/web-products-cli-"));
   const target = resolve(workspace, "src/data/content/foods.json");
   await mkdir(resolve(workspace, "src/data/content"), { recursive: true });
@@ -84,10 +84,10 @@ test("일반 상품 CLI: 파트너스 키 없이 검색·대조하고 미리보�
   const original = JSON.stringify(content);
   await writeFile(target, original);
   const preload = resolve(workspace, "mock-api.mjs");
-  await writeFile(preload, `globalThis.fetch = async (url, options) => {
-    if (String(url) !== 'https://api.openai.com/v1/responses') throw new Error('쿠팡 직접 요청 금지');
-    if (JSON.parse(options.body).tools) return Response.json(JSON.parse(${JSON.stringify(JSON.stringify(response()))}.replaceAll(${JSON.stringify(url)}, process.env.TEST_NO_OPTION === '1' ? 'https://www.coupang.com/vp/products/123' : ${JSON.stringify(url)})));
-    return Response.json({output:[{type:'message',content:[{type:'output_text',text:'{"candidateIndex":0,"sameIngredient":true,"foodProduct":true,"confidence":0.99}'}]}]});
+  await writeFile(preload, `import { writeFileSync } from 'node:fs';
+  globalThis.fetch = async () => {
+    writeFileSync('unexpected-network', '호출됨');
+    throw new Error('재고 확인 기능 없이 네트워크 요청을 허용하지 않아요');
   };`);
   const run = (args: string[], env = {}) => spawnSync(process.execPath, ["--import", pathToFileURL(preload).href, fileURLToPath(new URL("./auto-coupang.ts", import.meta.url)), "--web-products", ...args], {
     cwd: workspace, encoding: "utf8", env: { ...process.env, COUPANG_ACCESS_KEY: "", COUPANG_SECRET_KEY: "", COUPANG_SUB_ID: "", AI_PROVIDER: "openai", AI_MODEL: "configured-model", OPENAI_API_KEY: "test-key", ...env },
@@ -95,20 +95,15 @@ test("일반 상품 CLI: 파트너스 키 없이 검색·대조하고 미리보�
   const skipped = run([], { OPENAI_API_KEY: "" });
   assert.equal(skipped.status, 0, skipped.stderr); assert.match(skipped.stdout, /건너뜀/);
   assert.equal(await readFile(target, "utf8"), original);
-  const noOption = run(["--dry-run"], { TEST_NO_OPTION: "1" });
-  assert.equal(noOption.status, 0, noOption.stderr); assert.equal(await readFile(target, "utf8"), original);
-  assert.equal(JSON.parse(await readFile(resolve(workspace, "data/product-link-report.json"), "utf8")).accepted.length, 0);
-  const dry = run(["--dry-run"]);
-  assert.equal(dry.status, 0, dry.stderr); assert.equal(await readFile(target, "utf8"), original);
-  const applied = run([]); assert.equal(applied.status, 0, applied.stderr);
-  const saved = JSON.parse(await readFile(target, "utf8"));
-  assert.equal(saved.foods[0].ingredients[0].url, url); assert.equal(saved.foods[0].ingredients[1].url, manual);
-  assert.equal(saved.checkedAt, content.checkedAt); assert.deepEqual(saved.foods[0].steps, content.foods[0].steps);
-  const ledger = resolve(workspace, "data/product-link-state.json");
-  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 3);
-  const again = run([]); assert.equal(again.status, 0, again.stderr);
-  assert.deepEqual(JSON.parse(await readFile(target, "utf8")), saved);
-  assert.equal(JSON.parse(await readFile(ledger, "utf8")).calls.length, 3);
+  for (const args of [["--dry-run"], [], []]) {
+    const result = run(args);
+    assert.equal(result.status, 0, result.stderr); assert.match(result.stdout, /현재 재고/);
+    assert.equal(await readFile(target, "utf8"), original);
+  }
+  await assert.rejects(readFile(resolve(workspace, "data/product-link-state.json")), { code: "ENOENT" });
+  await assert.rejects(readFile(resolve(workspace, "unexpected-network")), { code: "ENOENT" });
   const report = JSON.parse(await readFile(resolve(workspace, "data/product-link-report.json"), "utf8"));
   assert.equal(report.affiliate, false); assert.equal(report.mode, "indexed-product");
+  assert.equal(report.status, "skipped"); assert.match(report.reason, /현재 재고/);
+  assert.deepEqual(report.accepted, []); assert.equal(report.deferred.length, 1);
 });
