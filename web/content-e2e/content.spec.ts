@@ -19,6 +19,7 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   }
   await expect(page.locator("#list li h3")).toHaveCount(snapshot.foods.length - 1);
   await expect(page.getByRole("button", { name: "추천순", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^장바구니/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "좋아요순", exact: true })).toHaveCount(0);
   await expect(page.getByText(new RegExp(`출처 확인 ${snapshot.foods[0].checkedAt ?? snapshot.checkedAt}`))).toBeVisible();
   await expect(page.getByText("오늘 가장 많이 찾은 음식, 1위")).toHaveCount(0);
@@ -40,7 +41,59 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.ingredients.some((ingredient) => ingredient.name.includes("타피오카")) || food.name.includes("타피오카") || food.why.includes("타피오카")).map((food) => food.name));
 });
 
-test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 일치한다", async ({ page }) => {
+test("간식 탭 없이 기존 간식 주소는 전체로 열리고 음식 검색을 유지한다", async ({ page }, info) => {
+  await page.goto("/?cat=" + encodeURIComponent("간식"));
+  const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
+  await expect(categories.getByRole("button", { name: /^간식/ })).toHaveCount(0);
+  await expect(categories.getByRole("button", { name: /^전체/ })).toHaveAttribute("aria-current", "true");
+  await expect(page).not.toHaveURL(/cat=/);
+  await expect(page.locator("#list li h3")).toHaveCount(snapshot.foods.length - 1);
+  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.screenshot({ path: `test-results/content/no-snack-tab-${info.project.name}.png` });
+  const snack = snapshot.foods.find((food) => food.category === "간식")!;
+  await page.getByRole("searchbox").fill(snack.name);
+  await page.getByRole("button", { name: "검색", exact: true }).click();
+  await expect(page.locator("#list").getByRole("heading", { name: snack.name, exact: true })).toBeVisible();
+});
+
+test("정렬·태그·연도는 카테고리 아래에서 음식 목록을 필터링한다", async ({ page }, info) => {
+  await page.goto("/");
+  const filters = page.getByRole("complementary", { name: "음식 필터" });
+  const categories = filters.getByRole("navigation", { name: "카테고리", exact: true });
+  const sorting = filters.getByRole("navigation", { name: "정렬과 태그", exact: true });
+  const years = filters.getByRole("navigation", { name: "유행 연도", exact: true });
+  await expect(categories).toHaveCount(1);
+  const categoryBox = (await categories.boundingBox())!;
+  const sortBox = (await sorting.boundingBox())!;
+  const yearBox = (await years.boundingBox())!;
+  const listBox = (await page.locator("#list").boundingBox())!;
+  expect(sortBox.y).toBeGreaterThanOrEqual(categoryBox.y + categoryBox.height);
+  expect(yearBox.y).toBeGreaterThanOrEqual(sortBox.y + sortBox.height);
+  if (info.project.name === "desktop") {
+    expect(sortBox.x + sortBox.width).toBeLessThan(listBox.x);
+    expect(yearBox.x + yearBox.width).toBeLessThan(listBox.x);
+  } else {
+    expect(yearBox.y + yearBox.height).toBeLessThanOrEqual(listBox.y);
+  }
+  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await filters.getByRole("button", { name: "조리시간순", exact: true }).click();
+  await filters.getByRole("button", { name: "#10분컷", exact: true }).click();
+  await expect(page).toHaveURL(/sort=/);
+  await expect(page).toHaveURL(/tag=10/);
+  const expected = snapshot.foods.filter((food) => food.tags.includes("10분컷"))
+    .sort((a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes));
+  await expect(page.locator("#list li h3")).toHaveText(expected.map((food) => food.name));
+  await page.screenshot({ path: `test-results/content/sidebar-filters-${info.project.name}.png` });
+  await filters.getByRole("button", { name: "#10분컷", exact: true }).click();
+  await filters.getByRole("button", { name: "추천순", exact: true }).click();
+  await years.getByRole("button", { name: "2024년", exact: true }).click();
+  await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.history?.years.includes(2024)).map((food) => food.name));
+  await expect(years.getByRole("button", { name: "2024년", exact: true })).toBeInViewport();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `test-results/content/sidebar-years-${info.project.name}.png` });
+});
+
+test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 일치한다", async ({ page }, info) => {
   await page.goto("/?year=2020");
   const years = page.getByRole("navigation", { name: "유행 연도" });
   for (const year of [...new Set(snapshot.foods.flatMap((food) => food.history?.years ?? []))].sort()) {
@@ -53,7 +106,9 @@ test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 �
   await expect.poll(async () => {
     const heading = await page.locator("#list h2").boundingBox();
     const navigation = await years.boundingBox();
-    return heading && navigation ? heading.y >= navigation.y + navigation.height : false;
+    return heading && navigation ? info.project.name === "desktop"
+      ? heading.x >= navigation.x + navigation.width && heading.y >= 0
+      : heading.y >= navigation.y + navigation.height : false;
   }).toBe(true);
   await page.goto("/?year=2024&q=밤");
   await expect(page.locator("#list li h3")).toHaveText(["밤 티라미수"]);
@@ -162,6 +217,9 @@ test("전체 카드의 이미지를 로드하고 생성 표시·찜·상세·재
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(food.name);
   await expect(page.getByRole("button", { name: `${food.name} 찜하기`, exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#cart")).toBeVisible();
+  await expect(page.getByRole("button", { name: /^장바구니|선택한 재료 통합 장바구니에 담기/ })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "통합 장바구니" })).toHaveCount(0);
+  await expect(page.locator("#cart").getByRole("link", { name: /장보기 시작:/ })).toHaveAttribute("href", /coupang\.com/);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
 });

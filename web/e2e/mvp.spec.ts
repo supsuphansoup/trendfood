@@ -198,10 +198,11 @@ test("필수 페이지: 푸터 이동·기존 소개 앵커·전문 보기", asy
 test("연도별 음식: 2010~2025 슬라이더, 출처, 주소 유지와 초기화", async ({ page }, info) => {
   await page.goto("/");
   const categories = page.getByRole("navigation", { name: "카테고리" }).filter({ visible: true });
-  const slider = categories.getByRole("slider", { name: "유행 연도", exact: true });
+  const filters = page.getByRole("complementary", { name: "음식 필터" });
+  const slider = filters.getByRole("slider", { name: "유행 연도", exact: true });
   await expect(slider).toHaveAttribute("min", "2010");
   await expect(slider).toHaveAttribute("max", "2025");
-  await categories.getByRole("button", { name: "2025년 음식 보기", exact: true }).click();
+  await filters.getByRole("button", { name: "2025년 음식 보기", exact: true }).click();
   await expect(page.getByRole("heading", { name: "2025년 유행 음식", exact: true })).toBeVisible();
   await expect(page.locator("#list").getByRole("heading", { name: "말차 음료·디저트", exact: true })).toBeVisible();
   await slider.focus();
@@ -231,20 +232,32 @@ test("연도별 음식: 2010~2025 슬라이더, 출처, 주소 유지와 초기�
   await expect(page.getByRole("heading", { name: "2위부터", exact: true })).toBeVisible();
 });
 
-test("장바구니는 상단 찜 바로 옆에 표시된다", async ({ page }, info) => {
+test("통합 장바구니를 제거하고 찜·상세 재료 체크·구매 링크는 유지한다", async ({ page }, info) => {
+  // 예전에 모은 재료가 브라우저에 남아 있어도 제거한 UI가 다시 나타나지 않는다.
+  await page.addInitScript(() => localStorage.setItem("tf:shopping-cart", JSON.stringify([
+    JSON.stringify({ slug: "dubai-chocolate", food: "두바이 초콜릿", name: "피스타치오 스프레드" }),
+  ])));
   await page.goto("/");
   const shortcuts = page.getByRole("navigation", { name: "바로가기" });
-  const likes = shortcuts.getByRole("button", { name: "찜 0", exact: true });
-  const cart = shortcuts.getByRole("button", { name: "장바구니 0", exact: true });
-  await expect(cart).toBeVisible();
-  const likeBox = (await likes.boundingBox())!;
-  const cartBox = (await cart.boundingBox())!;
-  expect(Math.abs(likeBox.y - cartBox.y)).toBeLessThan(5);
-  expect(cartBox.x).toBeGreaterThan(likeBox.x);
-  await page.screenshot({ path: `test-results/cart-header-home-${info.project.name}.png` });
+  await expect(shortcuts.getByRole("button", { name: "찜 0", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^장바구니/ })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "통합 장바구니" })).toHaveCount(0);
+  await page.screenshot({ path: `test-results/no-cart-home-${info.project.name}.png` });
   await page.goto("/food/dubai-chocolate");
-  await expect(page.locator("header").getByRole("button", { name: "장바구니 0", exact: true })).toBeVisible();
-  await page.screenshot({ path: `test-results/cart-header-detail-${info.project.name}.png` });
+  await expect(page.getByRole("button", { name: /^장바구니/ })).toHaveCount(0);
+  await expect(page.getByRole("dialog", { name: "통합 장바구니" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "선택한 재료 통합 장바구니에 담기", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "두바이 초콜릿 찜하기", exact: true })).toBeVisible();
+  await page.screenshot({ path: `test-results/no-cart-detail-${info.project.name}.png` });
+  const ingredients = page.getByRole("region", { name: "재료 장바구니", exact: true });
+  await expect(ingredients.getByRole("checkbox")).toHaveCount(6);
+  const butter = ingredients.getByRole("checkbox", { name: /무염 버터/ });
+  await butter.uncheck();
+  await expect(butter).not.toBeChecked();
+  await expect(ingredients.getByRole("link", { name: /장보기 시작: 피스타치오 스프레드/ })).toHaveAttribute("href", /coupang\.com/);
+  await expect(ingredients.getByRole("button", { name: "재료 목록 복사", exact: true })).toBeVisible();
+  await ingredients.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `test-results/no-cart-ingredients-${info.project.name}.png` });
 });
 
 test("쿠팡 이동은 본문·모바일 하단에서 누른 재료 순서를 지킨다", async ({ page, context }, info) => {
@@ -270,30 +283,6 @@ test("쿠팡 이동은 본문·모바일 하단에서 누른 재료 순서를 �
     }
     await expect(cart.getByText("재료를 모두 담았어요", { exact: true })).toBeVisible();
   }
-});
-
-test("통합 장바구니: 여러 음식 재료 담기·중복 방지·유지·삭제", async ({ page }, info) => {
-  await page.goto("/food/dubai-chocolate");
-  const add = () => page.getByRole("button", { name: "선택한 재료 통합 장바구니에 담기", exact: true });
-  await add().click();
-  await add().click();
-  await page.getByRole("button", { name: "장바구니 4", exact: true }).click();
-  const cart = page.getByRole("dialog", { name: "통합 장바구니" });
-  await expect(cart.getByRole("listitem")).toHaveCount(4);
-  await page.getByRole("button", { name: "장바구니 닫기" }).click();
-  await page.goto("/food/butter-garaetteok");
-  await add().click();
-  await page.reload();
-  await page.getByRole("button", { name: /^장바구니 \d+$/ }).click();
-  await expect(cart.getByRole("link", { name: "두바이 초콜릿", exact: true })).toHaveCount(4);
-  await expect(cart.getByRole("link", { name: "버터 가래떡구이", exact: true }).first()).toBeVisible();
-  const count = await cart.getByRole("listitem").count();
-  await cart.getByRole("button", { name: /삭제$/ }).first().click();
-  await expect(cart.getByRole("listitem")).toHaveCount(count - 1);
-  await expectNoA11yViolations(page);
-  await page.screenshot({ path: `test-results/shopping-cart-${info.project.name}.png` });
-  for (let i = count - 1; i > 0; i--) await cart.getByRole("button", { name: /삭제$/ }).first().click();
-  await expect(cart.getByText(/장바구니가 비어 있어요/)).toBeVisible();
 });
 
 async function expectNoA11yViolations(page: Page) {
@@ -429,6 +418,7 @@ test("메인: 카테고리 탭, 주소에 필터 기억, 뒤로가기", async ({
   await page.goto("/");
   const nav = page.getByRole("navigation", { name: "카테고리" }).filter({ visible: true });
   await expect(nav).toHaveCount(1); // PC는 왼쪽, 모바일은 위쪽 탭 하나만 보임
+  await expect(nav.getByRole("button", { name: /^간식/ })).toHaveCount(0);
   if (info.project.name === "desktop") {
     expect((await nav.boundingBox())!.x).toBeLessThan(100); // 왼쪽 사이드바
   }
@@ -459,6 +449,10 @@ test("메인: 카테고리 탭, 주소에 필터 기억, 뒤로가기", async ({
   await expect(nav.getByRole("button", { name: /^디저트/ })).toHaveAttribute("aria-current", "true");
   expect(await cardTitles(page)).toEqual(["두바이 초콜릿"]); // 카테고리 기준 (가래떡은 '간식', #디저트 태그만 있음)
   await page.screenshot({ path: `test-results/home-category-${info.project.name}.png` });
+  await page.goto("/?cat=" + encodeURIComponent("간식"));
+  await expect(nav.getByRole("button", { name: /^전체/ })).toHaveAttribute("aria-current", "true");
+  await expect(page).not.toHaveURL(/cat=/);
+  expect(await cardTitles(page)).toContain("버터 가래떡구이");
 });
 
 test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근성", async ({ page, context }, info) => {

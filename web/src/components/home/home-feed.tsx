@@ -24,7 +24,6 @@ import { FoodCard } from "@/components/home/food-card";
 import { YearFilter } from "@/components/home/year-filter";
 import { trendHistory } from "@/data/trend-history";
 import { LikeCount } from "@/components/like-button";
-import { ShoppingCartPanel } from "@/components/shopping-cart";
 import { buyable, categoryOptions, type Food, sortOptions, tagOptions } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 import { LIKES_KEY, useStoredSet } from "@/lib/use-stored-set";
@@ -41,7 +40,7 @@ const tabIcons: Record<Tab, LucideIcon> = {
   간식: Cookie,
   찜: Heart,
 };
-const tabs: Tab[] = ["전체", ...categoryOptions];
+const tabs: Tab[] = ["전체", ...categoryOptions.filter((category) => category !== "간식")];
 
 const chipClass =
   "min-h-11 shrink-0 rounded-full border border-transparent bg-muted px-4 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:border-line-strong aria-pressed:bg-primary aria-pressed:font-bold aria-pressed:text-primary-foreground";
@@ -251,7 +250,6 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 <Heart className="size-4" aria-hidden />
                 <LikeCount />
               </button>
-              <ShoppingCartPanel />
             </nav>
           </div>
       </header>
@@ -297,10 +295,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
       </section>
 
       <div className="mx-auto w-full max-w-[1200px] border-t lg:grid lg:grid-cols-[176px_minmax(0,1fr)] lg:gap-8 lg:px-5">
-        {/* PC: 왼쪽 카테고리 탭 */}
-        <aside className="hidden lg:block">
-          <nav aria-label="카테고리" className="sticky top-0 flex flex-col gap-1 pt-6">
-            <p className="px-3 pb-2 text-[13px] font-bold text-muted-foreground">카테고리</p>
+        <aside aria-label="음식 필터" className="sticky top-0 z-10 min-w-0 self-start border-b bg-background lg:max-h-dvh lg:overflow-y-auto lg:border-b-0 lg:pt-6 lg:pb-4">
+          <nav aria-label="카테고리" className="flex gap-1 overflow-x-auto border-b px-3 [scrollbar-width:none] lg:flex-col lg:overflow-visible lg:border-b-0 lg:px-0">
+            <p className="hidden px-3 pb-2 text-[13px] font-bold text-muted-foreground lg:block">카테고리</p>
             {[...tabs, "찜" as const].map((t) => {
               const Icon = tabIcons[t];
               return (
@@ -310,70 +307,46 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                   aria-current={tab === t ? "true" : undefined}
                   onClick={() => pickTab(t)}
                   className={cn(
-                    "flex min-h-12 items-center gap-3 rounded-xl px-3 text-left text-base text-foreground hover:bg-muted",
-                    t === "찜" && "mt-3 border-t pt-3",
-                    tab === t && "bg-secondary font-bold hover:bg-secondary",
+                    "-mb-px flex min-h-12 shrink-0 items-center gap-1 border-b-[3px] border-transparent px-3 text-left text-base whitespace-nowrap text-muted-foreground lg:mb-0 lg:gap-3 lg:rounded-xl lg:border-b-0 lg:text-foreground lg:hover:bg-muted",
+                    t === "찜" && "lg:mt-3 lg:border-t lg:pt-3",
+                    tab === t && "border-accent font-bold text-foreground lg:bg-secondary lg:hover:bg-secondary",
                   )}
                 >
-                  <Icon className={cn("size-5", tab === t ? "text-accent" : "text-muted-foreground")} aria-hidden />
-                  <span className="flex-1">{t === "찜" ? "찜한 음식" : t}</span>
-                  <span className="text-sm text-muted-foreground tabular-nums">{counts[t] ?? 0}</span>
+                  <Icon className={cn("hidden size-5 lg:block", tab === t ? "text-accent" : "text-muted-foreground")} aria-hidden />
+                  <span className="lg:flex-1">{t === "찜" ? <><span className="lg:hidden">찜</span><span className="hidden lg:inline">찜한 음식</span></> : t}</span>
+                  <span className="text-[13px] text-muted-foreground tabular-nums lg:text-sm">{counts[t] ?? 0}</span>
                 </button>
               );
             })}
-            {!curated && <YearFilter year={year} onChange={pickYear} onClear={() => setYear(null)} />}
           </nav>
-        </aside>
-
-        <div className="min-w-0">
-          <div className="sticky top-0 z-10 border-b bg-background">
-            {/* 모바일: 상단 카테고리 탭 */}
-            <nav aria-label="카테고리" className="lg:hidden">
-              <div className="flex gap-1 overflow-x-auto border-b px-3 [scrollbar-width:none]">
-                {[...tabs, "찜" as const].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    aria-current={tab === t ? "true" : undefined}
-                    onClick={() => pickTab(t)}
-                    className={cn(
-                      "-mb-px flex min-h-12 shrink-0 items-center gap-1 border-b-[3px] border-transparent px-3 text-base whitespace-nowrap text-muted-foreground",
-                      tab === t && "border-accent font-bold text-foreground",
-                    )}
-                  >
-                    {t === "찜" ? "찜" : t}
-                    <span className="text-[13px] tabular-nums">{counts[t] ?? 0}</span>
-                  </button>
-                ))}
-              </div>
-              {!curated && <YearFilter year={year} onChange={pickYear} onClear={() => setYear(null)} />}
-            </nav>
-            {(curated || year === null) && <nav aria-label="정렬과 태그" className="flex gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none] lg:px-0">
+            {(curated || year === null) && <nav aria-label="정렬과 태그" className="flex gap-2 overflow-x-auto px-5 py-3 [scrollbar-width:none] lg:mt-4 lg:flex-wrap lg:overflow-visible lg:border-t lg:px-0 lg:pt-4">
               {sortOptions.filter((s) => !curated || s !== "좋아요순").map((s) => (
-                <button key={s} type="button" aria-pressed={sort === s} onClick={() => setSort(s)} className={chipClass}>
+                <button key={s} type="button" aria-pressed={sort === s} onClick={() => setSort(s)} className={cn(chipClass, "lg:w-full lg:text-left")}>
                   {curated && s === "급상승순" ? "추천순" : s}
                 </button>
               ))}
-              <span aria-hidden className="mx-1 my-1 w-px shrink-0 bg-border" />
+              <span aria-hidden className="mx-1 my-1 w-px shrink-0 bg-border lg:mx-0 lg:h-px lg:w-full" />
               {tagOptions.map((t) => (
                 <button
                   key={t}
                   type="button"
                   aria-pressed={tag === t}
                   onClick={() => setTag(tag === t ? null : t)}
-                  className={chipClass}
+                  className={cn(chipClass, "lg:px-3")}
                 >
                   #{t}
                 </button>
               ))}
             </nav>}
-            {years.length > 0 && <nav aria-label="유행 연도" className="flex items-center gap-2 overflow-x-auto border-b px-5 py-3 [scrollbar-width:none] lg:px-0">
-              <button type="button" aria-pressed={year === null} onClick={() => setYear(null)} className={chipClass}>전체 연도</button>
-              {years.map((y) => <button key={y} type="button" aria-pressed={year === y} onClick={() => { setYear(y); toList(); }} className={chipClass}>{y}년</button>)}
+            {years.length > 0 && <nav aria-label="유행 연도" className="flex items-center gap-2 overflow-x-auto border-t px-5 py-3 [scrollbar-width:none] lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pt-4">
+              <button type="button" aria-pressed={year === null} onClick={() => setYear(null)} className={cn(chipClass, "lg:col-span-2")}>전체 연도</button>
+              {years.map((y) => <button key={y} type="button" aria-pressed={year === y} onClick={() => { setYear(y); toList(); }} className={cn(chipClass, "lg:px-2")}>{y}년</button>)}
             </nav>}
-          </div>
+            {!curated && <YearFilter year={year} onChange={pickYear} onClear={() => setYear(null)} />}
+        </aside>
 
-          <main id="list" ref={listRef} className={cn("px-5 pt-4 pb-14 lg:px-0", years.length > 0 ? "scroll-mt-[184px] lg:scroll-mt-[136px]" : "scroll-mt-[116px] lg:scroll-mt-[68px]")}>
+        <div className="min-w-0">
+          <main id="list" ref={listRef} className={cn("px-5 pt-4 pb-14 lg:scroll-mt-4 lg:px-0", years.length > 0 ? "scroll-mt-[184px]" : "scroll-mt-[116px]")}>
             <div aria-live="polite" className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
               <h2 className="text-2xl font-black tracking-tight">{!curated && year !== null ? `${year}년 유행 음식` : title}</h2>
               <span className="rounded-full bg-secondary px-2.5 py-1 text-sm font-bold text-muted-foreground">{!curated && year !== null ? history.length : list.length}개</span>

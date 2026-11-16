@@ -20,7 +20,6 @@ export default function PrivacyPage() {
           <li>찜한 음식</li>
           <li>&quot;집에 있어요&quot;로 표시한 재료</li>
           <li>재료 연속 담기에서 이미 담은 재료</li>
-          <li>통합 장바구니에 넣은 재료</li>
         </ul>
       </section>
       <section>

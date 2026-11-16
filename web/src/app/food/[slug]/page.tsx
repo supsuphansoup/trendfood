@@ -9,7 +9,6 @@ import { ShareButton } from "@/components/detail/share-button";
 import { StepTimer } from "@/components/detail/step-timer";
 import { TrendChart } from "@/components/detail/trend-chart";
 import { LikeButton } from "@/components/like-button";
-import { ShoppingCartPanel } from "@/components/shopping-cart";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteLogo } from "@/components/site-logo";
 import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
@@ -47,7 +46,6 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             </Link>
             <div className="ml-auto flex gap-1 rounded-full border px-1">
               <LikeButton slug={food.slug} name={food.name} className="size-[46px] bg-background" />
-              <ShoppingCartPanel compact />
               <ShareButton title={food.name} />
             </div>
           </div>
