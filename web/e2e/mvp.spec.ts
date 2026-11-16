@@ -314,7 +314,15 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   } else {
     expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
   }
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  // 검색 초기화·앵커 이동 뒤 레이아웃이 정착할 때까지 검사하며, 지속적인 넘침은 실패시킨다.
+  await expect(async () => {
+    const layout = await page.evaluate(() => ({
+      width: document.documentElement.scrollWidth,
+      viewport: innerWidth,
+      overflow: [...document.querySelectorAll("body *")].filter((el) => el.getBoundingClientRect().right > innerWidth).map((el) => ({ tag: el.tagName, class: el.className, right: el.getBoundingClientRect().right })),
+    }));
+    expect(layout.width, JSON.stringify(layout)).toBeLessThanOrEqual(layout.viewport);
+  }).toPass({ timeout: 5_000 });
   await page.screenshot({ path: `test-results/redesign-feed-${info.project.name}.png` });
   await page.goto("/food/dubai-chocolate");
   await page.getByRole("link", { name: "만드는 법", exact: true }).click();
