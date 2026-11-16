@@ -11,6 +11,7 @@ import { TrendChart } from "@/components/detail/trend-chart";
 import { LikeButton } from "@/components/like-button";
 import { ShoppingCartPanel } from "@/components/shopping-cart";
 import { SiteFooter } from "@/components/site-footer";
+import { SiteLogo } from "@/components/site-logo";
 import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
 
 // 빌드할 때 게시된 음식의 상세 페이지만 만든다. 목록에 없는 주소는 404.html 로 간다.
@@ -40,6 +41,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               className="flex min-h-11 items-center gap-1.5 text-[22px] font-black tracking-[-0.04em] text-foreground hover:text-accent"
             >
               <ChevronLeft className="size-5" aria-hidden />
+              <SiteLogo />
               트렌드푸드
             </Link>
             <div className="ml-auto flex gap-1 rounded-full border px-1">

@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { FoodImage } from "@/components/food-image";
+import { SiteLogo } from "@/components/site-logo";
 import Link from "next/link";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { AdSlot } from "@/components/ad-slot";
@@ -186,7 +187,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
       <header className="border-b bg-background">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
             <Link href="/" onClick={reset} className="flex min-h-11 items-center gap-2 text-[22px] font-black tracking-[-0.04em] text-foreground hover:text-accent md:text-2xl">
-              <span className="flex size-9 items-center justify-center rounded-full bg-accent text-accent-foreground"><Flame className="size-5" aria-hidden /></span>
+              <SiteLogo />
               트렌드푸드
             </Link>
             <form

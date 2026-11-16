@@ -18,6 +18,32 @@ const near = (actual: number[], hex: string) =>
 
 const cardTitles = (page: Page) => page.locator("#list li h3").allInnerTexts();
 
+test("첨부 로고: 공개 페이지의 이미지·홈 이동·탭 아이콘이 동일하다", async ({ page, request }, info) => {
+  const asset = await request.get("/brand/trendfood-logo.svg");
+  expect(asset.ok()).toBe(true);
+  const original = await request.get("/brand/trendfood-logo.png");
+  expect(original.ok()).toBe(true);
+  // SVG는 원본 픽셀을 다시 그리지 않고 첨부 PNG 바이트를 그대로 사용한다.
+  expect(await asset.text()).toContain(`data:image/png;base64,${(await original.body()).toString("base64")}`);
+  for (const path of ["/", "/food/dubai-chocolate", "/about", "/privacy", "/terms"]) {
+    await page.goto(path);
+    const logo = page.getByTestId("site-logo");
+    await expect(logo).toBeVisible();
+    await expect(logo).toHaveAttribute("src", "/brand/trendfood-logo.svg");
+    await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+    const link = logo.locator("..");
+    await expect(link).toHaveAttribute("href", "/");
+    const bounds = (await link.boundingBox())!;
+    expect(bounds.height).toBeGreaterThanOrEqual(44);
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/brand/trendfood-logo.svg");
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (path === "/food/dubai-chocolate") await page.screenshot({ path: `test-results/logo-detail-${info.project.name}.png` });
+  }
+  await page.getByRole("main").getByRole("link", { name: "트렌드푸드", exact: true }).click();
+  await expect(page).toHaveURL("/");
+  await page.screenshot({ path: `test-results/logo-home-${info.project.name}.png` });
+});
+
 const siteInfoLinks = [
   ["사이트 소개", "/about"],
   ["개인정보처리방침", "/privacy"],
