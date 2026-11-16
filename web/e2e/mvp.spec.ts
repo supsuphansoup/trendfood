@@ -294,6 +294,10 @@ test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page 
 
 test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바로가기", async ({ page }, info) => {
   await page.goto("/");
+  // 플랫폼별 입력칸의 기본 너비 차이가 검색창을 화면 밖으로 밀지 않게 한다.
+  await page.getByRole("searchbox").evaluate((el: HTMLInputElement) => { el.size = 40; });
+  const form = (await page.getByRole("search").boundingBox())!;
+  expect(form.x + form.width).toBeLessThanOrEqual(page.viewportSize()!.width);
   const search = page.getByRole("button", { name: "검색", exact: true });
   const searchBox = (await search.boundingBox())!;
   expect(searchBox.width).toBeGreaterThanOrEqual(44);
@@ -314,15 +318,12 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   } else {
     expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
   }
-  // 검색 초기화·앵커 이동 뒤 레이아웃이 정착할 때까지 검사하며, 지속적인 넘침은 실패시킨다.
-  await expect(async () => {
-    const layout = await page.evaluate(() => ({
-      width: document.documentElement.scrollWidth,
-      viewport: innerWidth,
-      overflow: [...document.querySelectorAll("body *")].filter((el) => el.getBoundingClientRect().right > innerWidth).map((el) => ({ tag: el.tagName, class: el.className, right: el.getBoundingClientRect().right })),
-    }));
-    expect(layout.width, JSON.stringify(layout)).toBeLessThanOrEqual(layout.viewport);
-  }).toPass({ timeout: 5_000 });
+  const layout = await page.evaluate(() => ({
+    width: document.documentElement.scrollWidth,
+    viewport: innerWidth,
+    overflow: [...document.querySelectorAll("body *")].filter((el) => el.getBoundingClientRect().right > innerWidth).map((el) => ({ tag: el.tagName, class: el.className, right: el.getBoundingClientRect().right })),
+  }));
+  expect(layout.width, JSON.stringify(layout)).toBeLessThanOrEqual(layout.viewport);
   await page.screenshot({ path: `test-results/redesign-feed-${info.project.name}.png` });
   await page.goto("/food/dubai-chocolate");
   await page.getByRole("link", { name: "만드는 법", exact: true }).click();

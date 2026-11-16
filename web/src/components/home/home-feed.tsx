@@ -190,7 +190,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             </Link>
             <form
               role="search"
-              className="order-3 flex h-12 basis-full items-center gap-2 rounded-full border border-input bg-muted pr-1 pl-4 md:order-2 md:ml-auto md:max-w-[380px] md:flex-1"
+              className="order-3 flex h-12 min-w-0 basis-full items-center gap-2 rounded-full border border-input bg-muted pr-1 pl-4 md:order-2 md:ml-auto md:max-w-[380px] md:flex-1"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!curated) setYear(null);
