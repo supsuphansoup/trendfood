@@ -66,14 +66,14 @@ export function verifiedIntroduction(candidate: Scored, videos: RecipeVideo[], r
   const sources = videos.map((video) => ({ title: video.id === source.id ? `${candidate.name} 소개 원문` : video.title.slice(0, 200), url: `https://www.youtube.com/watch?v=${video.id}` }));
   const food: ContentFood = {
     slug: raw.slug, name: candidate.name, category: candidate.category, kind: "discovery",
-    why: "최근 공개 영상과 검색 관심 증가에서 확인한 음식이에요.",
+    why: candidate.multiplier >= 1.3 ? "최근 공개 영상과 검색 관심 증가에서 확인한 음식이에요." : "서로 다른 제작자의 최근 영상에서 새로 확인한 음식이에요.",
     summary: `원문 소개: “${excerpt}”`, tags: candidate.category === "디저트" ? ["디저트"] : [],
     cookMinutes: 0, difficulty: "쉬움", servings: "음식 소개", ingredients: [], steps: [],
     tip: "음식 정보는 아래 원문 출처에서 확인하세요.", image: "pending", alt: `${candidate.name} 사진 준비 중`, convenience: [], sources, checkedAt,
     history: {
       years: [Number(checkedAt.slice(0, 4))],
-      note: `${checkedAt}에 검색 관심 증가와 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.`,
-      sources: [{ title: "네이버 데이터랩 검색어 트렌드", url: "https://datalab.naver.com/keyword/trendSearch.naver" }, ...sources],
+      note: `${checkedAt}에 ${candidate.multiplier >= 1.3 ? "검색 관심 증가와 " : ""}여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.`,
+      sources: [...(candidate.multiplier >= 1.3 ? [{ title: "네이버 데이터랩 검색어 트렌드", url: "https://datalab.naver.com/keyword/trendSearch.naver" }] : []), ...sources],
     },
     recipeNote: "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
   };
@@ -110,8 +110,8 @@ export function verifiedFood(candidate: Scored, videos: RecipeVideo[], raw: unkn
     tip: recipe.tip, image: "pending", alt: `${candidate.name} 사진 준비 중`, convenience: [], sources, checkedAt,
     history: {
       years: [Number(checkedAt.slice(0, 4))],
-      note: `${checkedAt}에 검색 관심 증가와 여러 제작자의 최근 영상에서 확인했어요. 연도는 자동 수집으로 확인한 시기이며, 처음 유행한 연도를 확정한 것은 아니에요.`,
-      sources: [{ title: "네이버 데이터랩 검색어 트렌드", url: "https://datalab.naver.com/keyword/trendSearch.naver" }, ...sources],
+      note: `${checkedAt}에 ${candidate.multiplier >= 1.3 ? "검색 관심 증가와 " : ""}여러 제작자의 최근 영상에서 확인했어요. 연도는 자동 수집으로 확인한 시기이며, 처음 유행한 연도를 확정한 것은 아니에요.`,
+      sources: [...(candidate.multiplier >= 1.3 ? [{ title: "네이버 데이터랩 검색어 트렌드", url: "https://datalab.naver.com/keyword/trendSearch.naver" }] : []), ...sources],
     },
     recipeNote: "공개 영상의 설명란을 바탕으로 AI가 정리했어요. 원문의 재료량·분량·시간·단계 근거를 자동 대조한 콘텐츠이며, 운영자의 개별 검수와 직접 조리 검증은 하지 않았어요.",
   };
@@ -131,10 +131,13 @@ export async function automaticUpdate(current: ContentSnapshot, candidates: Scor
   const accepted: ContentFood[] = [];
   const deferred: { name: string; reason: string }[] = [];
   let additions = 0;
-  const eligible = candidates.filter((candidate) => (!names.has(candidateIdentity(candidate.name)) || introductions.has(candidateIdentity(candidate.name))) && candidate.multiplier >= 1.3)
-    .sort((a, b) => Number(introductions.has(candidateIdentity(a.name))) - Number(introductions.has(candidateIdentity(b.name))) || b.score - a.score).slice(0, 3);
+  const creators = (name: string) => new Set(videos.filter((video) => normalizeName(video.title).includes(normalizeName(name))).map((video) => video.channelId).filter(Boolean)).size;
+  const eligible = candidates.filter((candidate) => (!names.has(candidateIdentity(candidate.name)) || introductions.has(candidateIdentity(candidate.name))) && (candidate.multiplier >= 1.3 || candidate.recent))
+    .sort((a, b) => Number(introductions.has(candidateIdentity(a.name))) - Number(introductions.has(candidateIdentity(b.name))) || Number(creators(b.name) >= 2) - Number(creators(a.name) >= 2) || b.score - a.score).slice(0, 3);
   for (const candidate of eligible) {
-    const related = [...new Map(videos.filter((video) => /^[a-zA-Z0-9_-]{11}$/.test(video.id) && normalizeName(video.title).includes(normalizeName(candidate.name))).map((video) => [video.id, video])).values()].slice(0, 8);
+    const matches = [...new Map(videos.filter((video) => /^[a-zA-Z0-9_-]{11}$/.test(video.id) && normalizeName(video.title).includes(normalizeName(candidate.name))).map((video) => [video.id, video])).values()];
+    const creators = [...new Map(matches.filter((video) => video.channelId).map((video) => [video.channelId, video])).values()];
+    const related = [...creators, ...matches.filter((video) => !creators.some((source) => source.id === video.id))].slice(0, 8);
     try {
       const details = (await dependencies.descriptions(related.map((video) => video.id))).filter((video) => {
         const date = Date.parse(video.publishedAt ?? "");

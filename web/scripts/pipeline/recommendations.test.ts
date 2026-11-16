@@ -140,6 +140,9 @@ test("추천 반영 CLI는 API 키 없이 검증된 입력을 읽어 저장하�
   assert.match(output, /rotation/);
   const saved = parseContent(JSON.parse(await readFile(join(temporary, "src/data/content/foods.json"), "utf8")));
   assert.equal(saved.foods[0].slug, current.foods[1].slug);
+  const state = JSON.parse(await readFile(join(temporary, "data/discovery-state.json"), "utf8"));
+  assert.equal(state.pending.length, 1);
+  assert.equal(saved.foods.some((food) => food.slug === state.pending[0].food.slug), false);
   const report = JSON.parse(await readFile(join(temporary, "data/recommendation-report.json"), "utf8"));
   assert.equal(report.accepted.length, 0);
   assert.equal(report.deferred.length, 1);

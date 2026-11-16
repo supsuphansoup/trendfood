@@ -12,10 +12,11 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AiQuotaError, aiConfig, askJson, draftPrompt, draftSchema, extractPrompt, extractSchema } from "./llm.ts";
 import { cleanExtracted, type Extracted, pickCandidates, risingMultiplier, type Scored, scaleTrend, scoreOf } from "./logic.ts";
-import { naverTrend, recipeDescriptions, searchYoutube, type Video } from "./sources.ts";
+import { channelUploads, naverTrend, recipeDescriptions, searchYoutube, trendingRss, type Video } from "./sources.ts";
 import { type ContentCandidate, draftSnapshot } from "./content.ts";
 import { parseContent } from "../../src/data/content.ts";
 import { automaticUpdate } from "./autopublish.ts";
+import { discoverVideos, emptyDiscovery, followCandidates, readDiscovery, readyPending, restorePending, retainPending } from "./discovery.ts";
 
 const env = process.env;
 const compareModels = env.PIPELINE_COMPARE_MODELS === "true";
@@ -26,6 +27,7 @@ const SEED_QUERIES = (env.PIPELINE_QUERIES || "요즘 유행 먹방,신상 디�
   .map((q) => q.trim())
   .filter(Boolean);
 const DRAFT_LIMIT = Number(env.PIPELINE_DRAFTS || 3);
+const discoveryPath = env.PIPELINE_DISCOVERY_STATE ? resolve(env.PIPELINE_DISCOVERY_STATE) : new URL("../../data/discovery-state.json", import.meta.url);
 const outputIndex = process.argv.indexOf("--output");
 const outputPath = outputIndex === -1 ? null : process.argv[outputIndex + 1];
 
@@ -70,10 +72,30 @@ async function main() {
       log("DB 없음 → 30일 정리 건너뜀");
     }
 
-    // 1) 영상 제목
+    const date = new Date().toISOString().slice(0, 10);
+    const target = new URL("../../src/data/content/foods.json", import.meta.url);
+    const baseline = parseContent(JSON.parse(await readFile(target, "utf8")));
+    let discovery = emptyDiscovery();
+    if (!compareModels && env.YOUTUBE_API_KEY) {
+      try { discovery = readDiscovery(JSON.parse(await readFile(discoveryPath, "utf8")), date); }
+      catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
+    }
+    // 1) 최신 검색·채널 업로드·공식 급상승 RSS
     let videos: Video[] = [];
     const recentVideos: Video[] = [];
-    if (env.YOUTUBE_API_KEY) {
+    let discoveryTitles: string[] = [];
+    let discoveryReport: Record<string, unknown> = {};
+    if (env.YOUTUBE_API_KEY && !compareModels) {
+      const result = await discoverVideos(env.PIPELINE_QUERIES ? SEED_QUERIES : ["신상 디저트 먹방", "편의점 신상 먹방", "요즘 유행 음식", "카페 신메뉴 리뷰"], discovery, date, {
+        search: (query, days, order) => searchYoutube(query, env.YOUTUBE_API_KEY!, days, order),
+        uploads: (ids) => channelUploads(ids, env.YOUTUBE_API_KEY!), rss: trendingRss,
+      });
+      videos = result.videos;
+      recentVideos.push(...videos);
+      discoveryTitles = result.titles;
+      discoveryReport = { searchCalls: result.searchCalls, watchedChannels: result.watchedChannels, rssItems: result.rssItems, warnings: result.warnings };
+      result.warnings.forEach((warning) => log(warning));
+    } else if (env.YOUTUBE_API_KEY) {
       for (const q of SEED_QUERIES) {
         videos.push(...(await searchYoutube(q, env.YOUTUBE_API_KEY)));
         recentVideos.push(...(await searchYoutube(q, env.YOUTUBE_API_KEY, 2, "date")));
@@ -105,13 +127,27 @@ async function main() {
     }
     let extracted: Extracted[];
     if (aiConfig()) {
-      extracted = cleanExtracted(await askJson(extractPrompt(videos.map((v) => v.title)), extractSchema));
+      extracted = cleanExtracted(await askJson(extractPrompt(discoveryTitles.length ? discoveryTitles : videos.map((v) => v.title)), extractSchema));
     } else {
       log("AI 설정 없음 → 예시 추출 결과 사용");
       extracted = cleanExtracted({ foods: sampleExtracted });
     }
     summary.extracted = extracted.length;
     log(`음식 이름 ${extracted.length}개: ${extracted.map((e) => e.name).join(", ")}`);
+
+    if (env.YOUTUBE_API_KEY) {
+      const result = await followCandidates(extracted, videos, discovery, baseline, date, (query, days, order) => searchYoutube(query, env.YOUTUBE_API_KEY!, days, order));
+      discovery = result.state;
+      videos = result.videos;
+      recentVideos.push(...videos);
+      // 네이버 호출 수도 기존 최대 20개(4요청) 안에서 유지한다.
+      const selected = new Set(result.selected.map(candidateIdentity));
+      extracted = [...result.candidates].sort((a, b) => Number(selected.has(candidateIdentity(b.name))) - Number(selected.has(candidateIdentity(a.name)))).slice(0, 20);
+      discoveryReport = { ...discoveryReport, searchCalls: Number(discoveryReport.searchCalls) + result.searchCalls, followed: result.selected, observations: discovery.observations };
+      if (!process.argv.includes("--dry-run")) await atomicJson(discoveryPath, discovery);
+      await atomicJson("data/discovery-report.json", { date, ...discoveryReport });
+      log(`음식명 재검색: ${result.selected.join(", ")} · 검색 총 ${discoveryReport.searchCalls}회`);
+    }
 
     // 3) 검색량 급상승 배수
     let trends = new Map<string, number[]>();
@@ -164,7 +200,7 @@ async function main() {
       const trendPending = p.multiplier < minMultiplier;
       const titles = sourceVideos.map((v) => v.title);
       let draft: CandidateDraft | null = null;
-      if (!trendPending && i < DRAFT_LIMIT && aiConfig()) {
+      if (!autoPublish && !trendPending && i < DRAFT_LIMIT && aiConfig()) {
         try {
           draft = (await askJson(draftPrompt(p.name, p.multiplier, titles), draftSchema)) as CandidateDraft;
         } catch (e) {
@@ -213,16 +249,20 @@ async function main() {
       if (dryRun) log("DB 에 쓰지 않음 (dry-run). 넣었을 후보:", JSON.stringify(rows, null, 2));
     }
     if (autoPublish) {
-      const target = new URL("../../src/data/content/foods.json", import.meta.url);
-      const current = parseContent(JSON.parse(await readFile(target, "utf8")));
-      const result = await automaticUpdate(current, scored, videos, {
+      const rechecked = await readyPending(discovery, date, (ids) => recipeDescriptions(ids, env.YOUTUBE_API_KEY!));
+      const current = restorePending(baseline, rechecked);
+      const pendingNames = new Set(discovery.pending.map(({ food }) => candidateIdentity(food.name)));
+      const result = await automaticUpdate(current, scored.filter((item) => !pendingNames.has(candidateIdentity(item.name))), videos, {
         descriptions: (ids) => recipeDescriptions(ids, env.YOUTUBE_API_KEY!),
         generate: (prompt, schema) => askJson(prompt, schema, aiConfig()?.provider === "openai" ? { model: env.AI_MODEL!, maxOutputTokens: 6000 } : undefined),
-      }, new Date().toISOString().slice(0, 10));
+      }, date);
       const preview = process.argv.includes("--dry-run");
-      if (!preview) await atomicJson("data/recommendation-input.json", { baseline: current, signals: scored, date: new Date().toISOString().slice(0, 10) });
+      if (!preview) await atomicJson("data/recommendation-input.json", { baseline, signals: scored, date });
       await atomicJson("data/automation-report.json", { checkedAt: new Date().toISOString().slice(0, 10), preview, accepted: result.accepted, deferred: result.deferred });
-      if (result.accepted.length && !preview) await atomicJson(target, result.snapshot);
+      if (!preview) {
+        await atomicJson(discoveryPath, retainPending(discovery, result.snapshot, baseline, date));
+        if (result.accepted.length || discovery.pending.length) await atomicJson(target, result.snapshot);
+      }
       summary.automatic = { accepted: result.accepted, deferred: result.deferred, preview };
       log(`자동 검증: 추가 ${result.accepted.length}개 · 보류 ${result.deferred.length}개${preview ? " (미리보기, 페이지 변경 없음)" : ""}`);
     }

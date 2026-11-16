@@ -110,15 +110,32 @@ test("자동 반영: AI가 실제 원문 인용에 없는 사용량·숫자·시
   ]) assert.throws(() => verifiedFood(candidate, videos, { ...recipe, ...patch }, checkedAt));
 });
 
-test("자동 반영: 상승 미확인·이미 게시한 음식에는 AI를 호출하지 않는다", async () => {
+test("자동 반영: 상승·최신 영상 모두 미확인 또는 이미 게시한 음식에는 AI를 호출하지 않는다", async () => {
   let calls = 0;
   const result = await automaticUpdate(current, [
-    { ...candidate, multiplier: 1.1, recent: true },
+    { ...candidate, multiplier: 1.1, recent: false },
     { ...candidate, name: current.foods[0].name },
   ], videos, { ...dependencies, generate: async () => { calls++; return recipe; } }, checkedAt);
   assert.equal(calls, 0);
   assert.equal(result.accepted.length, 0);
   assert.equal(result.snapshot, current);
+});
+
+test("자동 반영: 검색량이 없는 신상도 다른 최근 제작자 2명이 확인되면 소개하고 검색 상승을 꾸미지 않는다", async () => {
+  const result = await automaticUpdate(current, [{ ...candidate, multiplier: 1, recent: true }], videos, {
+    ...dependencies, generate: async () => ({ complete: false, slug: "new-food", introduction: { sourceId: videos[0].id, excerpt: videos[0].title } }),
+  }, checkedAt);
+  assert.equal(result.accepted.length, 1);
+  const food = result.snapshot.foods.find((food) => food.slug === "new-food")!;
+  assert.equal(food.kind, "discovery");
+  assert.doesNotMatch(food.why + food.history!.note, /검색 관심 증가/);
+  assert.equal(food.history!.sources.some((source) => source.url.includes("datalab.naver")), false);
+  let calls = 0;
+  const blocked = await automaticUpdate(current, [{ ...candidate, multiplier: 1, recent: true }], videos, {
+    descriptions: async () => videos.slice(0, 1), generate: async () => { calls++; return recipe; },
+  }, checkedAt);
+  assert.equal(blocked.accepted.length, 0);
+  assert.equal(calls, 0);
 });
 
 test("자동 반영: 같은 제작자·오래된 영상·원문 없음·주소 충돌이면 기존 자료를 보존한다", async () => {
@@ -142,6 +159,21 @@ test("자동 반영: 하루 실행당 최대 세 음식만 확인하고 API 한�
   assert.equal(requests, 3);
   assert.equal(result.deferred.length, 3);
   await assert.rejects(automaticUpdate(current, [candidate], videos, { ...dependencies, generate: async () => { throw new AiQuotaError("한도 소진"); } }, checkedAt), AiQuotaError);
+});
+
+test("자동 반영: 한 채널의 반복 영상이 많아도 설명란 8개 안에 다른 제작자의 근거를 포함한다", async () => {
+  const repeated = Array.from({ length: 9 }, (_, i) => ({ ...videos[0], id: `Repeat_123${i}` }));
+  const sources = [...repeated, videos[1]];
+  const result = await automaticUpdate(current, [candidate], sources, {
+    ...dependencies,
+    descriptions: async (ids) => {
+      assert.equal(ids.length, 8);
+      assert.ok(ids.includes(videos[1].id));
+      return sources.filter((video) => ids.includes(video.id));
+    },
+    generate: async () => ({ complete: false, slug: "many-videos", introduction: { sourceId: videos[1].id, excerpt: videos[1].title } }),
+  }, checkedAt);
+  assert.equal(result.accepted.length, 1);
 });
 
 test("설명란 수집은 공식 videos.list를 사용하고 삭제된 영상은 반환하지 않는다", async (context) => {

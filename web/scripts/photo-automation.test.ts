@@ -18,6 +18,15 @@ const page = () => ({ pageid: 123, title: "File:Test food.jpg", imageinfo: [{
   extmetadata: { LicenseShortName: { value: "CC0" }, LicenseUrl: { value: "http://creativecommons.org/publicdomain/zero/1.0/deed.en" }, Artist: { value: '<a href="https://example.com">사진 작가</a>' }, Copyrighted: { value: "True" }, ImageDescription: { value: "같은 음식의 사진" } },
 }] });
 const candidate = () => licensedPhoto(page(), "2026-11-12")!;
+
+test("사진 묶음은 새 음식의 빈 사진을 먼저 확인하되 하루 5개와 기존 실사 보호를 유지한다", () => {
+  const generated = input.foods.filter((food) => food.image.startsWith("photo-ai-"));
+  const blank = { ...input.foods[0], slug: "new-photo-food", image: "pending", heroImage: undefined };
+  const selected = photoBatch([...input.foods, blank], now);
+  assert.equal(selected.length, 5);
+  assert.equal(selected[0].slug, blank.slug);
+  assert.ok(selected.slice(1).every((food) => generated.some((item) => item.slug === food.slug)));
+});
 const bytes = await sharp({ create: { width: 800, height: 600, channels: 3, background: "#ddaa55" } }).jpeg().toBuffer();
 const verdict = { match: true, confidence: 0.99, photograph: true, unobstructed: true, metadataMatches: true, recipeMatches: true, presentationSuitable: true, reason: "메뉴와 일치" };
 const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [structuredClone(input.foods[0]), { ...structuredClone(input.foods[1]), image: "pending", slug: "test-pending" }] });

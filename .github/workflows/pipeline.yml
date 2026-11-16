@@ -49,6 +49,15 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm ci
+      - name: 음식 후보 관찰·사진 대기 기록 복원
+        id: discovery_cache
+        if: inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true
+        uses: actions/cache/restore@v4
+        with:
+          path: web/data/discovery-state.json
+          key: food-discovery-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            food-discovery-v1-
       - run: npm run pipeline
         if: inputs.photos_only != true && inputs.links_only != true
         env:
@@ -127,6 +136,12 @@ jobs:
         with:
           path: web/data/product-link-state.json
           key: ${{ steps.product_cache.outputs.cache-primary-key }}
+      - name: 실패한 실행도 후보 관찰·사진 대기 기록 보존
+        if: always() && steps.discovery_cache.outputs.cache-primary-key != '' && hashFiles('web/data/discovery-state.json') != ''
+        uses: actions/cache/save@v4
+        with:
+          path: web/data/discovery-state.json
+          key: ${{ steps.discovery_cache.outputs.cache-primary-key }}
       - name: 자동 검증 결과 보관 (원문 설명란은 저장하지 않음)
         uses: actions/upload-artifact@v4
         if: always() && inputs.compare_models != true
@@ -134,6 +149,7 @@ jobs:
           name: automation-report
           path: |
             web/data/automation-report.json
+            web/data/discovery-report.json
             web/data/recommendation-report.json
             web/data/photo-report.json
             web/data/coupang-report.json
@@ -179,6 +195,10 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
+          if (fs.existsSync('data/discovery-report.json')) {
+            const discovery = JSON.parse(fs.readFileSync('data/discovery-report.json', 'utf8'));
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `음식 발견: 검색 ${discovery.searchCalls}/10회 · 추적 채널 ${discovery.watchedChannels}개 · 음식 관련 RSS ${discovery.rssItems}개\n\n음식명 재검색: ${discovery.followed.join(', ')}\n\n${discovery.observations.map(item => `- ${item.name}: ${item.stage} · 관찰 ${item.days.length}일 · 최근 제작자 ${item.creators}명`).join('\n')}\n\n${discovery.warnings.join('\n')}\n\n`);
+          }
           for (const [path, label] of [['data/automation-report.json', '음식 검증'], ['data/recommendation-report.json', '공개 추천'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 제휴 링크'], ['data/product-link-report.json', '일반 상품 링크']]) {
             if (!fs.existsSync(path)) continue;
             const report = JSON.parse(fs.readFileSync(path, 'utf8'));

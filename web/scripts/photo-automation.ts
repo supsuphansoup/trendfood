@@ -79,8 +79,12 @@ export function photoBatch(foods: ContentFood[], now: Date, limit = 5): ContentF
     .every((key) => key === "pending" || generatedImages[key]?.slug === food.slug));
   if (!pending.length) return [];
   const count = Math.min(20, Math.max(1, Math.floor(limit)));
-  const start = (Math.floor(now.getTime() / 86_400_000) * 5) % pending.length;
-  return [...pending.slice(start), ...pending.slice(0, start)].slice(0, count);
+  const rotate = (items: ContentFood[]) => {
+    const start = items.length ? (Math.floor(now.getTime() / 86_400_000) * 5) % items.length : 0;
+    return [...items.slice(start), ...items.slice(0, start)];
+  };
+  const empty = pending.filter((food) => food.image === "pending" || food.heroImage === "pending");
+  return [...rotate(empty), ...rotate(pending.filter((food) => !empty.includes(food)))].slice(0, count);
 }
 
 /** 검증된 실사로 빈 사진·생성 예시를 교체하고, 실패하면 기존 표시를 보존한다. */
