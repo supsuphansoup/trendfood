@@ -131,12 +131,18 @@
   --radius-2xl: 1rem;      /* 16px 모바일 사진·영상·광고·옅은 박스 */
   --radius-3xl: 1.25rem;   /* 20px PC 사진 카드·장바구니 박스 */
   --radius-bar: 1.125rem;  /* 18px 모바일 하단 바 */
+  --radius-feature: 1.75rem; /* 28px 대표 음식 패널 */
 
   /* 글자 크기 (PC / 모바일은 docs/design.md 3장 표) */
   --text-hero: 5.5rem;          /* 88px 메인 히어로 */
   --text-hero-detail: 4.5rem;   /* 72px 상세 히어로 */
   --text-rank: 3.5rem;          /* 56px 순위 숫자 */
   --text-card-title: 2rem;      /* 32px 카드 음식명 */
+  --text-intro: 2.75rem;        /* 44px 홈 소개 */
+  --text-intro-mobile: 1.75rem; /* 28px 모바일 홈 소개 */
+  --text-feature: 4rem;        /* 64px 대표 음식명 */
+  --text-feature-mobile: 2.75rem; /* 44px 모바일 대표 음식명 */
+  --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */
 }
 
 @layer base {

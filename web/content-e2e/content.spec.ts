@@ -18,9 +18,18 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   await expect(page.getByText(/11위부터/)).toHaveCount(0);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: `test-results/content/home-${info.project.name}.png` });
+  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await expect(page.locator("#list h2")).toBeInViewport();
+  const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
+  const first = (await cards.nth(0).boundingBox())!;
+  const second = (await cards.nth(1).boundingBox())!;
+  expect(info.project.name === "desktop" ? Math.abs(first.y - second.y) < 2 : second.y >= first.y + first.height).toBe(true);
+  await expect(cards.first().getByText(generatedImages[snapshot.foods[1].image] ? "AI 생성 예시" : "참고 사진", { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `test-results/content/feed-${info.project.name}.png` });
 
   await page.getByRole("searchbox").fill("타피오카");
-  await page.getByRole("searchbox").press("Enter");
+  await page.getByRole("button", { name: "검색", exact: true }).click();
   await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.ingredients.some((ingredient) => ingredient.name.includes("타피오카")) || food.name.includes("타피오카") || food.why.includes("타피오카")).map((food) => food.name));
 });
 

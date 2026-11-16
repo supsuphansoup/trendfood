@@ -2,9 +2,11 @@
 
 import {
   ArrowUp,
+  ArrowUpRight,
   CakeSlice,
   Cookie,
   CookingPot,
+  Clock3,
   Flame,
   Heart,
   LayoutGrid,
@@ -41,7 +43,7 @@ const tabIcons: Record<Tab, LucideIcon> = {
 const tabs: Tab[] = ["전체", ...categoryOptions];
 
 const chipClass =
-  "min-h-[42px] shrink-0 rounded-full bg-secondary px-4 text-[15px] font-medium whitespace-nowrap text-foreground aria-pressed:bg-primary aria-pressed:font-bold aria-pressed:text-primary-foreground";
+  "min-h-11 shrink-0 rounded-full border border-transparent bg-muted px-4 text-sm font-medium whitespace-nowrap text-foreground transition-colors hover:border-line-strong aria-pressed:bg-primary aria-pressed:font-bold aria-pressed:text-primary-foreground";
 
 /** 주소의 필터를 보존해 뒤로가기·공유 때 같은 목록을 보여준다. */
 function readUrl(years: number[]) {
@@ -180,20 +182,15 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
 
   return (
     <>
-      <section aria-label={curated ? "오늘의 레시피" : "오늘의 1위"} className={cn("relative overflow-hidden bg-primary", top.imageAvailable && "h-[560px] md:h-[640px]")}>
-        <FoodImage food={top} hero preload sizes="100vw" />
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,12,8,0.55)_0%,rgba(20,12,8,0)_28%,rgba(20,12,8,0)_40%,rgba(20,12,8,0.86)_100%)]"
-        />
-        <header className="relative">
-          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-[18px] gap-y-3 px-5 py-4">
-            <Link href="/" onClick={reset} className="text-2xl font-black tracking-[-0.03em] text-white hover:text-white">
+      <header className="border-b bg-background">
+          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
+            <Link href="/" onClick={reset} className="flex min-h-11 items-center gap-2 text-[22px] font-black tracking-[-0.04em] text-foreground hover:text-accent md:text-2xl">
+              <span className="flex size-9 items-center justify-center rounded-full bg-accent text-accent-foreground"><Flame className="size-5" aria-hidden /></span>
               트렌드푸드
             </Link>
             <form
               role="search"
-              className="order-3 flex h-[46px] flex-[1_1_280px] items-center gap-2 rounded-full bg-white/95 pr-1.5 pl-4 md:order-2"
+              className="order-3 flex h-12 basis-full items-center gap-2 rounded-full border border-input bg-muted pr-1 pl-4 md:order-2 md:ml-auto md:max-w-[380px] md:flex-1"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!curated) setYear(null);
@@ -216,7 +213,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                   setQuery(e.target.value);
                   if (!e.target.value) setApplied("");
                 }}
-                placeholder="뭐 먹고 싶어요? 재료로도 찾아요"
+                placeholder="오늘 끌리는 음식이나 재료"
                 className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
               />
               {query && (
@@ -228,14 +225,15 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                     setApplied("");
                     searchRef.current?.focus();
                   }}
-                  className="flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+                  className="flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
                 >
                   <X className="size-4" aria-hidden />
                 </button>
               )}
+              <button type="submit" aria-label="검색" className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground hover:bg-accent"><ArrowUpRight className="size-5" aria-hidden /></button>
             </form>
-            <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-3 text-sm md:order-3">
-              <Link href="/about#partners" className="px-2.5 py-3 text-white hover:text-white">
+            <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-1 text-sm md:order-3 md:ml-0 md:gap-2">
+              <Link href="/about#partners" className="hidden min-h-11 items-center px-2.5 text-muted-foreground hover:text-foreground xl:inline-flex">
                 제휴 안내
               </Link>
               <button
@@ -246,42 +244,54 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                   setTab(tab === "찜" ? "전체" : "찜");
                   listRef.current?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className="h-11 rounded-full bg-white px-4 font-bold text-foreground aria-pressed:bg-accent aria-pressed:text-white"
+                className="flex h-11 items-center gap-1.5 rounded-full bg-muted px-3 font-bold text-foreground aria-pressed:bg-accent aria-pressed:text-white"
               >
+                <Heart className="size-4" aria-hidden />
                 <LikeCount />
               </button>
               <ShoppingCartPanel />
             </nav>
           </div>
-        </header>
-        <div className={top.imageAvailable ? "absolute inset-x-0 bottom-0" : "relative pt-8"}>
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-3.5 px-5 pb-11 text-white">
-            <p className="text-base font-bold">{curated ? `2020–${Math.max(2026, ...years)}, 출처로 살펴보는 유행 음식` : "오늘 가장 많이 찾은 음식, 1위"}</p>
-            <h1 className="text-5xl leading-none font-black tracking-[-0.04em] md:text-hero">{top.name}</h1>
-            <p className="max-w-[34em] text-base leading-relaxed md:text-lg">{top.why}</p>
-            <div className="flex flex-wrap items-center gap-x-[18px] gap-y-2.5">
+      </header>
+
+      <section aria-label="유행 음식 탐색" className="mx-auto max-w-[1200px] px-5 pt-7 pb-8 md:pt-9 md:pb-11">
+        <div className="mb-6 flex flex-wrap items-end justify-between gap-3 md:mb-7">
+          <p className="text-intro-mobile leading-tight font-black tracking-[-0.05em] md:text-intro">유행한 맛을, 내 식탁으로.</p>
+          <a href="#list" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground hover:text-accent">음식 둘러보기 <ArrowUpRight className="size-5" aria-hidden /></a>
+        </div>
+        <section aria-label={curated ? "오늘의 레시피" : "오늘의 1위"} className={cn("overflow-hidden rounded-feature bg-accent text-accent-foreground", top.imageAvailable && "grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]")}>
+          <div className="flex flex-col items-start gap-4 p-6 md:justify-center md:gap-5 md:p-10">
+            <p className="inline-flex items-center gap-2 rounded-full border border-current/40 px-3 py-1.5 text-sm font-bold"><Flame className="size-4" aria-hidden />{curated ? "오늘의 레시피" : "오늘 가장 많이 찾은 음식, 1위"}</p>
+            <h1 className="text-feature-mobile leading-[1.08] font-black tracking-[-0.05em] md:text-feature">{top.name}</h1>
+            <p className="max-w-[30em] text-base leading-relaxed">{top.why}</p>
+            <div className="mt-1 flex flex-wrap items-center gap-3">
               <Link
                 href={`/food/${top.slug}`}
-                className="rounded-xl bg-white px-[26px] py-4 text-[17px] font-black text-foreground hover:text-foreground"
+                className="inline-flex min-h-12 items-center gap-3 rounded-full bg-background px-5 text-base font-bold text-foreground hover:text-accent"
               >
-                레시피 보기
+                {top.kind === "product" ? "제품 알아보기" : "레시피 보기"}<ArrowUpRight className="size-5" aria-hidden />
               </Link>
               <Link
                 href={`/food/${top.slug}#cart`}
-                className="rounded-xl border-[1.5px] border-white/80 px-6 py-3.5 text-[17px] font-bold text-white hover:text-white"
+                className="inline-flex min-h-12 items-center rounded-full border border-current/70 px-4 text-sm font-bold text-accent-foreground hover:text-accent-foreground hover:underline"
               >
                 재료 {buyable(top).length}개 담기
               </Link>
-              <span className="text-sm">{curated ? "예상" : "조리"} {top.cookMinutes}분</span>
             </div>
-            <p className="text-xs text-footer-muted">
+            <p className="max-w-[32em] text-xs leading-relaxed">
               {curated ? `출처 확인 ${top.editorial!.checkedAt} · 실시간 순위 집계 전 · AI 조리 안내${top.imageAvailable ? top.generatedImage ? " · AI 생성 예시" : " · 참고 사진" : ""}` : "AI 요약, 운영자 검수 완료. 데모 사진"}
             </p>
           </div>
-        </div>
+          {top.imageAvailable && <div className="relative order-first min-h-[280px] overflow-hidden bg-secondary md:order-none md:min-h-[460px]">
+            <FoodImage food={top} hero preload sizes="(max-width: 767px) 100vw, 640px" />
+            <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-2 text-sm font-bold text-foreground"><Clock3 className="size-4" aria-hidden />{top.kind === "product" ? "완제품 안내" : `${top.cookMinutes}분`}</span>
+            {top.editorial && <span className="absolute bottom-4 left-4 rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">{top.generatedImage ? "AI 생성 예시" : "참고 사진"}</span>}
+          </div>}
+        </section>
+        <p className="mt-4 text-[13px] text-muted-foreground">{curated ? `2020–${Math.max(2026, ...years)}, 출처로 살펴보는 유행 음식` : "마음에 드는 음식은 찜하고, 필요한 재료만 모아보세요."}</p>
       </section>
 
-      <div className="mx-auto w-full max-w-[1200px] lg:grid lg:grid-cols-[200px_minmax(0,1fr)] lg:gap-10 lg:px-5">
+      <div className="mx-auto w-full max-w-[1200px] border-t lg:grid lg:grid-cols-[176px_minmax(0,1fr)] lg:gap-8 lg:px-5">
         {/* PC: 왼쪽 카테고리 탭 */}
         <aside className="hidden lg:block">
           <nav aria-label="카테고리" className="sticky top-0 flex flex-col gap-1 pt-6">
@@ -359,9 +369,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
           </div>
 
           <main id="list" ref={listRef} className={cn("px-5 pt-4 pb-14 lg:px-0", years.length > 0 ? "scroll-mt-[184px] lg:scroll-mt-[136px]" : "scroll-mt-[116px] lg:scroll-mt-[68px]")}>
-            <div aria-live="polite" className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h2 className="text-lg font-black">{!curated && year !== null ? `${year}년 유행 음식` : title}</h2>
-              <span className="text-sm text-muted-foreground">{!curated && year !== null ? history.length : list.length}개</span>
+            <div aria-live="polite" className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h2 className="text-2xl font-black tracking-tight">{!curated && year !== null ? `${year}년 유행 음식` : title}</h2>
+              <span className="rounded-full bg-secondary px-2.5 py-1 text-sm font-bold text-muted-foreground">{!curated && year !== null ? history.length : list.length}개</span>
               {filtering && (
                 <button type="button" onClick={reset} className="min-h-11 text-sm font-bold text-accent underline">
                   전체 보기
@@ -397,12 +407,12 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 </button>
               </div>
             ) : (
-              <ol className="m-0 list-none p-0">
+              <ol className="food-grid m-0 grid list-none gap-x-6 p-0 md:grid-cols-2">
                 {list.map((food, i) => (
                   <Fragment key={food.slug}>
-                    <FoodCard food={food} />
+                    <FoodCard food={food} wide={i === 2 && list.length > 3} />
                     {i === 2 && list.length > 3 && (
-                      <li className="list-none">
+                      <li className="col-span-full list-none">
                         <AdSlot label="인피드" className="my-7 h-[130px]" />
                       </li>
                     )}

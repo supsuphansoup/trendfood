@@ -1,4 +1,4 @@
-import { ChevronLeft } from "lucide-react";
+import { ArrowDown, ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -33,67 +33,66 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
 
   return (
     <>
-      <section aria-label="음식 소개" className={`relative overflow-hidden bg-primary${food.imageAvailable ? " h-[440px] lg:h-[520px]" : ""}`}>
-        <FoodImage food={food} hero preload sizes="100vw" />
-        <div
-          aria-hidden
-          className="absolute inset-0 bg-[linear-gradient(180deg,rgba(20,12,8,0.6)_0%,rgba(20,12,8,0)_30%,rgba(20,12,8,0)_38%,rgba(20,12,8,0.88)_100%)]"
-        />
-        <header className="relative">
-          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-3 px-5 py-4">
+      <header className="border-b bg-background">
+          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-2 px-5 py-4">
             <Link
               href="/"
-              className="flex items-center gap-1.5 rounded-full bg-scrim/45 py-2.5 pr-3.5 pl-2 text-[15px] font-bold text-white hover:text-white"
+              className="flex min-h-11 items-center gap-1.5 text-[22px] font-black tracking-[-0.04em] text-foreground hover:text-accent"
             >
               <ChevronLeft className="size-5" aria-hidden />
-              {food.editorial ? "목록으로" : "순위로"}
-            </Link>
-            <Link href="/" className="text-[22px] font-black tracking-[-0.03em] text-white hover:text-white">
               트렌드푸드
             </Link>
-            <div className="ml-auto flex gap-3">
-              <LikeButton slug={food.slug} name={food.name} className="size-[46px]" />
+            <div className="ml-auto flex gap-1 rounded-full border px-1">
+              <LikeButton slug={food.slug} name={food.name} className="size-[46px] bg-background" />
               <ShoppingCartPanel compact />
               <ShareButton title={food.name} />
             </div>
           </div>
-        </header>
-        <div className={food.imageAvailable ? "absolute inset-x-0 bottom-0" : "relative pt-6"}>
-          <div className="mx-auto flex max-w-[1200px] flex-col gap-3 px-5 pb-9 text-white">
-            <nav aria-label="현재 위치" className="text-sm">
+      </header>
+      <section aria-label="음식 소개" className={`mx-auto grid max-w-[1200px] gap-6 px-5 pt-6 pb-8 md:gap-10 md:pt-9 md:pb-11${food.imageAvailable ? " md:grid-cols-2 md:items-center" : ""}`}>
+          {food.imageAvailable && <div className="relative aspect-[4/3] overflow-hidden rounded-feature bg-secondary md:aspect-square">
+            <FoodImage food={food} hero preload sizes="(max-width: 767px) 100vw, 580px" />
+            {food.editorial && <span className="absolute bottom-4 left-4 rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">{food.generatedImage ? "AI 생성 예시" : "참고 사진"}</span>}
+          </div>}
+          <div className="flex min-w-0 flex-col items-start gap-5">
+            <nav aria-label="현재 위치" className="text-[13px] text-muted-foreground">
               <ol className="m-0 flex list-none gap-2 p-0">
                 <li>
-                  <Link href="/" className="text-white hover:text-white">
+                  <Link href="/" className="inline-flex min-h-11 items-center text-muted-foreground hover:text-accent">
                     홈
                   </Link>
                 </li>
-                <li aria-hidden>/</li>
-                <li>{food.category}</li>
-                <li aria-hidden>/</li>
-                <li aria-current="page">{food.name}</li>
+                <li aria-hidden className="content-center">/</li>
+                <li className="content-center">{food.category}</li>
+                <li aria-hidden className="content-center">/</li>
+                <li aria-current="page" className="content-center">{food.name}</li>
               </ol>
             </nav>
-            <h1 className="text-[44px] leading-none font-black tracking-[-0.04em] lg:text-hero-detail">{food.name}</h1>
+            <h1 className="text-feature-mobile leading-[1.08] font-black tracking-[-0.05em] lg:text-feature">{food.name}</h1>
+            <p className="max-w-[30em] text-base leading-relaxed text-body md:text-lg">{food.why}</p>
             <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
               {chips.map((c, i) => (
                 <li
                   key={c}
                   className={
                     i === 0
-                      ? "rounded-full bg-white px-3 py-[7px] text-sm font-bold text-foreground"
-                      : "rounded-full bg-scrim/55 px-3 py-[7px] text-sm"
+                      ? "rounded-full bg-key-bg px-3 py-2 text-sm font-bold text-key"
+                      : "rounded-full bg-muted px-3 py-2 text-sm text-muted-foreground"
                   }
                 >
                   {c}
                 </li>
               ))}
-              {!food.editorial && <li className="rounded-full bg-scrim/55 px-3 py-[7px] text-sm">
+              {!food.editorial && <li className="rounded-full bg-muted px-3 py-2 text-sm text-muted-foreground">
                 좋아요 {food.likes.toLocaleString("ko-KR")}
               </li>}
             </ul>
-            {food.editorial && food.imageAvailable && <p className="text-xs text-white">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>}
+            <div className="flex flex-wrap gap-3">
+              <a href="#recipe" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
+              <a href="#cart" className="inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">재료 살펴보기</a>
+            </div>
+            {food.editorial && food.imageAvailable && <p className="text-xs leading-relaxed text-muted-foreground">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>}
           </div>
-        </div>
       </section>
 
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-5 pt-8 pb-28 lg:pb-16">
@@ -183,7 +182,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               </ul>
             </section>}
 
-            <section>
+            <section id="recipe" className="scroll-mt-6">
               <div className="flex items-baseline justify-between gap-2.5 pb-2">
               <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
                 <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>

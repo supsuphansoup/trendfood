@@ -292,6 +292,41 @@ test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page 
   await page.screenshot({ path: `test-results/home-${info.project.name}.png`, fullPage: true });
 });
 
+test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바로가기", async ({ page }, info) => {
+  await page.goto("/");
+  const search = page.getByRole("button", { name: "검색", exact: true });
+  const searchBox = (await search.boundingBox())!;
+  expect(searchBox.width).toBeGreaterThanOrEqual(44);
+  expect(searchBox.height).toBeGreaterThanOrEqual(44);
+  await page.getByRole("searchbox").fill("새우");
+  await search.click();
+  expect((await cardTitles(page)).sort()).toEqual(["새우 로제 떡볶이", "새우 크림 리조또"]);
+  await page.getByRole("button", { name: "전체 보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await expect(page).toHaveURL(/#list$/);
+  await expect(page.locator("#list h2")).toBeInViewport();
+  const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
+  const first = (await cards.nth(0).boundingBox())!;
+  const second = (await cards.nth(1).boundingBox())!;
+  if (info.project.name === "desktop") {
+    expect(Math.abs(first.y - second.y)).toBeLessThan(2);
+    expect(second.x).toBeGreaterThan(first.x + first.width);
+  } else {
+    expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `test-results/redesign-feed-${info.project.name}.png` });
+  await page.goto("/food/dubai-chocolate");
+  await page.getByRole("link", { name: "만드는 법", exact: true }).click();
+  await expect(page).toHaveURL(/#recipe$/);
+  await expect(page.getByRole("heading", { name: "만드는 법", exact: true })).toBeInViewport();
+  await page.getByRole("link", { name: "재료 살펴보기", exact: true }).click();
+  await expect(page).toHaveURL(/#cart$/);
+  await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeInViewport();
+  await page.goto("/");
+  await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
+});
+
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {
   await page.goto("/");
   const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "치킨마요 덮밥", exact: true }) });
