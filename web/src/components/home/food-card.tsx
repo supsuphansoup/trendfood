@@ -23,7 +23,7 @@ export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean })
             <span className="sr-only">순위 </span>
             {food.rank}
           </span>}
-          <span className="text-[13px] text-muted-foreground">{food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || "일상 레시피" : food.change}</span>
+          <span className="text-[13px] text-muted-foreground">{food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || (food.kind === "discovery" ? "유행 시기 미확정" : "일상 레시피") : food.change}</span>
         </div>
         <h3 className="text-2xl leading-tight font-black tracking-[-0.03em] md:text-card-grid-title">
           <Link href={href} className="text-foreground hover:text-foreground hover:underline">
@@ -34,23 +34,23 @@ export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean })
         <p className="line-clamp-2 max-w-[28em] text-[15px] leading-[1.7] text-body">{food.why}</p>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <Clock3 className="size-4" aria-hidden />
-            {food.kind === "product" ? "완제품 안내" : <>{food.editorial ? "예상" : "조리"} <b className="text-foreground">{food.cookMinutes}분</b></>}
+            {food.kind !== "discovery" && <Clock3 className="size-4" aria-hidden />}
+            {food.kind === "discovery" ? "음식 소개" : food.kind === "product" ? "완제품 안내" : <>{food.editorial ? "예상" : "조리"} <b className="text-foreground">{food.cookMinutes}분</b></>}
           </span>
           {!food.editorial && <span>좋아요 {food.likes.toLocaleString("ko-KR")}</span>}
           {!food.editorial && <span>{food.category}</span>}
         </div>
         <div className="mt-auto flex flex-wrap gap-2 pt-3">
           <Link href={href} className={cn(buttonVariants({ variant: "outline" }), "flex-1 rounded-full border-line-strong text-foreground hover:text-accent")}>
-            {food.kind === "product" ? "제품 알아보기" : "레시피 보기"}
+            {food.kind === "discovery" ? "음식 알아보기" : food.kind === "product" ? "제품 알아보기" : "레시피 보기"}
             <ArrowUpRight className="size-4" aria-hidden />
           </Link>
-          <Link
+          {food.kind !== "discovery" && <Link
             href={`${href}#cart`}
             className={cn(buttonVariants({ variant: "ghost" }), "flex-1 rounded-full text-muted-foreground hover:text-foreground")}
           >
             재료 {buyable(food).length}개 담기
-          </Link>
+          </Link>}
         </div>
       </div>
     </li>

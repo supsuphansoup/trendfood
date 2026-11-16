@@ -24,7 +24,7 @@ export type Step = { text: string; timerMinutes?: number };
 
 export type FoodRecord = {
   slug: string;
-  kind?: "recipe" | "product";
+  kind?: "recipe" | "product" | "discovery";
   /** 국내에서 주목받은 시기. 최초 발명 연도나 현재 인기 순위가 아니다. */
   history?: {
     years: number[];
@@ -38,6 +38,7 @@ export type FoodRecord = {
   summary: string;
   category: Category;
   tags: string[];
+  /** discovery의 0은 조리법 미제공을 뜻하며 시간·난이도·인분은 화면에 표시하지 않는다. */
   cookMinutes: number;
   cookLabel: string;
   difficulty: "쉬움" | "보통" | "어려움";

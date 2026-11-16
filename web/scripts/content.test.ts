@@ -16,13 +16,29 @@ const target = new URL("../src/data/content/foods.json", import.meta.url);
 const input = JSON.parse(await readFile(target, "utf8"));
 const fresh = () => structuredClone(input);
 
+test("음식 소개는 재료·단계 없이 제공하고 조리법과 혼합한 데이터는 거절한다", () => {
+  const snapshot = fresh();
+  Object.assign(snapshot.foods[0], { kind: "discovery", cookMinutes: 0, ingredients: [], steps: [] });
+  const record = contentToRecords(parseContent(snapshot))[0];
+  assert.equal(record.kind, "discovery");
+  assert.equal(record.cookLabel, "음식 소개");
+  for (const patch of [{ cookMinutes: 10 }, { ingredients: input.foods[0].ingredients }, { steps: input.foods[0].steps }, { sources: [] }]) {
+    const invalid = structuredClone(snapshot);
+    Object.assign(invalid.foods[0], patch);
+    assert.throws(() => parseContent(invalid));
+  }
+  const recipe = fresh();
+  Object.assign(recipe.foods[0], { cookMinutes: 0, ingredients: [], steps: [] });
+  assert.throws(() => parseContent(recipe));
+});
+
 test("공개 음식은 기존 30개 이상이며 출처·사용량·안내가 있고 실측 지표를 만들지 않는다", () => {
   const foods = contentToRecords(parseContent(input));
   assert.ok(foods.length >= 30);
   for (const food of foods) {
     assert.ok(food.editorial?.sources.length);
     assert.ok(food.ingredients.every((i) => i.amount && i.price === undefined));
-    assert.ok(food.steps.length);
+    assert.ok(food.kind === "discovery" ? food.steps.length === 0 && food.ingredients.length === 0 : food.steps.length > 0);
     assert.deepEqual(food.trend, []);
     assert.equal(food.likes, 0);
     assert.equal(food.multiplier, 0);

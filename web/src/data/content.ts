@@ -43,7 +43,8 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
     const label = `${index + 1}번째 음식`;
     if (!object(f) || !text(f.slug, 80) || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(f.slug) || seen.has(f.slug)) return fail(`${label}: 주소가 잘못됐거나 중복돼요`);
     seen.add(f.slug);
-    if (f.kind !== undefined && f.kind !== "recipe" && f.kind !== "product") return fail(`${label}: 음식 유형이 잘못됐어요`);
+    if (f.kind !== undefined && f.kind !== "recipe" && f.kind !== "product" && f.kind !== "discovery") return fail(`${label}: 음식 유형이 잘못됐어요`);
+    const discovery = f.kind === "discovery";
     if (f.history !== undefined) {
       const h = f.history;
       if (!object(h) || !Array.isArray(h.years) || !h.years.length || h.years.some((year) => !Number.isInteger(year) || year < 2020 || year > Number(String(f.checkedAt ?? raw.checkedAt).slice(0, 4))) || new Set(h.years).size !== h.years.length || !text(h.note) || !Array.isArray(h.sources) || !h.sources.length || h.sources.some((s) => !object(s) || !text(s.title, 200) || !https(s.url))) return fail(`${label}: 유행 연도와 근거 출처를 확인해 주세요`);
@@ -53,7 +54,7 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
       if (!text(f[key], key === "name" ? 30 : 2000)) return fail(`${label}: ${key}를 채워 주세요`);
     }
     if (!(categoryOptions as readonly unknown[]).includes(f.category) || !["쉬움", "보통", "어려움"].includes(String(f.difficulty))) return fail(`${label}: 분류·난이도가 잘못됐어요`);
-    if (!positive(f.cookMinutes)) return fail(`${label}: 조리 시간은 1~1440분이어야 해요`);
+    if (discovery ? f.cookMinutes !== 0 : !positive(f.cookMinutes)) return fail(`${label}: 음식 소개는 조리 시간 0, 조리법은 1~1440분이어야 해요`);
     if (!contentImages.includes(String(f.image)) || (f.heroImage !== undefined && !contentImages.includes(String(f.heroImage)))) return fail(`${label}: 등록된 사진 키를 사용해 주세요`);
     for (const [key, alt] of [[f.image, f.alt], [f.heroImage, f.heroAlt ?? f.alt]]) {
       const generated = generatedImages[String(key)];
@@ -61,7 +62,7 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
     }
     if (f.heroAlt !== undefined && !text(f.heroAlt)) return fail(`${label}: 큰 사진 설명이 잘못됐어요`);
     if (!Array.isArray(f.tags) || f.tags.some((t) => !(tagOptions as readonly unknown[]).includes(t))) return fail(`${label}: 태그가 잘못됐어요`);
-    if (!Array.isArray(f.ingredients) || !f.ingredients.length || f.ingredients.length > 20) return fail(`${label}: 재료를 채워 주세요`);
+    if (!Array.isArray(f.ingredients) || (discovery ? f.ingredients.length !== 0 : !f.ingredients.length) || f.ingredients.length > 20) return fail(`${label}: 음식 소개는 재료 없이, 조리법은 재료를 채워 주세요`);
     const names = new Set<string>();
     for (const ing of f.ingredients) {
       if (!object(ing) || !text(ing.name, 60) || !text(ing.amount, 100) || names.has(ing.name)) return fail(`${label}: 재료명·사용량이 없거나 중복돼요`);
@@ -70,7 +71,7 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
       if (ing.url !== undefined && (!https(ing.url) || !/^https:\/\/([a-z0-9-]+\.)*(coupang\.com|coupa\.ng)(\/|$)/.test(ing.url))) return fail(`${label}: 재료 링크는 쿠팡 주소만 사용할 수 있어요`);
       if ([ing.hard, ing.pantry].some((v) => v !== undefined && typeof v !== "boolean")) return fail(`${label}: 재료 표시가 잘못됐어요`);
     }
-    if (!Array.isArray(f.steps) || !f.steps.length || f.steps.length > 12 || f.steps.some((s) => !object(s) || !text(s.text) || (s.timerMinutes !== undefined && !positive(s.timerMinutes)))) return fail(`${label}: 조리 단계·타이머가 잘못됐어요`);
+    if (!Array.isArray(f.steps) || (discovery ? f.steps.length !== 0 : !f.steps.length) || f.steps.length > 12 || f.steps.some((s) => !object(s) || !text(s.text) || (s.timerMinutes !== undefined && !positive(s.timerMinutes)))) return fail(`${label}: 조리 단계·타이머가 잘못됐어요`);
     if (!Array.isArray(f.sources) || !f.sources.length || f.sources.some((s) => !object(s) || !text(s.title, 200) || !https(s.url))) return fail(`${label}: 제목과 HTTPS 출처 링크가 필요해요`);
     if (!Array.isArray(f.convenience) || f.convenience.some((c) => !object(c) || !text(c.place, 100) || !text(c.desc))) return fail(`${label}: 구매 안내가 잘못됐어요`);
   }
@@ -90,8 +91,8 @@ export function contentToRecords(snapshot: ContentSnapshot): FoodRecord[] {
     ...food,
     videoId: food.videoId ?? null,
     rank: index + 1,
-    change: food.history ? `${food.history.years.join("·")}년 화제` : "일상 레시피",
-    cookLabel: food.kind === "product" ? "완제품 안내" : `예상 ${food.cookMinutes}분`,
+    change: food.history ? `${food.history.years.join("·")}년 화제` : food.kind === "discovery" ? "음식 소개" : "일상 레시피",
+    cookLabel: food.kind === "discovery" ? "음식 소개" : food.kind === "product" ? "완제품 안내" : `예상 ${food.cookMinutes}분`,
     likes: 0,
     videos: 0,
     multiplier: 0,

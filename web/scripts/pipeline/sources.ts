@@ -41,8 +41,8 @@ export async function recipeDescriptions(ids: string[], key: string): Promise<Re
     if (!response.ok) throw new Error(`YouTube 설명란 조회 실패: ${response.status}`);
     const body = await response.json() as { items?: { id: string; snippet?: { title?: string; description?: string; channelId?: string; publishedAt?: string } }[] };
     for (const item of body.items ?? []) {
-      if (item.snippet?.title && item.snippet.description) videos.push({
-        id: item.id, title: decodeEntities(item.snippet.title), description: item.snippet.description,
+      if (item.snippet?.title) videos.push({
+        id: item.id, title: decodeEntities(item.snippet.title), description: item.snippet.description ?? "",
         channelId: item.snippet.channelId, publishedAt: item.snippet.publishedAt,
       });
     }

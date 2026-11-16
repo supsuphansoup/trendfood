@@ -18,7 +18,15 @@ async function load(): Promise<Food[]> {
   if (process.env.TF_SEED_ONLY === "1") {
     const id = "00000000-0000-4000-8000-000000000001";
     const photo: PublishedPhoto = { id, path: `${id}.webp`, width: 32, height: 24, credit: "테스트 사진 작가", source_url: "https://example.com/test-photo", license: "CC BY" };
-    return seedFoods.map((record) => toFood(record.slug === "tuna-gimbap" ? { ...record, image: id } : record, [photo]));
+    return seedFoods.map((record) => {
+      // 레시피 없는 음식 소개도 같은 정적 화면에서 검사한다. 공개 JSON에는 섞지 않는다.
+      if (record.slug === "egg-green-onion-ramyeon") return toFood({
+        ...record, kind: "discovery", change: "음식 소개", cookMinutes: 0, cookLabel: "음식 소개", ingredients: [], steps: [],
+        why: "음식 정보부터 살펴보는 소개 예시예요.", summary: "조리법 없이 음식 소개와 출처를 제공하는 테스트 예시예요.",
+        editorial: { checkedAt: "2026-11-16", sources: [{ title: "음식 소개 테스트 출처", url: "https://example.com/food" }], recipeNote: "AI 음식 소개 테스트 예시예요. 조리법은 제공하지 않아요." },
+      });
+      return toFood(record.slug === "tuna-gimbap" ? { ...record, image: id } : record, [photo]);
+    });
   }
   if (!cfg || process.env.TF_CONTENT_ONLY === "1") return contentToRecords(parseContent(content)).map((record) => toFood(record));
   const db = createClient(cfg.url, cfg.anonKey, { auth: { persistSession: false } });

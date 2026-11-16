@@ -65,29 +65,32 @@ test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 �
   await expect(page.locator("#list li h3")).toHaveText(["밤 티라미수"]);
 });
 
-test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상 자리가 없다", async ({ page }, info) => {
+test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제공하며 가짜 수치는 없다", async ({ page }, info) => {
   test.setTimeout(Math.max(120_000, snapshot.foods.length * 1000));
   for (const food of snapshot.foods) {
     const response = await page.goto(`/food/${food.slug}`);
     expect(response?.status()).toBe(200);
-    await expect(page).toHaveTitle(`${food.name} ${food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`);
+    await expect(page).toHaveTitle(`${food.name} ${food.kind === "discovery" ? "음식 정보와 출처" : food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`);
     const sources = page.getByRole("region", { name: "참고한 출처" });
     await expect(sources).toBeVisible();
     expect(await sources.getByRole("link").count()).toBeGreaterThan(0);
     for (const link of await sources.getByRole("link").all()) await expect(link).toHaveAttribute("href", /^https:\/\//);
-    await expect(page.locator("#cart").getByText(/사용량/).first()).toBeVisible();
+    if (food.kind === "discovery") {
+      await expect(page.locator("#cart, #recipe")).toHaveCount(0);
+      await expect(page.getByRole("link", { name: "소개 출처 보기" })).toBeVisible();
+    } else await expect(page.locator("#cart").getByText(/사용량/).first()).toBeVisible();
     const firstIngredient = food.ingredients.find((ingredient) => !ingredient.pantry);
     if (firstIngredient?.url) {
       const purchase = page.locator("#cart").getByRole("link", { name: `장보기 시작: ${firstIngredient.name}`, exact: true });
       await expect(purchase).toHaveAttribute("href", firstIngredient.url);
       await expect(purchase).toHaveAttribute("rel", /sponsored/);
     }
-    await expect(page.getByRole("heading", { name: food.kind === "product" ? "고르고 즐기는 법" : "만드는 법" })).toBeVisible();
+    if (food.kind !== "discovery") await expect(page.getByRole("heading", { name: food.kind === "product" ? "고르고 즐기는 법" : "만드는 법" })).toBeVisible();
     if (food.history) {
       const history = page.getByRole("region", { name: /주목받은 시기/ });
       await expect(history).toBeVisible();
       expect(await history.getByRole("link").count()).toBeGreaterThan(0);
-    } else await expect(page.getByText(/일상 레시피 ·/)).toBeVisible();
+    } else await expect(page.getByText(food.kind === "discovery" ? /유행 시기 미확정 ·/ : /일상 레시피 ·/)).toBeVisible();
     if (food.image === "pending") {
       const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
       await expect(introduction.locator('img, [role="img"]')).toHaveCount(0);
@@ -136,7 +139,7 @@ test("모든 상세에 출처·사용량·단계가 있고 가짜 수치·영상
 });
 
 test("전체 카드의 이미지를 로드하고 생성 표시·찜·상세·재료 담기를 유지한다", async ({ page }, info) => {
-  const food = snapshot.foods.find((food, index) => index > 0 && generatedImages[food.image])!;
+  const food = snapshot.foods.find((food, index) => index > 0 && food.kind !== "discovery" && generatedImages[food.image])!;
   expect(snapshot.foods.every((item) => item.image !== "pending")).toBe(true);
   await page.goto("/");
   const cards = page.locator("#list li").filter({ has: page.getByRole("heading", { level: 3 }) });

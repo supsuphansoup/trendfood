@@ -23,14 +23,15 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/food/[slug]">): Promise<Metadata> {
   const food = await getPublishedFood((await params).slug);
-  return food ? { title: `${food.name} ${food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`, description: food.why } : {};
+  return food ? { title: `${food.name} ${food.kind === "discovery" ? "음식 정보와 출처" : food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`, description: food.why } : {};
 }
 
 export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
   const food = await getPublishedFood((await params).slug);
   if (!food) notFound();
 
-  const chips = [food.change, food.cookLabel, `난이도 ${food.difficulty}`, food.servings];
+  const discovery = food.kind === "discovery";
+  const chips = [...new Set([food.change, food.cookLabel, ...(!discovery ? [`난이도 ${food.difficulty}`, food.servings] : [])])];
 
   return (
     <>
@@ -90,10 +91,10 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               </li>}
             </ul>
             <div className="flex flex-wrap gap-3">
-              <a href="#recipe" className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
-              <a href="#cart" className="inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">재료 살펴보기</a>
+              <a href={discovery ? "#sources" : "#recipe"} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{discovery ? "소개 출처 보기" : food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
+              {!discovery && <a href="#cart" className="inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">재료 살펴보기</a>}
             </div>
-            {food.editorial && food.imageAvailable && <p className="text-xs leading-relaxed text-muted-foreground">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>}
+            {food.editorial && food.imageAvailable && <p className="text-xs leading-relaxed text-muted-foreground">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : discovery ? "참고 사진 · 소개된 판매 제품과 다를 수 있어요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>}
           </div>
       </section>
 
@@ -113,7 +114,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               <ul className="mt-2 list-none space-y-1 p-0">
                 {food.history.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">{source.title} ↗<span className="sr-only"> (새 창)</span></a></li>)}
               </ul>
-            </section> : food.editorial && <p className="text-sm text-muted-foreground">일상 레시피 · 이 항목은 특정 연도 유행 음식으로 분류하지 않았어요.</p>}
+            </section> : food.editorial && <p className="text-sm text-muted-foreground">{discovery ? "유행 시기 미확정" : "일상 레시피"} · 이 항목은 특정 연도 유행 음식으로 분류하지 않았어요.</p>}
             {!food.editorial && <TrendChart data={food.trend} multiplier={food.multiplier} />}
             <p className="text-[13px] text-muted-foreground">
               <span className="mr-1.5 rounded-sm bg-secondary px-1.5 py-0.5 text-xs font-bold text-foreground">AI 요약</span>
@@ -121,7 +122,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             </p>
           </div>
           {food.editorial ? (
-            <section aria-labelledby="sources-title" className="flex min-w-0 flex-[1_1_460px] flex-col gap-3 rounded-2xl bg-muted p-5">
+            <section id="sources" aria-labelledby="sources-title" className="flex min-w-0 flex-[1_1_460px] flex-col gap-3 rounded-2xl bg-muted p-5">
               <h2 id="sources-title" className="text-xl font-black">참고한 출처</h2>
               <p className="text-sm text-muted-foreground">확인 날짜 {food.editorial.checkedAt} · 실시간 인기 순위는 아직 집계하지 않았어요.</p>
               <ul className="m-0 flex list-none flex-col gap-2 p-0">
@@ -167,7 +168,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
           </figure>}
         </section>
 
-        <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+        {!discovery && <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
           <IngredientCart food={food} />
 
           <div className="flex min-w-0 flex-col gap-9">
@@ -210,7 +211,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
 
             <AdSlot label="조리법 하단" className="h-[140px]" />
           </div>
-        </div>
+        </div>}
       </main>
       <SiteFooter />
     </>

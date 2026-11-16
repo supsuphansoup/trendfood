@@ -2,10 +2,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import { parseContent } from "../../src/data/content.ts";
-import { automaticUpdate, verifiedFood } from "./autopublish.ts";
+import { automaticUpdate, verifiedFood, verifiedIntroduction } from "./autopublish.ts";
 import { AiQuotaError } from "./llm.ts";
 import type { Scored } from "./logic.ts";
 import { recipeDescriptions, type RecipeVideo } from "./sources.ts";
+import { generatedImages } from "../../src/data/generated-images.ts";
 
 const checkedAt = "2026-11-12";
 const current = parseContent(JSON.parse(await readFile(new URL("../../src/data/content/foods.json", import.meta.url), "utf8")));
@@ -25,6 +26,60 @@ const videos: RecipeVideo[] = [
   { id: "Bcdefg_1234", title: "요즘 레몬 크림 누들", channelId: "creator-b", publishedAt: "2026-11-10T01:00:00Z", description: "레몬 크림 누들 소개" },
 ];
 const dependencies = { descriptions: async () => videos, generate: async () => structuredClone(recipe) };
+const introduction = { ...recipe, complete: false, introduction: { sourceId: videos[1].id, excerpt: videos[1].description } };
+
+test("음식 소개에 뒤늦게 조리법을 붙일 때 주소·사진을 보존하고 조리법이 없으면 변경하지 않는다", async () => {
+  const photo = current.foods.find((food) => !generatedImages[food.image] && !generatedImages[food.heroImage ?? ""])!;
+  const intro = { ...verifiedIntroduction(candidate, videos, introduction, checkedAt), image: photo.image, alt: photo.alt };
+  const baseline = parseContent({ ...current, foods: [...current.foods, intro] });
+  const unchanged = await automaticUpdate(baseline, [candidate], videos, { ...dependencies, generate: async () => introduction }, checkedAt);
+  assert.equal(unchanged.snapshot, baseline);
+  assert.equal(unchanged.accepted.length, 0);
+  const upgraded = await automaticUpdate(baseline, [candidate], videos, { ...dependencies, generate: async () => ({ ...recipe, slug: "another-recipe-address" }) }, checkedAt);
+  assert.equal(upgraded.accepted.length, 1);
+  assert.equal(upgraded.snapshot.foods.length, baseline.foods.length);
+  const food = upgraded.snapshot.foods.at(-1)!;
+  assert.equal(food.kind, "recipe");
+  assert.equal(food.slug, intro.slug);
+  assert.equal(food.image, photo.image);
+  assert.deepEqual(food.ingredients, recipe.ingredients);
+});
+
+test("먹방 음식 소개: 완전한 조리법 없이도 원문 인용과 상승 근거를 확인해 소개만 추가한다", async () => {
+  let calls = 0;
+  const result = await automaticUpdate(current, [candidate], videos, { ...dependencies, generate: async () => { calls++; return introduction; } }, checkedAt);
+  assert.equal(calls, 1);
+  assert.equal(result.accepted.length, 1);
+  const food = result.snapshot.foods.at(-1)!;
+  assert.equal(food.kind, "discovery");
+  assert.equal(food.cookMinutes, 0);
+  assert.deepEqual(food.ingredients, []);
+  assert.deepEqual(food.steps, []);
+  assert.equal(food.summary, `원문 소개: “${videos[1].description}”`);
+  assert.equal(food.image, "pending");
+  assert.match(food.recipeNote, /개별 검수는 하지 않았어요/);
+  assert.deepEqual(result.snapshot.foods.slice(0, current.foods.length), current.foods);
+  assert.doesNotThrow(() => parseContent(result.snapshot));
+});
+
+test("먹방 음식 소개: 제목만 있는 원문도 확인하되 없는 음식·특징·출처·긴 인용은 거절한다", () => {
+  const raw = { ...introduction, introduction: { sourceId: videos[0].id, excerpt: videos[0].title } };
+  assert.equal(verifiedIntroduction(candidate, videos, raw, checkedAt).summary, `원문 소개: “${videos[0].title}”`);
+  for (const patch of [null, { sourceId: "wrong", excerpt: videos[0].title }, { sourceId: videos[0].id, excerpt: "레몬 크림 누들은 1위이고 1000원이에요" }, { sourceId: videos[0].id, excerpt: "없는 음식 소개" }, { sourceId: videos[0].id, excerpt: "가".repeat(121) }]) {
+    assert.throws(() => verifiedIntroduction(candidate, videos, { ...raw, introduction: patch }, checkedAt));
+  }
+  assert.throws(() => verifiedIntroduction(candidate, videos, { ...raw, complete: true }, checkedAt));
+});
+
+test("먹방 음식 소개도 서로 다른 제작자와 검색 상승 검증을 우회하지 못한다", async () => {
+  let calls = 0;
+  const deps = { ...dependencies, generate: async () => { calls++; return introduction; } };
+  const single = await automaticUpdate(current, [candidate], videos, { ...deps, descriptions: async () => videos.slice(0, 1) }, checkedAt);
+  const flat = await automaticUpdate(current, [{ ...candidate, multiplier: 1 }], videos, deps, checkedAt);
+  assert.equal(calls, 0);
+  assert.equal(single.accepted.length + flat.accepted.length, 0);
+  assert.equal(single.snapshot, current);
+});
 
 test("자동 반영: 원문 레시피와 상승 근거를 검증해 추가하고 기존 콘텐츠·날짜를 보존한다", async () => {
   const before = structuredClone(current);
@@ -95,9 +150,10 @@ test("설명란 수집은 공식 videos.list를 사용하고 삭제된 영상은
     assert.equal(url.origin + url.pathname, "https://www.googleapis.com/youtube/v3/videos");
     assert.equal(url.searchParams.get("part"), "snippet");
     assert.equal(url.searchParams.get("id"), "Abcdef_1234,Bcdefg_1234");
-    return Response.json({ items: [{ id: videos[0].id, snippet: videos[0] }] });
+    return Response.json({ items: [{ id: videos[0].id, snippet: videos[0] }, { id: videos[1].id, snippet: { title: videos[1].title } }] });
   });
   const result = await recipeDescriptions(["Abcdef_1234", "Abcdef_1234", "Bcdefg_1234", "sample-0"], "test-key");
-  assert.equal(result.length, 1);
+  assert.equal(result.length, 2);
   assert.equal(result[0].description, description);
+  assert.equal(result[1].description, "");
 });

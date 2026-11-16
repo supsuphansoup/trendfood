@@ -65,6 +65,21 @@ function incoming(current: ContentSnapshot, imageReady: boolean) {
   return mergeContent(current, { version: 1, status: "ready", checkedAt: date, foods: [food] });
 }
 
+test("조리법 없는 새 음식도 사진 확보 후 앞에 배치하고 사진이 없으면 공개에서 보류한다", () => {
+  const current = baseline();
+  for (const imageReady of [false, true]) {
+    const snapshot = incoming(current, imageReady);
+    Object.assign(snapshot.foods.at(-1)!, { kind: "discovery", cookMinutes: 0, ingredients: [], steps: [] });
+    const result = refreshRecommendations(parseContent(snapshot), { baseline: current, signals: [], date });
+    assert.equal(result.snapshot.foods.some((food) => food.slug === "new-verified-food"), imageReady);
+    if (imageReady) {
+      assert.equal(result.snapshot.foods[0].kind, "discovery");
+      assert.equal(result.snapshot.recommendation!.basis, "new");
+      assert.deepEqual(contentToRecords(result.snapshot)[0].ingredients, []);
+    } else assert.equal(result.deferred.length, 1);
+  }
+});
+
 test("사진까지 확보한 신규 음식은 앞에 배치하고 신규 표시를 분리한다", () => {
   const current = baseline();
   const result = refreshRecommendations(incoming(current, true), { baseline: current, signals: [], date });

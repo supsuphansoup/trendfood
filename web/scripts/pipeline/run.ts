@@ -1,7 +1,7 @@
 // 매일 트렌드 후보 수집 (GitHub Actions가 하루 1번 실행, 손으로는 npm run pipeline)
 // 1) YouTube 인기 음식 영상 제목  2) LLM 이 음식 이름 추출  3) 네이버 검색량 급상승 배수
 // 4) 이미 있는 음식 빼고 상위 후보를 candidates 표에 '대기'로 넣음 (+ 상위 몇 개는 AI 상세 글 초안)
-// 자동 게시가 켜져 있으면 실제 설명란 근거를 검증한 레시피만 JSON에 추가한다. 나머지는 후보 큐에 남긴다.
+// 자동 게시가 켜져 있으면 유행 근거와 원문을 대조한 음식 소개·레시피를 JSON에 추가한다. 나머지는 후보 큐에 남긴다.
 //
 // 키가 없으면 그 단계는 예시 값으로 대신하고, Supabase 키가 없거나 --dry-run 이면 DB 에 쓰지 않고 화면에만 보여 준다.
 import { createClient } from "@supabase/supabase-js";
@@ -21,7 +21,7 @@ const env = process.env;
 const compareModels = env.PIPELINE_COMPARE_MODELS === "true";
 const autoPublish = !compareModels && (process.argv.includes("--auto-publish") || env.PIPELINE_AUTO_PUBLISH === "true");
 const dryRun = compareModels || process.argv.includes("--dry-run") || !env.SUPABASE_URL || !env.SUPABASE_SERVICE_ROLE_KEY;
-const SEED_QUERIES = (env.PIPELINE_QUERIES || "요즘 유행 음식,유행 디저트 만들기,편의점 신상 디저트,자취 요리 유행,SNS 화제 레시피")
+const SEED_QUERIES = (env.PIPELINE_QUERIES || "요즘 유행 먹방,신상 디저트 먹방,편의점 신상 먹방,유행 디저트 만들기,SNS 화제 레시피")
   .split(",")
   .map((q) => q.trim())
   .filter(Boolean);

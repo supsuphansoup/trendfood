@@ -22,6 +22,27 @@ const bytes = await sharp({ create: { width: 800, height: 600, channels: 3, back
 const verdict = { match: true, confidence: 0.99, photograph: true, unobstructed: true, metadataMatches: true, recipeMatches: true, presentationSuitable: true, reason: "메뉴와 일치" };
 const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [structuredClone(input.foods[0]), { ...structuredClone(input.foods[1]), image: "pending", slug: "test-pending" }] });
 
+test("음식 소개 사진: 조리법 없이 이름·원문으로 대조하고 재료·단계를 추가하지 않는다", async () => {
+  const snapshot = current();
+  Object.assign(snapshot.foods[1], { kind: "discovery", cookMinutes: 0, ingredients: [], steps: [] });
+  let calls = 0;
+  const result = await automaticPhotos(snapshot, {}, {
+    search: async () => [candidate()], download: async () => bytes,
+    generate: async (prompt, _schema, images) => {
+      if (!images?.length) return { queries: [] };
+      calls++;
+      assert.match(prompt, /kind=discovery/);
+      assert.match(prompt, /"kind":"discovery"/);
+      assert.match(prompt, /다른 제품 사진으로 대체하지 마세요/);
+      return verdict;
+    },
+  }, now);
+  assert.equal(calls, 1);
+  assert.equal(result.accepted.length, 1);
+  assert.deepEqual(result.snapshot.foods[1].ingredients, []);
+  assert.deepEqual(result.snapshot.foods[1].steps, []);
+});
+
 test("공식 사진 메타데이터: 허용 이용 조건·작가·크기·출처를 확인한다", () => {
   const photo = candidate();
   assert.equal(photo.author, "사진 작가");

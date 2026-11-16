@@ -318,6 +318,28 @@ test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page 
   await page.screenshot({ path: `test-results/home-${info.project.name}.png`, fullPage: true });
 });
 
+test("음식 소개는 조리법·재료 구매 없이 탐색하고 출처와 찜을 제공한다", async ({ page }, info) => {
+  await page.goto("/?q=계란 파 라면");
+  const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "계란 파 라면", exact: true }) });
+  await expect(card.getByText("음식 소개", { exact: true })).toBeVisible();
+  await expect(card.getByRole("link", { name: /재료|레시피/ })).toHaveCount(0);
+  await card.getByRole("button", { name: /찜/ }).click();
+  await page.screenshot({ path: `test-results/discovery-card-${info.project.name}.png`, fullPage: true });
+  await card.getByRole("link", { name: "음식 알아보기" }).click();
+  await expect(page).toHaveTitle("계란 파 라면 음식 정보와 출처 | 트렌드푸드");
+  await expect(page.getByRole("heading", { name: "어떤 음식인가요" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "참고한 출처" })).toBeVisible();
+  await expect(page.locator("#cart, #recipe")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /재료 살펴보기|만드는 법/ })).toHaveCount(0);
+  await expect(page.getByText(/난이도|0분/)).toHaveCount(0);
+  await page.getByRole("link", { name: "소개 출처 보기" }).click();
+  await expect(page).toHaveURL(/#sources$/);
+  await expect(page.getByRole("link", { name: /음식 소개 테스트 출처/ })).toHaveAttribute("href", "https://example.com/food");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: `test-results/discovery-detail-${info.project.name}.png`, fullPage: true });
+});
+
 test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바로가기", async ({ page }, info) => {
   await page.goto("/");
   // 플랫폼별 입력칸의 기본 너비 차이가 검색창을 화면 밖으로 밀지 않게 한다.
@@ -383,7 +405,7 @@ test("메인: 정렬·태그·검색·찜 필터가 동작한다", async ({ page
   await page.getByRole("button", { name: "좋아요순" }).click();
   expect((await cardTitles(page))[0]).toBe("치킨마요 덮밥");
   await page.getByRole("button", { name: "조리시간순" }).click();
-  expect((await cardTitles(page))[0]).toBe("계란 파 라면");
+  expect((await cardTitles(page)).at(-1)).toBe("계란 파 라면"); // 조리법 없는 소개를 시간 0분으로 정렬하지 않는다.
 
   await page.getByRole("button", { name: "#디저트" }).click();
   expect(await cardTitles(page)).toEqual(expect.arrayContaining(["두바이 초콜릿", "버터 가래떡구이"]));

@@ -147,7 +147,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     const by: Record<Sort, (a: Food, b: Food) => number> = {
       급상승순: (a, b) => a.rank - b.rank,
       좋아요순: (a, b) => b.likes - a.likes,
-      조리시간순: (a, b) => a.cookMinutes - b.cookMinutes,
+      조리시간순: (a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes),
     };
     return [...filtered].sort(by[sort]);
   }, [foods, sort, tag, tab, likes.items, q, year, filtering, curated]);
@@ -261,9 +261,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
           <p className="text-intro-mobile leading-tight font-black tracking-[-0.05em] md:text-intro">유행한 맛을, 내 식탁으로.</p>
           <a href="#list" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-foreground hover:text-accent">음식 둘러보기 <ArrowUpRight className="size-5" aria-hidden /></a>
         </div>
-        <section aria-label={curated ? "오늘의 레시피" : "오늘의 1위"} className={cn("overflow-hidden rounded-feature bg-accent text-accent-foreground", top.imageAvailable && "grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]")}>
+        <section aria-label={curated ? "오늘의 음식" : "오늘의 1위"} className={cn("overflow-hidden rounded-feature bg-accent text-accent-foreground", top.imageAvailable && "grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]")}>
           <div className="flex flex-col items-start gap-4 p-6 md:justify-center md:gap-5 md:p-10">
-            <p className="inline-flex items-center gap-2 rounded-full border border-current/40 px-3 py-1.5 text-sm font-bold"><Flame className="size-4" aria-hidden />{curated ? "오늘의 레시피" : "오늘 가장 많이 찾은 음식, 1위"}</p>
+            <p className="inline-flex items-center gap-2 rounded-full border border-current/40 px-3 py-1.5 text-sm font-bold"><Flame className="size-4" aria-hidden />{curated ? "오늘의 음식" : "오늘 가장 많이 찾은 음식, 1위"}</p>
             <h1 className="text-feature-mobile leading-[1.08] font-black tracking-[-0.05em] md:text-feature">{top.name}</h1>
             {recommendation && <p data-testid="recommendation-edition" className="text-sm leading-relaxed">
               추천 갱신 {recommendation.date} · {recommendation.basis === "new" ? "새로 추가한 음식" : recommendation.basis === "trend" ? "검색 흐름을 참고한 추천" : "기존 음식 돌아보기"}
@@ -274,22 +274,22 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 href={`/food/${top.slug}`}
                 className="inline-flex min-h-12 items-center gap-3 rounded-full bg-background px-5 text-base font-bold text-foreground hover:text-accent"
               >
-                {top.kind === "product" ? "제품 알아보기" : "레시피 보기"}<ArrowUpRight className="size-5" aria-hidden />
+                {top.kind === "discovery" ? "음식 알아보기" : top.kind === "product" ? "제품 알아보기" : "레시피 보기"}<ArrowUpRight className="size-5" aria-hidden />
               </Link>
-              <Link
+              {top.kind !== "discovery" && <Link
                 href={`/food/${top.slug}#cart`}
                 className="inline-flex min-h-12 items-center rounded-full border border-current/70 px-4 text-sm font-bold text-accent-foreground hover:text-accent-foreground hover:underline"
               >
                 재료 {buyable(top).length}개 담기
-              </Link>
+              </Link>}
             </div>
             <p className="max-w-[32em] text-xs leading-relaxed">
-              {curated ? `출처 확인 ${top.editorial!.checkedAt} · 실시간 순위 집계 전 · AI 조리 안내${top.imageAvailable ? top.generatedImage ? " · AI 생성 예시" : " · 참고 사진" : ""}` : "AI 요약, 운영자 검수 완료. 데모 사진"}
+              {curated ? `출처 확인 ${top.editorial!.checkedAt} · 실시간 순위 집계 전 · ${top.kind === "discovery" ? "AI 음식 소개" : "AI 조리 안내"}${top.imageAvailable ? top.generatedImage ? " · AI 생성 예시" : " · 참고 사진" : ""}` : "AI 요약, 운영자 검수 완료. 데모 사진"}
             </p>
           </div>
           {top.imageAvailable && <div className="relative order-first min-h-[280px] overflow-hidden bg-secondary md:order-none md:min-h-[460px]">
             <FoodImage food={top} hero preload sizes="(max-width: 767px) 100vw, 640px" />
-            <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-2 text-sm font-bold text-foreground"><Clock3 className="size-4" aria-hidden />{top.kind === "product" ? "완제품 안내" : `${top.cookMinutes}분`}</span>
+            <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-2 text-sm font-bold text-foreground">{top.kind !== "discovery" && <Clock3 className="size-4" aria-hidden />}{top.kind === "discovery" ? "음식 소개" : top.kind === "product" ? "완제품 안내" : `${top.cookMinutes}분`}</span>
             {top.editorial && <span className="absolute bottom-4 left-4 rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">{top.generatedImage ? "AI 생성 예시" : "참고 사진"}</span>}
           </div>}
         </section>
