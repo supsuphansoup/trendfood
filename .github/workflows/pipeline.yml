@@ -74,6 +74,9 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+      - name: 사진 검증 후 신규 음식 우선·일일 추천 갱신 (추가 API 호출 없음)
+        if: inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
+        run: node scripts/refresh-recommendations.ts
       - name: 쿠팡 호출 기록 복원
         id: coupang_cache
         if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
@@ -131,6 +134,7 @@ jobs:
           name: automation-report
           path: |
             web/data/automation-report.json
+            web/data/recommendation-report.json
             web/data/photo-report.json
             web/data/coupang-report.json
             web/data/product-link-report.json
@@ -166,7 +170,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add src/data/content/foods.json src/data/content/auto-photo-credits.json src/assets/curated src/lib/curated-photos.ts
-          git commit -m "콘텐츠: 자동 검증을 통과한 음식·사진·재료 링크 반영"
+          git commit -m "콘텐츠: 검증된 음식·사진·재료 링크와 일일 추천 반영"
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
@@ -175,7 +179,7 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           import fs from 'node:fs';
-          for (const [path, label] of [['data/automation-report.json', '음식'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 제휴 링크'], ['data/product-link-report.json', '일반 상품 링크']]) {
+          for (const [path, label] of [['data/automation-report.json', '음식 검증'], ['data/recommendation-report.json', '공개 추천'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 제휴 링크'], ['data/product-link-report.json', '일반 상품 링크']]) {
             if (!fs.existsSync(path)) continue;
             const report = JSON.parse(fs.readFileSync(path, 'utf8'));
             if (report.reason) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label}: ${report.reason}\n\n`);

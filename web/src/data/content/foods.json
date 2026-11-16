@@ -4,81 +4,6 @@
   "checkedAt": "2026-11-12",
   "foods": [
     {
-      "slug": "dubai-chocolate",
-      "name": "두바이 초콜릿",
-      "category": "디저트",
-      "cookMinutes": 25,
-      "servings": "작은 초콜릿 2개",
-      "difficulty": "쉬움",
-      "tags": [
-        "디저트"
-      ],
-      "why": "바삭한 카다이프와 피스타치오 스프레드를 초콜릿 안에 채운 디저트예요. 2024년 국내에서도 큰 관심을 받았어요.",
-      "summary": "바삭한 카다이프와 피스타치오 스프레드를 초콜릿 안에 채운 디저트예요. 2024년 국내에서도 큰 관심을 받았어요.",
-      "image": "photo-dubai-chocolate",
-      "alt": "피스타치오 속을 채운 두바이 스타일 초콜릿 참고 사진이에요. 이 레시피를 직접 조리한 사진은 아니에요.",
-      "ingredients": [
-        {
-          "name": "볶은 카다이프",
-          "amount": "30g",
-          "url": "https://www.coupang.com/vp/products/9371943073?itemId=27816548172&vendorItemId=94776312249"
-        },
-        {
-          "name": "피스타치오 스프레드",
-          "amount": "47g",
-          "url": "https://www.coupang.com/vp/products/9615274930?itemId=28709616967&vendorItemId=95650445545"
-        },
-        {
-          "name": "코팅 다크초콜릿",
-          "amount": "70g",
-          "url": "https://www.coupang.com/vp/products/63279578?itemId=215532438&vendorItemId=82562170560"
-        }
-      ],
-      "steps": [
-        {
-          "text": "물기가 없는 볼에 초콜릿을 넣어 중탕으로 녹여요. 뜨거운 물이 초콜릿에 들어가지 않게 해요."
-        },
-        {
-          "text": "초콜릿 절반으로 몰드 안쪽을 얇게 덮고 냉동실에서 굳혀요.",
-          "timerMinutes": 5
-        },
-        {
-          "text": "카다이프와 피스타치오 스프레드를 섞어 굳은 초콜릿 안에 채워요."
-        },
-        {
-          "text": "남은 초콜릿으로 덮어 냉동실에서 단단해질 때까지 굳힌 뒤 몰드에서 꺼내요.",
-          "timerMinutes": 10
-        }
-      ],
-      "tip": "이미 볶은 카다이프를 쓰는 배합이에요. 생 카다이프는 먼저 바삭하게 볶아 식혀야 해요.",
-      "convenience": [
-        {
-          "place": "구매할 때",
-          "desc": "식재료별 포장량과 보관 방법을 확인하세요. 매장별 취급·재고·가격은 다를 수 있어요."
-        }
-      ],
-      "sources": [
-        {
-          "title": "효니 · 두바이 초콜릿 만들기",
-          "url": "https://www.10000recipe.com/recipe/7035284"
-        }
-      ],
-      "recipeNote": "공개 레시피를 바탕으로 AI가 순서와 설명을 다시 정리했어요. 분량·예상 시간은 가정용 안내이며 직접 조리 검증은 하지 않았어요. ",
-      "checkedAt": "2026-11-12",
-      "history": {
-        "years": [
-          2024
-        ],
-        "note": "2024년 SNS를 통해 알려지고 편의점에서도 관련 상품을 출시한 디저트예요.",
-        "sources": [
-          {
-            "title": "컨슈머타임스 · 2024년 요아정·두바이 초콜릿·밤 티라미수 결산",
-            "url": "https://www.cstimes.com/news/articleView.html?idxno=627432"
-          }
-        ]
-      }
-    },
-    {
       "slug": "dubai-chewy-cookie",
       "name": "두바이 쫀득쿠키",
       "why": "바삭한 카다이프 속을 코코아 마시멜로로 감싼 디저트. 오븐 없이 쫀득함과 바삭함을 함께 만들어요.",
@@ -2463,6 +2388,86 @@
       ],
       "recipeNote": "오뚜기 공개 레시피의 배합과 순서를 참고해 AI가 간단히 재구성했어요. 2인분과 15분은 가정용 예상치예요. 직접 조리 검증은 하지 않았어요.",
       "checkedAt": "2026-11-12"
+    },
+    {
+      "slug": "dubai-chocolate",
+      "name": "두바이 초콜릿",
+      "category": "디저트",
+      "cookMinutes": 25,
+      "servings": "작은 초콜릿 2개",
+      "difficulty": "쉬움",
+      "tags": [
+        "디저트"
+      ],
+      "why": "바삭한 카다이프와 피스타치오 스프레드를 초콜릿 안에 채운 디저트예요. 2024년 국내에서도 큰 관심을 받았어요.",
+      "summary": "바삭한 카다이프와 피스타치오 스프레드를 초콜릿 안에 채운 디저트예요. 2024년 국내에서도 큰 관심을 받았어요.",
+      "image": "photo-dubai-chocolate",
+      "alt": "피스타치오 속을 채운 두바이 스타일 초콜릿 참고 사진이에요. 이 레시피를 직접 조리한 사진은 아니에요.",
+      "ingredients": [
+        {
+          "name": "볶은 카다이프",
+          "amount": "30g",
+          "url": "https://www.coupang.com/vp/products/9371943073?itemId=27816548172&vendorItemId=94776312249"
+        },
+        {
+          "name": "피스타치오 스프레드",
+          "amount": "47g",
+          "url": "https://www.coupang.com/vp/products/9615274930?itemId=28709616967&vendorItemId=95650445545"
+        },
+        {
+          "name": "코팅 다크초콜릿",
+          "amount": "70g",
+          "url": "https://www.coupang.com/vp/products/63279578?itemId=215532438&vendorItemId=82562170560"
+        }
+      ],
+      "steps": [
+        {
+          "text": "물기가 없는 볼에 초콜릿을 넣어 중탕으로 녹여요. 뜨거운 물이 초콜릿에 들어가지 않게 해요."
+        },
+        {
+          "text": "초콜릿 절반으로 몰드 안쪽을 얇게 덮고 냉동실에서 굳혀요.",
+          "timerMinutes": 5
+        },
+        {
+          "text": "카다이프와 피스타치오 스프레드를 섞어 굳은 초콜릿 안에 채워요."
+        },
+        {
+          "text": "남은 초콜릿으로 덮어 냉동실에서 단단해질 때까지 굳힌 뒤 몰드에서 꺼내요.",
+          "timerMinutes": 10
+        }
+      ],
+      "tip": "이미 볶은 카다이프를 쓰는 배합이에요. 생 카다이프는 먼저 바삭하게 볶아 식혀야 해요.",
+      "convenience": [
+        {
+          "place": "구매할 때",
+          "desc": "식재료별 포장량과 보관 방법을 확인하세요. 매장별 취급·재고·가격은 다를 수 있어요."
+        }
+      ],
+      "sources": [
+        {
+          "title": "효니 · 두바이 초콜릿 만들기",
+          "url": "https://www.10000recipe.com/recipe/7035284"
+        }
+      ],
+      "recipeNote": "공개 레시피를 바탕으로 AI가 순서와 설명을 다시 정리했어요. 분량·예상 시간은 가정용 안내이며 직접 조리 검증은 하지 않았어요. ",
+      "checkedAt": "2026-11-12",
+      "history": {
+        "years": [
+          2024
+        ],
+        "note": "2024년 SNS를 통해 알려지고 편의점에서도 관련 상품을 출시한 디저트예요.",
+        "sources": [
+          {
+            "title": "컨슈머타임스 · 2024년 요아정·두바이 초콜릿·밤 티라미수 결산",
+            "url": "https://www.cstimes.com/news/articleView.html?idxno=627432"
+          }
+        ]
+      }
     }
-  ]
+  ],
+  "recommendation": {
+    "date": "2026-11-16",
+    "basis": "rotation",
+    "newSlugs": []
+  }
 }

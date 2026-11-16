@@ -62,6 +62,8 @@ export type FoodRecord = {
     checkedAt: string;
     sources: { title: string; url: string }[];
     recipeNote: string;
+    recommendation?: { date: string; basis: "new" | "trend" | "rotation" };
+    newlyAdded?: boolean;
   };
 };
 

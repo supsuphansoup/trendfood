@@ -15,6 +15,7 @@ export type ContentSnapshot = {
   status: "draft" | "ready";
   checkedAt: string;
   foods: ContentFood[];
+  recommendation?: { date: string; basis: "new" | "trend" | "rotation"; newSlugs: string[] };
 };
 
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
@@ -73,6 +74,14 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
     if (!Array.isArray(f.sources) || !f.sources.length || f.sources.some((s) => !object(s) || !text(s.title, 200) || !https(s.url))) return fail(`${label}: 제목과 HTTPS 출처 링크가 필요해요`);
     if (!Array.isArray(f.convenience) || f.convenience.some((c) => !object(c) || !text(c.place, 100) || !text(c.desc))) return fail(`${label}: 구매 안내가 잘못됐어요`);
   }
+  if (raw.recommendation !== undefined) {
+    const r = raw.recommendation;
+    if (!object(r) || !validDate(r.date) || !["new", "trend", "rotation"].includes(String(r.basis)) ||
+      !Array.isArray(r.newSlugs) || new Set(r.newSlugs).size !== r.newSlugs.length ||
+      r.newSlugs.some((slug) => typeof slug !== "string" || !seen.has(slug)) ||
+      (r.basis === "new" && (!r.newSlugs.length || !r.newSlugs.includes(raw.foods[0].slug))) ||
+      (r.basis !== "new" && r.newSlugs.length)) return fail("추천 날짜·근거·신규 음식이 잘못됐어요");
+  }
   return raw as ContentSnapshot;
 }
 
@@ -87,7 +96,12 @@ export function contentToRecords(snapshot: ContentSnapshot): FoodRecord[] {
     videos: 0,
     multiplier: 0,
     trend: [],
-    editorial: { checkedAt: checkedAt ?? snapshot.checkedAt, sources, recipeNote },
+    editorial: { checkedAt: checkedAt ?? snapshot.checkedAt, sources, recipeNote,
+      ...(snapshot.recommendation ? {
+        recommendation: { date: snapshot.recommendation.date, basis: snapshot.recommendation.basis },
+        newlyAdded: snapshot.recommendation.newSlugs.includes(food.slug),
+      } : {}),
+    },
   }));
 }
 
@@ -95,5 +109,5 @@ export function contentToRecords(snapshot: ContentSnapshot): FoodRecord[] {
 export function mergeContent(current: ContentSnapshot, incoming: ContentSnapshot): ContentSnapshot {
   const foods = new Map(current.foods.map((food) => [food.slug, { ...food, checkedAt: food.checkedAt ?? current.checkedAt }]));
   for (const food of incoming.foods) foods.set(food.slug, { ...food, checkedAt: food.checkedAt ?? incoming.checkedAt });
-  return parseContent({ version: 1, status: "ready", checkedAt: [current.checkedAt, incoming.checkedAt].sort().at(-1), foods: [...foods.values()] });
+  return parseContent({ ...current, status: "ready", checkedAt: [current.checkedAt, incoming.checkedAt].sort().at(-1), foods: [...foods.values()] });
 }

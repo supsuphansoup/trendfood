@@ -30,6 +30,7 @@ export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean })
             {food.name}
           </Link>
         </h3>
+        {food.editorial?.newlyAdded && <p className="text-sm font-bold text-accent">새로 추가 · {food.editorial.recommendation!.date}</p>}
         <p className="line-clamp-2 max-w-[28em] text-[15px] leading-[1.7] text-body">{food.why}</p>
         <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">

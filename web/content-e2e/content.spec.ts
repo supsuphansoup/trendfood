@@ -9,7 +9,14 @@ const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/gen
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(snapshot.foods[0].name);
+  if (snapshot.recommendation) {
+    await expect(page.getByTestId("recommendation-edition")).toContainText(`추천 갱신 ${snapshot.recommendation.date}`);
+    if (snapshot.recommendation.basis === "rotation") {
+      await expect(page.getByTestId("recommendation-edition")).toContainText("기존 음식 돌아보기");
+      await expect(page.getByText(/새로 추가/)).toHaveCount(0);
+    }
+  }
   await expect(page.locator("#list li h3")).toHaveCount(snapshot.foods.length - 1);
   await expect(page.getByRole("button", { name: "추천순", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "좋아요순", exact: true })).toHaveCount(0);

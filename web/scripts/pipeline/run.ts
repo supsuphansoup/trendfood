@@ -1,4 +1,4 @@
-// 매일 트렌드 후보 수집 (GitHub Actions가 하루 3번 실행, 손으로는 npm run pipeline)
+// 매일 트렌드 후보 수집 (GitHub Actions가 하루 1번 실행, 손으로는 npm run pipeline)
 // 1) YouTube 인기 음식 영상 제목  2) LLM 이 음식 이름 추출  3) 네이버 검색량 급상승 배수
 // 4) 이미 있는 음식 빼고 상위 후보를 candidates 표에 '대기'로 넣음 (+ 상위 몇 개는 AI 상세 글 초안)
 // 자동 게시가 켜져 있으면 실제 설명란 근거를 검증한 레시피만 JSON에 추가한다. 나머지는 후보 큐에 남긴다.
@@ -220,6 +220,7 @@ async function main() {
         generate: (prompt, schema) => askJson(prompt, schema, aiConfig()?.provider === "openai" ? { model: env.AI_MODEL!, maxOutputTokens: 6000 } : undefined),
       }, new Date().toISOString().slice(0, 10));
       const preview = process.argv.includes("--dry-run");
+      if (!preview) await atomicJson("data/recommendation-input.json", { baseline: current, signals: scored, date: new Date().toISOString().slice(0, 10) });
       await atomicJson("data/automation-report.json", { checkedAt: new Date().toISOString().slice(0, 10), preview, accepted: result.accepted, deferred: result.deferred });
       if (result.accepted.length && !preview) await atomicJson(target, result.snapshot);
       summary.automatic = { accepted: result.accepted, deferred: result.deferred, preview };

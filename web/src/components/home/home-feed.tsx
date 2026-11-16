@@ -63,6 +63,7 @@ function readUrl(years: number[]) {
 
 export function HomeFeed({ foods }: { foods: Food[] }) {
   const top = foods[0];
+  const recommendation = top.editorial?.recommendation;
   const curated = foods.every((food) => food.editorial);
   const years = useMemo(() => [...new Set(foods.flatMap((food) => food.history?.years ?? []))].sort((a, b) => a - b), [foods]);
   const [year, setYear] = useState<number | null>(null);
@@ -263,6 +264,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
           <div className="flex flex-col items-start gap-4 p-6 md:justify-center md:gap-5 md:p-10">
             <p className="inline-flex items-center gap-2 rounded-full border border-current/40 px-3 py-1.5 text-sm font-bold"><Flame className="size-4" aria-hidden />{curated ? "오늘의 레시피" : "오늘 가장 많이 찾은 음식, 1위"}</p>
             <h1 className="text-feature-mobile leading-[1.08] font-black tracking-[-0.05em] md:text-feature">{top.name}</h1>
+            {recommendation && <p data-testid="recommendation-edition" className="text-sm leading-relaxed">
+              추천 갱신 {recommendation.date} · {recommendation.basis === "new" ? "새로 추가한 음식" : recommendation.basis === "trend" ? "검색 흐름을 참고한 추천" : "기존 음식 돌아보기"}
+            </p>}
             <p className="max-w-[30em] text-base leading-relaxed">{top.why}</p>
             <div className="mt-1 flex flex-wrap items-center gap-3">
               <Link
