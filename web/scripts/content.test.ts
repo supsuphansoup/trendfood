@@ -216,15 +216,15 @@ test("새 수집 결과는 기존 레시피·출처 확인 날짜를 보존하�
   previous.checkedAt = "2026-11-01";
   for (const food of previous.foods) delete food.checkedAt;
   const current = parseContent(previous);
-  const incoming = parseContent({ ...fresh(), foods: [
-    { ...input.foods[0], why: "갱신한 소개" },
+  const incoming = parseContent({ ...fresh(), checkedAt: "2026-11-16", foods: [
+    { ...input.foods[0], checkedAt: "2026-11-12", why: "갱신한 소개" },
     { ...input.foods[1], slug: "new-butter-recipe", image: "pending", alt: "새 음식 사진 준비 중" },
   ] });
   const merged = mergeContent(current, incoming);
   const foods = contentToRecords(merged);
   assert.equal(foods.length, input.foods.length + 1);
   assert.equal(foods[0].why, "갱신한 소개");
-  assert.equal(foods[0].editorial?.checkedAt, input.checkedAt);
+  assert.equal(foods[0].editorial?.checkedAt, "2026-11-12");
   assert.equal(foods[1].editorial?.checkedAt, "2026-11-01");
   assert.equal(foods.at(-1)?.slug, "new-butter-recipe");
   assert.equal(current.foods.length, input.foods.length);
