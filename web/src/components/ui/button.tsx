@@ -7,7 +7,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "bg-primary text-primary-foreground hover:bg-destructive",
         // 장보기·다음 재료 담기 전용 (docs/design.md 7장: 화면당 하나)
         cta: "bg-accent text-accent-foreground hover:bg-destructive",
         outline:

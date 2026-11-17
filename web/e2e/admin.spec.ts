@@ -171,6 +171,15 @@ async function login(page: Page, user = ADMIN) {
   await page.getByRole("button", { name: "로그인" }).click();
 }
 
+test("공통 주 버튼: 오렌지 기본색과 호버 색에서 흰 글자의 대비를 유지한다", async ({ page }) => {
+  await page.goto("/admin");
+  const button = page.getByRole("button", { name: "로그인", exact: true });
+  await expect(button).toHaveCSS("background-color", "rgb(199, 68, 12)");
+  await noA11y(page);
+  await button.hover();
+  await noA11y(page);
+});
+
 async function openDetails(page: Page) {
   await login(page);
   const row = page.getByRole("listitem").filter({ has: page.getByRole("heading", { name: "두바이 초콜릿", exact: true }) });

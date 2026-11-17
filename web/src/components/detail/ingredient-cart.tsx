@@ -206,7 +206,7 @@ export function IngredientCart({ food }: { food: Food }) {
           {...nextLink}
           className="fixed inset-x-3 bottom-[max(12px,env(safe-area-inset-bottom))] z-20 flex items-center gap-3 rounded-bar bg-primary py-2.5 pr-2.5 pl-4 text-white shadow-bar hover:text-white lg:hidden"
         >
-          <span className="flex flex-1 flex-col text-[13px] text-footer-foreground">
+          <span className="flex flex-1 flex-col text-[13px] text-primary-foreground">
             {doneCount}/{toBuy.length} 담음, 쿠팡 파트너스 링크
             <b className="text-base text-white">다음: {baseName(next.name)}</b>
           </span>

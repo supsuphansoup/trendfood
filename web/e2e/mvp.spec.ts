@@ -301,8 +301,8 @@ test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page 
   await expect(page.getByLabel("광고")).toHaveCount(1);
 
   expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/^"?Pretendard Variable/);
-  expect(near(await rgb(page.locator("body")), "#273D35")).toBe(true);
-  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#B74423")).toBe(true);
+  expect(near(await rgb(page.locator("body")), "#222B3B")).toBe(true);
+  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#B83E0B")).toBe(true);
 
   await expectNoA11yViolations(page);
   for (const img of await page.locator("#list img").all()) await img.scrollIntoViewIfNeeded();
@@ -380,7 +380,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
 });
 
-test("배치 복원: 단일 대표·넓은 카드·크림과 그린 색상을 유지한다", async ({ page }, info) => {
+test("색상 개편: 단일 대표·넓은 배치와 화이트·오렌지·네이비를 유지한다", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
@@ -396,12 +396,14 @@ test("배치 복원: 단일 대표·넓은 카드·크림과 그린 색상을 �
   if (info.project.name === "desktop") expect(imageBox.x).toBeGreaterThan(titleBox.x + titleBox.width);
   else expect(imageBox.y + imageBox.height).toBeLessThanOrEqual(titleBox.y);
   await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(250, 247, 240)");
-  await expect(feature).toHaveCSS("background-color", "rgb(245, 223, 199)");
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(feature).toHaveCSS("background-color", "rgb(255, 137, 63)");
+  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(34, 43, 59)");
+  await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("background-color", "rgb(199, 68, 12)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "레시피 보기", exact: true });
-  await expect(cta).toHaveCSS("background-color", "rgb(49, 87, 71)");
+  await expect(cta).toHaveCSS("background-color", "rgb(34, 43, 59)");
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toBeInViewport();
   await page.screenshot({ path: `test-results/restored-theme-home-${info.project.name}.png` });
@@ -410,6 +412,7 @@ test("배치 복원: 단일 대표·넓은 카드·크림과 그린 색상을 �
   await page.goto("/");
   await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
   const firstCard = page.locator(".food-grid > li").first();
+  await expect(firstCard.getByRole("link", { name: "레시피 보기", exact: true })).toHaveCSS("background-color", "rgb(199, 68, 12)");
   expect(await firstCard.evaluate((el) => parseFloat(getComputedStyle(el).borderTopWidth))).toBe(1);
   const actions = firstCard.getByRole("link");
   for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);

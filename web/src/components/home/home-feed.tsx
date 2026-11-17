@@ -269,7 +269,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             <div className="mt-1 flex flex-wrap items-center gap-3">
               <Link
                 href={`/food/${top.slug}`}
-                className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground"
+                className="inline-flex min-h-12 items-center gap-3 rounded-full bg-foreground px-5 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground"
               >
                 {top.kind === "discovery" ? "음식 알아보기" : top.kind === "product" ? "제품 알아보기" : "레시피 보기"}<ArrowUpRight className="size-5" aria-hidden />
               </Link>
