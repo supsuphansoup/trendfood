@@ -41,7 +41,7 @@ export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean })
           {!food.editorial && <span>{food.category}</span>}
         </div>
         <div className="mt-auto flex flex-wrap gap-2 pt-3">
-          <Link href={href} className={cn(buttonVariants({ variant: "outline" }), "flex-1 rounded-full border-line-strong bg-background text-foreground hover:bg-secondary hover:text-foreground")}>
+          <Link href={href} className={cn(buttonVariants({ variant: "outline" }), "flex-1 rounded-full border-primary bg-primary text-primary-foreground hover:border-accent hover:bg-accent hover:text-accent-foreground")}>
             {food.kind === "discovery" ? "음식 알아보기" : food.kind === "product" ? "제품 알아보기" : "레시피 보기"}
             <ArrowUpRight className="size-4" aria-hidden />
           </Link>

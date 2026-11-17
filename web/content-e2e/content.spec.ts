@@ -9,6 +9,10 @@ const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/gen
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
   await page.goto("/");
+  await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "오늘의 음식", exact: true }).getByRole("link", { name: /^(레시피 보기|음식 알아보기|제품 알아보기)$/ })).toBeInViewport();
+  await page.screenshot({ path: `test-results/content/bold-home-${info.project.name}.png` });
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(snapshot.foods[0].name);
   if (snapshot.recommendation) {
     await expect(page.getByTestId("recommendation-edition")).toContainText(`추천 갱신 ${snapshot.recommendation.date}`);

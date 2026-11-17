@@ -16,7 +16,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
 
-  /* 주 버튼 = 진한 갈색 (레시피 보기·선택된 칩·단계 번호) */
+  /* 주 버튼 = 잉크색 (레시피 보기·단계 번호) */
   --primary: #24282B;
   --primary-foreground: oklch(1 0 0);
 
@@ -28,8 +28,8 @@
   --muted: #F1F3F4;
   --muted-foreground: #5C6268;
 
-  /* 강조 = 토마토 빨강 (순위 숫자, 장보기 CTA, 링크, 그래프) */
-  --accent: #B5471C;                            /* 작은 영역에만 쓰는 오렌지 */
+  /* 강조 = 진한 오렌지 (선택된 칩·순위·링크·그래프) */
+  --accent: #B83B09;
   --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.411 0.137 31.9);        /* #852212 */
@@ -71,8 +71,9 @@
   --sidebar-ring: oklch(0.510 0.171 31.9);
 
   --shadow-bar: 0 8px 24px oklch(0.245 0.024 49.5 / 0.35); /* 모바일 하단 고정 바 */
-  --feature-surface: #EDF0EB;                  /* 대표 음식의 차분한 세이지 면 */
-  --accent-soft: #FBEDE4;                      /* 배지 전용 옅은 오렌지 */
+  --brand: #FF6B0A;                           /* 로고와 이어지는 헤더 경계 */
+  --feature-surface: #FF8C42;                  /* 대표 음식의 선명한 오렌지 면 */
+  --accent-soft: #FFE4CF;                      /* 분류·선택 상태의 옅은 오렌지 */
 }
 
 @theme inline {
@@ -121,6 +122,7 @@
   --color-scrim: var(--scrim);
   --color-feature-surface: var(--feature-surface);
   --color-accent-soft: var(--accent-soft);
+  --color-brand: var(--brand);
 
   /* 글꼴은 이름을 직접 쓴다 (@theme inline 은 런타임 변수를 못 읽고, var(--font-sans) 는 자기 참조). Pretendard CSS 는 layout.tsx 에서 불러온다 */
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
@@ -144,8 +146,8 @@
   --text-card-title: 2rem;      /* 32px 카드 음식명 */
   --text-intro: 3rem;           /* 48px 홈 소개 */
   --text-intro-mobile: 2rem;    /* 32px 모바일 홈 소개 */
-  --text-feature: 3.5rem;      /* 56px 대표 음식명 */
-  --text-feature-mobile: 2.25rem; /* 36px 모바일 대표 음식명 */
+  --text-feature: 4rem;        /* 64px 대표 음식명 */
+  --text-feature-mobile: 2.5rem; /* 40px 모바일 대표 음식명 */
   --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */
 }
 
