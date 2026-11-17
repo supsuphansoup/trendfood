@@ -9,38 +9,38 @@
 
 :root {
   /* 기본 면·글자 */
-  --background: oklch(1 0 0);                    /* #FFFFFF */
-  --foreground: oklch(0.245 0.024 49.5);         /* #2A1D16 진한 갈색 */
+  --background: #F5F6F7;                        /* 차분한 회색 바탕 */
+  --foreground: #24282B;                        /* 잉크색 */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.245 0.024 49.5);
+  --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.245 0.024 49.5);
+  --popover-foreground: var(--foreground);
 
   /* 주 버튼 = 진한 갈색 (레시피 보기·선택된 칩·단계 번호) */
-  --primary: oklch(0.245 0.024 49.5);            /* #2A1D16 */
+  --primary: #24282B;
   --primary-foreground: oklch(1 0 0);
 
   /* 보조 = 칩 배경 */
-  --secondary: oklch(0.954 0.012 59.6);          /* #F6EEE8 */
-  --secondary-foreground: oklch(0.245 0.024 49.5);
+  --secondary: #ECEEF0;
+  --secondary-foreground: var(--foreground);
 
   /* 옅은 박스 (재료 행, 그래프 박스, 광고 자리) */
-  --muted: oklch(0.976 0.008 61.5);              /* #FBF6F2 */
-  --muted-foreground: oklch(0.424 0.031 55.4);   /* #5C4A3E 메타·캡션 */
+  --muted: #F1F3F4;
+  --muted-foreground: #5C6268;
 
   /* 강조 = 토마토 빨강 (순위 숫자, 장보기 CTA, 링크, 그래프) */
-  --accent: oklch(0.510 0.171 31.9);             /* #B3301B */
+  --accent: #B5471C;                            /* 작은 영역에만 쓰는 오렌지 */
   --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.411 0.137 31.9);        /* #852212 */
   --destructive-foreground: oklch(1 0 0);
 
-  --border: oklch(0.922 0.016 58.6);             /* #EEE3DB 구분선·박스 */
-  --input: oklch(0.634 0.036 55.1);              /* #9C8576 입력칸 테두리 (3:1 확보용, 시안 #D9C9BD 대체) */
-  --ring: oklch(0.510 0.171 31.9);               /* #B3301B 포커스 링 */
+  --border: #DFE3E6;
+  --input: #868D93;                             /* 입력 경계 대비 3:1 */
+  --ring: var(--accent);
 
   /* 그래프 */
-  --chart-1: oklch(0.510 0.171 31.9);            /* #B3301B 검색량 선 */
+  --chart-1: var(--accent);
   --chart-2: oklch(0.245 0.024 49.5);
   --chart-3: oklch(0.424 0.031 55.4);
   --chart-4: oklch(0.846 0.024 59.3);
@@ -49,13 +49,13 @@
   --radius: 0.75rem;                             /* 12px 버튼 기준 */
 
   /* 트렌드푸드 전용 */
-  --body-text: oklch(0.363 0.029 56.1);          /* #4A3A2F 본문 설명 */
-  --line-strong: oklch(0.846 0.024 59.3);        /* #D9C9BD 보조 버튼 테두리 (글자로 식별되는 곳만) */
+  --body-text: #454C52;
+  --line-strong: #C9CFD4;
   --line-dashed: oklch(0.804 0.027 58.2);        /* #CDBBAE 광고 자리 점선 */
   --key: oklch(0.393 0.122 32.7);                /* #7A2414 '핵심' 배지 글자 */
   --key-bg: oklch(0.933 0.029 39.3);             /* #FBE3DB '핵심' 배지 배경 */
   --success: oklch(0.475 0.095 150.4);           /* #2E6B3F '담았어요' */
-  --footer: oklch(0.245 0.024 49.5);             /* #2A1D16 */
+  --footer: var(--primary);
   --footer-foreground: oklch(0.910 0.017 61.9);  /* #EADFD6 */
   --footer-muted: oklch(0.813 0.023 63.1);       /* #CDBFB3 */
   --scrim: oklch(0.17 0.02 50);                  /* rgba(20,12,8) 히어로 그라데이션 */
@@ -71,6 +71,8 @@
   --sidebar-ring: oklch(0.510 0.171 31.9);
 
   --shadow-bar: 0 8px 24px oklch(0.245 0.024 49.5 / 0.35); /* 모바일 하단 고정 바 */
+  --feature-surface: #EDF0EB;                  /* 대표 음식의 차분한 세이지 면 */
+  --accent-soft: #FBEDE4;                      /* 배지 전용 옅은 오렌지 */
 }
 
 @theme inline {
@@ -117,6 +119,8 @@
   --color-footer-foreground: var(--footer-foreground);
   --color-footer-muted: var(--footer-muted);
   --color-scrim: var(--scrim);
+  --color-feature-surface: var(--feature-surface);
+  --color-accent-soft: var(--accent-soft);
 
   /* 글꼴은 이름을 직접 쓴다 (@theme inline 은 런타임 변수를 못 읽고, var(--font-sans) 는 자기 참조). Pretendard CSS 는 layout.tsx 에서 불러온다 */
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
@@ -138,10 +142,10 @@
   --text-hero-detail: 4.5rem;   /* 72px 상세 히어로 */
   --text-rank: 3.5rem;          /* 56px 순위 숫자 */
   --text-card-title: 2rem;      /* 32px 카드 음식명 */
-  --text-intro: 2.75rem;        /* 44px 홈 소개 */
-  --text-intro-mobile: 1.75rem; /* 28px 모바일 홈 소개 */
-  --text-feature: 4rem;        /* 64px 대표 음식명 */
-  --text-feature-mobile: 2.75rem; /* 44px 모바일 대표 음식명 */
+  --text-intro: 3rem;           /* 48px 홈 소개 */
+  --text-intro-mobile: 2rem;    /* 32px 모바일 홈 소개 */
+  --text-feature: 3.5rem;      /* 56px 대표 음식명 */
+  --text-feature-mobile: 2.25rem; /* 36px 모바일 대표 음식명 */
   --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */
 }
 

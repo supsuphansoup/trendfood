@@ -9,17 +9,17 @@ import { cn } from "@/lib/utils";
 export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean }) {
   const href = `/food/${food.slug}`;
   return (
-    <li className={cn("relative flex min-w-0 flex-col gap-4 border-b py-6", wide && "md:col-span-full md:grid md:grid-cols-2 md:items-center md:gap-6")}>
-      {food.imageAvailable ? <div className="relative aspect-[3/2] overflow-hidden rounded-3xl bg-secondary md:aspect-[4/3]">
+    <li className={cn("relative flex min-w-0 flex-col gap-4 rounded-3xl border bg-card p-4", wide && "md:col-span-full md:grid md:grid-cols-2 md:items-center md:gap-8")}>
+      {food.imageAvailable ? <div className="relative aspect-[3/2] overflow-hidden rounded-2xl bg-secondary md:aspect-[4/3]">
         <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0">
           <FoodImage food={food} sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 460px" />
         </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-3 right-3" />
         {food.editorial && <span className="absolute bottom-3 left-3 rounded-full bg-primary px-3 py-1.5 text-xs text-primary-foreground">{food.generatedImage ? "AI 생성 예시" : "참고 사진"}</span>}
       </div> : <LikeButton slug={food.slug} name={food.name} className="absolute top-5 right-0 md:top-7" />}
-      <div className={cn("flex flex-1 flex-col gap-2.5", !food.imageAvailable && "pr-14")}>
+      <div className={cn("flex flex-1 flex-col gap-2.5 px-1 pb-1", wide && "md:py-4 md:pr-6", !food.imageAvailable && "pr-14")}>
         <div className="flex min-h-7 items-center justify-between gap-3">
-          {food.editorial ? <span className="text-sm font-bold text-accent">{food.category}</span> : <span className="text-[32px] leading-none font-black tracking-[-0.04em] text-accent tabular-nums">
+          {food.editorial ? <span className="rounded-md bg-accent-soft px-2 py-1 text-sm font-bold text-accent">{food.category}</span> : <span className="text-[32px] leading-none font-black tracking-[-0.04em] text-accent tabular-nums">
             <span className="sr-only">순위 </span>
             {food.rank}
           </span>}
@@ -41,7 +41,7 @@ export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean })
           {!food.editorial && <span>{food.category}</span>}
         </div>
         <div className="mt-auto flex flex-wrap gap-2 pt-3">
-          <Link href={href} className={cn(buttonVariants({ variant: "outline" }), "flex-1 rounded-full border-line-strong text-foreground hover:text-accent")}>
+          <Link href={href} className={cn(buttonVariants({ variant: "outline" }), "flex-1 rounded-full border-line-strong bg-background text-foreground hover:bg-secondary hover:text-foreground")}>
             {food.kind === "discovery" ? "음식 알아보기" : food.kind === "product" ? "제품 알아보기" : "레시피 보기"}
             <ArrowUpRight className="size-4" aria-hidden />
           </Link>

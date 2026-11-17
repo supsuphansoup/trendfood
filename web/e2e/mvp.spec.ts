@@ -298,8 +298,8 @@ test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page 
   await expect(page.getByLabel("광고")).toHaveCount(1);
 
   expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/^"?Pretendard Variable/);
-  expect(near(await rgb(page.locator("body")), "#2A1D16")).toBe(true);
-  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#B3301B")).toBe(true);
+  expect(near(await rgb(page.locator("body")), "#24282B")).toBe(true);
+  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#B5471C")).toBe(true);
 
   await expectNoA11yViolations(page);
   for (const img of await page.locator("#list img").all()) await img.scrollIntoViewIfNeeded();
@@ -371,6 +371,30 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeInViewport();
   await page.goto("/");
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
+});
+
+test("절제된 포인트 UI: 대표 음식의 사진·버튼과 카드 경계를 구분한다", async ({ page }, info) => {
+  await page.goto("/");
+  const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
+  const photo = feature.getByRole("img").last();
+  await expect(photo).toBeVisible();
+  await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
+  const title = (await feature.getByRole("heading", { level: 1 }).boundingBox())!;
+  const image = (await photo.boundingBox())!;
+  if (info.project.name === "desktop") expect(title.x + title.width).toBeLessThanOrEqual(image.x);
+  else expect(image.y + image.height).toBeLessThanOrEqual(title.y);
+  const cta = feature.getByRole("link", { name: "레시피 보기", exact: true });
+  expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await page.screenshot({ path: `test-results/refined-home-${info.project.name}.png` });
+  await cta.click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
+  await page.goto("/");
+  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  const firstCard = page.locator(".food-grid > li").first();
+  expect(await firstCard.evaluate((el) => getComputedStyle(el).backgroundColor)).not.toBe(await page.locator("body").evaluate((el) => getComputedStyle(el).backgroundColor));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await expectNoA11yViolations(page);
+  await page.screenshot({ path: `test-results/refined-feed-${info.project.name}.png` });
 });
 
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {
