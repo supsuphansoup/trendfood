@@ -301,8 +301,8 @@ test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page 
   await expect(page.getByLabel("광고")).toHaveCount(1);
 
   expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/^"?Pretendard Variable/);
-  expect(near(await rgb(page.locator("body")), "#24282B")).toBe(true);
-  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#B83B09")).toBe(true);
+  expect(near(await rgb(page.locator("body")), "#273D35")).toBe(true);
+  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#B74423")).toBe(true);
 
   await expectNoA11yViolations(page);
   for (const img of await page.locator("#list img").all()) await img.scrollIntoViewIfNeeded();
@@ -352,11 +352,16 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;
-  expect(Math.abs(first.y - second.y)).toBeLessThan(2);
-  expect(second.x).toBeGreaterThan(first.x + first.width);
+  if (info.project.name === "desktop") {
+    expect(Math.abs(first.y - second.y)).toBeLessThan(2);
+    expect(second.x).toBeGreaterThan(first.x + first.width);
+  } else {
+    expect(second.x).toBe(first.x);
+    expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
+  }
   const third = (await cards.nth(2).boundingBox())!;
-  if (info.project.name === "desktop") expect(Math.abs(first.y - third.y)).toBeLessThan(2);
-  else expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
+  expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
+  if (info.project.name === "desktop") expect(third.width).toBeGreaterThan(first.width * 2);
   const layout = await page.evaluate(() => ({
     width: document.documentElement.scrollWidth,
     viewport: innerWidth,
@@ -375,7 +380,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
 });
 
-test("매거진 UI: 첫 화면의 세 음식·상시 카테고리·사진 피드로 탐색한다", async ({ page }, info) => {
+test("배치 복원: 단일 대표·넓은 카드·크림과 그린 색상을 유지한다", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
@@ -388,38 +393,30 @@ test("매거진 UI: 첫 화면의 세 음식·상시 카테고리·사진 피드
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;
   const titleBox = (await feature.getByRole("heading", { level: 1 }).boundingBox())!;
-  expect(imageBox.y + imageBox.height).toBeLessThanOrEqual(titleBox.y);
-  const related = page.getByRole("region", { name: "함께 둘러볼 음식", exact: true });
-  await expect(related.getByRole("link")).toHaveCount(2);
-  for (const image of await related.getByRole("img").all()) {
-    await expect(image).toBeInViewport();
-    await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.naturalWidth)).toBeGreaterThan(0);
-  }
-  const relatedBox = (await related.boundingBox())!;
-  if (info.project.name === "desktop") expect(relatedBox.x).toBeGreaterThan(featureBox.x + featureBox.width);
-  else expect(relatedBox.y).toBeGreaterThanOrEqual(featureBox.y + featureBox.height);
+  if (info.project.name === "desktop") expect(imageBox.x).toBeGreaterThan(titleBox.x + titleBox.width);
+  else expect(imageBox.y + imageBox.height).toBeLessThanOrEqual(titleBox.y);
+  await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
+  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(250, 247, 240)");
+  await expect(feature).toHaveCSS("background-color", "rgb(245, 223, 199)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "레시피 보기", exact: true });
+  await expect(cta).toHaveCSS("background-color", "rgb(49, 87, 71)");
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toBeInViewport();
-  await page.screenshot({ path: `test-results/magazine-home-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/restored-theme-home-${info.project.name}.png` });
   await cta.click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
   await page.goto("/");
   await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
   const firstCard = page.locator(".food-grid > li").first();
-  expect(await firstCard.evaluate((el) => parseFloat(getComputedStyle(el).borderTopWidth))).toBe(0);
+  expect(await firstCard.evaluate((el) => parseFloat(getComputedStyle(el).borderTopWidth))).toBe(1);
   const actions = firstCard.getByRole("link");
   for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expectNoA11yViolations(page);
-  await page.screenshot({ path: `test-results/magazine-feed-${info.project.name}.png` });
-  await page.goto("/");
-  const relatedLink = page.getByRole("region", { name: "함께 둘러볼 음식" }).getByRole("link").first();
-  const href = await relatedLink.getAttribute("href");
-  await relatedLink.click();
-  await expect(page).toHaveURL(href!);
+  await page.screenshot({ path: `test-results/restored-theme-feed-${info.project.name}.png` });
+
 });
 
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {

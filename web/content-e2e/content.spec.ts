@@ -12,9 +12,9 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "오늘의 음식", exact: true }).getByRole("link", { name: /^(레시피 보기|음식 알아보기|제품 알아보기)$/ })).toBeInViewport();
-  await expect(page.getByRole("region", { name: "함께 둘러볼 음식" }).getByRole("img")).toHaveCount(2);
-  for (const image of await page.getByRole("region", { name: "함께 둘러볼 음식" }).getByRole("img").all()) await expect(image).toBeInViewport();
-  await page.screenshot({ path: `test-results/content/magazine-home-${info.project.name}.png` });
+  await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
+  await expect(page.getByRole("region", { name: "오늘의 음식", exact: true })).toHaveCSS("background-color", "rgb(245, 223, 199)");
+  await page.screenshot({ path: `test-results/content/restored-theme-home-${info.project.name}.png` });
   await page.getByRole("button", { name: "필터", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(snapshot.foods[0].name);
   if (snapshot.recommendation) {
@@ -38,11 +38,16 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;
-  expect(Math.abs(first.y - second.y)).toBeLessThan(2);
-  expect(second.x).toBeGreaterThan(first.x + first.width);
+  if (info.project.name === "desktop") {
+    expect(Math.abs(first.y - second.y)).toBeLessThan(2);
+    expect(second.x).toBeGreaterThan(first.x + first.width);
+  } else {
+    expect(second.x).toBe(first.x);
+    expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
+  }
   const third = (await cards.nth(2).boundingBox())!;
-  if (info.project.name === "desktop") expect(Math.abs(first.y - third.y)).toBeLessThan(2);
-  else expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
+  expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
+  if (info.project.name === "desktop") expect(third.width).toBeGreaterThan(first.width * 2);
   await expect(cards.first().getByText(generatedImages[snapshot.foods[1].image] ? "AI 생성 예시" : "참고 사진", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/feed-${info.project.name}.png` });
@@ -223,8 +228,7 @@ test("전체 카드의 이미지를 로드하고 생성 표시·찜·상세·재
   await expect(cards.getByText("AI 생성 예시", { exact: true })).toHaveCount(snapshot.foods.slice(1).filter((item) => generatedImages[item.image]).length);
   await expect(cards.getByText("참고 사진", { exact: true })).toHaveCount(snapshot.foods.slice(1).filter((item) => item.image !== "pending" && !generatedImages[item.image]).length);
   const card = cards.filter({ has: page.getByRole("heading", { level: 3, name: food.name, exact: true }) });
-  if (info.project.name === "desktop") await expect(card.getByText(food.why, { exact: true })).toBeVisible();
-  else await expect(card.getByText(food.why, { exact: true })).toBeHidden();
+  await expect(card.getByText(food.why, { exact: true })).toBeVisible();
   await expect(page.getByText(/사진 준비 중/)).toHaveCount(0);
   const like = card.getByRole("button", { name: `${food.name} 찜하기`, exact: true });
   await like.click(); await expect(like).toHaveAttribute("aria-pressed", "true");
