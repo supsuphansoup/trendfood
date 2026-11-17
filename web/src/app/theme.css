@@ -146,8 +146,9 @@
   --text-card-title: 2rem;      /* 32px 카드 음식명 */
   --text-intro: 3rem;           /* 48px 홈 소개 */
   --text-intro-mobile: 2rem;    /* 32px 모바일 홈 소개 */
-  --text-feature: 4rem;        /* 64px 대표 음식명 */
-  --text-feature-mobile: 2.5rem; /* 40px 모바일 대표 음식명 */
+  --text-feature: 3rem;        /* 48px 대표 음식명 */
+  --text-feature-mobile: 2rem; /* 32px 모바일 대표 음식명 */
+  --text-feed-title: 1.25rem;  /* 20px 모바일 탐색 카드 */
   --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */
 }
 

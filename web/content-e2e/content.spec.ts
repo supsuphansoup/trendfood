@@ -12,7 +12,10 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "오늘의 음식", exact: true }).getByRole("link", { name: /^(레시피 보기|음식 알아보기|제품 알아보기)$/ })).toBeInViewport();
-  await page.screenshot({ path: `test-results/content/bold-home-${info.project.name}.png` });
+  await expect(page.getByRole("region", { name: "함께 둘러볼 음식" }).getByRole("img")).toHaveCount(2);
+  for (const image of await page.getByRole("region", { name: "함께 둘러볼 음식" }).getByRole("img").all()) await expect(image).toBeInViewport();
+  await page.screenshot({ path: `test-results/content/magazine-home-${info.project.name}.png` });
+  await page.getByRole("button", { name: "필터", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(snapshot.foods[0].name);
   if (snapshot.recommendation) {
     await expect(page.getByTestId("recommendation-edition")).toContainText(`추천 갱신 ${snapshot.recommendation.date}`);
@@ -35,7 +38,11 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;
-  expect(info.project.name === "desktop" ? Math.abs(first.y - second.y) < 2 : second.y >= first.y + first.height).toBe(true);
+  expect(Math.abs(first.y - second.y)).toBeLessThan(2);
+  expect(second.x).toBeGreaterThan(first.x + first.width);
+  const third = (await cards.nth(2).boundingBox())!;
+  if (info.project.name === "desktop") expect(Math.abs(first.y - third.y)).toBeLessThan(2);
+  else expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
   await expect(cards.first().getByText(generatedImages[snapshot.foods[1].image] ? "AI 생성 예시" : "참고 사진", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/feed-${info.project.name}.png` });
@@ -47,6 +54,7 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
 
 test("간식 탭 없이 기존 간식 주소는 전체로 열리고 음식 검색을 유지한다", async ({ page }, info) => {
   await page.goto("/?cat=" + encodeURIComponent("간식"));
+  await page.getByRole("button", { name: "필터", exact: true }).click();
   const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
   await expect(categories.getByRole("button", { name: /^간식/ })).toHaveCount(0);
   await expect(categories.getByRole("button", { name: /^전체/ })).toHaveAttribute("aria-current", "true");
@@ -62,8 +70,9 @@ test("간식 탭 없이 기존 간식 주소는 전체로 열리고 음식 검�
 
 test("정렬·태그·연도는 카테고리 아래에서 음식 목록을 필터링한다", async ({ page }, info) => {
   await page.goto("/");
+  await page.getByRole("button", { name: "필터", exact: true }).click();
   const filters = page.getByRole("complementary", { name: "음식 필터" });
-  const categories = filters.getByRole("navigation", { name: "카테고리", exact: true });
+  const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
   const sorting = filters.getByRole("navigation", { name: "정렬과 태그", exact: true });
   const years = filters.getByRole("navigation", { name: "유행 연도", exact: true });
   await expect(categories).toHaveCount(1);
@@ -73,12 +82,7 @@ test("정렬·태그·연도는 카테고리 아래에서 음식 목록을 필�
   const listBox = (await page.locator("#list").boundingBox())!;
   expect(sortBox.y).toBeGreaterThanOrEqual(categoryBox.y + categoryBox.height);
   expect(yearBox.y).toBeGreaterThanOrEqual(sortBox.y + sortBox.height);
-  if (info.project.name === "desktop") {
-    expect(sortBox.x + sortBox.width).toBeLessThan(listBox.x);
-    expect(yearBox.x + yearBox.width).toBeLessThan(listBox.x);
-  } else {
-    expect(yearBox.y + yearBox.height).toBeLessThanOrEqual(listBox.y);
-  }
+  expect(yearBox.y + yearBox.height).toBeLessThanOrEqual(listBox.y);
   await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
   await filters.getByRole("button", { name: "조리시간순", exact: true }).click();
   await filters.getByRole("button", { name: "#10분컷", exact: true }).click();
@@ -93,12 +97,22 @@ test("정렬·태그·연도는 카테고리 아래에서 음식 목록을 필�
   await years.getByRole("button", { name: "2024년", exact: true }).click();
   await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.history?.years.includes(2024)).map((food) => food.name));
   await expect(years.getByRole("button", { name: "2024년", exact: true })).toBeInViewport();
+  const selectedUrl = page.url();
+  const selectedTitles = await page.locator("#list li h3").allTextContents();
+  await page.getByRole("button", { name: "필터", exact: true }).click();
+  await expect(filters).toBeHidden();
+  await expect(page).toHaveURL(selectedUrl);
+  await expect(page.locator("#list li h3")).toHaveText(selectedTitles);
+  await page.screenshot({ path: `test-results/content/filters-closed-${info.project.name}.png` });
+  await page.getByRole("button", { name: "필터", exact: true }).click();
+  await expect(years.getByRole("button", { name: "2024년", exact: true })).toHaveAttribute("aria-pressed", "true");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/sidebar-years-${info.project.name}.png` });
 });
 
-test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 일치한다", async ({ page }, info) => {
+test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 일치한다", async ({ page }) => {
   await page.goto("/?year=2020");
+  await page.getByRole("button", { name: "필터", exact: true }).click();
   const years = page.getByRole("navigation", { name: "유행 연도" });
   for (const year of [...new Set(snapshot.foods.flatMap((food) => food.history?.years ?? []))].sort()) {
     await years.getByRole("button", { name: `${year}년`, exact: true }).click();
@@ -110,9 +124,7 @@ test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 �
   await expect.poll(async () => {
     const heading = await page.locator("#list h2").boundingBox();
     const navigation = await years.boundingBox();
-    return heading && navigation ? info.project.name === "desktop"
-      ? heading.x >= navigation.x + navigation.width && heading.y >= 0
-      : heading.y >= navigation.y + navigation.height : false;
+    return heading && navigation ? heading.y >= navigation.y + navigation.height && heading.y >= 0 : false;
   }).toBe(true);
   await page.goto("/?year=2024&q=밤");
   await expect(page.locator("#list li h3")).toHaveText(["밤 티라미수"]);
@@ -211,7 +223,8 @@ test("전체 카드의 이미지를 로드하고 생성 표시·찜·상세·재
   await expect(cards.getByText("AI 생성 예시", { exact: true })).toHaveCount(snapshot.foods.slice(1).filter((item) => generatedImages[item.image]).length);
   await expect(cards.getByText("참고 사진", { exact: true })).toHaveCount(snapshot.foods.slice(1).filter((item) => item.image !== "pending" && !generatedImages[item.image]).length);
   const card = cards.filter({ has: page.getByRole("heading", { level: 3, name: food.name, exact: true }) });
-  await expect(card.getByText(food.why, { exact: true })).toBeVisible();
+  if (info.project.name === "desktop") await expect(card.getByText(food.why, { exact: true })).toBeVisible();
+  else await expect(card.getByText(food.why, { exact: true })).toBeHidden();
   await expect(page.getByText(/사진 준비 중/)).toHaveCount(0);
   const like = card.getByRole("button", { name: `${food.name} 찜하기`, exact: true });
   await like.click(); await expect(like).toHaveAttribute("aria-pressed", "true");
