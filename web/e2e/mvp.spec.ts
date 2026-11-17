@@ -380,7 +380,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
 });
 
-test("사진 중심 개편: 선호 배치를 유지하고 사진 캡션·텍스트 탐색을 제공한다", async ({ page }, info) => {
+test("가독성 개편: 선호 배치에서 설명·안내를 읽고 구분된 버튼으로 이동한다", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
@@ -410,22 +410,33 @@ test("사진 중심 개편: 선호 배치를 유지하고 사진 캡션·텍스�
   await expect(cta).toHaveCSS("background-color", "rgb(212, 59, 18)");
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toBeInViewport();
-  await page.screenshot({ path: `test-results/photo-feed-home-${info.project.name}.png` });
+  await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
+  await expect(feature.locator("figcaption")).toHaveCSS("font-size", "14px");
+  await expect(feature.getByLabel("추천과 출처 안내")).toHaveCSS("font-size", "14px");
+  await page.screenshot({ path: `test-results/readable-home-${info.project.name}.png` });
   await cta.click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
   await page.goto("/");
   await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
   const firstCard = page.locator(".food-grid > li").first();
-  // 음식 탐색은 사진·제목·텍스트 링크로 제공하고 반복되는 채움 버튼과 바깥 상자를 없앤다.
+  // 본문을 자르지 않고, 읽기와 재료 구매의 행동 영역을 분리한다.
   const recipe = firstCard.getByRole("link", { name: "레시피 보기", exact: true });
-  await expect(recipe).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-  await expect(recipe).toHaveCSS("text-decoration-line", "underline");
-  expect(await firstCard.evaluate((el) => parseFloat(getComputedStyle(el).borderTopWidth))).toBe(0);
+  const ingredients = firstCard.getByRole("link", { name: /^재료 \d+개 담기$/ });
+  await expect(recipe).toHaveCSS("background-color", "rgb(37, 37, 37)");
+  await expect(recipe).toHaveCSS("font-size", "16px");
+  await expect(ingredients).toHaveCSS("border-top-width", "1px");
+  const description = firstCard.getByTestId("food-description");
+  await expect(description).toHaveCSS("font-size", "18px");
+  expect(await description.evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
+  expect(parseFloat(await description.evaluate((el) => getComputedStyle(el).lineHeight))).toBeGreaterThanOrEqual(30);
   const actions = firstCard.getByRole("link");
   for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expectNoA11yViolations(page);
-  await page.screenshot({ path: `test-results/photo-feed-feed-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/readable-feed-${info.project.name}.png` });
+  await ingredients.click();
+  await expect(page).toHaveURL(/#cart$/);
+  await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeInViewport();
 
 });
 

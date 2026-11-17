@@ -19,7 +19,9 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   const captionBox = (await feature.locator("figcaption").boundingBox())!;
   const photoBox = (await feature.locator("figure img").last().boundingBox())!;
   expect(captionBox.y).toBeGreaterThanOrEqual(photoBox.y + photoBox.height);
-  await page.screenshot({ path: `test-results/content/photo-feed-home-${info.project.name}.png` });
+  await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
+  await expect(feature.locator("figcaption")).toHaveCSS("font-size", "14px");
+  await page.screenshot({ path: `test-results/content/readable-home-${info.project.name}.png` });
   await page.getByRole("button", { name: "필터", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(snapshot.foods[0].name);
   if (snapshot.recommendation) {
@@ -58,6 +60,11 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
   if (info.project.name === "desktop") expect(third.width).toBeGreaterThan(first.width * 2);
   await expect(cards.first().getByText(generatedImages[snapshot.foods[1].image] ? "AI 생성 예시" : "참고 사진", { exact: true })).toBeVisible();
+  // 실제 음식의 긴 설명도 모바일에서 생략되지 않아야 한다.
+  for (const description of await cards.getByTestId("food-description").all()) {
+    await expect(description).toHaveCSS("font-size", "18px");
+    expect(await description.evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
+  }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/feed-${info.project.name}.png` });
 

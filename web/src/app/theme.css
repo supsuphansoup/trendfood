@@ -26,7 +26,7 @@
 
   /* 옅은 박스 (재료 행, 그래프 박스, 광고 자리) */
   --muted: #F7F7F5;
-  --muted-foreground: #686864;
+  --muted-foreground: #60656B;
 
   /* 강조 = 진한 오렌지 (선택된 칩·순위·링크·그래프) */
   --accent: #C03610;
@@ -49,7 +49,8 @@
   --radius: 0.75rem;                             /* 12px 버튼 기준 */
 
   /* 트렌드푸드 전용 */
-  --body-text: #50504C;
+  --body-text: #383C40;
+  --feed-surface: #F5F6F7;                     /* 음식 목록과 흰 설명 면 구분 */
   --line-strong: #C9C9C3;
   --line-dashed: oklch(0.804 0.027 58.2);        /* #CDBBAE 광고 자리 점선 */
   --key: oklch(0.393 0.122 32.7);                /* #7A2414 '핵심' 배지 글자 */
@@ -111,6 +112,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   --color-body: var(--body-text);
+  --color-feed-surface: var(--feed-surface);
   --color-line-strong: var(--line-strong);
   --color-line-dashed: var(--line-dashed);
   --color-key: var(--key);
@@ -137,7 +139,7 @@
   --radius-2xl: 1rem;      /* 16px 모바일 사진·영상·광고·옅은 박스 */
   --radius-3xl: 1.25rem;   /* 20px PC 사진 카드·장바구니 박스 */
   --radius-bar: 1.125rem;  /* 18px 모바일 하단 바 */
-  --radius-feature: 0.5rem; /* 8px 홈 사진·검색·대표 버튼 */
+  --radius-feature: 0.75rem; /* 12px 홈 사진·검색·음식 단위 */
 
   /* 글자 크기 (PC / 모바일은 docs/design.md 3장 표) */
   --text-hero: 5.5rem;          /* 88px 메인 히어로 */
@@ -150,6 +152,8 @@
   --text-feature-mobile: 2.25rem; /* 36px 모바일 대표 음식명 */
   --text-feed-title: 1.25rem;  /* 20px 모바일 탐색 카드 */
   --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */
+  --text-reading: 1.125rem;       /* 18px 음식 설명 */
+  --text-meta: 0.875rem;          /* 14px 날짜·사진 안내 최소 크기 */
 }
 
 @layer base {
