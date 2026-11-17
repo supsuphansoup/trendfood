@@ -10,33 +10,33 @@
 :root {
   /* 기본 면·글자 */
   --background: #FFFFFF;                        /* 음식 사진과 분리되는 흰 바탕 */
-  --foreground: #222B3B;                        /* 짙은 네이비 글자 */
+  --foreground: #252525;                        /* 음식 사진 옆에서 선명한 중성 먹색 */
   --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
 
   /* 주 버튼 = 선명한 오렌지 (레시피 보기·단계 번호) */
-  --primary: #C7440C;
+  --primary: #D43B12;
   --primary-foreground: oklch(1 0 0);
 
   /* 보조 = 칩 배경 */
-  --secondary: #F0F2F5;
+  --secondary: #F2F2F0;
   --secondary-foreground: var(--foreground);
 
   /* 옅은 박스 (재료 행, 그래프 박스, 광고 자리) */
-  --muted: #F6F7F9;
-  --muted-foreground: #626975;
+  --muted: #F7F7F5;
+  --muted-foreground: #686864;
 
   /* 강조 = 진한 오렌지 (선택된 칩·순위·링크·그래프) */
-  --accent: #B83E0B;
+  --accent: #C03610;
   --accent-foreground: oklch(1 0 0);
 
   --destructive: oklch(0.411 0.137 31.9);        /* #852212 */
   --destructive-foreground: oklch(1 0 0);
 
-  --border: #E1E4EA;
-  --input: #858C98;                             /* 입력 경계 대비 3:1 */
+  --border: #DEDEDA;
+  --input: #858580;                             /* 입력 경계 대비 3:1 */
   --ring: var(--accent);
 
   /* 그래프 */
@@ -49,15 +49,15 @@
   --radius: 0.75rem;                             /* 12px 버튼 기준 */
 
   /* 트렌드푸드 전용 */
-  --body-text: #454E5E;
-  --line-strong: #C8CED8;
+  --body-text: #50504C;
+  --line-strong: #C9C9C3;
   --line-dashed: oklch(0.804 0.027 58.2);        /* #CDBBAE 광고 자리 점선 */
   --key: oklch(0.393 0.122 32.7);                /* #7A2414 '핵심' 배지 글자 */
   --key-bg: oklch(0.933 0.029 39.3);             /* #FBE3DB '핵심' 배지 배경 */
   --success: oklch(0.475 0.095 150.4);           /* #2E6B3F '담았어요' */
   --footer: var(--foreground);
-  --footer-foreground: #F0F2F5;
-  --footer-muted: #C8CED8;
+  --footer-foreground: #F2F2F0;
+  --footer-muted: #C9C9C3;
   --scrim: oklch(0.17 0.02 50);                  /* rgba(20,12,8) 히어로 그라데이션 */
 
   /* 사이드바 (관리자 화면 전용, 공개 화면에는 사이드바 없음) */
@@ -72,8 +72,8 @@
 
   --shadow-bar: 0 8px 24px oklch(0.245 0.024 49.5 / 0.35); /* 모바일 하단 고정 바 */
   --brand: #FF6B0A;                           /* 로고와 이어지는 헤더 경계 */
-  --feature-surface: #FF893F;                  /* 대표 음식의 선명한 오렌지 면 */
-  --accent-soft: #FFF0E6;                      /* 분류·선택 상태의 옅은 오렌지 */
+  --feature-surface: #FFFFFF;                  /* 대표 음식은 바탕에 직접 배치한다 */
+  --accent-soft: #FFF1EA;                      /* 분류·선택 상태의 옅은 오렌지 */
 }
 
 @theme inline {
@@ -137,7 +137,7 @@
   --radius-2xl: 1rem;      /* 16px 모바일 사진·영상·광고·옅은 박스 */
   --radius-3xl: 1.25rem;   /* 20px PC 사진 카드·장바구니 박스 */
   --radius-bar: 1.125rem;  /* 18px 모바일 하단 바 */
-  --radius-feature: 1.75rem; /* 28px 대표 음식 패널 */
+  --radius-feature: 0.5rem; /* 8px 홈 사진·검색·대표 버튼 */
 
   /* 글자 크기 (PC / 모바일은 docs/design.md 3장 표) */
   --text-hero: 5.5rem;          /* 88px 메인 히어로 */

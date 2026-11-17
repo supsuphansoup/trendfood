@@ -13,8 +13,13 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
   await expect(page.getByRole("region", { name: "오늘의 음식", exact: true }).getByRole("link", { name: /^(레시피 보기|음식 알아보기|제품 알아보기)$/ })).toBeInViewport();
   await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "오늘의 음식", exact: true })).toHaveCSS("background-color", "rgb(255, 137, 63)");
-  await page.screenshot({ path: `test-results/content/restored-theme-home-${info.project.name}.png` });
+  await expect(page.getByRole("region", { name: "오늘의 음식", exact: true })).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
+  await expect(feature.locator("figcaption")).toContainText(generatedImages[snapshot.foods[0].image] ? "AI 생성 예시" : "참고 사진");
+  const captionBox = (await feature.locator("figcaption").boundingBox())!;
+  const photoBox = (await feature.locator("figure img").last().boundingBox())!;
+  expect(captionBox.y).toBeGreaterThanOrEqual(photoBox.y + photoBox.height);
+  await page.screenshot({ path: `test-results/content/photo-feed-home-${info.project.name}.png` });
   await page.getByRole("button", { name: "필터", exact: true }).click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(snapshot.foods[0].name);
   if (snapshot.recommendation) {
@@ -35,6 +40,10 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   await page.screenshot({ path: `test-results/content/home-${info.project.name}.png` });
   await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
   await expect(page.locator("#list h2")).toBeInViewport();
+  // 펼친 필터가 상단 탐색 아래로 일부만 남지 않게 목록 시작을 맞춘다.
+  const stickyBottom = await page.getByRole("region", { name: "필터 설정" }).evaluate((el) => el.getBoundingClientRect().bottom);
+  const listTop = await page.locator("#list").evaluate((el) => el.getBoundingClientRect().top);
+  expect(Math.abs(listTop - stickyBottom)).toBeLessThanOrEqual(2);
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;

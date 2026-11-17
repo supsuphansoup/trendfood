@@ -301,8 +301,8 @@ test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page 
   await expect(page.getByLabel("광고")).toHaveCount(1);
 
   expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/^"?Pretendard Variable/);
-  expect(near(await rgb(page.locator("body")), "#222B3B")).toBe(true);
-  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#B83E0B")).toBe(true);
+  expect(near(await rgb(page.locator("body")), "#252525")).toBe(true);
+  expect(near(await rgb(page.locator("#list li span.text-accent").first()), "#C03610")).toBe(true);
 
   await expectNoA11yViolations(page);
   for (const img of await page.locator("#list img").all()) await img.scrollIntoViewIfNeeded();
@@ -380,7 +380,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
 });
 
-test("색상 개편: 단일 대표·넓은 배치와 화이트·오렌지·네이비를 유지한다", async ({ page }, info) => {
+test("사진 중심 개편: 선호 배치를 유지하고 사진 캡션·텍스트 탐색을 제공한다", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
@@ -390,6 +390,10 @@ test("색상 개편: 단일 대표·넓은 배치와 화이트·오렌지·네�
   expect(featureBox.y - (header.y + header.height)).toBeLessThanOrEqual(32);
   const photo = feature.getByRole("img").last();
   await expect(photo).toBeVisible();
+  await expect(feature.locator("figcaption")).toContainText("데모 사진");
+  const captionBox = (await feature.locator("figcaption").boundingBox())!;
+  const photoBox = (await photo.boundingBox())!;
+  expect(captionBox.y).toBeGreaterThanOrEqual(photoBox.y + photoBox.height);
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;
   const titleBox = (await feature.getByRole("heading", { level: 1 }).boundingBox())!;
@@ -397,28 +401,31 @@ test("색상 개편: 단일 대표·넓은 배치와 화이트·오렌지·네�
   else expect(imageBox.y + imageBox.height).toBeLessThanOrEqual(titleBox.y);
   await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
   await expect(page.locator("body")).toHaveCSS("background-color", "rgb(255, 255, 255)");
-  await expect(feature).toHaveCSS("background-color", "rgb(255, 137, 63)");
-  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(34, 43, 59)");
-  await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("background-color", "rgb(199, 68, 12)");
+  await expect(feature).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(37, 37, 37)");
+  await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(212, 59, 18)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "레시피 보기", exact: true });
-  await expect(cta).toHaveCSS("background-color", "rgb(34, 43, 59)");
+  await expect(cta).toHaveCSS("background-color", "rgb(212, 59, 18)");
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toBeInViewport();
-  await page.screenshot({ path: `test-results/restored-theme-home-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/photo-feed-home-${info.project.name}.png` });
   await cta.click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
   await page.goto("/");
   await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
   const firstCard = page.locator(".food-grid > li").first();
-  await expect(firstCard.getByRole("link", { name: "레시피 보기", exact: true })).toHaveCSS("background-color", "rgb(199, 68, 12)");
-  expect(await firstCard.evaluate((el) => parseFloat(getComputedStyle(el).borderTopWidth))).toBe(1);
+  // 음식 탐색은 사진·제목·텍스트 링크로 제공하고 반복되는 채움 버튼과 바깥 상자를 없앤다.
+  const recipe = firstCard.getByRole("link", { name: "레시피 보기", exact: true });
+  await expect(recipe).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(recipe).toHaveCSS("text-decoration-line", "underline");
+  expect(await firstCard.evaluate((el) => parseFloat(getComputedStyle(el).borderTopWidth))).toBe(0);
   const actions = firstCard.getByRole("link");
   for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expectNoA11yViolations(page);
-  await page.screenshot({ path: `test-results/restored-theme-feed-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/photo-feed-feed-${info.project.name}.png` });
 
 });
 
