@@ -97,6 +97,38 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
       </section>
 
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-5 pt-8 pb-28 lg:pb-16">
+        {!discovery && <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+          <IngredientCart food={food} />
+
+          <div className="flex min-w-0 flex-col gap-9">
+            <section id="recipe" className="scroll-mt-6">
+              <div className="flex items-baseline justify-between gap-2.5 pb-2">
+                <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
+                <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>
+              </div>
+              <ol className="m-0 list-none p-0">
+                {food.steps.map((s, i) => (
+                  <li key={s.text} className="grid grid-cols-[44px_minmax(0,1fr)] gap-4 border-t py-[18px]">
+                    <span className="flex size-11 items-center justify-center rounded-full bg-primary text-lg font-black text-white">
+                      <span className="sr-only">단계 </span>
+                      {i + 1}
+                    </span>
+                    <div>
+                      <p className="text-base leading-[1.7] md:text-[17px]">{s.text}</p>
+                      {s.timerMinutes && <StepTimer minutes={s.timerMinutes} />}
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-2 rounded-2xl bg-muted px-[18px] py-4 text-[15px] leading-[1.7]">
+                <b>팁</b> {food.tip}
+              </p>
+            </section>
+
+            <AdSlot label="조리법 하단" className="h-[140px]" />
+          </div>
+        </div>}
+
         {food.photoCredit && "credit" in food.photoCredit && <p className="text-[13px] wrap-anywhere text-muted-foreground">
           사진: {food.photoCredit.sourceUrl ? <a href={food.photoCredit.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-block min-h-11 max-w-full content-center align-middle text-accent underline">{food.photoCredit.credit}</a> : food.photoCredit.credit}
           {food.photoCredit.license !== "직접 촬영" && ` · ${food.photoCredit.license}`}
@@ -166,50 +198,6 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
           </figure>}
         </section>
 
-        {!discovery && <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
-          <IngredientCart food={food} />
-
-          <div className="flex min-w-0 flex-col gap-9">
-            {food.convenience.length > 0 && <section className="flex flex-col gap-3">
-              <h2 className="text-2xl font-black tracking-[-0.02em]">편의점·마트에서 사서 맛보기</h2>
-              <p className="text-base text-body">직접 만들기 전에 맛부터 보고 싶다면 이런 곳을 찾아보세요.</p>
-              <ul className="m-0 grid list-none gap-2.5 p-0 sm:grid-cols-[repeat(auto-fill,minmax(220px,1fr))]">
-                {food.convenience.map((c) => (
-                  <li key={c.place} className="flex flex-col gap-1 rounded-2xl bg-muted p-4">
-                    <b className="text-base">{c.place}</b>
-                    <span className="text-sm leading-relaxed text-body">{c.desc}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>}
-
-            <section id="recipe" className="scroll-mt-6">
-              <div className="flex items-baseline justify-between gap-2.5 pb-2">
-              <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
-                <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>
-              </div>
-              <ol className="m-0 list-none p-0">
-                {food.steps.map((s, i) => (
-                  <li key={s.text} className="grid grid-cols-[44px_minmax(0,1fr)] gap-4 border-t py-[18px]">
-                    <span className="flex size-11 items-center justify-center rounded-full bg-primary text-lg font-black text-white">
-                      <span className="sr-only">단계 </span>
-                      {i + 1}
-                    </span>
-                    <div>
-                      <p className="text-base leading-[1.7] md:text-[17px]">{s.text}</p>
-                      {s.timerMinutes && <StepTimer minutes={s.timerMinutes} />}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-              <p className="mt-2 rounded-2xl bg-muted px-[18px] py-4 text-[15px] leading-[1.7]">
-                <b>팁</b> {food.tip}
-              </p>
-            </section>
-
-            <AdSlot label="조리법 하단" className="h-[140px]" />
-          </div>
-        </div>}
       </main>
       <SiteFooter />
     </>

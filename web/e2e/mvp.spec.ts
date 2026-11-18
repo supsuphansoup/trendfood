@@ -128,12 +128,23 @@ test("원본 영상 개인정보 안내: 제목·Google 방침 링크", async ({
   await expect(link).toHaveAttribute("rel", "noopener noreferrer");
 });
 
-test("상세: 사서 맛보기가 비면 구역을 숨기고 값이 있으면 표시한다", async ({ page }) => {
-  await page.goto("/food/egg-green-onion-ramyeon");
-  await expect(page.getByRole("heading", { name: "계란 파 라면", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "편의점·마트에서 사서 맛보기", exact: true })).toHaveCount(0);
-  await page.goto("/food/dubai-chocolate");
-  await expect(page.getByRole("heading", { name: "편의점·마트에서 사서 맛보기", exact: true })).toBeVisible();
+test("상세: 재료·만드는 법을 소개보다 먼저 보여주고 사서 맛보기는 표시하지 않는다", async ({ page }) => {
+  for (const slug of ["egg-green-onion-ramyeon", "dubai-chocolate"]) {
+    await page.goto(`/food/${slug}`);
+    await expect(page.getByRole("heading", { name: "편의점·마트에서 사서 맛보기", exact: true })).toHaveCount(0);
+    if (slug === "egg-green-onion-ramyeon") {
+      await expect(page.locator("#cart, #recipe")).toHaveCount(0);
+      continue;
+    }
+    const headings = page.getByRole("main").getByRole("heading", { level: 2 });
+    await expect(headings.nth(0)).toHaveText("재료 장바구니");
+    await expect(headings.nth(1)).toHaveText("만드는 법");
+    await expect(headings.nth(2)).toHaveText("왜 지금 뜨고 있나요");
+    const cart = (await page.locator("#cart").boundingBox())!;
+    const recipe = (await page.locator("#recipe").boundingBox())!;
+    const introduction = (await headings.nth(2).boundingBox())!;
+    expect(introduction.y).toBeGreaterThan(Math.max(cart.y + cart.height, recipe.y + recipe.height));
+  }
 });
 
 test("필수 페이지: 본문·시행일·메일·접근성·가로 넘침", async ({ page }, info) => {

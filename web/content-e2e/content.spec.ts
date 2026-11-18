@@ -227,7 +227,27 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
     if (food.kind === "discovery") {
       await expect(page.locator("#cart, #recipe")).toHaveCount(0);
       await expect(page.getByRole("link", { name: "소개 출처 보기" })).toBeVisible();
-    } else await expect(page.locator("#cart").getByText(/사용량/).first()).toBeVisible();
+    } else {
+      await expect(page.locator("#cart").getByText(/사용량/).first()).toBeVisible();
+      const headings = page.getByRole("main").getByRole("heading", { level: 2 });
+      await expect(headings.nth(0)).toHaveText(food.kind === "product" ? "제품 장바구니" : "재료 장바구니");
+      await expect(headings.nth(1)).toHaveText(food.kind === "product" ? "고르고 즐기는 법" : "만드는 법");
+      await expect(headings.nth(2)).toHaveText("어떤 음식인가요");
+      const cart = (await page.locator("#cart").boundingBox())!;
+      const recipe = (await page.locator("#recipe").boundingBox())!;
+      const introduction = (await headings.nth(2).boundingBox())!;
+      const sourceBox = (await sources.boundingBox())!;
+      const cookingBottom = Math.max(cart.y + cart.height, recipe.y + recipe.height);
+      expect(introduction.y).toBeGreaterThan(cookingBottom);
+      expect(sourceBox.y).toBeGreaterThan(cookingBottom);
+      if (food.slug === "dubai-chewy-cookie") {
+        await page.locator("#cart").scrollIntoViewIfNeeded();
+        await page.screenshot({ path: `test-results/content/detail-cooking-first-${info.project.name}.png` });
+        await headings.nth(2).scrollIntoViewIfNeeded();
+        await page.screenshot({ path: `test-results/content/detail-introduction-bottom-${info.project.name}.png` });
+      }
+    }
+    await expect(page.getByRole("heading", { name: "편의점·마트에서 사서 맛보기", exact: true })).toHaveCount(0);
     const firstIngredient = food.ingredients.find((ingredient) => !ingredient.pantry);
     if (firstIngredient?.url) {
       const purchase = page.locator("#cart").getByRole("link", { name: `장보기 시작: ${firstIngredient.name}`, exact: true });
