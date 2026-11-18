@@ -57,6 +57,29 @@ test("기존 열 개 주소를 보존하고 2020~2026년 모두 근거 있는 �
   assert.deepEqual(foods.filter((food) => food.kind === "product").map((food) => food.slug).sort(), ["meoktaekkang", "pokemon-bread", "yonsei-cream-bread"]);
 });
 
+test("자취 요리 40개는 실사·원문·분량이 있는 비유행 레시피로 추가한다", () => {
+  const { foods } = parseContent(input);
+  const additions = foods.filter((food) => food.image.startsWith("photo-everyday-"));
+  assert.equal(additions.length, 40);
+  assert.ok(foods.filter((food) => !food.history && (!food.kind || food.kind === "recipe")).length >= 48);
+  for (const slug of ["kimchi-fried-rice", "soy-sauce-egg-rice", "curry-rice", "kimchi-jjigae", "gyeran-mari", "dubu-jorim", "bibim-guksu", "egg-sandwich"]) {
+    assert.ok(additions.some((food) => food.slug === slug), slug);
+  }
+  for (const food of additions) {
+    assert.equal(food.kind, "recipe");
+    assert.equal(food.history, undefined);
+    assert.ok(food.tags.includes("자취생"));
+    assert.ok(food.cookMinutes <= 45);
+    assert.ok(food.ingredients.length >= 2 && food.ingredients.length <= 15);
+    assert.ok(food.steps.length >= 3 && food.steps.length <= 4);
+    assert.match(food.recipeNote, /AI 요약/);
+    assert.equal(generatedImages[food.image], undefined);
+    assert.ok(validPhotoSource(photoCredits[food.image]), food.slug);
+    assert.equal(photoCredits[food.image].verifiedAt, "2026-11-18");
+    assert.ok(food.ingredients.every((ingredient) => ingredient.url === undefined));
+  }
+});
+
 test("실사 사진은 허용 라이선스·출처와 파일을 보존한다", async () => {
   const { foods } = parseContent(input);
   for (const food of foods.filter((food) => food.image !== "pending" && !generatedImages[food.image])) {

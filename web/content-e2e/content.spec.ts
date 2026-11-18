@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import type { ContentSnapshot } from "../src/data/content";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
-const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { licenseUrl: string; license: string; title: string }>;
+const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { licenseUrl: string; license: string; title: string; automatic?: boolean }>;
 const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, { note: string }>;
 
 test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유 주소를 유지한다", async ({ page }, info) => {
@@ -102,6 +102,24 @@ test("자취 요리 카테고리: 비유행 레시피만 모으고 연도·주�
   await expect(everyday).toHaveAttribute("aria-current", "true");
   await expect(page).not.toHaveURL(/year=/);
   await expect(page.locator("#list li h3")).toHaveText(recipes.map((food) => food.name));
+});
+
+test("추가 자취 요리는 검색·실사·재료 분량과 일반 구매 검색을 제공한다", async ({ page }) => {
+  await page.goto("/?collection=everyday&q=두부조림");
+  await expect(page.locator("#list li h3")).toHaveText(["두부조림"]);
+  await page.locator("#list").getByRole("link", { name: "음식 살펴보기", exact: true }).click();
+  await expect(page).toHaveURL(/\/food\/dubu-jorim\/?$/);
+  const food = snapshot.foods.find((food) => food.slug === "dubu-jorim")!;
+  const cart = page.getByRole("region", { name: "재료 장바구니", exact: true });
+  await expect(cart.getByRole("checkbox")).toHaveCount(food.ingredients.length);
+  await expect(cart.getByText("사용량 300g", { exact: true })).toBeVisible();
+  const purchase = cart.getByRole("link", { name: "장보기 시작: 두부", exact: true });
+  await expect(purchase).toHaveAttribute("href", /^https:\/\/www\.coupang\.com\/np\/search\?/);
+  await expect(purchase).toHaveAttribute("target", "_blank");
+  const image = page.getByRole("region", { name: "음식 소개", exact: true }).getByRole("img", { name: food.alt, exact: true });
+  await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  await expect(page.getByRole("link", { name: /사진 출처/ })).toBeVisible();
+  await expect(page.getByText(/AI 생성 예시 ·/)).toHaveCount(0);
 });
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
@@ -341,10 +359,11 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       if (automatic) {
         await expect(sources.getByText(automatic.title, { exact: true })).toBeVisible();
         await expect(sources.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", automatic.licenseUrl);
-        await expect(sources.getByText(/운영자의 개별 검수는 하지 않았어요/)).toBeVisible();
+        if (automatic.automatic) await expect(sources.getByText(/운영자의 개별 검수는 하지 않았어요/)).toBeVisible();
         if (automatic.license.startsWith("CC BY")) await expect(sources.getByText(/변환본은 원본과 같은/)).toBeVisible();
       }
       if (food.image.startsWith("photo-reviewed-")) await page.screenshot({ path: `test-results/content/real-${food.slug}-${info.project.name}.png` });
+      if (food.slug === "kimchi-fried-rice") await page.screenshot({ path: `test-results/content/everyday-detail-${info.project.name}.png`, fullPage: true });
     }
     await expect(page.getByText(/원본 영상 자리|좋아요 \d|참고 금액|검수했어요/)).toHaveCount(0);
     await expect(page.getByRole("img", { name: /검색량.*그래프/ })).toHaveCount(0);

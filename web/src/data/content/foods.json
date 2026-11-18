@@ -2463,6 +2463,3120 @@
           }
         ]
       }
+    },
+    {
+      "slug": "kimchi-fried-rice",
+      "name": "김치볶음밥",
+      "kind": "recipe",
+      "why": "익은 김치와 밥으로 만드는 한 팬 식사. 김치 국물을 조금 넣으면 양념이 고르게 배어요.",
+      "summary": "잘게 썬 김치를 먼저 볶은 뒤 밥과 고추장을 섞는 볶음밥이에요. 남은 밥과 김치를 함께 쓰기 좋아요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-kimchi-fried-rice",
+      "alt": "김치볶음밥 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "밥",
+          "amount": "3컵(약 600g)"
+        },
+        {
+          "name": "김치",
+          "amount": "1컵(약 150g)"
+        },
+        {
+          "name": "김치 국물",
+          "amount": "60ml"
+        },
+        {
+          "name": "물",
+          "amount": "60ml",
+          "pantry": true
+        },
+        {
+          "name": "고추장",
+          "amount": "2큰술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "대파",
+          "amount": "1대"
+        },
+        {
+          "name": "깨",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "김",
+          "amount": "1장"
+        }
+      ],
+      "steps": [
+        {
+          "text": "김치는 잘게 썰고 대파와 김도 먹기 좋은 크기로 준비해요."
+        },
+        {
+          "text": "팬에 식용유를 두르고 김치를 약 1분 볶아요. 밥·김치 국물·물·고추장을 넣어요."
+        },
+        {
+          "text": "밥 덩어리를 풀며 약 7분 볶아요. 참기름을 섞고 대파·깨·김을 올려요."
+        }
+      ],
+      "tip": "김치의 짠맛에 따라 고추장은 적게 넣고 조절하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Kimchi fried rice",
+          "url": "https://www.maangchi.com/recipe/kimchi-bokkeumbap"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 2~3인분 배합을 두 사람이 넉넉히 먹는 양으로 안내해요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "soy-sauce-egg-rice",
+      "name": "간장계란밥",
+      "kind": "recipe",
+      "why": "달걀 프라이 하나면 완성. 따뜻한 밥에 버터와 간장을 섞어 먹어요.",
+      "summary": "따뜻한 밥 위에 달걀을 얹고 간장으로 간을 하는 한 그릇 요리예요. 별도 소스를 끓일 필요가 없어요.",
+      "category": "밥",
+      "tags": [
+        "자취생",
+        "10분컷"
+      ],
+      "cookMinutes": 10,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-soy-sauce-egg-rice",
+      "alt": "간장계란밥 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "밥",
+          "amount": "200g"
+        },
+        {
+          "name": "달걀",
+          "amount": "1개"
+        },
+        {
+          "name": "식용유",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "버터",
+          "amount": "10g"
+        },
+        {
+          "name": "계란용 간장",
+          "amount": "20g",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "팬에 식용유를 두르고 중불에서 달걀 프라이를 만들어요. 원하는 익힘까지 양면을 익혀요."
+        },
+        {
+          "text": "따뜻한 밥에 달걀과 버터를 올려요."
+        },
+        {
+          "text": "계란용 간장을 조금씩 넣어 섞으며 간을 맞춰요."
+        }
+      ],
+      "tip": "일반 진간장은 짠맛이 다르니 한꺼번에 같은 양을 붓지 말고 조금씩 넣으세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 국민 자취요리 간장계란밥",
+          "url": "https://semie.cooking/recipe-lab/archive/ganjang-egg-rice"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "egg-fried-rice",
+      "name": "계란볶음밥",
+      "kind": "recipe",
+      "why": "밥과 달걀에 잘게 썬 채소를 더하는 기본 볶음밥. 한 팬에서 차례로 볶아요.",
+      "summary": "달걀을 부드럽게 익힌 뒤 밥과 채소를 섞는 볶음밥이에요. 양파와 당근을 작게 썰면 밥과 함께 떠먹기 편해요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-egg-fried-rice",
+      "alt": "계란볶음밥 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "밥",
+          "amount": "200g"
+        },
+        {
+          "name": "달걀",
+          "amount": "1개"
+        },
+        {
+          "name": "양파",
+          "amount": "35g"
+        },
+        {
+          "name": "당근",
+          "amount": "20g"
+        },
+        {
+          "name": "쪽파",
+          "amount": "10g"
+        },
+        {
+          "name": "식용유",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "연두진",
+          "amount": "10g",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "양파·당근·쪽파를 잘게 썰고 달걀을 풀어요."
+        },
+        {
+          "text": "팬에 기름을 두르고 달걀을 저으며 익혀요. 반쯤 익으면 팬 가장자리에 연두를 넣어요."
+        },
+        {
+          "text": "밥을 넣어 약 2분 볶고 채소를 더해 약 2분 더 볶아요. 달걀과 채소가 익으면 마무리해요."
+        }
+      ],
+      "tip": "밥 덩어리를 주걱으로 풀어 주면 달걀과 채소가 고르게 섞여요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 감칠맛 넘치는 계란볶음밥",
+          "url": "https://semie.cooking/recipe-lab/archive/egg-fried-rice"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "buchu-jeon",
+      "name": "부추전",
+      "kind": "recipe",
+      "why": "부추와 양파를 밀가루 반죽에 섞어 얇게 부쳐요. 반죽을 따로 숙성할 필요가 없어요.",
+      "summary": "부추의 향을 살리는 간단한 채소 전이에요. 작은 팬이라면 반죽을 나누어 부치면 뒤집기가 수월해요.",
+      "category": "분식",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-buchu-jeon",
+      "alt": "부추전 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "부추",
+          "amount": "약 110g"
+        },
+        {
+          "name": "양파",
+          "amount": "잘게 썬 것 1/4컵"
+        },
+        {
+          "name": "밀가루",
+          "amount": "3/4컵"
+        },
+        {
+          "name": "물",
+          "amount": "180ml",
+          "pantry": true
+        },
+        {
+          "name": "액젓",
+          "amount": "2작은술",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "2~4큰술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "부추를 짧게 썰고 양파를 잘게 다져요. 밀가루·물·액젓을 섞은 뒤 채소를 넣어요."
+        },
+        {
+          "text": "중강불로 달군 팬에 기름을 두르고 반죽을 얇게 펼쳐 3~5분 구워요."
+        },
+        {
+          "text": "뒤집고 가장자리에 기름을 조금 보충해 2~3분 익혀요. 양면을 한 번 더 살펴 바삭하게 마무리해요."
+        }
+      ],
+      "tip": "큰 전 한 장이 부담되면 작은 전 두 장으로 나누어 부치세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Chive pancake",
+          "url": "https://www.maangchi.com/recipe/buchujeon"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "omurice",
+      "name": "오므라이스",
+      "kind": "recipe",
+      "why": "케첩 볶음밥에 달걀을 덮는 한 접시 식사. 돈가스 소스로 마무리해요.",
+      "summary": "잘게 썬 채소를 넣은 볶음밥과 얇은 달걀 지단을 함께 먹는 요리예요. 지단으로 완전히 감싸지 않고 덮어도 돼요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-omurice",
+      "alt": "오므라이스 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "밥",
+          "amount": "210g"
+        },
+        {
+          "name": "달걀",
+          "amount": "2개"
+        },
+        {
+          "name": "애호박",
+          "amount": "40g"
+        },
+        {
+          "name": "양파",
+          "amount": "25g"
+        },
+        {
+          "name": "당근",
+          "amount": "20g"
+        },
+        {
+          "name": "케첩",
+          "amount": "30g",
+          "pantry": true
+        },
+        {
+          "name": "돈가스 소스",
+          "amount": "40g",
+          "pantry": true
+        },
+        {
+          "name": "올리고당",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "30ml",
+          "pantry": true
+        },
+        {
+          "name": "소금·후추",
+          "amount": "약간",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "물·돈가스 소스·케첩 20g·올리고당을 약불에 끓여 소스를 만들어요."
+        },
+        {
+          "text": "양파·애호박·당근을 작게 썰어요. 팬에 기름 일부를 두르고 채소를 볶아요."
+        },
+        {
+          "text": "밥과 남은 케첩 10g을 넣어 볶고 소금·후추로 간을 맞춰요."
+        },
+        {
+          "text": "달걀을 풀어 남은 기름을 두른 팬에 얇게 익혀요. 볶음밥을 담고 지단과 소스를 올려요."
+        }
+      ],
+      "tip": "지단이 찢어져도 밥 위에 그대로 덮으면 돼요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "오뚜기레시피 · 오므라이스",
+          "url": "https://www.okitchen.co.kr/category/m_detail?idx=1319"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 선택 마요네스 토핑은 생략했어요. 시간은 편집 예상치예요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "curry-rice",
+      "name": "카레라이스",
+      "kind": "recipe",
+      "why": "고기와 채소를 썰어 볶고 카레가루를 풀면 끝. 두 끼 분량을 한 번에 만들기 좋아요.",
+      "summary": "감자·당근·양파와 소고기를 넣는 기본 카레예요. 밥 위에 얹어 먹는 한 그릇 식사로 정리했어요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 30,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-curry-rice",
+      "alt": "카레라이스 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "밥",
+          "amount": "2공기"
+        },
+        {
+          "name": "소고기 카레용",
+          "amount": "100g"
+        },
+        {
+          "name": "감자",
+          "amount": "75g"
+        },
+        {
+          "name": "양파",
+          "amount": "100g"
+        },
+        {
+          "name": "당근",
+          "amount": "25g"
+        },
+        {
+          "name": "카레가루",
+          "amount": "50g"
+        },
+        {
+          "name": "식용유",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "300ml",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "고기와 채소를 한입 크기로 썰어요. 물 일부에 카레가루를 미리 풀어요."
+        },
+        {
+          "text": "냄비에 기름을 두르고 고기를 볶아요. 당근·감자·양파 순으로 넣어 함께 볶아요."
+        },
+        {
+          "text": "남은 물과 풀어 둔 카레를 넣고 저어요. 감자가 부드러워지고 고기가 완전히 익을 때까지 끓여 밥에 얹어요."
+        }
+      ],
+      "tip": "카레 제품마다 권장 물 양이 다르면 포장 안내에 맞춰 농도를 조절하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 소고기 카레, 어렵지 않아요",
+          "url": "https://semie.cooking/recipe-lab/archive/easy-beef-curry"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 4인분을 절반으로 환산하고 밥을 추가했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "mapo-tofu",
+      "name": "마파두부",
+      "kind": "recipe",
+      "why": "다진 돼지고기와 두부를 매콤하게 끓이는 밥반찬. 두반장으로 맛을 잡아요.",
+      "summary": "두부를 고기 양념에 짧게 끓이고 전분물로 농도를 내는 요리예요. 밥에 얹으면 덮밥으로도 먹을 수 있어요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 40,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-mapo-tofu",
+      "alt": "마파두부 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "두부",
+          "amount": "300g"
+        },
+        {
+          "name": "다진 돼지고기",
+          "amount": "100g"
+        },
+        {
+          "name": "대파",
+          "amount": "30g"
+        },
+        {
+          "name": "다진 마늘",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "다진 생강",
+          "amount": "3g",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "고추기름",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "두반장",
+          "amount": "15g",
+          "pantry": true
+        },
+        {
+          "name": "굴소스",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "진간장",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "2g",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "145ml",
+          "pantry": true
+        },
+        {
+          "name": "전분",
+          "amount": "5g",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "약간",
+          "pantry": true
+        },
+        {
+          "name": "후추",
+          "amount": "약간",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "두부를 깍둑썰고 대파를 잘게 썰어요. 전분은 물 15ml에 풀어 둬요."
+        },
+        {
+          "text": "팬에 기름과 고기를 넣고 충분히 볶아요. 간장을 팬 가장자리에 넣고 대파·마늘·생강을 더해 볶아요."
+        },
+        {
+          "text": "두반장·굴소스·설탕·고추기름·후추와 두부, 물 130ml를 넣어 끓여요."
+        },
+        {
+          "text": "고기가 완전히 익으면 전분물을 조금씩 넣어 저어요. 걸쭉해지면 참기름으로 마무리해요."
+        }
+      ],
+      "tip": "전분물은 가라앉으니 넣기 직전에 다시 섞으세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 두반장으로 만드는 마파두부",
+          "url": "https://semie.cooking/recipe-lab/archive/mapo-tofu-with-chili-bean-sauce"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 선택 고추 토핑을 생략했어요. 밥은 별도로 준비하세요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "yubu-chobap",
+      "name": "유부초밥",
+      "kind": "recipe",
+      "why": "조미 유부초밥 세트와 밥으로 간단하게. 불 없이 밥을 채워 완성해요.",
+      "summary": "조미 유부에 양념한 밥을 넣는 요리예요. 세트에 든 초밥 소스와 볶음 조미료를 활용해 양념 수를 줄여요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "2인분(14개)",
+      "image": "photo-everyday-yubu-chobap",
+      "alt": "유부초밥 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "유부초밥 세트",
+          "amount": "14개용 1봉(초밥 소스·조미료 포함)"
+        },
+        {
+          "name": "밥",
+          "amount": "300g"
+        }
+      ],
+      "steps": [
+        {
+          "text": "따뜻한 밥에 세트의 초밥 소스를 조금씩 넣어 섞어요. 입맛에 맞게 양을 조절해요."
+        },
+        {
+          "text": "유부의 국물을 가볍게 짜고 입구를 조심스럽게 벌려요."
+        },
+        {
+          "text": "유부마다 밥을 약 2큰술씩 넣어요. 세트의 볶음 조미료를 묻히거나 밥에 섞어 마무리해요."
+        }
+      ],
+      "tip": "유부가 찢어지지 않게 밥을 조금씩 채우세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Seasoned fried tofu pockets",
+          "url": "https://www.maangchi.com/recipe/yubuchobap"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "bibim-guksu",
+      "name": "비빔국수",
+      "kind": "recipe",
+      "why": "삶은 소면에 김치 양념을 비벼요. 오이와 삶은 달걀을 올리면 한 그릇이 돼요.",
+      "summary": "김치와 고추장 양념을 차가운 소면에 섞는 매콤한 국수예요. 미리 삶은 달걀을 쓰면 별도 국물을 만들 필요가 없어요.",
+      "category": "면",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-bibim-guksu",
+      "alt": "비빔국수 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "소면",
+          "amount": "110g"
+        },
+        {
+          "name": "김치",
+          "amount": "약 110g"
+        },
+        {
+          "name": "김치 국물 또는 물",
+          "amount": "60ml"
+        },
+        {
+          "name": "고추장",
+          "amount": "2큰술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1작은술(선택)",
+          "pantry": true
+        },
+        {
+          "name": "마늘",
+          "amount": "1쪽",
+          "pantry": true
+        },
+        {
+          "name": "오이",
+          "amount": "채 썬 것 1/2컵"
+        },
+        {
+          "name": "참기름",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "삶은 달걀",
+          "amount": "1개"
+        }
+      ],
+      "steps": [
+        {
+          "text": "김치와 마늘을 다지고 오이는 채 썰어요. 김치·김치 국물·고추장·마늘을 섞고 필요하면 설탕을 넣어요."
+        },
+        {
+          "text": "소면을 포장 시간에 맞게 삶고 찬물에 헹궈 물기를 충분히 빼요."
+        },
+        {
+          "text": "소면에 양념과 참기름을 비벼요. 오이·삶은 달걀·깨를 올려요."
+        }
+      ],
+      "tip": "면의 물기를 잘 빼야 양념이 싱거워지지 않아요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Spicy mixed noodles",
+          "url": "https://www.maangchi.com/recipe/bibim-guksu"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 달걀은 삶아진 제품 기준이에요. 직접 삶는다면 그 시간을 더해 주세요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "janchi-guksu",
+      "name": "잔치국수",
+      "kind": "recipe",
+      "why": "코인 육수에 채소를 끓이고 소면을 더해요. 별도 지단 없이 간편하게 만들어요.",
+      "summary": "멸치·디포리 계열 육수를 활용한 따뜻한 소면 국수예요. 채소를 국물에서 익히는 방식으로 준비 과정을 줄여요.",
+      "category": "면",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-janchi-guksu",
+      "alt": "잔치국수 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "소면",
+          "amount": "100g"
+        },
+        {
+          "name": "양파",
+          "amount": "70g"
+        },
+        {
+          "name": "당근",
+          "amount": "10g"
+        },
+        {
+          "name": "애호박",
+          "amount": "50g"
+        },
+        {
+          "name": "물",
+          "amount": "800ml + 면 삶을 물",
+          "pantry": true
+        },
+        {
+          "name": "연두순",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "멸치·디포리 코인 육수",
+          "amount": "8g(연두링 기준 2개)"
+        }
+      ],
+      "steps": [
+        {
+          "text": "양파·당근·애호박을 가늘게 썰어요. 냄비에 물 800ml와 육수·연두를 넣고 끓여요."
+        },
+        {
+          "text": "채소를 넣어 약 5분 끓여 익혀요."
+        },
+        {
+          "text": "별도 냄비에서 소면을 포장 시간에 맞춰 삶아요. 찬물에 헹궈 물기를 빼고 그릇에 담아요."
+        },
+        {
+          "text": "뜨거운 채소 육수를 부어 완성해요."
+        }
+      ],
+      "tip": "코인 육수는 제품에 따라 농도가 다르니 포장의 권장 물 양을 확인하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 간편 잔치국수",
+          "url": "https://semie.cooking/recipe-lab/archive/banquet-noodles"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "udon-soup",
+      "name": "국물우동",
+      "kind": "recipe",
+      "why": "우동 사리와 희석용 장국으로 만드는 따뜻한 한 그릇. 유부를 넣어 함께 끓여요.",
+      "summary": "물에 희석한 멸치장국에 우동을 익히는 간단한 면 요리예요. 대파와 김가루를 마지막에 더해요.",
+      "category": "면",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-udon-soup",
+      "alt": "국물우동 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "우동 사리",
+          "amount": "190g"
+        },
+        {
+          "name": "멸치장국",
+          "amount": "90ml(7배 희석형 기준)"
+        },
+        {
+          "name": "물",
+          "amount": "630ml",
+          "pantry": true
+        },
+        {
+          "name": "유부",
+          "amount": "2~3장"
+        },
+        {
+          "name": "대파",
+          "amount": "1/2대"
+        },
+        {
+          "name": "쑥갓",
+          "amount": "한 줌(선택)"
+        },
+        {
+          "name": "김가루",
+          "amount": "약간"
+        },
+        {
+          "name": "고춧가루",
+          "amount": "약간(선택)",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "대파를 송송 썰고 유부는 가늘게 썰어요."
+        },
+        {
+          "text": "냄비에 물과 멸치장국을 넣고 끓여요. 다른 농축 장국을 쓰면 제품의 희석 비율을 따라요."
+        },
+        {
+          "text": "우동 사리와 유부를 넣고 3~5분 끓여 면을 풀어요. 대파·김가루를 올리고 쑥갓과 고춧가루는 취향껏 더해요."
+        }
+      ],
+      "tip": "우동 사리는 억지로 뜯지 말고 뜨거운 국물에서 천천히 풀어 주세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "오뚜기레시피 · 포장마차 우동",
+          "url": "https://www.okitchen.co.kr/category/m_detail?idx=1217"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "corn-cheese",
+      "name": "콘치즈",
+      "kind": "recipe",
+      "why": "옥수수 통조림과 모차렐라로 만드는 한 팬 간식. 뚜껑을 덮어 치즈를 녹여요.",
+      "summary": "물기를 뺀 옥수수와 채소를 버터에 볶아 치즈를 덮는 요리예요. 오븐 없이 팬에서 마무리하는 방법이에요.",
+      "category": "간식",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "2~3인분",
+      "image": "photo-everyday-corn-cheese",
+      "alt": "콘치즈 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "옥수수 통조림",
+          "amount": "1캔(약 430g), 물기 제거"
+        },
+        {
+          "name": "양파·피망·파프리카",
+          "amount": "잘게 썬 것 합계 3/4컵"
+        },
+        {
+          "name": "버터",
+          "amount": "1큰술"
+        },
+        {
+          "name": "마요네즈",
+          "amount": "1/4컵"
+        },
+        {
+          "name": "설탕",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "모차렐라 치즈",
+          "amount": "150g"
+        },
+        {
+          "name": "소금",
+          "amount": "한 꼬집",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "잘게 썬 채소에 소금을 섞어 5분 둬요. 면포로 채소와 옥수수의 물기를 충분히 빼요."
+        },
+        {
+          "text": "팬에 버터를 녹이고 옥수수를 2~3분 볶아요. 채소를 넣고 잠깐 볶은 뒤 불을 꺼요."
+        },
+        {
+          "text": "조금 식으면 마요네즈와 설탕을 섞어요. 치즈를 올리고 뚜껑을 덮어 약불에서 7~8분, 치즈가 녹을 때까지 익혀요."
+        }
+      ],
+      "tip": "통조림 국물과 채소의 물기를 빼야 바닥에 물이 고이지 않아요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Corn cheese",
+          "url": "https://www.maangchi.com/recipe/corn-cheese"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 가스레인지 조리법을 정리하고 떡 토핑은 생략했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "aglio-olio",
+      "name": "알리오올리오",
+      "kind": "recipe",
+      "why": "마늘과 오일을 면수로 섞어 만드는 파스타. 편마늘을 따로 건져 바삭함을 더해요.",
+      "summary": "마늘 기름에 삶은 파스타와 면수를 섞는 오일 파스타예요. 면수는 한꺼번에 붓지 않고 나누어 넣어요.",
+      "category": "면",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-aglio-olio",
+      "alt": "알리오올리오 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "스파게티",
+          "amount": "80g"
+        },
+        {
+          "name": "마늘",
+          "amount": "60g"
+        },
+        {
+          "name": "식용유",
+          "amount": "50g",
+          "pantry": true
+        },
+        {
+          "name": "크러시드 레드페퍼",
+          "amount": "1g",
+          "pantry": true
+        },
+        {
+          "name": "연두진",
+          "amount": "7.5g",
+          "pantry": true
+        },
+        {
+          "name": "면수",
+          "amount": "50ml"
+        },
+        {
+          "name": "물",
+          "amount": "1L(면 삶기용)",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "5g(면 삶기용)",
+          "pantry": true
+        },
+        {
+          "name": "파슬리",
+          "amount": "약간(선택)"
+        }
+      ],
+      "steps": [
+        {
+          "text": "소금물에 면을 포장 권장 시간보다 조금 짧게 삶고 면수 50ml를 덜어 연두를 섞어요."
+        },
+        {
+          "text": "마늘 절반은 편으로, 나머지는 다져요. 기름에 편마늘을 약불로 노릇하게 익혀 건져요."
+        },
+        {
+          "text": "같은 기름에 다진 마늘과 레드페퍼를 볶아요. 간한 면수를 나누어 넣으며 빠르게 저어요."
+        },
+        {
+          "text": "면을 넣고 소스와 섞으며 마저 익혀요. 건진 편마늘과 파슬리를 올려요."
+        }
+      ],
+      "tip": "마늘은 금세 타므로 색이 나기 시작하면 불을 낮추세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 제대로 알리오올리오",
+          "url": "https://semie.cooking/recipe-lab/archive/alio-olio"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 2인분 배합을 절반으로 환산했어요. 원문처럼 향이 약한 식용유를 사용해요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "tomato-pasta",
+      "name": "토마토파스타",
+      "kind": "recipe",
+      "why": "토마토 통조림과 마늘로 만드는 기본 파스타. 면을 삶는 동안 소스를 만들어요.",
+      "summary": "양파와 마늘을 볶고 껍질 벗긴 토마토를 넣어 끓이는 파스타예요. 토마토의 수분과 면수로 소스 농도를 맞춰요.",
+      "category": "면",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-tomato-pasta",
+      "alt": "토마토파스타 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "스파게티",
+          "amount": "90g"
+        },
+        {
+          "name": "홀 토마토 통조림",
+          "amount": "100g"
+        },
+        {
+          "name": "양파",
+          "amount": "15g"
+        },
+        {
+          "name": "마늘",
+          "amount": "약 1/2쪽"
+        },
+        {
+          "name": "올리브유",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "바질",
+          "amount": "10g"
+        },
+        {
+          "name": "파르메산 치즈",
+          "amount": "15g(선택)"
+        },
+        {
+          "name": "소금·후추",
+          "amount": "각 약간",
+          "pantry": true
+        },
+        {
+          "name": "면수",
+          "amount": "약 60ml"
+        }
+      ],
+      "steps": [
+        {
+          "text": "소금 넣은 물에 면을 포장 시간에 맞춰 삶고 면수를 덜어 둬요."
+        },
+        {
+          "text": "양파는 다지고 마늘은 으깨요. 팬에 올리브유 일부를 두르고 양파·마늘을 볶아요."
+        },
+        {
+          "text": "토마토·소금·후추·바질 일부·면수를 넣어 약 5분 끓여요. 마늘을 건져요."
+        },
+        {
+          "text": "삶은 면과 남은 오일·바질을 섞어요. 치즈는 취향에 따라 더해요."
+        }
+      ],
+      "tip": "소스가 뻑뻑하면 덜어 둔 면수를 조금씩 넣으세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Barilla for Professionals · Spaghetti al Pomodoro",
+          "url": "https://www.barillaforprofessionals.com/global/recipes/spaghetti-al-pomodoro/"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 4인분을 1인분으로 환산했어요. 면 삶기와 손질을 포함해 시간을 잡았어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "cream-pasta",
+      "name": "크림파스타",
+      "kind": "recipe",
+      "why": "시판 크림소스에 삶은 면을 섞는 간단 파스타. 생크림을 따로 계량할 필요가 없어요.",
+      "summary": "베이컨·버섯 크림소스 제품을 활용하는 파스타예요. 소스가 이미 완성되어 있어 면 삶기와 섞기가 주요 과정이에요.",
+      "category": "면",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-cream-pasta",
+      "alt": "크림파스타 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "스파게티",
+          "amount": "80g"
+        },
+        {
+          "name": "베이컨·버섯 크림 파스타소스",
+          "amount": "200g"
+        },
+        {
+          "name": "물",
+          "amount": "2L(면 삶기용)",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "10g(면 삶기용)",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "끓는 소금물에 스파게티를 포장에 적힌 시간에 맞춰 삶아요. 면수를 조금 덜어 둬요."
+        },
+        {
+          "text": "팬에서 크림소스를 데워요. 삶은 면을 넣어 고르게 섞어요."
+        },
+        {
+          "text": "너무 되직하면 면수를 한 숟가락씩 넣어 농도를 맞춰요."
+        }
+      ],
+      "tip": "소스에 간이 되어 있으니 추가 소금은 먼저 맛본 뒤 넣으세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 10분 크림파스타",
+          "url": "https://semie.cooking/recipe-lab/archive/10-minute-cream-pasta"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 폰타나 카르니아 베이컨 머쉬룸 크림소스 기준이에요. 다른 제품은 포장 권장량을 확인하세요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "kimchi-jjigae",
+      "name": "김치찌개",
+      "kind": "recipe",
+      "why": "김치·돼지고기·두부를 한 냄비에. 준비된 육수를 쓰는 기본 김치찌개예요.",
+      "summary": "익은 김치와 돼지고기를 함께 끓여 두부를 더하는 찌개예요. 김치가 짜거나 국물이 졸면 물로 간을 조절해요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 30,
+      "difficulty": "쉬움",
+      "servings": "1~2인분",
+      "image": "photo-everyday-kimchi-jjigae",
+      "alt": "김치찌개 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "김치",
+          "amount": "약 225g"
+        },
+        {
+          "name": "김치 국물",
+          "amount": "30ml"
+        },
+        {
+          "name": "돼지고기 찌개용",
+          "amount": "약 110g"
+        },
+        {
+          "name": "두부",
+          "amount": "약 75g"
+        },
+        {
+          "name": "양파",
+          "amount": "다진 것 1/2컵"
+        },
+        {
+          "name": "대파",
+          "amount": "1~2대"
+        },
+        {
+          "name": "멸치육수",
+          "amount": "240ml(미리 준비)"
+        },
+        {
+          "name": "고추장",
+          "amount": "1/2큰술",
+          "pantry": true
+        },
+        {
+          "name": "고춧가루",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "최대 1/2작은술, 간을 보며",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "김치와 돼지고기를 먹기 좋게 썰고 양파·대파·두부를 준비해요."
+        },
+        {
+          "text": "냄비에 두부와 대파 일부를 제외한 재료를 담아요. 뚜껑을 덮어 중강불로 약 10분 끓여요."
+        },
+        {
+          "text": "한 번 섞고 두부를 올려 중불에서 10~15분 더 끓여요. 돼지고기가 속까지 익었는지 확인하고 남은 대파를 넣어요."
+        }
+      ],
+      "tip": "간을 보기 전에는 소금을 모두 넣지 마세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Kimchi stew",
+          "url": "https://www.maangchi.com/recipe/kimchi-jjigae"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 배합을 절반으로 줄였어요. 육수는 시판 또는 미리 끓인 것을 사용하며 직접 육수 내는 시간은 제외해요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "doenjang-jjigae",
+      "name": "된장찌개",
+      "kind": "recipe",
+      "why": "감자·애호박·두부를 넣는 기본 찌개. 된장을 풀고 차례로 끓여요.",
+      "summary": "채소와 새우·멸치로 맛을 낸 국물에 된장을 푸는 찌개예요. 감자는 작은 주사위 모양으로 썰면 익히기 편해요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 40,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-doenjang-jjigae",
+      "alt": "된장찌개 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "감자",
+          "amount": "썬 것 1컵"
+        },
+        {
+          "name": "양파",
+          "amount": "썬 것 1컵"
+        },
+        {
+          "name": "애호박",
+          "amount": "썬 것 1컵"
+        },
+        {
+          "name": "청양고추",
+          "amount": "1개(선택)"
+        },
+        {
+          "name": "마늘",
+          "amount": "4쪽"
+        },
+        {
+          "name": "새우",
+          "amount": "4마리"
+        },
+        {
+          "name": "물",
+          "amount": "600ml",
+          "pantry": true
+        },
+        {
+          "name": "국물용 멸치",
+          "amount": "7마리"
+        },
+        {
+          "name": "된장",
+          "amount": "5큰술, 간을 보며",
+          "pantry": true
+        },
+        {
+          "name": "두부",
+          "amount": "170g"
+        },
+        {
+          "name": "대파",
+          "amount": "2대"
+        }
+      ],
+      "steps": [
+        {
+          "text": "감자·양파·애호박·두부를 깍둑썰고 마늘을 다져요. 새우를 손질하고 멸치는 육수망에 넣어요."
+        },
+        {
+          "text": "냄비에 두부·대파·된장을 제외한 재료를 넣어 끓여요. 끓기 시작한 뒤 채소가 익도록 7~15분 끓여요."
+        },
+        {
+          "text": "된장을 조금씩 풀고 중불에서 약 20분 끓여요. 두부를 넣고 3분 더 익혀요."
+        },
+        {
+          "text": "멸치망을 건지고 대파를 넣어요. 짜면 물을 보충해요."
+        }
+      ],
+      "tip": "된장마다 염도가 달라 처음에는 적게 넣고 마지막에 조절하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Soybean paste stew",
+          "url": "https://www.maangchi.com/recipe/doenjang-jjigae"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 2~4인분을 두 사람이 넉넉히 먹는 찌개 분량으로 안내해요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "sundubu-jjigae",
+      "name": "김치순두부찌개",
+      "kind": "recipe",
+      "why": "김치와 돼지고기를 볶고 순두부를 넣어요. 미리 준비한 육수로 끓이는 얼큰한 찌개예요.",
+      "summary": "부드러운 순두부를 김치 국물에 끓이는 요리예요. 달걀은 마지막에 넣고 흰자가 익을 때까지 끓여요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "1~2인분",
+      "image": "photo-everyday-sundubu-jjigae",
+      "alt": "김치순두부찌개 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "순두부",
+          "amount": "1봉(약 350g)"
+        },
+        {
+          "name": "돼지고기",
+          "amount": "70g"
+        },
+        {
+          "name": "김치",
+          "amount": "약 110g"
+        },
+        {
+          "name": "양파",
+          "amount": "다진 것 1/4컵"
+        },
+        {
+          "name": "마늘",
+          "amount": "1쪽"
+        },
+        {
+          "name": "대파",
+          "amount": "1대"
+        },
+        {
+          "name": "달걀",
+          "amount": "1개"
+        },
+        {
+          "name": "멸치육수",
+          "amount": "120ml + 농도 조절용 약간(미리 준비)"
+        },
+        {
+          "name": "고춧가루",
+          "amount": "2큰술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "최대 1작은술, 간을 보며",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "김치·고기·양파를 작게 썰고 마늘과 대파를 다져요. 고춧가루와 참기름을 섞어 둬요."
+        },
+        {
+          "text": "냄비에 식용유를 두르고 양파·마늘을 볶아요. 고기를 넣어 볶고 김치를 더해요."
+        },
+        {
+          "text": "육수를 붓고 뚜껑을 덮어 약 7분 끓여요. 설탕과 소금으로 간을 맞추고 순두부를 크게 나누어 넣어요."
+        },
+        {
+          "text": "고춧가루 양념과 대파를 넣고 끓여요. 고기가 완전히 익으면 달걀을 넣고 흰자가 익을 때까지 더 끓여요."
+        }
+      ],
+      "tip": "순두부를 넣은 뒤 자주 저으면 잘게 부서지니 가볍게 섞으세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Kimchi soft tofu stew",
+          "url": "https://www.maangchi.com/recipe/sundubu-jjigae"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 육수는 미리 준비한 것으로 대체했어요. 육수 내는 시간은 제외하고 달걀 익힘에 따라 시간을 조절하세요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "budae-jjigae",
+      "name": "부대찌개",
+      "kind": "recipe",
+      "why": "햄·소시지·김치를 사골 육수에 끓여요. 떡 사리까지 한 냄비에서 익혀요.",
+      "summary": "햄과 김치가 들어간 매콤한 찌개예요. 사골 코인 육수와 준비된 볶음김치를 쓰면 따로 육수를 낼 필요가 없어요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-budae-jjigae",
+      "alt": "부대찌개 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "통조림햄",
+          "amount": "50g"
+        },
+        {
+          "name": "스모크햄",
+          "amount": "60g"
+        },
+        {
+          "name": "프랑크 소시지",
+          "amount": "60g"
+        },
+        {
+          "name": "볶음김치",
+          "amount": "200g"
+        },
+        {
+          "name": "대파",
+          "amount": "10g"
+        },
+        {
+          "name": "양파",
+          "amount": "70g"
+        },
+        {
+          "name": "조랭이떡",
+          "amount": "100g"
+        },
+        {
+          "name": "연두진",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "다진 마늘",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "고춧가루",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "600ml",
+          "pantry": true
+        },
+        {
+          "name": "사골 코인 육수",
+          "amount": "8g(연두링 기준 2개)"
+        }
+      ],
+      "steps": [
+        {
+          "text": "햄·소시지는 0.5~1cm 두께로 썰어요. 양파는 채 썰고 대파는 어슷 썰어요."
+        },
+        {
+          "text": "냄비에 물과 코인 육수를 넣어요. 햄류·양파·대파·볶음김치·연두·마늘·고춧가루를 넣고 5~6분 끓여요."
+        },
+        {
+          "text": "중불로 낮추고 조랭이떡을 넣어요. 떡이 속까지 부드럽게 익을 때까지 끓여요."
+        }
+      ],
+      "tip": "볶음김치가 없으면 원문 안내처럼 일반 김치를 사용할 수 있어요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 보글보글 부대찌개",
+          "url": "https://semie.cooking/recipe-lab/archive/budaejjigae"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 코인 육수는 제품의 희석 비율을 우선 따르세요. 사진의 사리 구성은 다를 수 있어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "egg-soup",
+      "name": "계란국",
+      "kind": "recipe",
+      "why": "달걀 하나와 양파로 끓이는 가벼운 국. 끓는 국물에 달걀물을 가늘게 둘러요.",
+      "summary": "양파를 넣은 국물에 풀어 둔 달걀을 익히는 요리예요. 따로 볶거나 오래 끓이는 과정이 없어요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "1인분",
+      "image": "photo-everyday-egg-soup",
+      "alt": "계란국 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "달걀",
+          "amount": "1개"
+        },
+        {
+          "name": "물",
+          "amount": "500ml",
+          "pantry": true
+        },
+        {
+          "name": "양파",
+          "amount": "70g"
+        },
+        {
+          "name": "쪽파",
+          "amount": "10g"
+        },
+        {
+          "name": "연두순",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "청양고추",
+          "amount": "10g(선택)"
+        }
+      ],
+      "steps": [
+        {
+          "text": "양파를 얇게 썰고 쪽파와 고추를 송송 썰어요. 달걀을 따로 풀어요."
+        },
+        {
+          "text": "물에 연두를 넣고 끓여요. 채소를 넣어 중불에서 약 5분 익혀요."
+        },
+        {
+          "text": "달걀물을 가늘게 두르고 잠시 젓지 않아요. 달걀이 익으면 불을 꺼요."
+        }
+      ],
+      "tip": "달걀을 넣자마자 세게 저으면 국물이 탁해질 수 있어요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 몽글몽글 계란국",
+          "url": "https://semie.cooking/recipe-lab/archive/egg-soup"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "miyeok-guk",
+      "name": "소고기미역국",
+      "kind": "recipe",
+      "why": "미역을 불리는 동안 고기를 준비해요. 볶고 끓이는 세 과정으로 만드는 미역국이에요.",
+      "summary": "불린 미역과 국거리 소고기를 볶은 뒤 물을 넣어 끓이는 국이에요. 작은 자른미역을 쓰는 간편 배합이에요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-miyeok-guk",
+      "alt": "소고기미역국 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "자른 마른미역",
+          "amount": "5g"
+        },
+        {
+          "name": "소고기 국거리",
+          "amount": "100g"
+        },
+        {
+          "name": "식용유",
+          "amount": "5g",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "1L(불림용 500ml + 국물용 500ml)",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "4g(불림용)",
+          "pantry": true
+        },
+        {
+          "name": "연두순",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "약간",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "미역을 물 500ml와 소금 4g에 10분 불려요. 물기를 빼고 길면 짧게 잘라요."
+        },
+        {
+          "text": "냄비에 식용유를 두르고 미역과 소고기를 3~4분 볶아요."
+        },
+        {
+          "text": "연두와 새 물 500ml를 넣어 끓여요. 끓어오르면 중불로 낮춰 약 10분, 고기가 익을 때까지 끓여요."
+        },
+        {
+          "text": "불을 끄고 참기름을 조금 둘러요."
+        }
+      ],
+      "tip": "마른미역은 적어 보여도 불리면 양이 늘어나니 먼저 계량하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 초간단 3STEP 미역국",
+          "url": "https://semie.cooking/recipe-lab/archive/miyeokguk"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "bean-sprout-muchim",
+      "name": "콩나물무침",
+      "kind": "recipe",
+      "why": "콩나물을 익혀 양념에 무치는 기본 반찬. 밥에 곁들이거나 비빔밥 재료로 써요.",
+      "summary": "콩나물에 마늘·대파·참기름을 더하는 나물 반찬이에요. 물을 적게 넣고 뚜껑을 덮어 익히는 방식이에요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "반찬 3~4인분",
+      "image": "photo-everyday-bean-sprout-muchim",
+      "alt": "콩나물무침 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "콩나물",
+          "amount": "450g"
+        },
+        {
+          "name": "물",
+          "amount": "120ml",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "마늘",
+          "amount": "2쪽"
+        },
+        {
+          "name": "대파",
+          "amount": "1대"
+        },
+        {
+          "name": "고춧가루",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "액젓",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "2작은술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "콩나물을 씻어 냄비에 담고 물·소금을 넣어요."
+        },
+        {
+          "text": "뚜껑을 덮고 중강불에서 약 10분 익혀요. 콩나물이 익으면 물기를 빼요."
+        },
+        {
+          "text": "다진 마늘·대파와 고춧가루·액젓·깨·참기름을 넣어 고루 무쳐요."
+        }
+      ],
+      "tip": "뜨거운 콩나물은 한김 식힌 뒤 도구나 조리용 장갑을 이용해 무치세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Soybean sprout side dish",
+          "url": "https://www.maangchi.com/recipe/kongnamul-muchim"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "eomuk-tang",
+      "name": "어묵탕",
+      "kind": "recipe",
+      "why": "어묵과 무를 멸치육수에 끓이는 국물요리. 꼬치 없이 먹기 좋게 썰어 넣어요.",
+      "summary": "어묵과 얇게 썬 무를 넣는 간단한 탕이에요. 원문의 멸치·다시마 육수 대신 준비된 육수로 과정을 줄였어요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-eomuk-tang",
+      "alt": "어묵탕 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "어묵",
+          "amount": "200g"
+        },
+        {
+          "name": "무",
+          "amount": "100g"
+        },
+        {
+          "name": "양파",
+          "amount": "1/4개"
+        },
+        {
+          "name": "멸치·다시마 육수",
+          "amount": "800ml(미리 준비)"
+        },
+        {
+          "name": "진간장",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "약간",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "무는 얇고 작게 썰고 양파와 어묵은 먹기 좋게 썰어요."
+        },
+        {
+          "text": "냄비에 육수·무·양파를 넣고 무가 부드러워질 때까지 약 10분 끓여요."
+        },
+        {
+          "text": "어묵을 넣어 10~15분 더 끓이고 간장·소금으로 간을 맞춰요."
+        }
+      ],
+      "tip": "무가 두꺼우면 먼저 충분히 익힌 뒤 어묵을 넣으세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Fish cake soup",
+          "url": "https://www.maangchi.com/recipe/eomukguk"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문을 2인분으로 조정하고 시판 육수 사용 기준으로 간소화했어요. 직접 육수 내는 시간은 제외해요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "dubu-jorim",
+      "name": "두부조림",
+      "kind": "recipe",
+      "why": "두부 한 모를 굽고 매콤한 양념에 조려요. 반찬이 부족한 날 밥에 곁들이기 좋아요.",
+      "summary": "물기를 닦은 두부를 먼저 구워 모양을 잡는 조림이에요. 양파와 대파를 볶아 만든 양념을 입혀요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 30,
+      "difficulty": "쉬움",
+      "servings": "반찬 2인분",
+      "image": "photo-everyday-dubu-jorim",
+      "alt": "두부조림 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "두부",
+          "amount": "300g"
+        },
+        {
+          "name": "양파",
+          "amount": "잘게 썬 것 1/3컵"
+        },
+        {
+          "name": "대파",
+          "amount": "1대"
+        },
+        {
+          "name": "마늘",
+          "amount": "1쪽"
+        },
+        {
+          "name": "식용유",
+          "amount": "약 2큰술",
+          "pantry": true
+        },
+        {
+          "name": "진간장",
+          "amount": "약 2작은술",
+          "pantry": true
+        },
+        {
+          "name": "소금",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "고춧가루",
+          "amount": "약 2작은술",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "70ml",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "1/2작은술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "두부를 약 0.6cm 두께로 썰어 물기를 닦아요. 양파·대파·마늘을 다지고 간장·소금·설탕·고춧가루·물을 섞어요."
+        },
+        {
+          "text": "팬에 기름을 두르고 두부를 양면이 노릇해질 때까지 각각 7~8분 구워 꺼내요."
+        },
+        {
+          "text": "같은 팬에서 채소를 볶고 양념을 넣어 조금 졸여요. 두부를 넣고 양념을 끼얹어 약 1분 조려요."
+        },
+        {
+          "text": "참기름과 깨로 마무리해요."
+        }
+      ],
+      "tip": "두부 표면의 물기를 충분히 닦아야 기름이 덜 튀어요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Spicy braised tofu",
+          "url": "https://www.maangchi.com/recipe/dubu-jorim"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 두부 510g 배합을 한 모 300g에 맞춰 반올림 환산했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "gyeran-mari",
+      "name": "계란말이",
+      "kind": "recipe",
+      "why": "달걀에 잘게 썬 양파를 섞어 돌돌 말아요. 한김 식힌 뒤 썰면 모양이 잘 잡혀요.",
+      "summary": "달걀물을 얇게 부어 익히고 말기를 반복하는 기본 반찬이에요. 불을 너무 세게 하지 않는 것이 중요해요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "반찬 2인분",
+      "image": "photo-everyday-gyeran-mari",
+      "alt": "계란말이 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "달걀",
+          "amount": "4개"
+        },
+        {
+          "name": "양파",
+          "amount": "중간 크기 1/2개"
+        },
+        {
+          "name": "소금",
+          "amount": "약 1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "후추",
+          "amount": "1/4작은술",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "1~2큰술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "양파를 아주 잘게 썰고 달걀·소금·후추와 섞어요."
+        },
+        {
+          "text": "팬에 기름을 얇게 두르고 중약불에서 달걀물 일부를 얇게 펼쳐요. 밑면이 익고 윗면이 촉촉할 때 한쪽부터 말아요."
+        },
+        {
+          "text": "말아 둔 달걀을 옆으로 옮기고 달걀물을 이어 부어요. 같은 방식으로 반복해 속까지 익혀요."
+        },
+        {
+          "text": "팬에서 굴려 모양을 잡고 5분 정도 식힌 뒤 썰어요."
+        }
+      ],
+      "tip": "달걀물이 너무 빨리 굳으면 불을 낮춰야 잘 말려요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Rolled omelette",
+          "url": "https://www.maangchi.com/recipe/gyeran-mari"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 선택 파프리카를 생략하고 소금은 적게 시작하도록 조정했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "gyeran-jjim",
+      "name": "전자레인지 계란찜",
+      "kind": "recipe",
+      "why": "달걀물만 섞어 전자레인지로 익혀요. 작은 냄비 없이 만드는 부드러운 반찬이에요.",
+      "summary": "달걀·물·액젓을 섞어 전자레인지에서 익히는 계란찜이에요. 용기 크기와 출력에 따라 익는 시간은 달라져요.",
+      "category": "밥",
+      "tags": [
+        "자취생",
+        "10분컷"
+      ],
+      "cookMinutes": 10,
+      "difficulty": "쉬움",
+      "servings": "1~2인분",
+      "image": "photo-everyday-gyeran-jjim",
+      "alt": "전자레인지 계란찜 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "달걀",
+          "amount": "3개"
+        },
+        {
+          "name": "물",
+          "amount": "120ml",
+          "pantry": true
+        },
+        {
+          "name": "액젓",
+          "amount": "3작은술",
+          "pantry": true
+        },
+        {
+          "name": "대파",
+          "amount": "2대"
+        }
+      ],
+      "steps": [
+        {
+          "text": "전자레인지용 깊은 그릇에 달걀을 풀고 물·액젓을 고루 섞어요. 대파를 잘게 썰어 넣어요."
+        },
+        {
+          "text": "그릇을 밀봉하지 않고 전자레인지에서 약 5분 가열해요."
+        },
+        {
+          "text": "가운데까지 굳었는지 확인해요. 덜 익었으면 짧게 추가 가열하고 뜨거운 용기를 조심해 꺼내요."
+        }
+      ],
+      "tip": "넘치지 않게 여유 있는 전자레인지 전용 그릇을 사용하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Steamed eggs",
+          "url": "https://www.maangchi.com/recipe/gyeranjjim"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 전자레인지 조리법을 정리했어요. 출력 차이가 있어 5분은 고정 보장 시간이 아니에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "eomuk-bokkeum",
+      "name": "어묵볶음",
+      "kind": "recipe",
+      "why": "어묵과 양파를 간장 양념에 볶아요. 오래 끓이지 않고 만드는 기본 반찬이에요.",
+      "summary": "가늘게 썬 어묵과 양파에 달고 짭짤한 양념을 입히는 반찬이에요. 고춧가루 없이 만드는 배합이에요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "반찬 2인분",
+      "image": "photo-everyday-eomuk-bokkeum",
+      "alt": "어묵볶음 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "사각어묵",
+          "amount": "200g"
+        },
+        {
+          "name": "양파",
+          "amount": "140g"
+        },
+        {
+          "name": "식용유",
+          "amount": "30g",
+          "pantry": true
+        },
+        {
+          "name": "진간장",
+          "amount": "5g",
+          "pantry": true
+        },
+        {
+          "name": "연두순",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "15g",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "약간",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "어묵을 1cm 폭으로 썰고 양파는 채 썰어요. 간장·연두·설탕을 섞어요."
+        },
+        {
+          "text": "팬에 기름을 두르고 양파를 약 2분 볶아요. 어묵을 넣고 1분 더 볶아요."
+        },
+        {
+          "text": "양념을 넣고 고루 섞어 볶아요. 불을 끄고 참기름과 깨를 넣어요."
+        }
+      ],
+      "tip": "양념을 미리 섞어 두면 팬에서 설탕이 뭉치는 것을 줄일 수 있어요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 간단 어묵볶음",
+          "url": "https://semie.cooking/recipe-lab/archive/eomukbokkeum"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "cucumber-muchim",
+      "name": "오이무침",
+      "kind": "recipe",
+      "why": "불 없이 오이와 양념을 섞는 아삭한 반찬. 먹기 직전에 무쳐요.",
+      "summary": "오이와 얇게 썬 양파를 간장·고춧가루에 버무리는 반찬이에요. 별도 절임이나 가열 과정이 없어요.",
+      "category": "밥",
+      "tags": [
+        "자취생",
+        "10분컷"
+      ],
+      "cookMinutes": 10,
+      "difficulty": "쉬움",
+      "servings": "반찬 2~3인분",
+      "image": "photo-everyday-cucumber-muchim",
+      "alt": "오이무침 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "오이",
+          "amount": "큰 것 1개(약 300g)"
+        },
+        {
+          "name": "양파",
+          "amount": "얇게 썬 것 1/4컵"
+        },
+        {
+          "name": "대파",
+          "amount": "1대"
+        },
+        {
+          "name": "마늘",
+          "amount": "2쪽"
+        },
+        {
+          "name": "진간장",
+          "amount": "2큰술",
+          "pantry": true
+        },
+        {
+          "name": "고춧가루",
+          "amount": "2작은술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "2작은술",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "2작은술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1작은술(선택)",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "오이를 씻어 길게 반으로 가른 뒤 얇게 어슷 썰어요. 양파도 얇게 썰고 대파·마늘은 다져요."
+        },
+        {
+          "text": "큰 그릇에 채소와 간장·고춧가루·참기름·깨를 넣어요. 설탕은 원하면 더해요."
+        },
+        {
+          "text": "양념이 고루 묻도록 섞어 바로 먹어요."
+        }
+      ],
+      "tip": "미리 무쳐 오래 두면 물이 나오니 먹을 양만 바로 무치세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Spicy cucumber side dish",
+          "url": "https://www.maangchi.com/recipe/oi-muchim"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 큰 잉글리시 오이 1개 기준을 중량과 함께 안내해요. 작은 오이는 개수 대신 중량을 맞춰 주세요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "gamja-jorim",
+      "name": "감자조림",
+      "kind": "recipe",
+      "why": "감자와 양파를 달고 짭짤한 간장 양념에 조려요. 반찬통에 담기 쉬운 기본 반찬이에요.",
+      "summary": "깍둑썰기한 감자를 볶은 뒤 물과 간장을 넣어 익히는 조림이에요. 마지막에 참기름과 깨를 더해요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "반찬 2~3인분",
+      "image": "photo-everyday-gamja-jorim",
+      "alt": "감자조림 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "감자",
+          "amount": "425g"
+        },
+        {
+          "name": "양파",
+          "amount": "다진 것 1/2컵"
+        },
+        {
+          "name": "마늘",
+          "amount": "2쪽"
+        },
+        {
+          "name": "식용유",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "120ml",
+          "pantry": true
+        },
+        {
+          "name": "진간장",
+          "amount": "2큰술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "약간",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "감자는 약 2cm 크기로 썰어 헹구고 물기를 빼요. 양파와 마늘을 다져요."
+        },
+        {
+          "text": "팬에 기름을 두르고 감자·마늘·양파를 볶아요."
+        },
+        {
+          "text": "물·간장·설탕을 넣어 약 10분, 감자가 부드러워질 때까지 익혀요. 물이 먼저 줄면 조금 보충해요."
+        },
+        {
+          "text": "참기름과 깨를 섞어 마무리해요."
+        }
+      ],
+      "tip": "감자를 비슷한 크기로 썰어야 한 번에 고르게 익어요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Braised potatoes",
+          "url": "https://www.maangchi.com/recipe/gamja-bokkeum"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "jeyuk-bokkeum",
+      "name": "제육볶음",
+      "kind": "recipe",
+      "why": "재워 두지 않고 팬에서 바로 볶는 돼지고기 요리. 양파와 대파를 함께 넣어요.",
+      "summary": "얇게 썬 돼지고기를 고추장 양념에 볶는 밥반찬이에요. 넓은 팬을 쓰면 고기가 뭉치지 않아 익힘을 확인하기 쉬워요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-jeyuk-bokkeum",
+      "alt": "제육볶음 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "돼지고기 앞다리살 불고기용",
+          "amount": "225g"
+        },
+        {
+          "name": "양파",
+          "amount": "1/2개"
+        },
+        {
+          "name": "대파",
+          "amount": "2대"
+        },
+        {
+          "name": "마늘",
+          "amount": "2~3쪽"
+        },
+        {
+          "name": "다진 생강",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "고추장",
+          "amount": "2큰술",
+          "pantry": true
+        },
+        {
+          "name": "진간장",
+          "amount": "1/2큰술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1/2큰술",
+          "pantry": true
+        },
+        {
+          "name": "고춧가루",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1/2큰술",
+          "pantry": true
+        },
+        {
+          "name": "후추",
+          "amount": "약간",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "1/2작은술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "양파와 대파를 썰고 마늘을 다져요. 고기는 먹기 좋게 잘라요."
+        },
+        {
+          "text": "팬에 고기와 고추장·간장·설탕·고춧가루·참기름·후추를 넣고 섞어요."
+        },
+        {
+          "text": "마늘·생강·양파·대파를 넣고 중강불에서 고기를 풀어 가며 약 12~15분 볶아요. 고기가 속까지 완전히 익으면 깨를 뿌려요."
+        }
+      ],
+      "tip": "양념이 타기 시작하면 불을 낮추고 고기가 익을 때까지 볶으세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Spicy stir-fried pork",
+          "url": "https://www.maangchi.com/recipe/dwaejigogi-bokkeum"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 배합을 절반으로 줄이고 사용 가능한 부위로 앞다리살을 안내했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "kimchi-jeon",
+      "name": "김치전",
+      "kind": "recipe",
+      "why": "김치와 밀가루를 섞어 바로 부쳐요. 김치 국물로 간과 색을 더해요.",
+      "summary": "익은 김치에 밀가루와 물을 섞어 얇게 굽는 전이에요. 반죽을 두껍게 붓지 않는 것이 바삭하게 익히는 데 도움이 돼요.",
+      "category": "분식",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-kimchi-jeon",
+      "alt": "김치전 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "김치",
+          "amount": "225g"
+        },
+        {
+          "name": "김치 국물",
+          "amount": "2큰술"
+        },
+        {
+          "name": "대파",
+          "amount": "3대"
+        },
+        {
+          "name": "밀가루",
+          "amount": "1/2컵"
+        },
+        {
+          "name": "물",
+          "amount": "120ml",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1/2작은술",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "4큰술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "김치와 대파를 잘게 썰어요. 밀가루·물·김치 국물·설탕과 섞어요."
+        },
+        {
+          "text": "달군 팬에 기름 일부를 두르고 반죽을 얇게 펼쳐 중불에서 3~5분 구워요."
+        },
+        {
+          "text": "뒤집은 뒤 가장자리에 기름을 보충하고 반대쪽도 노릇하게 익혀요. 필요하면 한 번 더 뒤집어 속까지 익혀요."
+        }
+      ],
+      "tip": "팬이 작으면 반죽을 나누어 두 장으로 부치세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Kimchi pancake",
+          "url": "https://www.maangchi.com/recipe/kimchijeon"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "gamja-jeon",
+      "name": "감자전",
+      "kind": "recipe",
+      "why": "감자와 양파를 갈아 노릇하게 부쳐요. 감자전분을 더해 반죽을 잡아요.",
+      "summary": "간 감자에 양파와 전분을 섞어 부치는 전이에요. 반죽을 바로 구워 감자가 갈변하는 시간을 줄여요.",
+      "category": "분식",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 20,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-gamja-jeon",
+      "alt": "감자전 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "감자",
+          "amount": "225g"
+        },
+        {
+          "name": "양파",
+          "amount": "간 것 1/4컵"
+        },
+        {
+          "name": "감자전분",
+          "amount": "1/4컵"
+        },
+        {
+          "name": "소금",
+          "amount": "1/4작은술",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "약 4큰술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "감자와 양파를 곱게 갈아요. 감자전분과 소금을 섞어 반죽해요."
+        },
+        {
+          "text": "팬을 달구고 기름 일부를 두른 뒤 반죽을 얇게 펼쳐요."
+        },
+        {
+          "text": "중강불에서 뒤집어 가며 약 8~10분, 양면과 가운데까지 익혀요. 기름은 필요할 때 조금씩 보충해요."
+        }
+      ],
+      "tip": "뒤집기 어렵다면 작은 크기로 여러 장 부치세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Simple potato pancake",
+          "url": "https://www.maangchi.com/recipe/simple-gamjajeon"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 별도 초간장 배합은 생략했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "tteokbokki",
+      "name": "떡볶이",
+      "kind": "recipe",
+      "why": "떡과 어묵을 고추장 국물에 끓여요. 준비된 육수로 만드는 기본 빨간 떡볶이예요.",
+      "summary": "쌀떡과 어묵에 매콤달콤한 양념을 입히는 분식이에요. 떡이 말랑해지며 소스가 걸쭉해질 때까지 끓여요.",
+      "category": "분식",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-tteokbokki",
+      "alt": "떡볶이 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "떡볶이 쌀떡",
+          "amount": "225g"
+        },
+        {
+          "name": "어묵",
+          "amount": "110g"
+        },
+        {
+          "name": "대파",
+          "amount": "1~2대"
+        },
+        {
+          "name": "멸치·다시마 육수",
+          "amount": "300ml(미리 준비)"
+        },
+        {
+          "name": "고추장",
+          "amount": "약 2큰술 + 2작은술",
+          "pantry": true
+        },
+        {
+          "name": "고춧가루",
+          "amount": "1/2큰술",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "1/2큰술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "떡과 어묵을 먹기 좋게 준비하고 대파를 썰어요. 고추장·고춧가루·설탕을 섞어요."
+        },
+        {
+          "text": "냄비에 준비된 육수·떡·양념·대파·어묵을 넣고 끓여요."
+        },
+        {
+          "text": "바닥에 붙지 않게 저으며 10~15분, 떡이 속까지 부드러워질 때까지 끓여요. 너무 졸면 물을 조금 보충해요."
+        }
+      ],
+      "tip": "냉동 떡은 제품에 적힌 해동·조리 안내를 먼저 확인하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Spicy rice cakes",
+          "url": "https://www.maangchi.com/recipe/tteokbokki"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문 배합을 절반으로 조정하고 육수는 미리 준비한 것을 사용해요. 선택 삶은 달걀은 생략했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "french-toast",
+      "name": "프렌치토스트",
+      "kind": "recipe",
+      "why": "식빵을 달걀 우유에 적셔 노릇하게 구워요. 남은 식빵으로 만들기 좋은 아침 메뉴예요.",
+      "summary": "달걀과 우유를 섞은 물에 식빵을 적셔 팬에 굽는 토스트예요. 약불에서 달걀물까지 충분히 익혀요.",
+      "category": "간식",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "1~2인분",
+      "image": "photo-everyday-french-toast",
+      "alt": "프렌치토스트 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "식빵",
+          "amount": "2장(약 100g)"
+        },
+        {
+          "name": "달걀",
+          "amount": "1개"
+        },
+        {
+          "name": "우유",
+          "amount": "50ml"
+        },
+        {
+          "name": "버터",
+          "amount": "30g"
+        },
+        {
+          "name": "설탕",
+          "amount": "30g",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "달걀·우유·설탕을 고루 섞어요."
+        },
+        {
+          "text": "식빵을 달걀물에 앞뒤로 각각 30초~1분 적셔요."
+        },
+        {
+          "text": "약불 팬에 버터를 녹이고 식빵을 올려 양면을 각각 약 2분 구워요. 가운데의 달걀물까지 익으면 꺼내요."
+        }
+      ],
+      "tip": "빵이 얇으면 오래 담가 두지 않아야 부서지지 않아요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 간단 프렌치토스트",
+          "url": "https://semie.cooking/recipe-lab/archive/quick-and-easy-french-toast"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "egg-sandwich",
+      "name": "에그마요 샌드위치",
+      "kind": "recipe",
+      "why": "삶은 달걀에 마요네스를 섞어 식빵 사이에. 불 없이 조립하는 간단 식사예요.",
+      "summary": "포크로 으깬 삶은 달걀을 식빵에 채우는 샌드위치예요. 달걀을 미리 삶아 두거나 삶은 제품을 쓰는 배합이에요.",
+      "category": "간식",
+      "tags": [
+        "자취생",
+        "10분컷"
+      ],
+      "cookMinutes": 10,
+      "difficulty": "쉬움",
+      "servings": "샌드위치 2개",
+      "image": "photo-everyday-egg-sandwich",
+      "alt": "에그마요 샌드위치 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "식빵",
+          "amount": "4장"
+        },
+        {
+          "name": "삶은 달걀",
+          "amount": "2개(약 100g)"
+        },
+        {
+          "name": "마요네즈",
+          "amount": "2큰술 + 빵에 바를 양 약간"
+        },
+        {
+          "name": "소금",
+          "amount": "한 꼬집",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "껍질을 깐 삶은 달걀을 포크로 으깨요. 마요네즈 2큰술과 소금을 넣어 섞어요."
+        },
+        {
+          "text": "식빵 안쪽에 마요네즈를 얇게 발라요. 달걀 속을 나누어 넣고 다른 빵으로 덮어요."
+        },
+        {
+          "text": "가볍게 눌러 모양을 잡고 반으로 잘라요."
+        }
+      ],
+      "tip": "완숙 달걀을 쓰고, 바로 먹지 않을 샌드위치는 냉장 보관하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Kewpie · Tamago Sando (Egg Sandwich)",
+          "url": "https://www.kewpie.com/en/products/recipes/G-QP00013780/"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 식빵 4장 배합을 샌드위치 2개로 표기했어요. 삶은 달걀 준비 시간은 제외해요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "tteok-guk",
+      "name": "떡국",
+      "kind": "recipe",
+      "why": "떡국떡과 소고기로 끓이는 따뜻한 식사. 김과 달걀 고명을 더해요.",
+      "summary": "소고기 국물에 얇게 썬 떡을 익히는 국물요리예요. 고기를 끓이는 시간이 있어 즉석 육수 요리보다는 여유를 두고 만들어요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 45,
+      "difficulty": "쉬움",
+      "servings": "2~3인분",
+      "image": "photo-everyday-tteok-guk",
+      "alt": "떡국 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "떡국떡",
+          "amount": "450g(바로 조리 가능한 제품)"
+        },
+        {
+          "name": "소고기 국거리",
+          "amount": "225g"
+        },
+        {
+          "name": "물",
+          "amount": "약 1.7L",
+          "pantry": true
+        },
+        {
+          "name": "마늘",
+          "amount": "3~4쪽"
+        },
+        {
+          "name": "달걀",
+          "amount": "2개"
+        },
+        {
+          "name": "대파",
+          "amount": "1대"
+        },
+        {
+          "name": "액젓",
+          "amount": "1큰술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "식용유",
+          "amount": "2작은술",
+          "pantry": true
+        },
+        {
+          "name": "김",
+          "amount": "1장"
+        },
+        {
+          "name": "소금·후추",
+          "amount": "약간",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "고기를 작게 썰고 마늘을 다져요. 냄비에 물·고기·마늘을 넣고 끓여요. 끓으면 불을 낮춰 20~25분 더 익혀요."
+        },
+        {
+          "text": "달걀은 흰자와 노른자를 나눠요. 팬에 식용유를 얇게 두르고 노른자를 지단으로 부쳐 가늘게 썰어요."
+        },
+        {
+          "text": "국물에 떡과 액젓을 넣고 약 7~8분, 떡이 부드러워질 때까지 끓여요. 흰자를 가늘게 넣어 익혀요."
+        },
+        {
+          "text": "대파·참기름·소금·후추로 마무리하고 지단과 김을 올려요."
+        }
+      ],
+      "tip": "떡의 불림이나 해동이 필요한 제품이라면 포장 안내에 따라 미리 준비하세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Rice cake soup",
+          "url": "https://www.maangchi.com/recipe/tteokguk"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 떡을 바로 끓일 수 있는 상태 기준으로 시간을 잡았어요. 불림·해동 시간이 필요하면 추가해 주세요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "dubu-kimchi",
+      "name": "두부김치",
+      "kind": "recipe",
+      "why": "돼지고기 김치볶음에 데친 두부를 곁들여요. 반찬이나 안주로 나누어 먹기 좋아요.",
+      "summary": "김치와 고기를 양념에 볶고 따뜻한 두부를 함께 담는 요리예요. 두부는 오래 볶지 않고 마지막에 따로 데워요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 30,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-dubu-kimchi",
+      "alt": "두부김치 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "김치",
+          "amount": "100g"
+        },
+        {
+          "name": "두부",
+          "amount": "200g"
+        },
+        {
+          "name": "돼지고기 불고기용",
+          "amount": "200g"
+        },
+        {
+          "name": "양파",
+          "amount": "70g"
+        },
+        {
+          "name": "대파",
+          "amount": "20g"
+        },
+        {
+          "name": "당근",
+          "amount": "20g"
+        },
+        {
+          "name": "식용유",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "연두순",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "진간장",
+          "amount": "30g",
+          "pantry": true
+        },
+        {
+          "name": "고춧가루",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "20g",
+          "pantry": true
+        },
+        {
+          "name": "다진 마늘",
+          "amount": "15g",
+          "pantry": true
+        },
+        {
+          "name": "물",
+          "amount": "30ml",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "김치·고기·양파·당근·대파를 썰어요. 연두·간장·고춧가루·설탕·마늘·물을 섞어요."
+        },
+        {
+          "text": "팬에 기름을 두르고 돼지고기를 볶아요. 김치와 채소·양념을 넣고 고기가 속까지 완전히 익도록 볶아요."
+        },
+        {
+          "text": "끓는 물에 두부를 1~2분 데워 물기를 빼고 썰어요. 볶음과 함께 담아요."
+        }
+      ],
+      "tip": "두부는 쉽게 부서지니 건질 때 넓은 도구로 받쳐 주세요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 두부김치",
+          "url": "https://semie.cooking/recipe-lab/archive/dubukimchi"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 선택 고추를 생략했어요. 고기 두께에 따라 원문보다 볶는 시간을 늘려 완전히 익혀 주세요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "sujebi",
+      "name": "수제비",
+      "kind": "recipe",
+      "why": "시판 수제비 반죽으로 손반죽 과정을 줄여요. 감자와 애호박을 넣어 끓여요.",
+      "summary": "얇은 밀가루 반죽을 국물에 익히는 한 그릇 요리예요. 이 배합은 미리 만든 반죽과 멸치육수를 활용한 간편 버전이에요.",
+      "category": "면",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 30,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-sujebi",
+      "alt": "수제비 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "시판 수제비 반죽",
+          "amount": "200g"
+        },
+        {
+          "name": "멸치·다시마 육수",
+          "amount": "800ml(미리 준비)"
+        },
+        {
+          "name": "감자",
+          "amount": "100g"
+        },
+        {
+          "name": "양파",
+          "amount": "1/4개"
+        },
+        {
+          "name": "애호박",
+          "amount": "50g"
+        },
+        {
+          "name": "당근",
+          "amount": "20g"
+        },
+        {
+          "name": "다진 마늘",
+          "amount": "1작은술",
+          "pantry": true
+        },
+        {
+          "name": "대파",
+          "amount": "1/2대"
+        },
+        {
+          "name": "국간장",
+          "amount": "1큰술, 간을 보며",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1작은술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "감자는 얇게 썰고 양파·애호박·당근·대파를 준비해요."
+        },
+        {
+          "text": "냄비에 육수·감자·양파·마늘을 넣어 끓여요. 감자가 거의 익으면 애호박과 당근을 넣어요."
+        },
+        {
+          "text": "반죽을 얇게 떼어 끓는 국물에 넣어요. 시판 제품의 조리 시간을 따라 속까지 익혀요."
+        },
+        {
+          "text": "국간장으로 간을 맞추고 대파·참기름을 넣어요."
+        }
+      ],
+      "tip": "반죽을 한 덩어리로 넣지 말고 얇게 떼어야 가운데까지 익어요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Hand-torn noodle soup",
+          "url": "https://www.maangchi.com/recipe/sujebi"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문의 손반죽·육수 제조 과정을 시판 제품으로 바꾸고 2인분으로 분량을 편집한 간편 응용이에요. 제품 준비 시간은 제외해요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "tomato-egg-stir-fry",
+      "name": "토마토달걀볶음",
+      "kind": "recipe",
+      "why": "달걀을 먼저 익혀 꺼낸 뒤 토마토와 볶아요. 밥에 곁들이기 쉬운 부드러운 반찬이에요.",
+      "summary": "토마토의 촉촉한 국물과 스크램블드에그를 함께 먹는 볶음이에요. 케첩을 조금 더해 맛을 잡는 배합이에요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 25,
+      "difficulty": "쉬움",
+      "servings": "2인분",
+      "image": "photo-everyday-tomato-egg-stir-fry",
+      "alt": "토마토달걀볶음 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "토마토",
+          "amount": "400g"
+        },
+        {
+          "name": "달걀",
+          "amount": "3개"
+        },
+        {
+          "name": "대파",
+          "amount": "30g"
+        },
+        {
+          "name": "식용유",
+          "amount": "50g",
+          "pantry": true
+        },
+        {
+          "name": "연두순",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "케첩",
+          "amount": "10g",
+          "pantry": true
+        },
+        {
+          "name": "설탕",
+          "amount": "5g",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "토마토를 씻어 꼭지를 떼고 한입 크기로 썰어요. 대파를 썰고 달걀을 풀어요."
+        },
+        {
+          "text": "팬에 기름 일부를 두르고 달걀을 중불에서 부드럽게 익혀 잠시 꺼내요."
+        },
+        {
+          "text": "남은 기름에 대파와 토마토를 볶아요. 연두·케첩·설탕을 넣어요."
+        },
+        {
+          "text": "달걀을 다시 넣고 약 1분 섞어 볶아 완전히 익혀요."
+        }
+      ],
+      "tip": "달걀을 따로 익혀 두면 토마토를 볶는 동안 질겨지는 것을 줄일 수 있어요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "새미네부엌 · 토마토달걀볶음",
+          "url": "https://semie.cooking/recipe-lab/archive/stir-fried-tomato-eggs"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요. 원문에서 선택 가능한 토마토 껍질 벗기기는 생략했어요.",
+      "checkedAt": "2026-11-18"
+    },
+    {
+      "slug": "spinach-namul",
+      "name": "시금치나물",
+      "kind": "recipe",
+      "why": "시금치를 짧게 데쳐 간장과 참기름에 무쳐요. 볶음팬 없이 만드는 기본 나물이에요.",
+      "summary": "데친 시금치의 물기를 짜고 양념을 넣는 반찬이에요. 오래 데치지 않고 찬물에 헹궈 식혀요.",
+      "category": "밥",
+      "tags": [
+        "자취생"
+      ],
+      "cookMinutes": 15,
+      "difficulty": "쉬움",
+      "servings": "반찬 2인분",
+      "image": "photo-everyday-spinach-namul",
+      "alt": "시금치나물 참고 실사 사진",
+      "ingredients": [
+        {
+          "name": "시금치",
+          "amount": "225g"
+        },
+        {
+          "name": "마늘",
+          "amount": "1쪽"
+        },
+        {
+          "name": "대파",
+          "amount": "1대"
+        },
+        {
+          "name": "진간장",
+          "amount": "1.5작은술",
+          "pantry": true
+        },
+        {
+          "name": "참기름",
+          "amount": "1.5작은술",
+          "pantry": true
+        },
+        {
+          "name": "깨",
+          "amount": "2작은술",
+          "pantry": true
+        }
+      ],
+      "steps": [
+        {
+          "text": "시금치를 다듬어 여러 번 씻어요. 마늘과 대파를 다져요."
+        },
+        {
+          "text": "큰 냄비에 물을 끓이고 시금치를 넣어 30초~1분 데쳐요."
+        },
+        {
+          "text": "찬물에 헹구고 물기를 짠 뒤 먹기 좋은 길이로 잘라요."
+        },
+        {
+          "text": "마늘·대파·간장·참기름·깨를 넣어 고루 무쳐요."
+        }
+      ],
+      "tip": "양념을 넣기 전에 물기를 짜야 간이 묽어지지 않아요.",
+      "videoId": null,
+      "convenience": [],
+      "sources": [
+        {
+          "title": "Maangchi · Spinach side dish",
+          "url": "https://www.maangchi.com/recipe/sigumchi-namul"
+        }
+      ],
+      "recipeNote": "AI 요약. 참고한 원문의 재료·조리 과정을 대조해 짧게 정리했어요. 조리 시간은 손질을 포함한 예상치이며, 밥 짓는 시간은 제외해요. 사진은 이 배합을 직접 조리한 사진이 아닌 해당 음식의 참고 사진이에요.",
+      "checkedAt": "2026-11-18"
     }
   ],
   "recommendation": {
