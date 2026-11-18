@@ -4,7 +4,7 @@
 
 > 마지막 갱신: 2026-11-11 (관리자 편집 보강·영상 임베드·약관 페이지·YouTube 30일 정리·내림 기록·사진 올리기 완료, 요약 `docs/2026-11-팀원수정-이후-작업요약.md`). 새 세션은 이 파일을 먼저 읽고 시작한다.
 
-누가 구현하든(사람·Claude·Codex) `AGENTS.md` 의 규칙과 검사 4개를 따른다.
+누가 구현하든(사람·Claude·Codex) `AGENTS.md` 의 규칙과 검사 4개를 따른다. 특히 **「팀원 변경 확인·통합 후 push」**에 따라 작업 시작·push 전 원격 변경을 비교하고, 팀원 변경을 보존해 통합한 뒤 검사한다. 검사 중 원격이 바뀌면 통합·검사를 반복한다.
 
 ## 서비스 한 줄 요약
 지금 유행하는 음식을 가장 빨리 알려주고(주목적), 필요한 재료를 쿠팡에서 "다음 재료 연속 담기"로 담게 돕는 한국 모바일 우선 웹 서비스. 수익은 **쿠팡 파트너스 커미션 + 구글 애드센스**.
@@ -19,7 +19,7 @@
 - 사진: `web/src/lib/foods.ts` 의 키→import 목록(빌드에 포함). DB 의 `image` 는 키 이름 또는 `photos.id`(운영자가 올린 사진, 빌드 전 `npm run photos` 가 `public/photos/` 로 내려받고 상세 화면에 출처 표시). 쿠팡 링크는 파트너스 승인 전이라 **링크 없으면 쿠팡 검색 링크로 대체**. 사진은 `web/src/assets/demo/` 데모 — **배포 전 교체 필수**.
 - 수집: `web/scripts/pipeline/`(YouTube search → LLM 음식명 추출 → 네이버 데이터랩 배수 → 상위 3개 AI 초안). LLM 은 `AI_PROVIDER`(openai|gemini)·`AI_MODEL` 환경변수로 교체(이번 달 OpenAI 크레딧, 그 뒤 Gemini 무료), 429 는 "크레딧·한도 소진"으로 `pipeline_runs` 에 기록. 데이터랩은 NAVER API HUB의 `https://naverapihub.apigw.ntruss.com/search-trend/v1/search` 와 HUB 인증 헤더를 사용하며, `NAVER_DATALAB_URL` 로 전체 주소를 변경 가능. Secret은 `NAVER_API_HUB_KEY_ID`·`NAVER_API_HUB_KEY`, 실제 키 발급·연동 확인은 남아 있음.
 - 목표는 MVP가 아니라 **완성본**: `docs/spec.md` 전체 기능을 만들고 `docs/plan.md` 에 따라 보완한다. 단, 익명 후기·평점은 Phase 2(사용자 확보 후).
-- 원격 저장소: https://github.com/supsuphansoup/trendfood (origin). `main` 보호 규칙은 걸지 않는다(2026-11-05 결정). **PR 없이 `main` 에 바로 push** 한다(2026-11-10 결정): push 전 `git pull --rebase` 로 최신을 받고 검사 4개를 돌린다. push 뒤 `ci`(검사 4개)가 돌고, `deploy` 는 lint·typecheck·unit 을 통과해야만 배포한다.
+- 원격 저장소: https://github.com/supsuphansoup/trendfood (origin). `main` 보호 규칙은 걸지 않는다(2026-11-05 결정). **PR 없이 `main` 에 바로 push** 한다(2026-11-10 결정): `AGENTS.md`의 「팀원 변경 확인·통합 후 push」를 따른다. `fetch`로 새 커밋·diff·작업 기록을 확인하고 `git pull --rebase origin main`으로 통합한 뒤 검사한다. push 직전 원격을 다시 확인하며 변경 시 반복하고 강제 push는 금지한다. push 뒤 `ci`(검사 4개)가 돌고, `deploy` 는 lint·typecheck·unit 을 통과해야만 배포한다.
 - `.playwright-mcp/`(Playwright MCP 스크린샷·로그)는 커밋하지 않는다 (루트 `.gitignore`).
 
 ## 팀장 PC 전용 (Orca 감독 모드)
