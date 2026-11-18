@@ -26,7 +26,8 @@
     "sha1": "2835275b00c0a5c21d0efc01cc5899126a69b64c",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "attributionNotice": "Own work",
-    "note": "우베 라떼 참고 사진이에요. 공식 메타데이터의 이용 조건과 이미지·메뉴 일치를 AI로 자동 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 레시피를 직접 조리한 사진은 아니에요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+    "note": "우베 라떼 참고 사진이에요. 공식 메타데이터의 이용 조건과 이미지·메뉴 일치를 AI로 자동 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 레시피를 직접 조리한 사진은 아니에요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "rejectedReason": "잘린 플라스틱 잔과 거친 표면이 부각되고 완성 음료 형태가 잘 보이지 않음"
   },
   "photo-auto-yakgwa": {
     "title": "약과.jpg",
@@ -180,7 +181,8 @@
     "sha1": "5544279867a7d1dbc539085bad3dea409bafb719",
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
     "attributionNotice": "Own work",
-    "note": "오므라이스 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요."
+    "note": "오므라이스 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요.",
+    "rejectedReason": "배경 반찬과 진한 소스가 주인공인 음식보다 두드러짐"
   },
   "photo-everyday-curry-rice": {
     "title": "Beef curry rice 003.jpg",
@@ -250,7 +252,8 @@
     "sha1": "5d36f3186891b8407191f85f330a57133399cf95",
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
     "attributionNotice": "[1]",
-    "note": "잔치국수 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요."
+    "note": "잔치국수 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요.",
+    "rejectedReason": "스테인리스 그릇과 집게가 부각되고 국수 고명이 잘 보이지 않음"
   },
   "photo-everyday-udon-soup": {
     "title": "Kake Udon and Spam omusubi from Marugame Udon (2024-06-11).jpg",
@@ -264,7 +267,8 @@
     "sha1": "8760822442f3b6669b6e24dc511b7fe7d56df59a",
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
     "attributionNotice": "Own work",
-    "note": "국물우동 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요. 우동 그릇 부분만 잘라 표시했어요."
+    "note": "국물우동 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요. 우동 그릇 부분만 잘라 표시했어요.",
+    "rejectedReason": "면만 크게 보이고 레시피의 유부·대파와 국물 구성이 잘 드러나지 않음"
   },
   "photo-everyday-aglio-olio": {
     "title": "Spaghetti aglio e olio KB.jpg",
@@ -306,7 +310,8 @@
     "sha1": "187e7bb3b56e89c451972ae3831142d9a9c89f68",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
     "attributionNotice": "Own work",
-    "note": "크림파스타 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+    "note": "크림파스타 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "rejectedReason": "식당 배경과 넓은 빈 접시가 두드러지고 색이 탁함"
   },
   "photo-everyday-kimchi-jjigae": {
     "title": "Kimchi jjigae with tofu.jpg",
@@ -376,7 +381,8 @@
     "sha1": "1538b13ea27ce20f9f38985b2f07bfe5d2b6ca74",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
     "attributionNotice": "Own work",
-    "note": "계란국 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+    "note": "계란국 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "rejectedReason": "달걀과 국물이 흐릿하고 그릇이 보이지 않는 과도한 접사"
   },
   "photo-everyday-miyeok-guk": {
     "title": "So-gogi-miyeok-guk 2.jpg",
@@ -474,7 +480,8 @@
     "sha1": "de9d142be9548ea03d5ff1a003969389369d85ee",
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
     "attributionNotice": "https://pixabay.com/photo-555269/ archive copy at the Wayback Machine",
-    "note": "어묵볶음 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요."
+    "note": "어묵볶음 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요.",
+    "rejectedReason": "어두운 식탁과 빈 공간이 크고 볶음 요리의 윤기가 잘 보이지 않음"
   },
   "photo-everyday-cucumber-muchim": {
     "title": "Oi Muchim 오이무침1.jpg",
@@ -488,7 +495,8 @@
     "sha1": "63117642dca5d0924e9abb74102b0e14570481d5",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
     "attributionNotice": "Commons 공식 API의 원본 업로더 Valenzuela400 및 self CC BY-SA 4.0 표기를 확인했어요.",
-    "note": "오이무침 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+    "note": "오이무침 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "rejectedReason": "손으로 든 일회용 반찬 용기가 크게 보여 대표 사진으로 부적합"
   },
   "photo-everyday-gamja-jorim": {
     "title": "Gamja jorim 감자조림1.jpg",
@@ -502,7 +510,8 @@
     "sha1": "c8db98c4e864e47a38594ed098354a453ce2fbec",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
     "attributionNotice": "Commons 공식 API의 원본 업로더 Valenzuela400 및 self CC BY-SA 4.0 표기를 확인했어요.",
-    "note": "감자조림 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+    "note": "감자조림 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "rejectedReason": "손으로 든 일회용 반찬 용기와 주름진 알감자가 대표로 보임"
   },
   "photo-everyday-jeyuk-bokkeum": {
     "title": "Jeyuk-bokkeum.jpg",
@@ -516,7 +525,8 @@
     "sha1": "f4bffc1d16dc471266e0e94cd4c235182389afbb",
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
     "attributionNotice": "http://waegwanlife.tistory.com/702",
-    "note": "제육볶음 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
+    "note": "제육볶음 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요.",
+    "rejectedReason": "밝은 부분이 날아가고 고기보다 파·양파가 부각됨"
   },
   "photo-everyday-kimchi-jeon": {
     "title": "Kimchibuchimgae (kimchi pancake).jpg",
@@ -671,5 +681,175 @@
     "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
     "attributionNotice": "Own work",
     "note": "콘치즈 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-egg-soup": {
+    "title": "Chinese gyeran-tang.jpg",
+    "author": "OLSO OLSO",
+    "url": "https://commons.wikimedia.org/wiki/File:Chinese_gyeran-tang.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/3c/Chinese_gyeran-tang.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 99700263,
+    "sha1": "5c4f4d695fe7f98233ce4c875d64a948dacd677c",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "attributionNotice": "https://thegallery.tistory.com/276",
+    "crop": {
+      "left": 0.15625,
+      "top": 0.13568521031207598,
+      "width": 0.84375,
+      "height": 0.864314789687924
+    },
+    "note": "계란국 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 음식이 잘 보이도록 주변 배경을 잘랐으며 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-cream-pasta": {
+    "title": "주식회사 엔아이에프앤씨 닐리 파스타 음식 사진2-Spaghetti ai funghi.jpg",
+    "author": "최광모",
+    "url": "https://commons.wikimedia.org/wiki/File:%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC_%EC%97%94%EC%95%84%EC%9D%B4%EC%97%90%ED%94%84%EC%95%A4%EC%94%A8_%EB%8B%90%EB%A6%AC_%ED%8C%8C%EC%8A%A4%ED%83%80_%EC%9D%8C%EC%8B%9D_%EC%82%AC%EC%A7%842-Spaghetti_ai_funghi.jpg",
+    "license": "CC BY-SA 4.0",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC_%EC%97%94%EC%95%84%EC%9D%B4%EC%97%90%ED%94%84%EC%95%A4%EC%94%A8_%EB%8B%90%EB%A6%AC_%ED%8C%8C%EC%8A%A4%ED%83%80_%EC%9D%8C%EC%8B%9D_%EC%82%AC%EC%A7%842-Spaghetti_ai_funghi.jpg/1280px-%EC%A3%BC%EC%8B%9D%ED%9A%8C%EC%82%AC_%EC%97%94%EC%95%84%EC%9D%B4%EC%97%90%ED%94%84%EC%95%A4%EC%94%A8_%EB%8B%90%EB%A6%AC_%ED%8C%8C%EC%8A%A4%ED%83%80_%EC%9D%8C%EC%8B%9D_%EC%82%AC%EC%A7%842-Spaghetti_ai_funghi.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 36558897,
+    "sha1": "237b6bf93c8f6351bf68869174d51e0e365420b2",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "attributionNotice": "Own work",
+    "crop": {
+      "left": 0.0703125,
+      "top": 0.2696365767878077,
+      "width": 0.859375,
+      "height": 0.7033997655334114
+    },
+    "note": "크림파스타 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 음식이 잘 보이도록 주변 배경을 잘랐으며 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-gamja-jorim": {
+    "title": "Gamja jorim Korean.jpg",
+    "author": "P1898",
+    "url": "https://commons.wikimedia.org/wiki/File:Gamja_jorim_Korean.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/eb/Gamja_jorim_Korean.jpg/1280px-Gamja_jorim_Korean.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 185636009,
+    "sha1": "eb780681b65fe28fc2b7855178896b9b8b4510e4",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "attributionNotice": "Own work",
+    "note": "감자조림 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-eomuk-bokkeum": {
+    "title": "Eomuk-bokkeum 2.jpg",
+    "author": "행복한 초록개구리",
+    "url": "https://commons.wikimedia.org/wiki/File:Eomuk-bokkeum_2.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/06/Eomuk-bokkeum_2.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 59305259,
+    "sha1": "a7d955534ac93fa836ee0cf477ff143e64c850fe",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "attributionNotice": "http://dia2020.tistory.com/entry/%EB%B0%B1%EC%A2%85%EC%9B%90-%EC%96%B4%EB%AC%B5%EB%B3%B6%EC%9D%8C-%EB%A0%88%EC%8B%9C%ED%94%BC-%EC%96%B4%EB%AC%B5-%EA%B0%90%EC%9E%90-%EC%A1%B0%EB%A6%BC%EC%9D%84-%EA%B0%84%EB%8B%A8%ED%9E%88-%ED%95%9C%EB%B2%88%EC%97%90-%EB%A7%9B%EC%9E%88%EA%B2%8C-%EB%A7%8C%EB%93%9C%EB%8A%94%EB%B2%95 (archive)",
+    "note": "어묵볶음 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-jeyuk-bokkeum": {
+    "title": "Jeyuk-bokkeum 4.jpg",
+    "author": "대경라이프",
+    "url": "https://commons.wikimedia.org/wiki/File:Jeyuk-bokkeum_4.jpg",
+    "license": "CC BY-SA 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/70/Jeyuk-bokkeum_4.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 99799727,
+    "sha1": "1f2e9243a804c94af06fe9e8b1e95a9e2a9cb520",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "attributionNotice": "https://blog.daum.net/food808/446",
+    "note": "제육볶음 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-udon-soup": {
+    "title": "きざみうどん.jpg",
+    "author": "Ttsuchitori",
+    "url": "https://commons.wikimedia.org/wiki/File:%E3%81%8D%E3%81%96%E3%81%BF%E3%81%86%E3%81%A9%E3%82%93.jpg",
+    "license": "CC0",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/%E3%81%8D%E3%81%96%E3%81%BF%E3%81%86%E3%81%A9%E3%82%93.jpg/1280px-%E3%81%8D%E3%81%96%E3%81%BF%E3%81%86%E3%81%A9%E3%82%93.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 80323293,
+    "sha1": "9540b327b060fca25c0c19370409dc0b6c40388d",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "attributionNotice": "Own work",
+    "note": "국물우동 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-omurice": {
+    "title": "202502 沒有加任何肉的蛋包飯.jpg",
+    "author": "Junyu-K",
+    "url": "https://commons.wikimedia.org/wiki/File:202502_%E6%B2%92%E6%9C%89%E5%8A%A0%E4%BB%BB%E4%BD%95%E8%82%89%E7%9A%84%E8%9B%8B%E5%8C%85%E9%A3%AF.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f7/202502_%E6%B2%92%E6%9C%89%E5%8A%A0%E4%BB%BB%E4%BD%95%E8%82%89%E7%9A%84%E8%9B%8B%E5%8C%85%E9%A3%AF.jpg/1280px-202502_%E6%B2%92%E6%9C%89%E5%8A%A0%E4%BB%BB%E4%BD%95%E8%82%89%E7%9A%84%E8%9B%8B%E5%8C%85%E9%A3%AF.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 159787968,
+    "sha1": "fe4a89ac237df957c20a9caa5481badae5e80b3f",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "attributionNotice": "Own work",
+    "crop": {
+      "left": 0.2578125,
+      "top": 0.23446658851113716,
+      "width": 0.625,
+      "height": 0.6248534583821805
+    },
+    "note": "오므라이스 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 음식이 잘 보이도록 주변 배경을 잘랐으며 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
+  },
+  "photo-reviewed-ube-latte-20261118": {
+    "title": "George and Onnie's ube latte.jpg",
+    "author": "Josh Lim (Sky Harbor)",
+    "url": "https://commons.wikimedia.org/wiki/File:George_and_Onnie%27s_ube_latte.jpg",
+    "license": "CC BY-SA 4.0",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a7/George_and_Onnie%27s_ube_latte.jpg/1280px-George_and_Onnie%27s_ube_latte.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 191995889,
+    "sha1": "00aa89cacce1965d4894d7cb996b0642ff6d0b1a",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "attributionNotice": "Own work",
+    "crop": {
+      "left": 0,
+      "top": 0.10416666666666667,
+      "width": 1,
+      "height": 0.8541666666666666
+    },
+    "note": "우베 라떼 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 음식이 잘 보이도록 주변 배경을 잘랐으며 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-janchi-guksu": {
+    "title": "Janchi guksu (noodle soup).jpg",
+    "author": "daecheonnet",
+    "url": "https://commons.wikimedia.org/wiki/File:Janchi_guksu_(noodle_soup).jpg",
+    "license": "CC0",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Janchi_guksu_%28noodle_soup%29.jpg/1280px-Janchi_guksu_%28noodle_soup%29.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 54768082,
+    "sha1": "fb1a2caa03fc3d3543416d0d4a06335afcc6a39f",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "attributionNotice": "https://pixabay.com/photo-709614/ archive copy at the Wayback Machine",
+    "note": "잔치국수 참고 사진이에요. AI가 원본의 음식·구도·공식 이용 조건을 대조해 선택했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니며 토핑과 담음새는 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-cucumber-muchim": {
+    "title": "Oi Muchim 오이무침1.jpg",
+    "author": "Valenzuela400",
+    "url": "https://commons.wikimedia.org/wiki/File:Oi_Muchim_%EC%98%A4%EC%9D%B4%EB%AC%B4%EC%B9%A81.jpg",
+    "license": "CC BY-SA 4.0",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f0/Oi_Muchim_%EC%98%A4%EC%9D%B4%EB%AC%B4%EC%B9%A81.jpg/960px-Oi_Muchim_%EC%98%A4%EC%9D%B4%EB%AC%B4%EC%B9%A81.jpg",
+    "verifiedAt": "2026-11-18",
+    "automatic": false,
+    "pageId": 151634436,
+    "sha1": "63117642dca5d0924e9abb74102b0e14570481d5",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "attributionNotice": "Commons 공식 API의 원본 업로더 Valenzuela400 및 self CC BY-SA 4.0 표기를 확인했어요.",
+    "note": "오이무침 참고 사진이에요. 원본의 손과 용기 테두리가 보이지 않도록 오이 부분을 잘랐어요. AI가 구도와 출처를 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 배합을 직접 조리한 사진은 아니고 재료·담음새는 다를 수 있어요. WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "crop": {
+      "left": 0.28125,
+      "top": 0.1053740779768177,
+      "width": 0.6354166666666666,
+      "height": 0.7586933614330874
+    }
   }
 }

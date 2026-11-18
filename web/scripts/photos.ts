@@ -2,8 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { photoCredits } from "../src/data/photo-credits.ts";
 import { validPhotoSource } from "../src/data/photo-source.ts";
 import { downloadCandidate } from "./photo-automation.ts";
-import sharp from "sharp";
-import { photoModule } from "./photo-assets.ts";
+import { photoModule, renderCuratedPhoto } from "./photo-assets.ts";
 
 // 검토한 manifest만 내려받는다. SNS 이미지나 임의의 검색 결과는 사용하지 않는다.
 await mkdir("src/assets/curated", { recursive: true });
@@ -12,7 +11,7 @@ for (const [key, photo] of Object.entries(photoCredits)) {
     throw new Error(`사진 출처·이용 조건 확인 필요: ${key}`);
   }
   const input = await downloadCandidate({ ...photo, description: "" });
-  const buffer = await sharp(input).rotate().resize({ width: 1600, withoutEnlargement: true }).webp({ quality: 85 }).toBuffer();
+  const buffer = await renderCuratedPhoto(input, photo.crop);
   await writeFile(`src/assets/curated/${key}.webp`, buffer);
   console.log(`사진 저장: ${key}`);
 }

@@ -59,6 +59,27 @@ import everydayPhoto39 from "@/assets/curated/photo-everyday-spinach-namul.webp"
 
 import everydayPhoto11 from "@/assets/curated/photo-everyday-corn-cheese.webp";
 
+import reviewedPhoto0 from "@/assets/curated/photo-everyday-reviewed-egg-soup.webp";
+
+import reviewedPhoto1 from "@/assets/curated/photo-everyday-reviewed-cream-pasta.webp";
+
+import reviewedPhoto2 from "@/assets/curated/photo-everyday-reviewed-gamja-jorim.webp";
+
+import reviewedPhoto3 from "@/assets/curated/photo-everyday-reviewed-eomuk-bokkeum.webp";
+
+import reviewedPhoto4 from "@/assets/curated/photo-everyday-reviewed-jeyuk-bokkeum.webp";
+
+import reviewedPhoto5 from "@/assets/curated/photo-everyday-reviewed-udon-soup.webp";
+
+import reviewedPhoto6 from "@/assets/curated/photo-everyday-reviewed-omurice.webp";
+
+import reviewedPhoto7 from "@/assets/curated/photo-reviewed-ube-latte-20261118.webp";
+
+
+import reviewedPhoto9 from "@/assets/curated/photo-everyday-reviewed-janchi-guksu.webp";
+
+import reviewedPhoto10 from "@/assets/curated/photo-everyday-reviewed-cucumber-muchim.webp";
+
 export const curatedPhotos = {
   "photo-auto-dubai-chewy-cookie": photo0,
   "photo-auto-ube-latte": photo1,
@@ -118,4 +139,14 @@ export const curatedPhotos = {
   "photo-everyday-tomato-egg-stir-fry": everydayPhoto38,
   "photo-everyday-spinach-namul": everydayPhoto39,
   "photo-everyday-corn-cheese": everydayPhoto11,
+  "photo-everyday-reviewed-egg-soup": reviewedPhoto0,
+  "photo-everyday-reviewed-cream-pasta": reviewedPhoto1,
+  "photo-everyday-reviewed-gamja-jorim": reviewedPhoto2,
+  "photo-everyday-reviewed-eomuk-bokkeum": reviewedPhoto3,
+  "photo-everyday-reviewed-jeyuk-bokkeum": reviewedPhoto4,
+  "photo-everyday-reviewed-udon-soup": reviewedPhoto5,
+  "photo-everyday-reviewed-omurice": reviewedPhoto6,
+  "photo-reviewed-ube-latte-20261118": reviewedPhoto7,
+  "photo-everyday-reviewed-janchi-guksu": reviewedPhoto9,
+  "photo-everyday-reviewed-cucumber-muchim": reviewedPhoto10,
 };

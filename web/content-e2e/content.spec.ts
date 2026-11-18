@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import type { ContentSnapshot } from "../src/data/content";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
-const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { licenseUrl: string; license: string; title: string; automatic?: boolean }>;
+const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { url: string; licenseUrl: string; license: string; title: string; automatic?: boolean }>;
 const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, { note: string }>;
 
 test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유 주소를 유지한다", async ({ page }, info) => {
@@ -120,6 +120,27 @@ test("추가 자취 요리는 검색·실사·재료 분량과 일반 구매 검
   await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
   await expect(page.getByRole("link", { name: /사진 출처/ })).toBeVisible();
   await expect(page.getByText(/AI 생성 예시 ·/)).toHaveCount(0);
+});
+
+test("재검토 사진은 카드와 상세에서 같은 실사·출처로 표시한다", async ({ page }, info) => {
+  for (const slug of ["egg-soup", "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum", "udon-soup", "omurice", "ube-latte", "janchi-guksu", "cucumber-muchim"]) {
+    const food = snapshot.foods.find((food) => food.slug === slug)!;
+    const credit = automaticPhotos[food.image];
+    expect(credit.automatic).toBe(false);
+    await page.goto(`/?q=${encodeURIComponent(food.name)}`);
+    const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: food.name, exact: true }) });
+    const image = card.getByRole("img", { name: food.alt, exact: true });
+    await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    const source = await image.getAttribute("src");
+    await expect(card.getByText("참고 사진", { exact: true })).toBeVisible();
+    await card.screenshot({ path: `test-results/content/reviewed-${slug}-card-${info.project.name}.png` });
+    await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
+    const detail = page.getByRole("region", { name: "음식 소개", exact: true });
+    await expect(detail.getByRole("img", { name: food.alt, exact: true })).toHaveAttribute("src", source!);
+    await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    if (["egg-soup", "ube-latte", "cucumber-muchim"].includes(slug)) await page.screenshot({ path: `test-results/content/reviewed-${slug}-detail-${info.project.name}.png` });
+  }
 });
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
