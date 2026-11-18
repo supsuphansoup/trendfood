@@ -4,7 +4,6 @@ import {
   ArrowUp,
   ArrowUpRight,
   ChevronDown,
-  Clock3,
   Heart,
   Search,
   SlidersHorizontal,
@@ -19,12 +18,25 @@ import { FoodCard } from "@/components/home/food-card";
 import { YearFilter } from "@/components/home/year-filter";
 import { trendHistory } from "@/data/trend-history";
 import { LikeCount } from "@/components/like-button";
-import { buyable, categoryOptions, type Food, sortOptions, tagOptions } from "@/lib/foods";
+import { categoryOptions, type Food, sortOptions, tagOptions } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 import { LIKES_KEY, useStoredSet } from "@/lib/use-stored-set";
 
 type Sort = (typeof sortOptions)[number];
 type Tab = "전체" | (typeof categoryOptions)[number] | "찜";
+type Collection = "all" | "trends" | "everyday";
+
+const collections: { value: Collection; label: string }[] = [
+  { value: "all", label: "전체 음식" },
+  { value: "trends", label: "유행 기록" },
+  { value: "everyday", label: "일상 레시피" },
+];
+
+function matchesCollection(food: Food, collection: Collection) {
+  if (collection === "all") return true;
+  if (collection === "trends") return !!food.history?.years.length || food.kind === "discovery";
+  return !food.history?.years.length && (!food.kind || food.kind === "recipe");
+}
 
 const tabs: Tab[] = ["전체", ...categoryOptions.filter((category) => category !== "간식")];
 
@@ -39,6 +51,7 @@ function readUrl(years: number[]) {
   const tag = p.get("tag");
   const year = Number(p.get("year"));
   return {
+    collection: collections.some(({ value }) => value === p.get("collection")) ? p.get("collection") as Collection : "all" as Collection,
     tab: ([...tabs, "찜"] as string[]).includes(cat ?? "") ? (cat as Tab) : "전체",
     sort: (sortOptions as readonly string[]).includes(sort ?? "") ? (sort as Sort) : "급상승순",
     tag: (tagOptions as readonly string[]).includes(tag ?? "") ? tag : null,
@@ -53,6 +66,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
   const curated = foods.every((food) => food.editorial);
   const years = useMemo(() => [...new Set(foods.flatMap((food) => food.history?.years ?? []))].sort((a, b) => a - b), [foods]);
   const [year, setYear] = useState<number | null>(null);
+  const [collection, setCollection] = useState<Collection>("all");
   const [tab, setTab] = useState<Tab>("전체");
   const [sort, setSort] = useState<Sort>("급상승순");
   const [tag, setTag] = useState<string | null>(null);
@@ -70,6 +84,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     const s = readUrl(years);
     /* eslint-disable react-hooks/set-state-in-effect -- 브라우저 주소는 첫 렌더 뒤에만 읽을 수 있다 */
     setTab(s.tab);
+    setCollection(curated ? s.collection : "all");
     setSort(s.sort);
     setTag(s.tag);
     setQuery(s.q);
@@ -80,6 +95,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     const onPop = () => {
       const n = readUrl(years);
       setTab(n.tab);
+      setCollection(curated ? n.collection : "all");
       setSort(n.sort);
       setTag(n.tag);
       setQuery(n.q);
@@ -88,11 +104,12 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
-  }, [years]);
+  }, [years, curated]);
 
   useEffect(() => {
     if (!ready) return;
     const p = new URLSearchParams();
+    if (collection !== "all") p.set("collection", collection);
     if (tab !== "전체") p.set("cat", tab);
     if (sort !== "급상승순") p.set("sort", sort);
     if (tag) p.set("tag", tag);
@@ -102,7 +119,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     if (next !== window.location.search && !(next === window.location.pathname && !window.location.search)) {
       window.history.pushState(null, "", next);
     }
-  }, [ready, tab, sort, tag, applied, year]);
+  }, [ready, tab, sort, tag, applied, year, collection]);
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 900);
@@ -112,13 +129,14 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
   }, []);
 
   const counts = useMemo(() => {
-    const c: Record<string, number> = { 전체: foods.length, 찜: likes.items.length };
-    for (const f of foods) c[f.category] = (c[f.category] ?? 0) + 1;
+    const visible = foods.filter((food) => matchesCollection(food, collection));
+    const c: Record<string, number> = { 전체: visible.length, 찜: visible.filter((food) => likes.items.includes(food.slug)).length };
+    for (const f of visible) c[f.category] = (c[f.category] ?? 0) + 1;
     return c;
-  }, [foods, likes.items]);
+  }, [foods, likes.items, collection]);
 
   const q = applied.trim();
-  const filtering = Boolean(q || tag || tab !== "전체" || year !== null);
+  const filtering = Boolean(q || tag || tab !== "전체" || year !== null || collection !== "all");
   const history = trendHistory.filter((item) => item.year === year);
 
   const list = useMemo(() => {
@@ -128,7 +146,8 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
         (tab === "전체" || (tab === "찜" ? likes.items.includes(f.slug) : f.category === tab)) &&
         (!tag || f.tags.includes(tag)) &&
         (!curated || !year || f.history?.years.includes(year)) &&
-        (!q || f.name.includes(q) || f.ingredients.some((i) => i.name.includes(q)) || f.why.includes(q)),
+        matchesCollection(f, collection) &&
+        (!q || f.name.includes(q) || f.ingredients.some((i) => i.name.includes(q)) || f.why.includes(q) || f.history?.note.includes(q)),
     );
     const by: Record<Sort, (a: Food, b: Food) => number> = {
       급상승순: (a, b) => a.rank - b.rank,
@@ -136,7 +155,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
       조리시간순: (a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes),
     };
     return [...filtered].sort(by[sort]);
-  }, [foods, sort, tag, tab, likes.items, q, year, filtering, curated]);
+  }, [foods, sort, tag, tab, likes.items, q, year, filtering, curated, collection]);
 
   /** 목록 위쪽이 화면 밖에 있으면 목록 처음으로 올려 준다 */
   const toList = () => {
@@ -149,6 +168,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     toList();
   };
   const reset = () => {
+    setCollection("all");
     setYear(null);
     setTab("전체");
     setTag(null);
@@ -164,7 +184,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     toList();
   };
 
-  const title = [tab === "전체" ? (filtering ? "전체" : curated ? "유행 음식과 일상 레시피" : "2위부터") : tab === "찜" ? "찜한 음식" : tab, year && `${year}년 화제`, tag && `#${tag}`, q && `'${q}' 검색`]
+  const title = [tab === "전체" ? (curated ? collection === "all" ? "음식 둘러보기" : collections.find(({ value }) => value === collection)!.label : filtering ? "전체" : "2위부터") : tab === "찜" ? "찜한 음식" : tab, year && `${year}년 화제`, tag && `#${tag}`, q && `'${q}' 검색`]
     .filter(Boolean)
     .join(" · ");
 
@@ -227,6 +247,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 type="button"
                 aria-pressed={tab === "찜"}
                 onClick={() => {
+                  setCollection("all");
                   setYear(null);
                   setTab(tab === "찜" ? "전체" : "찜");
                   listRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -240,46 +261,44 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
           </div>
       </header>
 
-      <section aria-label="유행 음식 탐색" className="mx-auto w-full max-w-[1200px] px-5 pt-5 pb-5 md:pt-7 md:pb-6">
-        <section aria-label={curated ? "오늘의 음식" : "오늘의 1위"} className={cn("bg-feature-surface text-foreground", top.imageAvailable && "grid gap-5 md:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] md:gap-10")}>
-          <div className="flex flex-col items-start gap-4 md:justify-center md:gap-6 md:py-5">
-            <p className="text-base font-bold text-foreground">{curated ? "오늘의 음식" : "오늘 가장 많이 찾은 음식, 1위"}</p>
+      <section aria-label="유행 음식 탐색" className="mx-auto w-full max-w-[1200px] px-5 pt-4 pb-3 md:pt-7 md:pb-4">
+        <section aria-label={curated ? "오늘의 음식" : "오늘의 1위"} className={cn("bg-feature-surface text-foreground", top.imageAvailable && "grid gap-3 md:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] md:gap-10")}>
+          <div className="flex flex-col items-start gap-3 md:justify-center md:gap-5 md:py-4">
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-meta font-bold text-foreground">
+              <span>{curated ? recommendation?.basis === "new" ? "새로 소개하는 음식" : recommendation?.basis === "trend" ? "검색 흐름으로 살펴본 음식" : top.history ? "다시 보는 유행" : "오늘 살펴볼 음식" : "오늘 가장 많이 찾은 음식, 1위"}</span>
+              {top.history && <span className="font-medium text-muted-foreground">{top.history.years.map((year) => `${year}년`).join(" · ")}</span>}
+            </p>
             <h1 className="text-stage-mobile leading-[1.12] font-extrabold tracking-[-0.035em] text-primary md:text-stage-tablet lg:text-stage-title">{top.name}</h1>
-            <p data-testid="feature-description" className="max-w-[30em] text-reading leading-[1.75] text-body">{top.why}</p>
-            <div className="flex flex-wrap items-center gap-3">
+            <p data-testid="feature-description" className="max-w-[30em] text-reading leading-[1.65] text-body">{(top.history?.note ?? top.why).split(/(?<=[.!?])\s+/)[0]}</p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
               <Link
                 href={`/food/${top.slug}`}
-                className="inline-flex min-h-12 items-center justify-center rounded-lg bg-primary px-5 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground md:px-6"
+                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-5 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground md:min-h-12 md:px-6"
               >
-                {top.kind === "discovery" ? "음식 알아보기" : top.kind === "product" ? "제품 알아보기" : "레시피 보기"}
+                음식 살펴보기
               </Link>
-              {top.kind !== "discovery" && <Link
-                href={`/food/${top.slug}#cart`}
-                className="inline-flex min-h-12 items-center justify-center rounded-lg border border-input px-4 text-base font-semibold text-foreground hover:bg-secondary hover:text-foreground"
-              >
-                재료 {buyable(top).length}개 담기
-              </Link>}
+              <a href="#list" className="inline-flex min-h-11 items-center gap-1.5 text-base font-bold text-foreground hover:text-accent">음식 둘러보기 <ArrowUpRight className="size-4" aria-hidden /></a>
             </div>
           </div>
           {top.imageAvailable && <figure className="order-first min-w-0 md:order-none md:self-center">
-            <div className="relative aspect-[8/5] overflow-hidden rounded-photo bg-secondary md:aspect-[5/4]">
+            <div className="relative aspect-[2/1] overflow-hidden rounded-photo bg-secondary md:aspect-[8/5]">
               <FoodImage food={top} hero preload sizes="(max-width: 767px) 100vw, 640px" />
             </div>
-            <figcaption className="flex min-h-10 items-center justify-between gap-3 text-meta text-muted-foreground">
+            <figcaption className="flex min-h-7 items-center gap-3 text-meta text-muted-foreground">
               <span>{top.editorial ? top.generatedImage ? "AI 생성 예시" : "참고 사진" : "데모 사진"}</span>
-              <span className="inline-flex items-center gap-1.5">{top.kind !== "discovery" && <Clock3 className="size-3.5" aria-hidden />}{top.kind === "discovery" ? "음식 소개" : top.kind === "product" ? "완제품 안내" : `${top.cookMinutes}분`}</span>
             </figcaption>
           </figure>}
         </section>
-        <div aria-label="추천과 출처 안내" className="mt-4 grid gap-x-8 gap-y-2 text-meta leading-relaxed text-muted-foreground md:grid-cols-3">
+        <details aria-label="추천과 출처 안내" className="group mt-2 border-t text-meta leading-relaxed text-muted-foreground">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 focus-visible:rounded-md [&::-webkit-details-marker]:hidden">
+            <span>{curated ? "AI 안내·출처 정보" : "예시 데이터 안내"}</span><ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
+          </summary>
+          <div className="grid gap-x-8 gap-y-2 pt-1 pb-4 md:grid-cols-3">
           {recommendation && <p data-testid="recommendation-edition">추천 갱신 {recommendation.date}<br />{recommendation.basis === "new" ? "새로 추가한 음식" : recommendation.basis === "trend" ? "검색 흐름을 참고한 추천" : "기존 음식 돌아보기"}</p>}
           <p>{curated ? `출처 확인 ${top.editorial!.checkedAt}` : "AI 요약, 운영자 검수 완료. 데모 사진"}</p>
-          {curated && <p>{top.kind === "discovery" ? "AI 음식 소개" : "AI 조리 안내"}<br />실시간 순위 집계 전</p>}
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-          <p className="flex items-center gap-2 text-meta text-muted-foreground">{curated ? `2020–${Math.max(2026, ...years)}, 출처로 살펴보는 유행 음식` : "마음에 드는 음식은 찜하고, 필요한 재료만 모아보세요."}</p>
-          <a href="#list" className="inline-flex min-h-11 items-center gap-2 text-base font-bold text-foreground hover:text-accent">음식 둘러보기 <ArrowUpRight className="size-5 text-accent" aria-hidden /></a>
-        </div>
+          {curated && <p>{top.kind === "discovery" ? "AI 음식 소개" : "AI 조리 안내"}<br />실시간 인기 순위가 아닌 유행 기록이에요.</p>}
+          </div>
+        </details>
       </section>
 
       <div className="w-full border-t bg-feed-surface">
@@ -338,6 +357,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
 
         <div className="min-w-0">
           <main id="list" ref={listRef} className="scroll-mt-16 pt-6 pb-14">
+            {curated && <nav aria-label="음식 모음" className="mb-4 flex flex-wrap gap-2">
+              {collections.map(({ value, label }) => <button key={value} type="button" aria-pressed={collection === value} onClick={() => { setCollection(value); toList(); }} className="min-h-11 rounded-md border border-line-strong px-4 text-sm font-semibold text-foreground hover:bg-card aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background">{label}</button>)}
+            </nav>}
             <div aria-live="polite" className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
               <h2 className="text-2xl font-bold tracking-tight">{!curated && year !== null ? `${year}년 유행 음식` : title}</h2>
               <span className="text-sm text-muted-foreground">{!curated && year !== null ? history.length : list.length}개</span>
@@ -347,7 +369,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 </button>
               )}
             </div>
-            {curated && <p className="mt-2 max-w-[42em] text-base leading-[1.75] text-body">기사·공식 자료에서 주목받은 시기를 기록했어요. 유행 연도가 없는 항목은 일상 레시피예요.</p>}
+            {curated && <p className="mt-1 max-w-[42em] text-meta leading-relaxed text-muted-foreground">{collection === "everyday" ? "유행 기록과 별개로 모은 일상 레시피예요." : "출처로 확인한 유행 시기예요. 현재 인기 순위와는 달라요."}</p>}
             {!curated && year !== null ? (
               <>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">당시 보도로 살펴본 유행 음식이에요. 순위가 아닌 대표 사례이며, 연도는 유행이 확인된 시기를 뜻해요.</p>
@@ -372,11 +394,11 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                   {tab === "찜" ? "아직 찜한 음식이 없어요. 음식 옆 하트를 눌러 보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
                 </p>
                 <button type="button" onClick={reset} className="min-h-11 rounded-lg bg-primary px-5 font-bold text-white">
-                  전체 순위 보기
+                  {curated ? "전체 음식 보기" : "전체 순위 보기"}
                 </button>
               </div>
             ) : (
-              <ol className="food-grid m-0 mt-6 grid list-none gap-6 p-0 pb-8 md:grid-cols-2 md:gap-8">
+              <ol className="food-grid m-0 mt-5 grid list-none gap-5 p-0 pb-8 md:grid-cols-2 md:gap-7">
                 {list.map((food, i) => (
                   <Fragment key={food.slug}>
                     <FoodCard food={food} wide={i === 2 && list.length > 3} />

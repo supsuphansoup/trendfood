@@ -150,9 +150,9 @@
   --text-intro: 3rem;           /* 48px 홈 소개 */
   --text-intro-mobile: 2rem;    /* 32px 모바일 홈 소개 */
   --text-feature: 3.5rem;        /* 56px 대표 음식명 */
-  --text-stage-title: 4.5rem;     /* 72px PC 대표 음식명 */
+  --text-stage-title: 4rem;       /* 64px PC 대표 음식명 */
   --text-stage-tablet: 3rem;     /* 48px 태블릿 대표 음식명 */
-  --text-stage-mobile: 2.5rem;   /* 40px 모바일 대표 음식명 */
+  --text-stage-mobile: 2.25rem;  /* 36px 모바일 대표 음식명 */
   --text-feature-mobile: 2.25rem; /* 36px 모바일 대표 음식명 */
   --text-feed-title: 1.25rem;  /* 20px 모바일 탐색 카드 */
   --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */

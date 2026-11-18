@@ -317,7 +317,7 @@ test("음식 소개는 조리법·재료 구매 없이 탐색하고 출처와 �
   await expect(card.getByRole("link", { name: /재료|레시피/ })).toHaveCount(0);
   await card.getByRole("button", { name: /찜/ }).click();
   await page.screenshot({ path: `test-results/discovery-card-${info.project.name}.png`, fullPage: true });
-  await card.getByRole("link", { name: "음식 알아보기" }).click();
+  await card.getByRole("link", { name: "음식 살펴보기" }).click();
   await expect(page).toHaveTitle("계란 파 라면 음식 정보와 출처 | 트렌드푸드");
   await expect(page.getByRole("heading", { name: "어떤 음식인가요" })).toBeVisible();
   await expect(page.getByRole("region", { name: "참고한 출처" })).toBeVisible();
@@ -405,11 +405,11 @@ test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조�
   await expect(feature.locator("figure")).toHaveCSS("padding", "0px");
   await expect(feature.locator("figure > div")).toHaveCSS("border-radius", "8px");
   await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(201, 49, 53)");
-  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("font-size", info.project.name === "desktop" ? "72px" : "40px");
+  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("font-size", info.project.name === "desktop" ? "64px" : "36px");
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
-  const cta = feature.getByRole("link", { name: "레시피 보기", exact: true });
+  const cta = feature.getByRole("link", { name: "음식 살펴보기", exact: true });
   await expect(cta).toHaveCSS("background-color", "rgb(201, 49, 53)");
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toBeInViewport();
@@ -426,22 +426,20 @@ test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조�
   await page.goto("/");
   await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
   const firstCard = page.locator(".food-grid > li").first();
-  // 본문을 자르지 않고, 읽기와 재료 구매의 행동 영역을 분리한다.
-  const recipe = firstCard.getByRole("link", { name: "레시피 보기", exact: true });
-  const ingredients = firstCard.getByRole("link", { name: /^재료 \d+개 담기$/ });
-  await expect(recipe).toHaveCSS("background-color", "rgb(37, 37, 37)");
-  await expect(recipe).toHaveCSS("font-size", "16px");
-  await expect(ingredients).toHaveCSS("border-top-width", "1px");
+  // 홈은 음식 탐색에 집중하고 조리법·구매는 상세에서 이어진다.
+  const explore = firstCard.getByRole("link", { name: "음식 살펴보기", exact: true });
+  await expect(explore).toHaveCSS("font-size", "16px");
+  await expect(firstCard.getByRole("link", { name: /재료.*담기|레시피 보기/ })).toHaveCount(0);
   const description = firstCard.getByTestId("food-description");
   await expect(description).toHaveCSS("font-size", "18px");
-  expect(await description.evaluate((el) => el.scrollHeight <= el.clientHeight)).toBe(true);
-  expect(parseFloat(await description.evaluate((el) => getComputedStyle(el).lineHeight))).toBeGreaterThanOrEqual(30);
+  expect(await description.evaluate((el) => el.clientHeight <= parseFloat(getComputedStyle(el).lineHeight) * 2 + 1)).toBe(true);
   const actions = firstCard.getByRole("link");
   for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expectNoA11yViolations(page);
   await page.screenshot({ path: `test-results/readable-feed-${info.project.name}.png` });
-  await ingredients.click();
+  await explore.click();
+  await page.getByRole("link", { name: "재료 살펴보기", exact: true }).click();
   await expect(page).toHaveURL(/#cart$/);
   await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeInViewport();
 
@@ -575,7 +573,7 @@ test("메인: 카테고리 탭, 주소에 필터 기억, 뒤로가기", async ({
 test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근성", async ({ page, context }, info) => {
   await context.route("https://www.coupang.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>상품 링크 테스트</p>" }));
   await page.goto("/");
-  await page.getByRole("link", { name: "레시피 보기" }).first().click();
+  await page.getByRole("link", { name: "음식 살펴보기", exact: true }).first().click();
   await expect(page).toHaveURL(/\/food\/dubai-chocolate$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
   await expectNoA11yViolations(page);
