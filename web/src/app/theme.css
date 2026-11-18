@@ -73,7 +73,7 @@
 
   --shadow-bar: 0 8px 24px oklch(0.245 0.024 49.5 / 0.35); /* 모바일 하단 고정 바 */
   --brand: #FF6B0A;                           /* 로고와 이어지는 헤더 경계 */
-  --feature-surface: #FFFFFF;                  /* 대표 음식은 바탕에 직접 배치한다 */
+  --feature-surface: var(--brand);             /* 대표 음식은 로고 원본 오렌지로 강조 */
   --accent-soft: #FFF1EA;                      /* 분류·선택 상태의 옅은 오렌지 */
 }
 
@@ -140,6 +140,7 @@
   --radius-3xl: 1.25rem;   /* 20px PC 사진 카드·장바구니 박스 */
   --radius-bar: 1.125rem;  /* 18px 모바일 하단 바 */
   --radius-feature: 0.75rem; /* 12px 홈 사진·검색·음식 단위 */
+  --radius-stage: 1.5rem;   /* 24px 대표 음식의 브랜드 면과 사진 프레임 */
 
   /* 글자 크기 (PC / 모바일은 docs/design.md 3장 표) */
   --text-hero: 5.5rem;          /* 88px 메인 히어로 */
@@ -149,6 +150,7 @@
   --text-intro: 3rem;           /* 48px 홈 소개 */
   --text-intro-mobile: 2rem;    /* 32px 모바일 홈 소개 */
   --text-feature: 3.5rem;        /* 56px 대표 음식명 */
+  --text-stage-title: 4rem;      /* 64px 홈 대표 음식 강조 */
   --text-feature-mobile: 2.25rem; /* 36px 모바일 대표 음식명 */
   --text-feed-title: 1.25rem;  /* 20px 모바일 탐색 카드 */
   --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */

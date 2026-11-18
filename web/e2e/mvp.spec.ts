@@ -380,7 +380,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
 });
 
-test("가독성 개편: 선호 배치에서 설명·안내를 읽고 구분된 버튼으로 이동한다", async ({ page }, info) => {
+test("브랜드 강조: 오렌지 대표 음식과 읽기 영역을 구분하고 선호 배치를 유지한다", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
   await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
@@ -401,19 +401,24 @@ test("가독성 개편: 선호 배치에서 설명·안내를 읽고 구분된 �
   else expect(imageBox.y + imageBox.height).toBeLessThanOrEqual(titleBox.y);
   await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
   await expect(page.locator("body")).toHaveCSS("background-color", "rgb(255, 255, 255)");
-  await expect(feature).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  await expect(feature).toHaveCSS("background-color", "rgb(255, 107, 10)");
+  await expect(feature.locator("figure")).toHaveCSS("background-color", "lab(100 0 0)");
   await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(37, 37, 37)");
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(212, 59, 18)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "레시피 보기", exact: true });
-  await expect(cta).toHaveCSS("background-color", "rgb(212, 59, 18)");
+  await expect(cta).toHaveCSS("background-color", "rgb(37, 37, 37)");
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toBeInViewport();
   await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
   await expect(feature.locator("figcaption")).toHaveCSS("font-size", "14px");
-  await expect(feature.getByLabel("추천과 출처 안내")).toHaveCSS("font-size", "14px");
-  await page.screenshot({ path: `test-results/readable-home-${info.project.name}.png` });
+  const notes = page.getByLabel("추천과 출처 안내");
+  await expect(notes).toHaveCSS("font-size", "14px");
+  // 주목할 음식과 출처·추천 정보의 영역이 겹치지 않아야 한다.
+  expect((await notes.boundingBox())!.y).toBeGreaterThanOrEqual(featureBox.y + featureBox.height);
+  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("font-weight", "900");
+  await page.screenshot({ path: `test-results/brand-home-${info.project.name}.png` });
   await cta.click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
   await page.goto("/");
