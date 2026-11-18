@@ -174,7 +174,7 @@ async function login(page: Page, user = ADMIN) {
 test("공통 주 버튼: 오렌지 기본색과 호버 색에서 흰 글자의 대비를 유지한다", async ({ page }) => {
   await page.goto("/admin");
   const button = page.getByRole("button", { name: "로그인", exact: true });
-  await expect(button).toHaveCSS("background-color", "rgb(212, 59, 18)");
+  await expect(button).toHaveCSS("background-color", "rgb(201, 49, 53)");
   await noA11y(page);
   await button.hover();
   await noA11y(page);

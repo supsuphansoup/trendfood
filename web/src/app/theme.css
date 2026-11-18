@@ -16,8 +16,8 @@
   --popover: oklch(1 0 0);
   --popover-foreground: var(--foreground);
 
-  /* 주 버튼 = 선명한 오렌지 (레시피 보기·단계 번호) */
-  --primary: #D43B12;
+  /* 주 버튼과 대표 음식명 = 토마토 레드 */
+  --primary: #C93135;
   --primary-foreground: oklch(1 0 0);
 
   /* 보조 = 칩 배경 */
@@ -28,11 +28,11 @@
   --muted: #F7F7F5;
   --muted-foreground: #60656B;
 
-  /* 강조 = 진한 오렌지 (선택된 칩·순위·링크·그래프) */
-  --accent: #C03610;
+  /* 선택·분류·링크도 같은 레드로 역할을 일치시킨다. */
+  --accent: var(--primary);
   --accent-foreground: oklch(1 0 0);
 
-  --destructive: oklch(0.411 0.137 31.9);        /* #852212 */
+  --destructive: #982329;                       /* 주 버튼·링크의 진한 상태 */
   --destructive-foreground: oklch(1 0 0);
 
   --border: #DEDEDA;
@@ -73,8 +73,8 @@
 
   --shadow-bar: 0 8px 24px oklch(0.245 0.024 49.5 / 0.35); /* 모바일 하단 고정 바 */
   --brand: #FF6B0A;                           /* 로고와 이어지는 헤더 경계 */
-  --feature-surface: var(--brand);             /* 대표 음식은 로고 원본 오렌지로 강조 */
-  --accent-soft: #FFF1EA;                      /* 분류·선택 상태의 옅은 오렌지 */
+  --feature-surface: var(--background);        /* 배경보다 음식 사진·큰 제목을 먼저 보게 한다. */
+  --accent-soft: #FFF0F1;                      /* 분류·선택 상태의 옅은 레드 */
 }
 
 @theme inline {
@@ -140,7 +140,7 @@
   --radius-3xl: 1.25rem;   /* 20px PC 사진 카드·장바구니 박스 */
   --radius-bar: 1.125rem;  /* 18px 모바일 하단 바 */
   --radius-feature: 0.75rem; /* 12px 홈 사진·검색·음식 단위 */
-  --radius-stage: 1.5rem;   /* 24px 대표 음식의 브랜드 면과 사진 프레임 */
+  --radius-photo: 0.5rem;  /* 8px 대표 음식 사진 */
 
   /* 글자 크기 (PC / 모바일은 docs/design.md 3장 표) */
   --text-hero: 5.5rem;          /* 88px 메인 히어로 */
@@ -150,7 +150,9 @@
   --text-intro: 3rem;           /* 48px 홈 소개 */
   --text-intro-mobile: 2rem;    /* 32px 모바일 홈 소개 */
   --text-feature: 3.5rem;        /* 56px 대표 음식명 */
-  --text-stage-title: 4rem;      /* 64px 홈 대표 음식 강조 */
+  --text-stage-title: 4.5rem;     /* 72px PC 대표 음식명 */
+  --text-stage-tablet: 3rem;     /* 48px 태블릿 대표 음식명 */
+  --text-stage-mobile: 2.5rem;   /* 40px 모바일 대표 음식명 */
   --text-feature-mobile: 2.25rem; /* 36px 모바일 대표 음식명 */
   --text-feed-title: 1.25rem;  /* 20px 모바일 탐색 카드 */
   --text-card-grid-title: 1.75rem; /* 28px 두 열 카드 제목 */

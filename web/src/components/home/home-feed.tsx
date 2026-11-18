@@ -241,28 +241,28 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
       </header>
 
       <section aria-label="유행 음식 탐색" className="mx-auto w-full max-w-[1200px] px-5 pt-5 pb-5 md:pt-7 md:pb-6">
-        <section aria-label={curated ? "오늘의 음식" : "오늘의 1위"} className={cn("overflow-hidden rounded-stage bg-feature-surface text-foreground", top.imageAvailable && "grid md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]")}>
-          <div className="flex flex-col items-start gap-4 px-5 pt-3 pb-6 md:justify-center md:gap-6 md:p-10">
+        <section aria-label={curated ? "오늘의 음식" : "오늘의 1위"} className={cn("bg-feature-surface text-foreground", top.imageAvailable && "grid gap-5 md:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] md:gap-10")}>
+          <div className="flex flex-col items-start gap-4 md:justify-center md:gap-6 md:py-5">
             <p className="text-base font-bold text-foreground">{curated ? "오늘의 음식" : "오늘 가장 많이 찾은 음식, 1위"}</p>
-            <h1 className="text-feature-mobile leading-[1.12] font-black tracking-[-0.035em] md:text-stage-title">{top.name}</h1>
-            <p data-testid="feature-description" className="max-w-[30em] text-reading leading-[1.75] text-foreground">{top.why}</p>
+            <h1 className="text-stage-mobile leading-[1.12] font-extrabold tracking-[-0.035em] text-primary md:text-stage-tablet lg:text-stage-title">{top.name}</h1>
+            <p data-testid="feature-description" className="max-w-[30em] text-reading leading-[1.75] text-body">{top.why}</p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href={`/food/${top.slug}`}
-                className="inline-flex min-h-12 items-center justify-center rounded-lg bg-foreground px-4 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground md:px-6"
+                className="inline-flex min-h-12 items-center justify-center rounded-lg bg-primary px-5 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground md:px-6"
               >
                 {top.kind === "discovery" ? "음식 알아보기" : top.kind === "product" ? "제품 알아보기" : "레시피 보기"}
               </Link>
               {top.kind !== "discovery" && <Link
                 href={`/food/${top.slug}#cart`}
-                className="inline-flex min-h-12 items-center justify-center rounded-lg border border-foreground px-3 text-base font-semibold text-foreground hover:bg-background hover:text-foreground md:px-4"
+                className="inline-flex min-h-12 items-center justify-center rounded-lg border border-input px-4 text-base font-semibold text-foreground hover:bg-secondary hover:text-foreground"
               >
                 재료 {buyable(top).length}개 담기
               </Link>}
             </div>
           </div>
-          {top.imageAvailable && <figure className="order-first m-3 min-w-0 rounded-feature bg-card p-2 md:order-none md:my-7 md:mr-7 md:ml-0 md:self-center">
-            <div className="relative aspect-[8/5] overflow-hidden rounded-lg bg-secondary md:aspect-[4/3]">
+          {top.imageAvailable && <figure className="order-first min-w-0 md:order-none md:self-center">
+            <div className="relative aspect-[8/5] overflow-hidden rounded-photo bg-secondary md:aspect-[5/4]">
               <FoodImage food={top} hero preload sizes="(max-width: 767px) 100vw, 640px" />
             </div>
             <figcaption className="flex min-h-10 items-center justify-between gap-3 text-meta text-muted-foreground">
