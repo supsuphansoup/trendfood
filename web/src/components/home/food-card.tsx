@@ -14,7 +14,6 @@ export function FoodCard({ food, wide = false, unranked = false }: { food: Food;
           <FoodImage food={food} sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 460px" />
         </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-3 right-3" />
-        {food.editorial && <span className="absolute bottom-0 left-0 rounded-tr-feature bg-card px-3 py-2 text-meta font-medium text-body">{food.generatedImage ? "AI 생성 예시" : "참고 사진"}</span>}
       </div> : <LikeButton slug={food.slug} name={food.name} className="absolute top-5 right-0 md:top-7" />}
       <div className={cn("flex flex-1 flex-col items-start gap-2 px-5 pt-4 pb-3 md:px-6 md:pt-5 md:pb-4", wide && "md:justify-center md:p-8", !food.imageAvailable && "pr-16")}>
         <div className="flex min-h-7 w-full flex-wrap items-center justify-between gap-x-3 gap-y-1">

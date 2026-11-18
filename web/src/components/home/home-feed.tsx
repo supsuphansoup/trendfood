@@ -295,9 +295,6 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             <div className="relative aspect-[2/1] overflow-hidden rounded-photo bg-secondary md:aspect-[8/5]">
               <FoodImage food={top} hero preload sizes="(max-width: 767px) 100vw, 640px" />
             </div>
-            <figcaption className="flex min-h-7 items-center gap-3 text-meta text-muted-foreground">
-              <span>{top.editorial ? top.generatedImage ? "AI 생성 예시" : "참고 사진" : "데모 사진"}</span>
-            </figcaption>
           </figure>}
         </section>
         <details aria-label="추천과 출처 안내" className="group mt-2 border-t text-meta leading-relaxed text-muted-foreground">

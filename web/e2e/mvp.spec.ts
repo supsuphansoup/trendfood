@@ -401,10 +401,7 @@ test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조�
   expect(featureBox.y - (header.y + header.height)).toBeLessThanOrEqual(32);
   const photo = feature.getByRole("img").last();
   await expect(photo).toBeVisible();
-  await expect(feature.locator("figcaption")).toContainText("데모 사진");
-  const captionBox = (await feature.locator("figcaption").boundingBox())!;
-  const photoBox = (await photo.boundingBox())!;
-  expect(captionBox.y).toBeGreaterThanOrEqual(photoBox.y + photoBox.height);
+  await expect(feature.locator("figcaption")).toHaveCount(0);
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;
   const titleBox = (await feature.getByRole("heading", { level: 1 }).boundingBox())!;
@@ -425,7 +422,6 @@ test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조�
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toBeInViewport();
   await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
-  await expect(feature.locator("figcaption")).toHaveCSS("font-size", "14px");
   const notes = page.getByLabel("추천과 출처 안내");
   await expect(notes).toHaveCSS("font-size", "14px");
   // 주목할 음식과 출처·추천 정보의 영역이 겹치지 않아야 한다.
