@@ -401,6 +401,9 @@ test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조�
   expect(featureBox.y - (header.y + header.height)).toBeLessThanOrEqual(32);
   const photo = feature.getByRole("img").last();
   await expect(photo).toBeVisible();
+  await expect(photo).toHaveCSS("object-fit", "contain");
+  await expect(photo).toHaveCSS("object-position", "50% 50%");
+  await expect(feature.locator("figure img")).toHaveCount(1);
   await expect(feature.locator("figcaption")).toHaveCount(0);
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;

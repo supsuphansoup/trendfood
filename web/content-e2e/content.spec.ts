@@ -7,13 +7,23 @@ const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json
 const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { url: string; licenseUrl: string; license: string; title: string; automatic?: boolean }>;
 const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, { note: string }>;
 
-test("대표 사진은 사진 가장자리·키보드로도 올바른 상세에 연결된다", async ({ page }) => {
+test("대표 사진은 원본 구도를 보존하고 가장자리·키보드로 상세에 연결된다", async ({ page }, info) => {
   const food = snapshot.foods[0];
   await page.goto("/");
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
   const photo = feature.getByRole("link", { name: `${food.name} 상세 보기`, exact: true });
   await expect(photo).toHaveAttribute("href", `/food/${food.slug}`);
   const image = photo.getByRole("img");
+  await image.evaluate((img: HTMLImageElement) => img.decode());
+  await expect(image).toHaveCSS("object-fit", "contain");
+  await expect(image).toHaveCSS("object-position", "50% 50%");
+  await expect(photo.locator("img")).toHaveCount(1);
+  const dimensions = await image.evaluate((img: HTMLImageElement) => {
+    const { width, height } = img.getBoundingClientRect();
+    return { width, height, originalWidth: img.naturalWidth, originalHeight: img.naturalHeight };
+  });
+  expect(dimensions.height).toBeCloseTo(Math.min(dimensions.width * dimensions.originalHeight / dimensions.originalWidth, info.project.name === "mobile" ? 280 : 400), 0);
+  await page.screenshot({ path: `test-results/content/hero-full-frame-${info.project.name}.png` });
   await image.click({ position: { x: 8, y: 8 } });
   await expect(page).toHaveURL(new RegExp(`/food/${food.slug}/?$`));
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(food.name);

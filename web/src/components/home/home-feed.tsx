@@ -292,9 +292,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             </div>
           </div>
           {top.imageAvailable && <figure className="order-first min-w-0 md:order-none md:self-center">
-            <div className="relative aspect-[2/1] overflow-hidden rounded-photo bg-secondary md:aspect-[8/5]">
-              <Link href={`/food/${top.slug}`} aria-label={`${top.name} 상세 보기`} className="absolute inset-0">
-                <FoodImage food={top} hero preload sizes="(max-width: 767px) 100vw, 640px" />
+            <div className="overflow-hidden rounded-photo bg-secondary">
+              <Link href={`/food/${top.slug}`} aria-label={`${top.name} 상세 보기`} className="block">
+                <FoodImage food={top} hero fullFrame preload sizes="(max-width: 767px) 100vw, 640px" />
               </Link>
             </div>
           </figure>}
