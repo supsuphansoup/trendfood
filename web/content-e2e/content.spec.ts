@@ -7,6 +7,22 @@ const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json
 const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { url: string; licenseUrl: string; license: string; title: string; automatic?: boolean }>;
 const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, { note: string }>;
 
+test("대표 사진은 사진 가장자리·키보드로도 올바른 상세에 연결된다", async ({ page }) => {
+  const food = snapshot.foods[0];
+  await page.goto("/");
+  const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
+  const photo = feature.getByRole("link", { name: `${food.name} 상세 보기`, exact: true });
+  await expect(photo).toHaveAttribute("href", `/food/${food.slug}`);
+  const image = photo.getByRole("img");
+  await image.click({ position: { x: 8, y: 8 } });
+  await expect(page).toHaveURL(new RegExp(`/food/${food.slug}/?$`));
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(food.name);
+  await page.goBack();
+  await photo.focus();
+  await photo.press("Enter");
+  await expect(page).toHaveURL(new RegExp(`/food/${food.slug}/?$`));
+});
+
 test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유 주소를 유지한다", async ({ page }, info) => {
   await page.goto("/");
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
@@ -411,6 +427,13 @@ test("사진 유형은 상세의 접힌 정보에서 확인하고 찜·재료 �
     await image.scrollIntoViewIfNeeded();
     await expect(image).toBeVisible();
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    const href = await item.getByRole("heading", { level: 3 }).getByRole("link").getAttribute("href");
+    for (const x of [0.1, 0.5, 0.9]) {
+      expect(await image.evaluate((img, x) => {
+        const box = img.getBoundingClientRect();
+        return document.elementFromPoint(box.x + box.width * x, box.y + box.height / 2)?.closest("a")?.getAttribute("href");
+      }, x)).toBe(href);
+    }
   }
   await expect(cards.getByText(/^(AI 생성 예시|참고 사진)$/)).toHaveCount(0);
   const card = cards.filter({ has: page.getByRole("heading", { level: 3, name: food.name, exact: true }) });

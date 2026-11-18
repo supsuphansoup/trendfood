@@ -454,6 +454,14 @@ test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조�
 
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {
   await page.goto("/");
+  const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
+  const name = await feature.getByRole("heading", { level: 1 }).innerText();
+  const featurePhoto = feature.getByRole("link", { name: `${name} 상세 보기`, exact: true });
+  const featureHref = await featurePhoto.getAttribute("href");
+  await featurePhoto.getByRole("img").click();
+  await expect(page).toHaveURL(featureHref!);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+  await page.goBack();
   const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "치킨마요 덮밥", exact: true }) });
   const photoLink = card.getByRole("link", { name: "치킨마요 덮밥 상세 보기", exact: true });
   const href = await photoLink.getAttribute("href");
