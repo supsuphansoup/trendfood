@@ -5,7 +5,7 @@ import { LikeButton } from "@/components/like-button";
 import { type Food } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 
-export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean }) {
+export function FoodCard({ food, wide = false, unranked = false }: { food: Food; wide?: boolean; unranked?: boolean }) {
   const href = `/food/${food.slug}`;
   return (
     <li className={cn("relative flex min-w-0 flex-col overflow-hidden rounded-feature bg-card", wide && "md:col-span-full md:grid md:grid-cols-2 md:items-stretch")}>
@@ -18,11 +18,11 @@ export function FoodCard({ food, wide = false }: { food: Food; wide?: boolean })
       </div> : <LikeButton slug={food.slug} name={food.name} className="absolute top-5 right-0 md:top-7" />}
       <div className={cn("flex flex-1 flex-col items-start gap-2 px-5 pt-4 pb-3 md:px-6 md:pt-5 md:pb-4", wide && "md:justify-center md:p-8", !food.imageAvailable && "pr-16")}>
         <div className="flex min-h-7 w-full flex-wrap items-center justify-between gap-x-3 gap-y-1">
-          {food.editorial ? <span className="text-base font-bold text-accent">{food.category}</span> : <span className="text-[32px] leading-none font-black tracking-[-0.04em] text-accent tabular-nums">
+          {food.editorial || unranked ? <span className="text-base font-bold text-accent">{food.category}</span> : <span className="text-[32px] leading-none font-black tracking-[-0.04em] text-accent tabular-nums">
             <span className="sr-only">순위 </span>
             {food.rank}
           </span>}
-          <span className="text-meta text-muted-foreground">{food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || (food.kind === "discovery" ? "유행 시기 미확정" : "일상 레시피") : food.change}</span>
+          <span className="text-meta text-muted-foreground">{unranked ? "일상 레시피" : food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || (food.kind === "discovery" ? "유행 시기 미확정" : "일상 레시피") : food.change}</span>
         </div>
         <h3 className="text-2xl leading-[1.35] font-bold tracking-[-0.02em] md:text-card-grid-title">
           <Link href={href} className="flex min-h-11 items-center text-foreground hover:text-foreground hover:underline">

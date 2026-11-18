@@ -58,6 +58,52 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   await expect(page).not.toHaveURL(/collection=/);
 });
 
+test("자취 요리 카테고리: 비유행 레시피만 모으고 연도·주소·상세·순위 복귀를 유지한다", async ({ page }, info) => {
+  await page.goto("/");
+  const original = await page.locator("#list li h3").allTextContents();
+  const featureTitle = await page.getByRole("heading", { level: 1 }).textContent();
+  const recipes = snapshot.foods.filter((food) => !food.history?.years.length && (!food.kind || food.kind === "recipe"));
+  expect(recipes.length).toBeGreaterThan(0);
+  await page.goto("/?collection=trends&year=2026");
+  const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
+  const everyday = categories.getByRole("button", { name: /^자취 요리/ });
+  await expect(everyday).toHaveText(`자취 요리${recipes.length}`);
+  await everyday.focus();
+  await everyday.press("Enter");
+  await expect(page.locator("#list li h3")).toHaveText(recipes.map((food) => food.name));
+  await expect(everyday).toHaveAttribute("aria-current", "true");
+  await expect(categories.locator('[aria-current="true"]')).toHaveCount(1);
+  await expect(categories.getByRole("button", { name: /^전체/ })).toHaveText(`전체${snapshot.foods.length}`);
+  await expect(page).toHaveURL(/collection=everyday/);
+  await expect(page).not.toHaveURL(/year=|cat=/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(featureTitle!);
+  await page.getByRole("button", { name: "필터", exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "유행 연도", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "필터", exact: true }).click();
+  await page.reload();
+  await expect(everyday).toHaveAttribute("aria-current", "true");
+  await expect(page.locator("#list li h3")).toHaveText(recipes.map((food) => food.name));
+  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: `test-results/content/everyday-category-${info.project.name}.png` });
+  await page.getByRole("searchbox").fill("계란 파 라면");
+  await page.getByRole("button", { name: "검색", exact: true }).click();
+  await expect(page.locator("#list li h3")).toHaveText(["계란 파 라면"]);
+  await page.locator("#list").getByRole("link", { name: "음식 살펴보기", exact: true }).click();
+  await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeVisible();
+  await page.goBack();
+  await expect(everyday).toHaveAttribute("aria-current", "true");
+  await page.getByRole("button", { name: "검색어 지우기", exact: true }).click();
+  await categories.getByRole("button", { name: /^전체/ }).click();
+  await expect(page.locator("#list li h3")).toHaveText(original);
+  await expect(page).not.toHaveURL(/collection=/);
+  await page.goto("/?collection=everyday&year=2024");
+  await expect(everyday).toHaveAttribute("aria-current", "true");
+  await expect(page).not.toHaveURL(/year=/);
+  await expect(page.locator("#list li h3")).toHaveText(recipes.map((food) => food.name));
+});
+
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
