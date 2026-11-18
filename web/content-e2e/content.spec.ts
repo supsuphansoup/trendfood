@@ -118,6 +118,7 @@ test("추가 자취 요리는 검색·실사·재료 분량과 일반 구매 검
   await expect(purchase).toHaveAttribute("target", "_blank");
   const image = page.getByRole("region", { name: "음식 소개", exact: true }).getByRole("img", { name: food.alt, exact: true });
   await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+  await page.getByLabel("사진 정보", { exact: true }).locator("summary").click();
   await expect(page.getByRole("link", { name: /사진 출처/ })).toBeVisible();
   await expect(page.getByText(/AI 생성 예시 ·/)).toHaveCount(0);
 });
@@ -137,6 +138,7 @@ test("재검토 사진은 카드와 상세에서 같은 실사·출처로 표시
     await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
     const detail = page.getByRole("region", { name: "음식 소개", exact: true });
     await expect(detail.getByRole("img", { name: food.alt, exact: true })).toHaveAttribute("src", source!);
+    await page.getByLabel("사진 정보", { exact: true }).locator("summary").click();
     await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (["egg-soup", "ube-latte", "cucumber-muchim"].includes(slug)) await page.screenshot({ path: `test-results/content/reviewed-${slug}-detail-${info.project.name}.png` });
@@ -343,6 +345,13 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       await expect(history).toBeVisible();
       expect(await history.getByRole("link").count()).toBeGreaterThan(0);
     } else await expect(page.getByText(food.kind === "discovery" ? /유행 시기 미확정 ·/ : /일상 레시피 ·/)).toBeVisible();
+    const photoInfo = page.getByLabel("사진 정보", { exact: true });
+    if (food.image !== "pending") {
+      await expect(photoInfo).toHaveJSProperty("open", false);
+      await expect(photoInfo.getByText(/^(AI 생성 예시|참고 사진) ·/)).toBeHidden();
+      await expect(page.getByRole("region", { name: "음식 소개", exact: true }).getByText(/^(AI 생성 예시|참고 사진)/)).toHaveCount(0);
+      await photoInfo.locator("summary").click();
+    }
     if (food.image === "pending") {
       const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
       await expect(introduction.locator('img, [role="img"]')).toHaveCount(0);
@@ -353,7 +362,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
     } else if (generatedImages[food.image]) {
       const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
       await expect(introduction.getByRole("img", { name: food.alt, exact: true })).toBeVisible();
-      await expect(introduction.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toBeVisible();
+      await expect(photoInfo.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toBeVisible();
       await expect(sources.getByText("AI 생성 예시 이미지", { exact: true })).toBeVisible();
       await expect(sources.getByText(generatedImages[food.image].note, { exact: true })).toBeVisible();
       await expect(page.getByRole("link", { name: /사진 출처|사진 라이선스/ })).toHaveCount(0);
@@ -364,7 +373,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
       const image = introduction.getByRole("img", { name: food.alt, exact: true });
       await expect(image).toBeVisible();
-      await expect(introduction.getByText(food.kind === "discovery" ? "참고 사진 · 소개된 판매 제품과 다를 수 있어요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요.", { exact: true })).toBeVisible();
+      await expect(photoInfo.getByText(food.kind === "discovery" ? "참고 사진 · 소개된 판매 제품과 다를 수 있어요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요.", { exact: true })).toBeVisible();
       await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
       const portrait = await image.evaluate((img: HTMLImageElement) => img.naturalWidth / img.naturalHeight < 1.5);
       await expect(image).toHaveCSS("object-fit", portrait ? "contain" : "cover");
@@ -392,7 +401,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
   await page.screenshot({ path: `test-results/content/detail-${info.project.name}.png`, fullPage: true });
 });
 
-test("메인 사진 유형은 숨기고 상세의 생성 안내·찜·재료 담기를 유지한다", async ({ page }, info) => {
+test("사진 유형은 상세의 접힌 정보에서 확인하고 찜·재료 담기를 유지한다", async ({ page }, info) => {
   const food = snapshot.foods.find((food, index) => index > 0 && food.kind !== "discovery" && generatedImages[food.image])!;
   expect(snapshot.foods.every((item) => item.image !== "pending")).toBe(true);
   await page.goto("/");
@@ -413,7 +422,21 @@ test("메인 사진 유형은 숨기고 상세의 생성 안내·찜·재료 담
   await card.getByRole("heading", { level: 3 }).getByRole("link").click();
   await expect(page).toHaveURL(new RegExp(`/food/${food.slug}$`));
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(food.name);
-  await expect(page.getByRole("region", { name: "음식 소개", exact: true }).getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("region", { name: "음식 소개", exact: true }).getByText(/AI 생성 예시|참고 사진/)).toHaveCount(0);
+  const photoInfo = page.getByLabel("사진 정보", { exact: true });
+  const notice = photoInfo.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true });
+  await expect(photoInfo).toHaveJSProperty("open", false);
+  await expect(notice).toBeHidden();
+  await page.screenshot({ path: `test-results/content/photo-info-closed-${info.project.name}.png` });
+  const toggle = photoInfo.locator("summary");
+  await toggle.focus();
+  await toggle.press("Enter");
+  await expect(notice).toBeVisible();
+  await expect(photoInfo.getByText(generatedImages[food.image].note, { exact: true })).toBeVisible();
+  expect((await toggle.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await photoInfo.screenshot({ path: `test-results/content/photo-info-open-${info.project.name}.png` });
+  await toggle.click();
+  await expect(notice).toBeHidden();
   await expect(page.getByRole("button", { name: `${food.name} 찜하기`, exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("#cart")).toBeVisible();
   await expect(page.getByRole("button", { name: /^장바구니|선택한 재료 통합 장바구니에 담기/ })).toHaveCount(0);

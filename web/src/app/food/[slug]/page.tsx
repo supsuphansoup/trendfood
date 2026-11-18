@@ -1,4 +1,4 @@
-import { ArrowDown, ChevronLeft } from "lucide-react";
+import { ArrowDown, ChevronDown, ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -53,7 +53,6 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
       <section aria-label="음식 소개" className={`mx-auto grid max-w-[1200px] gap-6 px-5 pt-6 pb-8 md:gap-10 md:pt-9 md:pb-11${food.imageAvailable ? " md:grid-cols-2 md:items-center" : ""}`}>
           {food.imageAvailable && <div className="relative aspect-[4/3] overflow-hidden rounded-feature bg-secondary md:aspect-square">
             <FoodImage food={food} hero preload sizes="(max-width: 767px) 100vw, 580px" />
-            {food.editorial && <span className="absolute bottom-4 left-4 rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground">{food.generatedImage ? "AI 생성 예시" : "참고 사진"}</span>}
           </div>}
           <div className="flex min-w-0 flex-col items-start gap-5">
             <nav aria-label="현재 위치" className="text-[13px] text-muted-foreground">
@@ -92,7 +91,6 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               <a href={discovery ? "#sources" : "#recipe"} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{discovery ? "소개 출처 보기" : food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
               {!discovery && <a href="#cart" className="inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">재료 살펴보기</a>}
             </div>
-            {food.editorial && food.imageAvailable && <p className="text-xs leading-relaxed text-muted-foreground">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : discovery ? "참고 사진 · 소개된 판매 제품과 다를 수 있어요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>}
           </div>
       </section>
 
@@ -164,12 +162,17 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                   </li>
                 ))}
               </ul>
-              {food.generatedImage && <div className="border-t pt-3 text-sm leading-relaxed text-body" aria-label="이미지 안내">
+              {food.imageAvailable && <details aria-label="사진 정보" className="group border-t text-sm text-muted-foreground">
+                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+                  사진 정보 <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
+                </summary>
+                <p className="leading-relaxed">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : discovery ? "참고 사진 · 소개된 판매 제품과 다를 수 있어요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>
+              {food.generatedImage && <div className="pt-3 text-sm leading-relaxed text-body" aria-label="이미지 안내">
                 <p className="font-bold">AI 생성 예시 이미지</p>
                 <p>{food.generatedImage.note}</p>
                 <p>제작: {food.generatedImage.tool} · {food.generatedImage.generatedAt}</p>
               </div>}
-              {food.photoCredit && "note" in food.photoCredit && <div className="border-t pt-3 text-sm leading-relaxed text-body">
+              {food.photoCredit && "note" in food.photoCredit && <div className="pt-3 text-sm leading-relaxed text-body">
                 <p>{food.photoCredit.note}</p>
                 <p className="wrap-anywhere">{food.photoCredit.title}</p>
                 {food.photoCredit.attributionNotice && <p className="wrap-anywhere">{food.photoCredit.attributionNotice}</p>}
@@ -177,6 +180,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                 {food.photoCredit.creatorUrl && <p><a href={food.photoCredit.creatorUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-4">사진 작가 · {food.photoCredit.author} ↗<span className="sr-only"> (새 창)</span></a></p>}
                 {food.photoCredit.licenseUrl && <p><a href={food.photoCredit.licenseUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-4">사진 라이선스 · {food.photoCredit.license} ↗<span className="sr-only"> (새 창)</span></a></p>}
               </div>}
+              </details>}
             </section>
           ) : null}
           {food.videoId && <figure className="m-0 flex min-w-0 flex-[1_1_460px] flex-col gap-2">
