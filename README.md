@@ -8,6 +8,7 @@
 | 무엇을·왜 → 숫자와 규칙 → 남은 작업 | [`docs/intent.md`](docs/intent.md) → [`docs/spec.md`](docs/spec.md) → [`docs/plan.md`](docs/plan.md) |
 | 시각 규칙 (위 3개와 함께 기준 문서 4개) | [`docs/design.md`](docs/design.md) + 실제 화면 [`web/`](web/) |
 | AI 작업 규칙 (Codex·Cursor / Claude Code) | [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) |
+| 팀원 변경 통합·푸시 전 자동 검사 | [`docs/team-workflow.md`](docs/team-workflow.md) — 최신 코드에서 `cd web`, `npm ci` 한 번으로 활성화 |
 | 사이트 코드 | [`web/`](web/) — `npm ci` 후 `npm run dev` |
 | 음식 30개·자동 수집·검증·게시 운영 | [`docs/automation.md`](docs/automation.md) |
 | 조사 보고서 | [`reports/`](reports/) — 결정 근거, 참고용 |

@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "prepare": "node scripts/team-sync.ts install",
+    "team:setup": "node scripts/team-sync.ts install",
     "dev": "next dev",
     "build": "next build",
     "photos": "node scripts/fetch-photos.ts",

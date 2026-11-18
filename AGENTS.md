@@ -7,6 +7,7 @@
 지시서 없이 사람이 직접 시킬 때는 요청한 것만 고치고, 결정이 필요하면 사람에게 묻고, 끝나면 검사 4개 출력을 보여 준다.
 
 ## 팀원 변경 확인·통합 후 push (필수)
+- 팀원도 최신 코드를 받은 뒤 `web/`에서 `npm ci`를 한 번 실행해 공통 pre-push 훅을 활성화한다(이미 의존성을 설치했다면 `npm run team:setup`). 상세 절차·기존 훅 처리·자동화 한계는 `docs/team-workflow.md`. 훅이 팀원 변경이나 검사 실패로 막으면 원인을 해결하며 훅을 우회하지 않는다.
 - 기준은 팀원이 원격 `origin/main`에 push한 변경이다. 팀원 PC의 미커밋·미푸시 작업은 여기서 확인할 수 없다. 이 절차는 지시서의 커밋·push 권한을 추가하지 않는다.
 1. **작업 시작 전 확인:** `git status --short`로 기존 변경을 확인하고 `git fetch origin main`을 실행한다. `git rev-parse origin/main`으로 기준 커밋을 기록한다. 최신 원격 기준에서 작업하며, 기존 미커밋 변경이 있으면 소유자·범위를 구분한다. 남의 변경을 임의로 커밋·stash·reset하거나 덮어쓰지 않는다. 필요한 경우 깨끗한 별도 worktree에서 작업한다.
 2. **push 전 다시 비교:** 허용된 내 작업만 커밋한 뒤 `git fetch origin main`, `git log --oneline HEAD..origin/main`, `git diff --name-status HEAD...origin/main`으로 새 원격 커밋과 변경 파일을 확인한다. 변경이 있으면 해당 diff·`docs/worklog/` 기록을 읽고 내 수정과 같은 파일·기능을 건드렸는지 확인한다. 문서 기록이 없어도 실제 코드 diff를 확인한다.

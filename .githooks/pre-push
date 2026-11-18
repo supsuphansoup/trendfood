@@ -1,0 +1,2 @@
+#!/bin/sh
+exec node web/scripts/team-sync.ts pre-push "$@"
