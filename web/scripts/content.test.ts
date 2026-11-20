@@ -15,19 +15,21 @@ import sharp from "sharp";
 const target = new URL("../src/data/content/foods.json", import.meta.url);
 const input = JSON.parse(await readFile(target, "utf8"));
 const fresh = () => structuredClone(input);
+const recipeInput = { ...input, recommendation: undefined, foods: input.foods.filter((food: { kind?: string }) => !food.kind || food.kind === "recipe") };
+const freshRecipe = () => structuredClone(recipeInput);
 
 test("음식 소개는 재료·단계 없이 제공하고 조리법과 혼합한 데이터는 거절한다", () => {
-  const snapshot = fresh();
+  const snapshot = freshRecipe();
   Object.assign(snapshot.foods[0], { kind: "discovery", cookMinutes: 0, ingredients: [], steps: [] });
   const record = contentToRecords(parseContent(snapshot))[0];
   assert.equal(record.kind, "discovery");
   assert.equal(record.cookLabel, "음식 소개");
-  for (const patch of [{ cookMinutes: 10 }, { ingredients: input.foods[0].ingredients }, { steps: input.foods[0].steps }, { sources: [] }]) {
+  for (const patch of [{ cookMinutes: 10 }, { ingredients: recipeInput.foods[0].ingredients }, { steps: recipeInput.foods[0].steps }, { sources: [] }]) {
     const invalid = structuredClone(snapshot);
     Object.assign(invalid.foods[0], patch);
     assert.throws(() => parseContent(invalid));
   }
-  const recipe = fresh();
+  const recipe = freshRecipe();
   Object.assign(recipe.foods[0], { cookMinutes: 0, ingredients: [], steps: [] });
   assert.throws(() => parseContent(recipe));
 });
@@ -202,14 +204,14 @@ test("출처·재료 사용량·단계 없는 항목, 잘못된 링크·수치·
     (f: typeof input.foods[0]) => { f.cookMinutes = 0; },
     (f: typeof input.foods[0]) => { f.image = "missing-image"; },
   ]) {
-    const snapshot = fresh();
+    const snapshot = freshRecipe();
     edit(snapshot.foods[0]);
     assert.throws(() => parseContent(snapshot), /콘텐츠 검증 실패/);
   }
 });
 
 test("수집 초안은 실제 YouTube 출처만 포함하고 승인 전 반영을 거절한다", () => {
-  const f = input.foods[0];
+  const f = recipeInput.foods[0];
   const draft = { ...f, steps: [{ text: "반죽을 섞어요", timerMinutes: 0 }] };
   const snapshot = draftSnapshot([
     { name: f.name, category: f.category, draft, sources: [{ id: "Abcdef_1234", title: "실제 형식의 영상 제목" }] },
@@ -250,9 +252,9 @@ test("새 수집 결과는 기존 레시피·출처 확인 날짜를 보존하�
   previous.checkedAt = "2026-11-01";
   for (const food of previous.foods) delete food.checkedAt;
   const current = parseContent(previous);
-  const incoming = parseContent({ ...fresh(), checkedAt: "2026-11-16", foods: [
+  const incoming = parseContent({ version: 1, status: "ready", checkedAt: "2026-11-16", foods: [
     { ...input.foods[0], checkedAt: "2026-11-12", why: "갱신한 소개" },
-    { ...input.foods[1], slug: "new-butter-recipe", image: "pending", alt: "새 음식 사진 준비 중" },
+    { ...recipeInput.foods[0], slug: "new-butter-recipe", image: "pending", heroImage: undefined, alt: "새 음식 사진 준비 중" },
   ] });
   const merged = mergeContent(current, incoming);
   const foods = contentToRecords(merged);

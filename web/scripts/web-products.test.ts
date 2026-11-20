@@ -80,7 +80,8 @@ test("일반 상품 CLI: 검색 색인을 재고 근거로 쓰지 않고 유료 
   await mkdir(resolve(workspace, "src/data/content"), { recursive: true });
   const content = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8"));
   const manual = "https://www.coupang.com/vp/products/321";
-  content.foods = [{ ...content.foods[0], ingredients: [{ name: "무염 버터", amount: "20g" }, { name: "설탕", amount: "10g", url: manual }] }];
+  content.foods = [{ ...content.foods.find((food: { kind?: string }) => !food.kind || food.kind === "recipe"), ingredients: [{ name: "무염 버터", amount: "20g" }, { name: "설탕", amount: "10g", url: manual }] }];
+  delete content.recommendation;
   const original = JSON.stringify(content);
   await writeFile(target, original);
   const preload = resolve(workspace, "mock-api.mjs");

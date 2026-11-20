@@ -16,6 +16,7 @@ const raw = JSON.parse(await readFile(new URL("../../src/data/content/foods.json
 test("사진 대기 원고는 등록한 같은 음식의 생성 사진과 최근 두 제작자·원문 재확인이 있어야 공개한다", async () => {
   const date = "2026-11-20";
   const current = baseline();
+  current.foods = current.foods.filter((food) => food.slug !== "yogurt-mochi");
   const ids = ["Abcdef_1230", "Abcdef_1231"];
   const draft = { ...current.foods[0], slug: "yogurt-mochi", name: "요거트 찹쌀떡", kind: "discovery" as const,
     image: "pending", heroImage: "pending", ingredients: [], steps: [], cookMinutes: 0,
@@ -43,6 +44,7 @@ test("사진 대기 원고는 등록한 같은 음식의 생성 사진과 최근
 
 test("생성 사진을 등록하지 않은 원고는 외부 조회 없이 보류하고 기존 실사 사진은 보존한다", async () => {
   const current = baseline();
+  current.foods = current.foods.filter((food) => food.slug !== "yogurt-mochi");
   const original = current.foods[0];
   const draft = { ...original, slug: "unregistered-photo-draft", image: "pending" };
   const result = await publishPendingPhotos(current, { ...emptyDiscovery(), pending: [{ food: draft, savedAt: "2026-11-20" }] }, "2026-11-20", async () => { throw new Error("조회 금지"); });

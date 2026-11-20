@@ -13,9 +13,10 @@ const product = { id: 123, name: "무염 버터 200g", url: "https://link.coupan
 const verdict = { candidateIndex: 0, sameIngredient: true, foodProduct: true, confidence: 0.99 };
 const available = async () => true;
 const input = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
-const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [
-  { ...structuredClone(input.foods[0]), ingredients: [{ name: "무염 버터", amount: "20g" }, { name: "설탕", amount: "10g", url: "https://link.coupang.com/a/Manual" }] },
-  { ...structuredClone(input.foods[1]), ingredients: [{ name: "무염 버터", amount: "30g" }] },
+const recipes = input.foods.filter((food) => !food.kind || food.kind === "recipe");
+const current = (): ContentSnapshot => ({ ...structuredClone(input), recommendation: undefined, foods: [
+  { ...structuredClone(recipes[0]), ingredients: [{ name: "무염 버터", amount: "20g" }, { name: "설탕", amount: "10g", url: "https://link.coupang.com/a/Manual" }] },
+  { ...structuredClone(recipes[1]), ingredients: [{ name: "무염 버터", amount: "30g" }] },
 ] });
 afterEach(() => mock.restoreAll());
 
