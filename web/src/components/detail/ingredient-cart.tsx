@@ -1,18 +1,19 @@
 "use client";
 
 import { Check, ClipboardCopy, MessageCircle, RotateCcw, ShoppingCart } from "lucide-react";
-import { type MouseEvent, useState } from "react";
+import { type MouseEvent, type ReactNode, useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { coupangUrl, type Food, won } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 import { PANTRY_KEY, useStoredSet } from "@/lib/use-stored-set";
+import { ingredientName, ingredientOwned } from "@/data/recipe-tools";
 
 // 재료 이름에서 용량을 뺀 기본 이름 ('무염 버터 200g' → '무염 버터'). '집에 있어요'는 이 이름으로 기억한다.
-const baseName = (name: string) => name.replace(/\s[\d.]+\s?(g|kg|ml|매|개|개입|구|장|단).*$/, "");
+const baseName = ingredientName;
 
 const PRICE_AT = "11월 4일 09:00";
 
-export function IngredientCart({ food }: { food: Food }) {
+export function IngredientCart({ food, children }: { food: Food; children?: ReactNode }) {
   const pantry = useStoredSet(PANTRY_KEY); // 집에 있어요 (일반 재료)
   const need = useStoredSet("tf:need"); // 기본은 집에 있는 재료지만 사겠다고 고른 것
   const added = useStoredSet(`tf:added:${food.slug}`);
@@ -20,7 +21,7 @@ export function IngredientCart({ food }: { food: Food }) {
 
   const rows = food.ingredients.map((ing) => {
     const key = baseName(ing.name);
-    const home = ing.pantry ? !need.has(key) : pantry.has(key);
+    const home = ingredientOwned(ing, pantry.items, need.items);
     return { ...ing, key, home, done: !home && added.has(ing.name) };
   });
   const toBuy = rows.filter((r) => !r.home);
@@ -31,8 +32,8 @@ export function IngredientCart({ food }: { food: Food }) {
   const hasPrices = toBuy.some((r) => r.price !== undefined);
 
   const toggleRow = (r: (typeof rows)[number]) => {
-    if (r.pantry) need.toggle(r.key, r.home);
-    else pantry.toggle(r.key, !r.home);
+    pantry.toggle(r.key, !r.home);
+    need.toggle(r.key, r.home);
   };
 
   const say = (msg: string) => {
@@ -74,6 +75,7 @@ export function IngredientCart({ food }: { food: Food }) {
             {doneCount}/{toBuy.length} 담음
           </p>
         </div>
+        {children}
         <Progress
           value={toBuy.length ? (doneCount / toBuy.length) * 100 : 0}
           aria-label="재료 담기 진행"

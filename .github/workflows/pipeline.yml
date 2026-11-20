@@ -7,6 +7,10 @@ on:
     - cron: "17 1 * * *" # 한국 시간 매일 10:17. 전날 UTC 날짜 확보·정각 혼잡 회피.
   workflow_dispatch:
     inputs:
+      checks_only:
+        description: "외부 수집·AI 호출 없이 현재 콘텐츠와 전체 검사만 실행"
+        type: boolean
+        default: false
       compare_models:
         description: "같은 영상 제목으로 Mini와 Astra 비교 (후보 저장 없음)"
         type: boolean
@@ -51,7 +55,7 @@ jobs:
       - run: npm ci
       - name: 음식 후보 관찰·사진 대기 기록 복원
         id: discovery_cache
-        if: inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true
         uses: actions/cache/restore@v4
         with:
           path: web/data/discovery-state.json
@@ -59,7 +63,7 @@ jobs:
           restore-keys: |
             food-discovery-v1-
       - run: npm run pipeline
-        if: inputs.photos_only != true && inputs.links_only != true
+        if: inputs.checks_only != true && inputs.photos_only != true && inputs.links_only != true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -74,7 +78,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       - name: 사진 검색·이용 조건·이미지 일치 자동 확인
-        if: inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
         run: npm run photos:auto
         env:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
@@ -84,11 +88,11 @@ jobs:
           PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
       - name: 사진 검증 후 신규 음식 우선·일일 추천 갱신 (추가 API 호출 없음)
-        if: inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
         run: node scripts/refresh-recommendations.ts
       - name: 쿠팡 호출 기록 복원
         id: coupang_cache
-        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
         uses: actions/cache/restore@v4
         with:
           path: web/data/coupang-state.json
@@ -97,7 +101,7 @@ jobs:
             coupang-search-v1-${{ vars.COUPANG_SUB_ID || 'unconfigured' }}-
       - name: 쿠팡 재료 상품·제휴 링크 자동 연결
         id: coupang
-        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
         run: npm run links:auto
         env:
           COUPANG_ACCESS_KEY: ${{ secrets.COUPANG_ACCESS_KEY }}
@@ -115,7 +119,7 @@ jobs:
           key: ${{ steps.coupang_cache.outputs.cache-primary-key }}
       - name: 일반 상품 검색 기록 복원
         id: product_cache
-        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
         uses: actions/cache/restore@v4
         with:
           path: web/data/product-link-state.json
@@ -124,7 +128,7 @@ jobs:
             product-links-v1-
       - name: 일반 쿠팡 상품 상세주소 검색·재료 대조
         id: products
-        if: inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
         run: npm run links:auto -- --web-products
         env:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
@@ -144,7 +148,7 @@ jobs:
           key: ${{ steps.discovery_cache.outputs.cache-primary-key }}
       - name: 자동 검증 결과 보관 (원문 설명란은 저장하지 않음)
         uses: actions/upload-artifact@v4
-        if: always() && inputs.compare_models != true
+        if: always() && inputs.compare_models != true && inputs.checks_only != true
         with:
           name: automation-report
           path: |
@@ -165,7 +169,7 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
       - name: 새 콘텐츠 검사
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.changes.outputs.changed == 'true' || inputs.checks_only == true
         run: |
           npm run content:check
           npm run lint
@@ -213,3 +217,20 @@ jobs:
     with:
       revision: ${{ needs.collect.outputs.revision }}
     secrets: inherit
+  notify:
+    needs: [collect, publish]
+    if: always() && !cancelled() && inputs.compare_models != true && inputs.checks_only != true && inputs.photos_only != true && inputs.links_only != true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: 실패 알림 갱신·복구 시 종료
+        run: node web/scripts/automation-alert.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PIPELINE_RESULT: ${{ (needs.collect.result == 'failure' || needs.publish.result == 'failure') && 'failure' || 'success' }}

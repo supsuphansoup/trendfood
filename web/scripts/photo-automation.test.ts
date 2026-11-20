@@ -3,7 +3,7 @@ import { test } from "node:test";
 import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import sharp from "sharp";
-import type { ContentSnapshot } from "../src/data/content.ts";
+import type { ContentFood, ContentSnapshot } from "../src/data/content.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { automaticPhotos, downloadCandidate, licensedPhoto, photoBatch, searchPhotos, trustedPhotoUrl } from "./photo-automation.ts";
@@ -11,6 +11,12 @@ import { photoModule } from "./photo-assets.ts";
 import { photoHeroFit } from "../src/data/photo-presentation.ts";
 
 const input = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
+// 실사가 늘어나 현재 목록의 생성 예시가 0개여도, 보존한 등록부로 교체 동작을 검사한다.
+const generatedFixtures: ContentFood[] = Object.entries(generatedImages).flatMap(([image, entry]) => {
+  const food = input.foods.find((food) => food.slug === entry.slug);
+  return food ? [{ ...structuredClone(food), image, alt: `${food.name} AI 생성 예시`, heroImage: undefined }] : [];
+});
+const protectedReal = input.foods.find((food) => [food.image, ...(food.heroImage ? [food.heroImage] : [])].every((image) => image !== "pending" && !generatedImages[image]))!;
 const now = new Date("2026-11-12T06:00:00Z");
 const page = () => ({ pageid: 123, title: "File:Test food.jpg", imageinfo: [{
   url: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Test.jpg", descriptionurl: "https://commons.wikimedia.org/wiki/File:Test_food.jpg",
@@ -20,16 +26,27 @@ const page = () => ({ pageid: 123, title: "File:Test food.jpg", imageinfo: [{
 const candidate = () => licensedPhoto(page(), "2026-11-12")!;
 
 test("사진 묶음은 새 음식의 빈 사진을 먼저 확인하되 하루 5개와 기존 실사 보호를 유지한다", () => {
-  const generated = input.foods.filter((food) => food.image.startsWith("photo-ai-"));
+  const generated = generatedFixtures;
   const blank = { ...input.foods[0], slug: "new-photo-food", image: "pending", heroImage: undefined };
-  const selected = photoBatch([...input.foods, blank], now);
-  assert.equal(selected.length, 5);
+  const selected = photoBatch([protectedReal, ...generated, blank], now);
+  assert.equal(selected.length, Math.min(5, generated.length + 1));
   assert.equal(selected[0].slug, blank.slug);
   assert.ok(selected.slice(1).every((food) => generated.some((item) => item.slug === food.slug)));
 });
 const bytes = await sharp({ create: { width: 800, height: 600, channels: 3, background: "#ddaa55" } }).jpeg().toBuffer();
 const verdict = { match: true, confidence: 0.99, photograph: true, unobstructed: true, metadataMatches: true, recipeMatches: true, presentationSuitable: true, reason: "메뉴와 일치" };
-const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [structuredClone(input.foods[0]), { ...structuredClone(input.foods[1]), image: "pending", slug: "test-pending" }] });
+// 매일 추천 순서·실사 교체가 달라져도 이 검사의 보호 사진과 빈 사진 수는 고정한다.
+const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [
+  structuredClone(protectedReal),
+  { ...structuredClone(input.foods[1]), image: "pending", heroImage: undefined, slug: "test-pending" },
+] });
+
+test("음식 순서가 뒤집히거나 모두 실사로 바뀌어도 보호 실사는 검색하지 않는다", () => {
+  for (const foods of [current().foods, current().foods.toReversed()]) {
+    assert.deepEqual(photoBatch(foods, now).map((food) => food.slug), ["test-pending"]);
+  }
+  assert.deepEqual(photoBatch(input.foods.map((food) => ({ ...food, image: protectedReal.image, heroImage: undefined })), now), []);
+});
 
 test("음식 소개 사진: 조리법 없이 이름·원문으로 대조하고 재료·단계를 추가하지 않는다", async () => {
   const snapshot = current();
@@ -218,9 +235,9 @@ test("사진 준비 중 항목을 날짜별로 순환하며 제한을 넘기지 
 });
 
 test("실사는 보존하고 등록된 생성 예시와 준비 중 사진을 매일 5개씩 순환 검색한다", () => {
-  const generated = input.foods.filter((food) => generatedImages[food.image]);
+  const generated = generatedFixtures;
   assert.ok(generated.length > 0);
-  const real = input.foods.find((food) => food.image !== "pending" && !generatedImages[food.image])!;
+  const real = protectedReal;
   const protectedHero = { ...generated[0], slug: generated[0].slug, heroImage: real.image };
   const unknown = { ...generated[0], image: "photo-ai-unregistered" };
   const mismatched = { ...generated[0], slug: "other-food" };
@@ -237,7 +254,7 @@ test("실사는 보존하고 등록된 생성 예시와 준비 중 사진을 매
 });
 
 test("검증을 통과한 실사만 생성 예시와 히어로를 교체하고 조리법·날짜는 보존한다", async () => {
-  const generated = structuredClone(input.foods.find((food) => generatedImages[food.image])!);
+  const generated = structuredClone(generatedFixtures.find((food) => food.slug !== protectedReal.slug)!);
   generated.heroImage = generated.image; generated.heroAlt = generated.alt;
   const original = { ...current(), foods: [current().foods[0], generated] };
   const before = structuredClone(original);
@@ -261,7 +278,7 @@ test("검증을 통과한 실사만 생성 예시와 히어로를 교체하고 �
 });
 
 test("실사 없음·불일치·다운로드/검색 실패에는 생성 예시와 안내를 그대로 유지하고 보류를 기록한다", async () => {
-  const generated = structuredClone(input.foods.find((food) => generatedImages[food.image])!);
+  const generated = structuredClone(generatedFixtures[0]);
   generated.heroImage = generated.image; generated.heroAlt = generated.alt;
   const original = { ...current(), foods: [generated] };
   const before = structuredClone(original);

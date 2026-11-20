@@ -7,13 +7,15 @@ import { useCallback, useSyncExternalStore } from "react";
 
 const EVENT = "trendfood:storage";
 const cache = new Map<string, { raw: string | null; value: string[] }>();
+const fallback = new Map<string, string[]>();
 const EMPTY: string[] = [];
 
 function read(key: string): string[] {
+  if (fallback.has(key)) return fallback.get(key)!;
   let raw: string | null = null;
   try {
     raw = window.localStorage.getItem(key);
-  } catch {}
+  } catch { return cache.get(key)?.value ?? EMPTY; }
   const hit = cache.get(key);
   if (hit && hit.raw === raw) return hit.value;
   let value: string[] = [];
@@ -49,7 +51,7 @@ export function useStoredSet(key: string) {
       else current.delete(item);
       try {
         window.localStorage.setItem(key, JSON.stringify([...current]));
-      } catch {}
+      } catch { fallback.set(key, [...current]); }
       window.dispatchEvent(new Event(EVENT));
     },
     [key],

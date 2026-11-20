@@ -50,6 +50,7 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
       if (!object(h) || !Array.isArray(h.years) || !h.years.length || h.years.some((year) => !Number.isInteger(year) || year < 2020 || year > Number(String(f.checkedAt ?? raw.checkedAt).slice(0, 4))) || new Set(h.years).size !== h.years.length || !text(h.note) || !Array.isArray(h.sources) || !h.sources.length || h.sources.some((s) => !object(s) || !text(s.title, 200) || !https(s.url))) return fail(`${label}: 유행 연도와 근거 출처를 확인해 주세요`);
     }
     if (f.checkedAt !== undefined && !validDate(f.checkedAt)) return fail(`${label}: 확인 날짜가 잘못됐어요`);
+    if (f.publishedAt !== undefined && !validDate(f.publishedAt)) return fail(`${label}: 등록 날짜가 잘못됐어요`);
     for (const key of ["name", "why", "summary", "servings", "alt", "tip", "recipeNote"]) {
       if (!text(f[key], key === "name" ? 30 : 2000)) return fail(`${label}: ${key}를 채워 주세요`);
     }
@@ -109,6 +110,6 @@ export function contentToRecords(snapshot: ContentSnapshot): FoodRecord[] {
 /** 같은 주소는 갱신하고 새 주소는 추가한다. 기존 출처 확인 날짜는 보존한다. */
 export function mergeContent(current: ContentSnapshot, incoming: ContentSnapshot): ContentSnapshot {
   const foods = new Map(current.foods.map((food) => [food.slug, { ...food, checkedAt: food.checkedAt ?? current.checkedAt }]));
-  for (const food of incoming.foods) foods.set(food.slug, { ...food, checkedAt: food.checkedAt ?? incoming.checkedAt });
+  for (const food of incoming.foods) foods.set(food.slug, { ...food, ...(foods.get(food.slug)?.publishedAt ? { publishedAt: foods.get(food.slug)!.publishedAt } : {}), checkedAt: food.checkedAt ?? incoming.checkedAt });
   return parseContent({ ...current, status: "ready", checkedAt: [current.checkedAt, incoming.checkedAt].sort().at(-1), foods: [...foods.values()] });
 }

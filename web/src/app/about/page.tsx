@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteInfoPage } from "@/components/site-info-page";
 import { OPERATOR_EMAIL } from "@/data/site";
 
-export const metadata: Metadata = { title: "사이트 소개 | 트렌드푸드" };
+export const metadata: Metadata = { title: "사이트 소개 | 트렌드푸드", alternates: { canonical: "/about" } };
 
 // 필수 문서 전문과 삭제 요청 창구를 안내한다. 법률 전문가 검토는 남아 있다 (docs/spec.md Compliance).
 const sections = [

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SiteInfoPage } from "@/components/site-info-page";
 import { OPERATOR_EMAIL } from "@/data/site";
 
-export const metadata: Metadata = { title: "이용약관 | 트렌드푸드" };
+export const metadata: Metadata = { title: "이용약관 | 트렌드푸드", alternates: { canonical: "/terms" } };
 
 export default function TermsPage() {
   return (

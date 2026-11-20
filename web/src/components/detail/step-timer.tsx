@@ -1,7 +1,7 @@
 "use client";
 
 import { Pause, Play, RotateCcw, Timer } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const label = (min: number) => (min >= 60 ? `${min / 60}시간` : `${min}분`);
 const clock = (s: number) => {
@@ -14,18 +14,15 @@ const clock = (s: number) => {
 export function StepTimer({ minutes }: { minutes: number }) {
   const [left, setLeft] = useState<number | null>(null);
   const [running, setRunning] = useState(false);
+  const deadline = useRef<number | null>(null);
 
   useEffect(() => {
     if (!running) return;
     const id = window.setInterval(() => {
-      setLeft((s) => {
-        if (s === null || s <= 1) {
-          setRunning(false);
-          return 0;
-        }
-        return s - 1;
-      });
-    }, 1000);
+      const remaining = Math.max(0, Math.ceil(((deadline.current ?? Date.now()) - Date.now()) / 1000));
+      setLeft(remaining);
+      if (!remaining) setRunning(false);
+    }, 500);
     return () => window.clearInterval(id);
   }, [running]);
 
@@ -39,6 +36,7 @@ export function StepTimer({ minutes }: { minutes: number }) {
         className={base}
         onClick={() => {
           setLeft(minutes * 60);
+          deadline.current = Date.now() + minutes * 60_000;
           setRunning(true);
         }}
       >
@@ -58,7 +56,11 @@ export function StepTimer({ minutes }: { minutes: number }) {
         <button
           type="button"
           className={base}
-          onClick={() => setRunning((r) => !r)}
+          onClick={() => {
+            if (running) setLeft(Math.max(0, Math.ceil(((deadline.current ?? Date.now()) - Date.now()) / 1000)));
+            else deadline.current = Date.now() + (left ?? 0) * 1000;
+            setRunning(!running);
+          }}
           aria-label={running ? "타이머 멈춤" : "타이머 계속"}
         >
           {running ? <Pause className="size-4" aria-hidden /> : <Play className="size-4" aria-hidden />}
@@ -70,6 +72,7 @@ export function StepTimer({ minutes }: { minutes: number }) {
         onClick={() => {
           setLeft(null);
           setRunning(false);
+          deadline.current = null;
         }}
         aria-label="타이머 처음으로"
       >

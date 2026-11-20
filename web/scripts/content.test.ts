@@ -126,16 +126,17 @@ test("모든 음식에 개별 이미지가 있고 생성 예시는 실사 출처
 });
 
 test("다른 음식의 생성 이미지 연결과 AI 설명 누락을 본문·히어로 모두 거절한다", () => {
-  const food = input.foods.find((food: { image: string }) => generatedImages[food.image]);
-  assert.ok(food);
+  const [image, entry] = Object.entries(generatedImages).find(([, entry]) => input.foods.some((food: { slug: string }) => food.slug === entry.slug))!;
+  const food = input.foods.find((food: { slug: string }) => food.slug === entry.slug);
   for (const field of ["image", "heroImage"]) {
     const snapshot = fresh();
-    snapshot.foods[0][field] = food.image;
-    snapshot.foods[0].alt = "AI 생성 예시";
+    const other = snapshot.foods.find((item: { slug: string }) => item.slug !== food.slug);
+    other[field] = image;
+    other.alt = "AI 생성 예시";
     assert.throws(() => parseContent(snapshot), /생성 이미지/);
   }
   const snapshot = fresh();
-  snapshot.foods.find((item: { slug: string }) => item.slug === food.slug).alt = "직접 촬영한 사진";
+  Object.assign(snapshot.foods.find((item: { slug: string }) => item.slug === food.slug), { image, alt: "직접 촬영한 사진" });
   assert.throws(() => parseContent(snapshot), /AI 생성 설명/);
 });
 
@@ -180,6 +181,8 @@ test("빈 파일·초안·중복 주소·미래/잘못된 날짜를 공개하지
     (s: typeof input) => { s.foods[1].slug = s.foods[0].slug; },
     (s: typeof input) => { s.checkedAt = "2026-02-30"; },
     (s: typeof input) => { s.checkedAt = "2099-01-01"; },
+    (s: typeof input) => { s.foods[0].publishedAt = "2026-02-30"; },
+    (s: typeof input) => { s.foods[0].publishedAt = "2099-01-01"; },
   ]) {
     const snapshot = fresh();
     edit(snapshot);
@@ -219,6 +222,14 @@ test("수집 초안은 실제 YouTube 출처만 포함하고 승인 전 반영�
   assert.equal(snapshot.foods[0].steps[0].timerMinutes, undefined);
   assert.throws(() => parseContent(snapshot), /ready/);
   assert.doesNotThrow(() => parseContent(snapshot, true));
+});
+
+test("처음 공개한 날짜는 원고를 다시 가져와도 덮어쓰지 않는다", () => {
+  const current = parseContent(fresh());
+  current.foods[0].publishedAt = "2026-11-01";
+  const incoming = structuredClone(current);
+  incoming.foods[0].publishedAt = "2026-11-02";
+  assert.equal(mergeContent(current, incoming).foods[0].publishedAt, "2026-11-01");
 });
 
 test("가져오기 실패 시 현재 페이지 콘텐츠 파일을 보존한다", async () => {

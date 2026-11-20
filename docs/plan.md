@@ -11,7 +11,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 | 3 영상 임베드 | `web/supabase/migrations/0002_video.sql`(`foods.video_id`), `src/data/db-mapping.ts`, `src/data/catalog-schema.ts`, `src/app/food/[slug]/page.tsx`, 관리자 입력칸, e2e |
 | 4 삭제 요청·약관 | `web/src/app/about/page.tsx`·`web/src/app/privacy/page.tsx`·`web/src/app/terms/page.tsx`, 공통 안내 틀·운영자 메일 상수·푸터·공개 화면 e2e, 관리자 게시 관리·`takedown-log.tsx`·`admin-food-edit.ts`·관리자 테스트·`web/supabase/migrations/0003_takedown_log.sql` |
 | 5 약관 준수 수집 | `web/scripts/pipeline/run.ts`(30일 지난 후보 신호 삭제), `logic.test.ts` |
-| 6 분석 | `src/app/layout.tsx`(GA4, 동의 문구), `ingredient-cart.tsx`(쿠팡 링크 `subId=<slug>`) |
+| 6 분석 | `web/src/components/analytics.tsx`·`web/src/lib/analytics.ts`(선택형 GA4·클릭 이벤트), [실제 연결 상태와 운영 안내](operation-upgrades.md) |
 | 7 실데이터·오픈 | `web/src/assets/` 실제 사진, Supabase 데이터, `CLAUDE.md`·`docs/` 기준 문서 상태 갱신 |
 
 ## Order of work
@@ -20,7 +20,7 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 3. ☑ **영상 임베드** (R5): 운영자가 YouTube 주소 입력 → ID 만 저장(11자, `^[A-Za-z0-9_-]{11}$`) → `youtube-nocookie.com/embed/<id>` + 출처 링크 완료. 썸네일 저장 금지. **실제 Supabase 에 0002_video.sql 적용 필요(사람이 직접)**.
 4. 🟡 **삭제 요청 창구·필수 페이지 본문** (R8·R15): `/about#contact`에 메일 창구·48시간 답장 안내, `/privacy`·`/terms` 본문과 AI 활용·신고·임시조치 고지, 관리자 화면의 숨기기·다시 보이기 기록 및 내림 사유·메모 저장 완료. **실제 Supabase 에 0003_takedown_log.sql 적용 필요(사람이 직접). 남음: 법률 전문가 검토 전 초안이라는 점.** 운영자는 삭제 요청 확인 후 게시 관리에서 숨기기 → 내림 사유 선택·저장 → [사이트에 반영]으로 내린다.
 5. ☑ **YouTube 약관 대응** (R19, concern 6): 29일 지난 자동 수집 후보의 YouTube 유래 값 정리, 승인 때 개수 복사 방지, 초안 프롬프트에 YouTube 수치 금지 완료. **남음: YouTube API Services 사용 고지와 YouTube 서비스 약관 동의 문구를 /about·/terms 에 넣을지는 팀 결정**.
-6. ☐ **분석** (R20): GA4, 쿠팡 링크 `subId`. 쿠키 고지 문구.
+6. 🟡 **분석** (R20, 2026-11-20): GA4 연결 코드·선택형 동의·개인정보 안내·음식/찜/검색/구매 클릭 이벤트 구현·검사 완료. 사용자에게 아직 측정 ID가 없어 실제 집계 연결은 남았다. 일반 상품 주소에 제휴 추적 값을 임의로 만들지 않는다. 자세한 계정 설정·SEO·보유 재료·분량·요리 모드 동작은 [운영 개선 안내](operation-upgrades.md).
 7. ☐ **실데이터 준비**: 데모 사진 교체, 쿠팡 파트너스 링크 등록, 직접 검수한 글 20~30개, 도메인 연결.
 8. ☐ **오픈** → 직접 작성·검수한 글 20~30개 이상으로 애드센스 신청·승인 후 `ads.txt` 배포 → 누적 판매 15만원 + 최종 승인 후 쿠팡 API 상품 검색·딥링크 자동화. 자동 광고는 모바일 가독성 확인 후에만 사용한다.
 9. ☐ **수집 확장·Phase 2**: 검색광고·블로그·카페 신호는 약관상 못 쓴다(2026-11-10 조사) — 쇼핑인사이트, 심사 후 Threads·인스타 해시태그를 후보로 본다. 사용자 확보 후 후기 CRUD·평점·Turnstile·금칙어·LLM 검수·신고·임시조치는 새 `intent.md` 로 시작하며, Instagram 해시태그 보조 신호는 앱 심사 후 검토한다 (`docs/spec.md` 제외·수집 규칙).
@@ -37,4 +37,4 @@ Status: draft (2026-11-05). `docs/intent.md`·`docs/spec.md` 를 읽고 세운 *
 - 1: `ONBOARDING.md` 4-5 (deploy ✓, pipeline 후 후보 생성, 숨기기 → 반영 → 사이트에서 사라짐).
 - 2·3·4: 관리자 e2e 에 새 동작 추가(가짜 Supabase), 새 SQL 은 PGlite 로 RLS 확인 후 실제 Supabase 에 적용.
 - 5: `logic.test.ts` 에 30일 정리 테스트.
-- 6·7: 실제 사이트에서 GA4 실시간 보고서·쿠팡 파트너스 리포트에 `subId` 가 찍히는지 확인.
+- 6·7: GA4 ID 연결 뒤 동의한 브라우저의 실시간 이벤트 수신을 확인한다. 현재 일반 쿠팡 상품 주소의 클릭은 결제·제휴 실적으로 집계하지 않는다. 파트너스 승인·공식 키 연결 후에만 별도로 제휴 리포트를 검증한다.

@@ -20,20 +20,26 @@ import { trendHistory } from "@/data/trend-history";
 import { LikeCount } from "@/components/like-button";
 import { categoryOptions, type Food, sortOptions, tagOptions } from "@/lib/foods";
 import { cn } from "@/lib/utils";
-import { LIKES_KEY, useStoredSet } from "@/lib/use-stored-set";
+import { LIKES_KEY, PANTRY_KEY, useStoredSet } from "@/lib/use-stored-set";
+import { recentlyPublished } from "@/data/freshness";
+import { pantryMatch } from "@/data/recipe-tools";
+import { PantryFinder } from "@/components/home/pantry-finder";
+import { track } from "@/lib/analytics";
 
 type Sort = (typeof sortOptions)[number];
 type Tab = "전체" | (typeof categoryOptions)[number] | "찜";
-type Collection = "all" | "trends" | "everyday";
+type Collection = "all" | "recent" | "trends" | "everyday";
 
 const collections: { value: Collection; label: string }[] = [
   { value: "all", label: "전체 음식" },
+  { value: "recent", label: "최근 발견" },
   { value: "trends", label: "유행 기록" },
   { value: "everyday", label: "일상 레시피" },
 ];
 
-function matchesCollection(food: Food, collection: Collection) {
+function matchesCollection(food: Food, collection: Collection, today = "") {
   if (collection === "all") return true;
+  if (collection === "recent") return recentlyPublished(food, today);
   if (collection === "trends") return !!food.history?.years.length || food.kind === "discovery";
   return !food.history?.years.length && (!food.kind || food.kind === "recipe");
 }
@@ -54,6 +60,7 @@ function readUrl(years: number[]) {
   const collection = collections.some(({ value }) => value === p.get("collection")) ? p.get("collection") as Collection : "all";
   return {
     collection,
+    pantry: p.get("pantry") === "1",
     tab: ([...tabs, "찜"] as string[]).includes(cat ?? "") ? (cat as Tab) : "전체",
     sort: (sortOptions as readonly string[]).includes(sort ?? "") ? (sort as Sort) : "급상승순",
     tag: (tagOptions as readonly string[]).includes(tag ?? "") ? tag : null,
@@ -62,7 +69,7 @@ function readUrl(years: number[]) {
   };
 }
 
-export function HomeFeed({ foods }: { foods: Food[] }) {
+export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const top = foods[0];
   const recommendation = top.editorial?.recommendation;
   const curated = foods.every((food) => food.editorial);
@@ -78,6 +85,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
   const [ready, setReady] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const likes = useStoredSet(LIKES_KEY);
+  const pantry = useStoredSet(PANTRY_KEY);
+  const need = useStoredSet("tf:need");
+  const [pantryActive, setPantryActive] = useState(false);
   const listRef = useRef<HTMLElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -91,7 +101,8 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     setTag(s.tag);
     setQuery(s.q);
     setApplied(s.q);
-    setYear(s.year);
+    setYear(!curated && s.pantry ? null : s.year);
+    setPantryActive(s.pantry);
     setReady(true);
     /* eslint-enable react-hooks/set-state-in-effect */
     const onPop = () => {
@@ -102,7 +113,8 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
       setTag(n.tag);
       setQuery(n.q);
       setApplied(n.q);
-      setYear(n.year);
+      setYear(!curated && n.pantry ? null : n.year);
+      setPantryActive(n.pantry);
     };
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
@@ -117,11 +129,12 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     if (tag) p.set("tag", tag);
     if (applied.trim()) p.set("q", applied.trim());
     if (year !== null) p.set("year", String(year));
+    if (pantryActive) p.set("pantry", "1");
     const next = p.size ? `?${p}` : window.location.pathname;
     if (next !== window.location.search && !(next === window.location.pathname && !window.location.search)) {
       window.history.pushState(null, "", next);
     }
-  }, [ready, tab, sort, tag, applied, year, collection]);
+  }, [ready, tab, sort, tag, applied, year, collection, pantryActive]);
 
   useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 900);
@@ -131,14 +144,14 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
   }, []);
 
   const counts = useMemo(() => {
-    const visible = foods.filter((food) => matchesCollection(food, collection === "everyday" ? "all" : collection));
+    const visible = foods.filter((food) => matchesCollection(food, collection === "everyday" ? "all" : collection, today) && (!pantryActive || pantryMatch(food, pantry.items, need.items) !== null));
     const c: Record<string, number> = { 전체: visible.length, 찜: visible.filter((food) => likes.items.includes(food.slug)).length, "자취 요리": foods.filter((food) => matchesCollection(food, "everyday")).length };
     for (const f of visible) c[f.category] = (c[f.category] ?? 0) + 1;
     return c;
-  }, [foods, likes.items, collection]);
+  }, [foods, likes.items, collection, today, pantryActive, pantry.items, need.items]);
 
   const q = applied.trim();
-  const filtering = Boolean(q || tag || tab !== "전체" || year !== null || collection !== "all");
+  const filtering = Boolean(q || tag || tab !== "전체" || year !== null || collection !== "all" || pantryActive);
   const history = trendHistory.filter((item) => item.year === year);
 
   const list = useMemo(() => {
@@ -148,7 +161,8 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
         (tab === "전체" || (tab === "찜" ? likes.items.includes(f.slug) : f.category === tab)) &&
         (!tag || f.tags.includes(tag)) &&
         (!curated || !year || f.history?.years.includes(year)) &&
-        matchesCollection(f, collection) &&
+        matchesCollection(f, collection, today) &&
+        (!pantryActive || pantryMatch(f, pantry.items, need.items) !== null) &&
         (!q || f.name.includes(q) || f.ingredients.some((i) => i.name.includes(q)) || f.why.includes(q) || f.history?.note.includes(q)),
     );
     const by: Record<Sort, (a: Food, b: Food) => number> = {
@@ -156,8 +170,8 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
       좋아요순: (a, b) => b.likes - a.likes,
       조리시간순: (a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes),
     };
-    return [...filtered].sort(by[sort]);
-  }, [foods, sort, tag, tab, likes.items, q, year, filtering, curated, collection]);
+    return [...filtered].sort((a, b) => pantryActive ? pantryMatch(a, pantry.items, need.items)!.missing.length - pantryMatch(b, pantry.items, need.items)!.missing.length || by[sort](a, b) : by[sort](a, b));
+  }, [foods, sort, tag, tab, likes.items, q, year, filtering, curated, collection, today, pantryActive, pantry.items, need.items]);
 
   /** 목록 위쪽이 화면 밖에 있으면 목록 처음으로 올려 준다 */
   const toList = () => {
@@ -179,6 +193,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     toList();
   };
   const reset = () => {
+    setPantryActive(false);
     setCollection("all");
     setYear(null);
     setTab("전체");
@@ -187,6 +202,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
     setApplied("");
   };
   const pickYear = (value: number) => {
+    setPantryActive(false);
     setYear(value);
     setTab("전체");
     setTag(null);
@@ -214,6 +230,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 e.preventDefault();
                 if (!curated) setYear(null);
                 setApplied(query);
+                track("search", { search_term: "redacted", query_length: query.trim().length });
                 searchRef.current?.blur();
                 listRef.current?.scrollIntoView({ behavior: "smooth" });
               }}
@@ -371,8 +388,9 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             {curated && <nav aria-label="음식 모음" className="mb-4 flex flex-wrap gap-2">
               {collections.map(({ value, label }) => <button key={value} type="button" aria-pressed={collection === value} onClick={() => { if (value === "everyday") pickTab("자취 요리"); else { setCollection(value); toList(); } }} className="min-h-11 rounded-md border border-line-strong px-4 text-sm font-semibold text-foreground hover:bg-card aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background">{label}</button>)}
             </nav>}
+            <PantryFinder foods={foods} active={pantryActive} onChange={(active) => { setPantryActive(active); if (active) setYear(null); }} />
             <div aria-live="polite" className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h2 className="text-2xl font-bold tracking-tight">{!curated && year !== null ? `${year}년 유행 음식` : title}</h2>
+              <h2 className="text-2xl font-bold tracking-tight">{pantryActive ? "보유 재료로 찾기" : !curated && year !== null ? `${year}년 유행 음식` : title}</h2>
               <span className="text-sm text-muted-foreground">{!curated && year !== null ? history.length : list.length}개</span>
               {filtering && (
                 <button type="button" onClick={reset} className="min-h-11 text-sm font-bold text-accent underline">
@@ -380,7 +398,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
                 </button>
               )}
             </div>
-            {(curated || collection === "everyday") && <p className="mt-1 max-w-[42em] text-meta leading-relaxed text-muted-foreground">{collection === "everyday" ? "유행 순위와 별개로, 집에서 해먹기 좋은 레시피를 모았어요." : "출처로 확인한 유행 시기예요. 현재 인기 순위와는 달라요."}</p>}
+            {(curated || collection === "everyday") && <p className="mt-1 max-w-[42em] text-meta leading-relaxed text-muted-foreground">{collection === "recent" ? "최근 30일 안에 서비스에 처음 등록한 음식이에요. 등록일은 유행 시작일과 달라요." : collection === "everyday" ? "유행 순위와 별개로, 집에서 해먹기 좋은 레시피를 모았어요." : "출처로 확인한 유행 시기예요. 현재 인기 순위와는 달라요."}</p>}
             {!curated && year !== null ? (
               <>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">당시 보도로 살펴본 유행 음식이에요. 순위가 아닌 대표 사례이며, 연도는 유행이 확인된 시기를 뜻해요.</p>
@@ -402,7 +420,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
             ) : list.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-16 text-center">
                 <p className="text-base text-body">
-                  {tab === "찜" ? "아직 찜한 음식이 없어요. 음식 옆 하트를 눌러 보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
+                  {tab === "찜" ? "아직 찜한 음식이 없어요. 음식 옆 하트를 눌러 보세요." : collection === "recent" && !q && !tag && tab === "전체" ? "최근 30일에 등록일이 확인된 새 음식이 없어요. 유행 기록과 전체 음식을 둘러보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
                 </p>
                 <button type="button" onClick={reset} className="min-h-11 rounded-lg bg-primary px-5 font-bold text-white">
                   {curated ? "전체 음식 보기" : "전체 순위 보기"}
@@ -412,7 +430,7 @@ export function HomeFeed({ foods }: { foods: Food[] }) {
               <ol className="food-grid m-0 mt-5 grid list-none gap-5 p-0 pb-8 md:grid-cols-2 md:gap-7">
                 {list.map((food, i) => (
                   <Fragment key={food.slug}>
-                    <FoodCard food={food} wide={i === 2 && list.length > 3} unranked={collection === "everyday"} />
+                    <FoodCard food={food} wide={i === 2 && list.length > 3} unranked={collection === "everyday" || pantryActive} match={pantryActive ? pantryMatch(food, pantry.items, need.items) : null} />
                     {i === 2 && list.length > 3 && (
                       <li className="col-span-full list-none">
                         <AdSlot label="인피드" className="my-7 h-[130px]" />

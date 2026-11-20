@@ -28,6 +28,7 @@ export default defineConfig({
       TF_SEED_ONLY: "1",
       NEXT_PUBLIC_SUPABASE_URL: FAKE_SUPABASE,
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "test-anon-key",
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-TEST123",
     },
   },
 });

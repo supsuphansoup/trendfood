@@ -122,7 +122,7 @@ test("원본 영상 없음: iframe·임시 문구·관련 영상 수 숨김, 글
 test("원본 영상 개인정보 안내: 제목·Google 방침 링크", async ({ page }) => {
   await page.goto("/privacy");
   await expect(page.getByRole("heading", { name: "4. 쿠팡 링크와 YouTube 영상", exact: true })).toBeVisible();
-  const link = page.getByRole("link", { name: "Google 개인정보처리방침", exact: true });
+  const link = page.locator("section").filter({ has: page.getByRole("heading", { name: "4. 쿠팡 링크와 YouTube 영상", exact: true }) }).getByRole("link", { name: "Google 개인정보처리방침", exact: true });
   await expect(link).toHaveAttribute("href", "https://policies.google.com/privacy");
   await expect(link).toHaveAttribute("target", "_blank");
   await expect(link).toHaveAttribute("rel", "noopener noreferrer");
@@ -154,7 +154,7 @@ test("필수 페이지: 본문·시행일·메일·접근성·가로 넘침", as
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 1, name: title, exact: true })).toBeVisible();
     if (href !== "/about") {
-      await expect(page.getByText("시행일: 2026년 11월 10일", { exact: true })).toBeVisible();
+      await expect(page.getByText(`시행일: ${href === "/privacy" ? "2026년 11월 20일" : "2026년 11월 10일"}`, { exact: true })).toBeVisible();
       await expect(page.getByRole("heading", { level: 2 })).toHaveCount(11);
     }
     const emailLinks = page.getByRole("link", { name: "trendfood2026@gmail.com", exact: true });

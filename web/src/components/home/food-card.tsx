@@ -4,8 +4,9 @@ import { ArrowUpRight } from "lucide-react";
 import { LikeButton } from "@/components/like-button";
 import { type Food } from "@/lib/foods";
 import { cn } from "@/lib/utils";
+import type { pantryMatch } from "@/data/recipe-tools";
 
-export function FoodCard({ food, wide = false, unranked = false }: { food: Food; wide?: boolean; unranked?: boolean }) {
+export function FoodCard({ food, wide = false, unranked = false, match }: { food: Food; wide?: boolean; unranked?: boolean; match?: ReturnType<typeof pantryMatch> }) {
   const href = `/food/${food.slug}`;
   return (
     <li className={cn("relative flex min-w-0 flex-col overflow-hidden rounded-feature bg-card", wide && "md:col-span-full md:grid md:grid-cols-2 md:items-stretch")}>
@@ -21,15 +22,16 @@ export function FoodCard({ food, wide = false, unranked = false }: { food: Food;
             <span className="sr-only">순위 </span>
             {food.rank}
           </span>}
-          <span className="text-meta text-muted-foreground">{unranked ? "일상 레시피" : food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || (food.kind === "discovery" ? "유행 시기 미확정" : "일상 레시피") : food.change}</span>
+          <span className="text-meta text-muted-foreground">{unranked && !match ? "일상 레시피" : food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || (food.kind === "discovery" ? "유행 시기 미확정" : "일상 레시피") : food.change}</span>
         </div>
         <h3 className="text-2xl leading-[1.35] font-bold tracking-[-0.02em] md:text-card-grid-title">
           <Link href={href} className="flex min-h-11 items-center text-foreground hover:text-foreground hover:underline">
             {food.name}
           </Link>
         </h3>
-        {food.editorial?.newlyAdded && <p className="text-sm font-bold text-accent">새로 추가 · {food.editorial.recommendation!.date}</p>}
+        {food.publishedAt ? <p className="text-sm font-bold text-accent">등록일 {food.publishedAt}</p> : food.editorial?.newlyAdded && <p className="text-sm font-bold text-accent">새로 추가 · {food.editorial.recommendation!.date}</p>}
         <p data-testid="food-description" className="line-clamp-2 max-w-[32em] text-reading leading-[1.65] text-body">{food.history?.note ?? food.why}</p>
+        {match && <p data-testid="pantry-match" className="rounded-lg bg-muted px-3 py-2 text-sm leading-relaxed"><b>{match.have}/{match.total}개 재료 보유</b><br />{match.missing.length ? `부족한 재료 ${match.missing.length}개: ${match.missing.map((item) => item.name).join(", ")}` : "재료가 모두 있어요"}</p>}
         <div className="mt-auto flex w-full flex-wrap items-center justify-between gap-x-3 pt-1">
           <span className="text-meta text-muted-foreground">{food.kind === "discovery" ? "음식 소개" : food.kind === "product" ? "완제품 소개" : "레시피 제공"}</span>
           <Link href={href} className="inline-flex min-h-11 items-center gap-1.5 text-base font-bold text-foreground hover:text-accent">

@@ -44,7 +44,7 @@ export function refreshRecommendations(current: ContentSnapshot, input: Recommen
   }
   const snapshot = parseContent({ ...current,
     // 추천 갱신으로 레시피 근거 확인 날짜가 바뀌지 않도록 각 음식의 날짜를 고정한다.
-    foods: ordered.map((food) => ({ ...food, checkedAt: food.checkedAt ?? (known.has(food.slug) ? baseline.checkedAt : current.checkedAt) })),
+    foods: ordered.map((food) => ({ ...food, ...(!known.has(food.slug) && !food.publishedAt ? { publishedAt: date } : {}), checkedAt: food.checkedAt ?? (known.has(food.slug) ? baseline.checkedAt : current.checkedAt) })),
     recommendation: { date, basis, newSlugs },
   });
   return { snapshot, deferred };

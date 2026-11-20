@@ -25,6 +25,8 @@ export type Step = { text: string; timerMinutes?: number };
 export type FoodRecord = {
   slug: string;
   kind?: "recipe" | "product" | "discovery";
+  /** 서비스에 처음 공개된 날짜. 출처 확인일·유행 시작일과 구분하며 과거 데이터는 추정하지 않는다. */
+  publishedAt?: string;
   /** 국내에서 주목받은 시기. 최초 발명 연도나 현재 인기 순위가 아니다. */
   history?: {
     years: number[];

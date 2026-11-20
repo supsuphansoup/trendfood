@@ -3,6 +3,7 @@
 import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { LIKES_KEY, useStoredSet } from "@/lib/use-stored-set";
+import { track } from "@/lib/analytics";
 
 export function LikeButton({ slug, name, className }: { slug: string; name: string; className?: string }) {
   const likes = useStoredSet(LIKES_KEY);
@@ -12,7 +13,7 @@ export function LikeButton({ slug, name, className }: { slug: string; name: stri
       type="button"
       aria-pressed={on}
       aria-label={`${name} 찜하기`}
-      onClick={() => likes.toggle(slug)}
+      onClick={() => { likes.toggle(slug); track("food_like", { food_slug: slug, selected: !on }); }}
       className={cn(
         "flex size-11 items-center justify-center rounded-full bg-white/95 text-foreground transition-colors",
         className,

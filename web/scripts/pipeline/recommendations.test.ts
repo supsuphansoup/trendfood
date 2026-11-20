@@ -83,6 +83,10 @@ test("조리법 없는 새 음식도 사진 확보 후 앞에 배치하고 사�
 test("사진까지 확보한 신규 음식은 앞에 배치하고 신규 표시를 분리한다", () => {
   const current = baseline();
   const result = refreshRecommendations(incoming(current, true), { baseline: current, signals: [], date });
+  assert.equal(result.snapshot.foods[0].publishedAt, date);
+  assert.ok(result.snapshot.foods.slice(1).every((food) => food.publishedAt === current.foods.find((old) => old.slug === food.slug)?.publishedAt));
+  const next = refreshRecommendations(result.snapshot, { baseline: result.snapshot, signals: [], date: "2026-11-17" });
+  assert.equal(next.snapshot.foods.find((food) => food.slug === "new-verified-food")?.publishedAt, date);
   assert.equal(result.snapshot.foods[0].slug, "new-verified-food");
   assert.deepEqual(result.snapshot.recommendation, { date, basis: "new", newSlugs: ["new-verified-food"] });
   const records = contentToRecords(result.snapshot);

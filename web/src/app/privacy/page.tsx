@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { SiteInfoPage } from "@/components/site-info-page";
 import { OPERATOR_EMAIL } from "@/data/site";
+import { ANALYTICS_ID } from "@/lib/analytics";
 
-export const metadata: Metadata = { title: "개인정보처리방침 | 트렌드푸드" };
+export const metadata: Metadata = { title: "개인정보처리방침 | 트렌드푸드", alternates: { canonical: "/privacy" } };
 
 export default function PrivacyPage() {
   return (
-    <SiteInfoPage title="개인정보처리방침" effectiveDate="2026년 11월 10일">
+    <SiteInfoPage title="개인정보처리방침" effectiveDate="2026년 11월 20일">
       <p>트렌드푸드(이하 &quot;서비스&quot;)는 방문자의 개인정보를 되도록 받지 않도록 만들었어요. 이 문서는 서비스가 어떤 정보를 다루는지 알려 드려요.</p>
       <section>
         <h2>1. 받는 개인정보</h2>
@@ -20,6 +21,7 @@ export default function PrivacyPage() {
           <li>찜한 음식</li>
           <li>&quot;집에 있어요&quot;로 표시한 재료</li>
           <li>재료 연속 담기에서 이미 담은 재료</li>
+          <li>요리 모드에서 완료한 단계와 방문 통계 허용 여부</li>
         </ul>
       </section>
       <section>
@@ -33,7 +35,9 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>5. 광고와 방문 분석</h2>
-        <p>지금은 광고와 방문 분석 도구를 쓰지 않아요. 앞으로 쓰게 되면, 쓰기 전에 이 문서를 먼저 고치고 어떤 정보를 다루는지 알려 드려요.</p>
+        <p>방문 분석 설정이 연결된 경우, 하단 ‘방문 통계 설정’에서 허용한 방문자에 한해 Google Analytics 4를 불러와요. 허용하지 않으면 분석 도구를 불러오지 않아요. {!ANALYTICS_ID && "현재 측정 ID가 연결되지 않아 분석하지 않아요."}</p>
+        <p>허용하면 페이지 방문, 음식 선택, 찜·해제, 검색 횟수와 검색어 길이, 쿠팡 링크 클릭을 Google에 보내요. 검색어 원문, URL의 검색 조건, 보유 재료 목록과 이메일은 분석 이벤트에 넣지 않아요. 실제 구매·결제 내역은 알 수 없어요. Google이 분석용 쿠키와 접속 정보를 처리하며, 광고 개인화와 Google 신호는 사용하지 않아요. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 개인정보처리방침</a>에서 제공자의 처리 방식을 확인할 수 있어요.</p>
+        <p>허용 여부는 하단에서 언제든 바꿀 수 있어요. 허용을 취소하면 이후 분석 이벤트 전송을 중지하고 이 사이트의 분석용 쿠키를 지워요. 이미 전송된 통계와 보관 설정은 Google Analytics 관리 설정의 적용을 받아요.</p>
       </section>
       <section>
         <h2>6. 보관 기간과 삭제</h2>
@@ -42,7 +46,7 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>7. 다른 곳에 주는 정보</h2>
-        <p>방문자의 개인정보를 다른 회사나 사람에게 팔거나 넘기지 않아요. 법에 따라 수사기관 등이 정해진 절차로 요청하는 경우에만 예외예요.</p>
+        <p>방문자의 개인정보를 판매하지 않아요. 사이트 제공, 외부 영상·구매 링크, 허용한 방문 분석에는 위에 설명한 제공자의 서비스가 사용돼요. 법에 따른 정당한 정보 제공 요청에는 정해진 절차로 대응해요.</p>
       </section>
       <section>
         <h2>8. 내 정보에 대한 권리</h2>

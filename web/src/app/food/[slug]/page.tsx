@@ -2,16 +2,15 @@ import { ArrowDown, ChevronDown, ChevronLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AdSlot } from "@/components/ad-slot";
 import { FoodImage } from "@/components/food-image";
-import { IngredientCart } from "@/components/detail/ingredient-cart";
+import { RecipeWorkspace } from "@/components/detail/recipe-workspace";
 import { ShareButton } from "@/components/detail/share-button";
-import { StepTimer } from "@/components/detail/step-timer";
 import { TrendChart } from "@/components/detail/trend-chart";
 import { LikeButton } from "@/components/like-button";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteLogo } from "@/components/site-logo";
 import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
+import { foodUrl, recipeJson, safeJson } from "@/data/seo";
 
 // 빌드할 때 게시된 음식의 상세 페이지만 만든다. 목록에 없는 주소는 404.html 로 간다.
 export const dynamicParams = false;
@@ -22,7 +21,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/food/[slug]">): Promise<Metadata> {
   const food = await getPublishedFood((await params).slug);
-  return food ? { title: `${food.name} ${food.kind === "discovery" ? "음식 정보와 출처" : food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`, description: food.why } : {};
+  return food ? { title: `${food.name} ${food.kind === "discovery" ? "음식 정보와 출처" : food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`, description: food.why, alternates: { canonical: foodUrl(food.slug) }, openGraph: { title: food.name, description: food.why, url: foodUrl(food.slug), type: "article", locale: "ko_KR", ...(food.imageAvailable ? { images: [{ url: (food.heroImage ?? food.image).src, alt: food.heroAlt ?? food.alt }] } : {}) } } : {};
 }
 
 export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
@@ -30,10 +29,12 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
   if (!food) notFound();
 
   const discovery = food.kind === "discovery";
+  const structured = recipeJson(food, food.imageAvailable ? (food.heroImage ?? food.image).src : undefined);
   const chips = [...new Set([food.change, food.cookLabel, ...(!discovery ? [`난이도 ${food.difficulty}`, food.servings] : [])])];
 
   return (
     <>
+      {structured && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeJson(structured) }} />}
       <header className="border-b bg-background">
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-2 px-5 py-4">
             <Link
@@ -95,37 +96,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
       </section>
 
       <main className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-5 pt-8 pb-28 lg:pb-16">
-        {!discovery && <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
-          <IngredientCart food={food} />
-
-          <div className="flex min-w-0 flex-col gap-9">
-            <section id="recipe" className="scroll-mt-6">
-              <div className="flex items-baseline justify-between gap-2.5 pb-2">
-                <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
-                <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>
-              </div>
-              <ol className="m-0 list-none p-0">
-                {food.steps.map((s, i) => (
-                  <li key={s.text} className="grid grid-cols-[44px_minmax(0,1fr)] gap-4 border-t py-[18px]">
-                    <span className="flex size-11 items-center justify-center rounded-full bg-primary text-lg font-black text-white">
-                      <span className="sr-only">단계 </span>
-                      {i + 1}
-                    </span>
-                    <div>
-                      <p className="text-base leading-[1.7] md:text-[17px]">{s.text}</p>
-                      {s.timerMinutes && <StepTimer minutes={s.timerMinutes} />}
-                    </div>
-                  </li>
-                ))}
-              </ol>
-              <p className="mt-2 rounded-2xl bg-muted px-[18px] py-4 text-[15px] leading-[1.7]">
-                <b>팁</b> {food.tip}
-              </p>
-            </section>
-
-            <AdSlot label="조리법 하단" className="h-[140px]" />
-          </div>
-        </div>}
+        {!discovery && <RecipeWorkspace food={food} />}
 
         {food.photoCredit && "credit" in food.photoCredit && <p className="text-[13px] wrap-anywhere text-muted-foreground">
           사진: {food.photoCredit.sourceUrl ? <a href={food.photoCredit.sourceUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-block min-h-11 max-w-full content-center align-middle text-accent underline">{food.photoCredit.credit}</a> : food.photoCredit.credit}
