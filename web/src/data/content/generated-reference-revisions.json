@@ -1,0 +1,404 @@
+{
+  "version": 1,
+  "revisions": [
+    {
+      "key": "photo-ai-butter-tteok",
+      "slug": "butter-tteok",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7073082",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2026/03/15/3cf6aeaeed6271bba85c8d3fa9ccc1eb1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-butter-tteok-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-butter-tteok.webp",
+        "slug": "butter-tteok",
+        "title": "상하이 버터떡 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Shanghai butter tteok, small individual baked glutinous-rice and tapioca cakes, deeply golden crisp butter crust, soft pale chewy mochi interior visible in one cut cake, small oval muffin-mold shape. No fillings, sesame, icing or toppings. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-pizza-seolgi",
+      "slug": "pizza-seolgi",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7083171",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2026/09/12/be9a57c3b1046446b1f9a201f1d885c01_f.jpg",
+      "asset": "src/assets/generated/photo-ai-pizza-seolgi-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-pizza-seolgi.webp",
+        "slug": "pizza-seolgi",
+        "title": "피자설기 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean pizza seolgi: two thick rectangular snowy-white steamed rice cake blocks with fine crumb, each horizontally split with a thin layer tomato sauce inside, topped with melted mozzarella, diced pink ham and yellow corn. Clear white rice-cake cross section. NOT bread pizza, no pepperoni. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-bomdong-bibimbap",
+      "slug": "bomdong-bibimbap",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7064960",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2025/10/23/6e5e86826ebf164352149f8c059cb0811.jpg",
+      "asset": "src/assets/generated/photo-ai-bomdong-bibimbap-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-bomdong-bibimbap.webp",
+        "slug": "bomdong-bibimbap",
+        "title": "봄동 비빔밥 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean bomdong spring cabbage bibimbap: shallow ceramic bowl of white rice with fresh crinkled pale-green baby napa cabbage leaves lightly coated red pepper flakes, flaked canned tuna, a sunny-side-up egg and a little sesame oil and sesame seeds. No other vegetable assortments, no beef. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-croffle",
+      "slug": "croffle",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7002483",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2023/05/19/497a465c88799c22f5cffab5a961757b1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-croffle-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-croffle.webp",
+        "slug": "croffle",
+        "title": "크로플 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Golden-brown Korean croffles made by pressing croissant dough in a waffle iron; visibly laminated pastry layers with waffle grid, delicate dusting powdered sugar and ONE scoop vanilla ice cream beside them on a plate. No cookies, chocolate sauce, fruit or whipped cream. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-shrimp-rose-tteokbokki",
+      "slug": "shrimp-rose-tteokbokki",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/6981224",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2022/06/13/0b4830a4d3ade613054847861b2c8e4a1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-shrimp-rose-tteokbokki-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-shrimp-rose-tteokbokki.webp",
+        "slug": "shrimp-rose-tteokbokki",
+        "title": "새우 로제 떡볶이 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean shrimp rose tteokbokki in a shallow cream bowl: thin OVAL WHITE SLICED rice cakes (tteokguk tteok), several clearly visible juicy pink peeled shrimp, silky coral-pink tomato cream gochujang sauce, a small amount finely sliced green chili and scallion. No sausage, noodles or tubular rice cakes. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-perilla-makguksu",
+      "slug": "perilla-makguksu",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.recipio.kr/recipes/MBbvPYB5",
+      "referenceImage": "https://haemeok-s3-bucket.s3.ap-northeast-2.amazonaws.com/images/recipes/90121/bf7adc51-0de7-42dd-a1e7-2f210ea88e00/main_detail.webp",
+      "asset": "src/assets/generated/photo-ai-perilla-makguksu-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-perilla-makguksu.webp",
+        "slug": "perilla-makguksu",
+        "title": "들기름 막국수 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean perilla-oil buckwheat noodles: glossy brown-grey thin buckwheat noodles piled in a dark shallow ceramic bowl, topped with fine shredded green perilla leaves, finely chopped washed pale aged kimchi and delicate dark shredded roasted seaweed. Light oil dressing, no red chili sauce, no egg or meat. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-mint-choco-latte",
+      "slug": "mint-choco-latte",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/6919386",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2019/11/16/63864f4fd7c2ea97fc5d04c9b08c49bd1_f.png",
+      "asset": "src/assets/generated/photo-ai-mint-choco-latte-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-mint-choco-latte.webp",
+        "slug": "mint-choco-latte",
+        "title": "민트초코 라떼 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Iced mint chocolate latte in one tall clear glass, pale mint-green milk, dark chocolate syrup streaks at inner glass, subtle coffee layer, ice cubes, optional small whipped cream swirl and finely shaved chocolate on top. Appetizing cafe beverage, not neon, no mint leaves or colorful candy. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-pokemon-bread",
+      "slug": "pokemon-bread",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.global-market-surfer.com/pickup/detail/404",
+      "referenceImage": "https://www.global-market-surfer.com/assets/pickup/6w/1AZ/en/GRb4RLJeBL.jpg",
+      "asset": "src/assets/generated/photo-ai-pokemon-bread-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-pokemon-bread.webp",
+        "slug": "pokemon-bread",
+        "title": "포켓몬빵 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: An unbranded example of Korean packaged-style chocolate swirl snack bread, opened out of its packaging: a small soft golden spiral bread roll with visible thin dark chocolate filling swirls, one sliced portion showing tender crumb, presented appetizingly on a plain plate. Generic illustrative bread only; no Pokemon characters, logos, stickers, text or packaging. Must not imply an exact branded commercial product. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "AI 생성 예시 이미지예요. 실제 판매 제품을 촬영한 사진이 아니며 제품의 모양·구성·크기와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-yonsei-cream-bread",
+      "slug": "yonsei-cream-bread",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.hankyung.com/article/202405071022g",
+      "referenceImage": "https://img.hankyung.com/photo/202405/01.35551720.1.jpg",
+      "asset": "src/assets/generated/photo-ai-yonsei-cream-bread-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-yonsei-cream-bread.webp",
+        "slug": "yonsei-cream-bread",
+        "title": "연세우유 크림빵 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: An unbranded example of Korean milk cream bun: a soft round lightly golden bread bun cut in half with generous fluffy white milk whipped cream filling, fine airy bread crumb and abundant cool cream visible. Plain plate. No logos, brand text, wrappers or packaging. Generic illustrative milk cream bread, not an exact commercial product depiction. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "AI 생성 예시 이미지예요. 실제 판매 제품을 촬영한 사진이 아니며 제품의 모양·구성·크기와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-tanghulu",
+      "slug": "tanghulu",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/6905798",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2019/02/02/e5705f9d7eed3ef574fc06bbd4e13a281_f.jpg",
+      "asset": "src/assets/generated/photo-ai-tanghulu-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-tanghulu.webp",
+        "slug": "tanghulu",
+        "title": "과일 탕후루 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean green-grape tanghulu: two thin bamboo skewers each threaded with four round fresh green grapes coated in a delicate perfectly clear shiny crisp sugar shell, glossy highlights and light translucency. White small plate, no red fruit or hawthorn, no caramel coloring. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-meoktaekkang",
+      "slug": "meoktaekkang",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://brand.nongshim.com/driedpollackcracker/main/index",
+      "referenceImage": "https://image.nongshim.com/brand/info/1739758057100.jpg",
+      "asset": "src/assets/generated/photo-ai-meoktaekkang-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-meoktaekkang.webp",
+        "slug": "meoktaekkang",
+        "title": "먹태깡 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Generic unbranded example of Korean savory dried-pollock-flavored crunchy puffed snack: small short golden ridged irregular rectangular curled corn puffs piled in a small ceramic bowl, subtle green pepper seasoning flecks. Tasty snack close-up. No actual dried fish, no potato chips, no branded packaging or text; illustrative snack, not an exact commercial product. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "AI 생성 예시 이미지예요. 실제 판매 제품을 촬영한 사진이 아니며 제품의 모양·구성·크기와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-yogurt-ice-cream",
+      "slug": "yogurt-ice-cream",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7033353",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2024/08/27/f6fb7413e8e29c130fd644b65fe67a4e1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-yogurt-ice-cream-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-yogurt-ice-cream.webp",
+        "slug": "yogurt-ice-cream",
+        "title": "요거트 아이스크림 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Homemade yogurt ice cream in a shallow ceramic dessert bowl, three creamy off-white scoops, a thin dark chocolate drizzle setting into a delicate shell, a small amount of almonds, fresh blueberries and raspberries, small plain biscuit pieces. Luscious but restrained, no honeycomb or other unlisted toppings. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-chestnut-tiramisu",
+      "slug": "chestnut-tiramisu",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7036410",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2024/10/14/63916f1f4cf161d11f5c79221b690aba1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-chestnut-tiramisu-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-chestnut-tiramisu.webp",
+        "slug": "chestnut-tiramisu",
+        "title": "밤 티라미수 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean chestnut tiramisu in one clear low dessert glass, layers of moist whole-wheat biscuits and pale tan chestnut cream, topped with delicate dark chocolate shavings and a little granola. Rich creamy texture, clearly visible layered cross-section, no cocoa-powder blanket, no strawberry, no coffee beans. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-chicken-mayo-deopbap",
+      "slug": "chicken-mayo-deopbap",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7053152",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2025/05/19/512a08b41e22160efe26519326febcfd1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-chicken-mayo-deopbap-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-chicken-mayo-deopbap.webp",
+        "slug": "chicken-mayo-deopbap",
+        "title": "치킨마요 덮밥 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean chicken mayo rice bowl: white rice with thin shredded yellow egg omelette and crispy cooked boneless chicken pieces, delicately zigzag-drizzled with white mayonnaise and glossy dark teriyaki sauce. Shallow ceramic bowl. No seaweed, avocado or salad. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-airfryer-gyeranppang",
+      "slug": "airfryer-gyeranppang",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7038201",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2024/11/09/7ac3edaef5a0b825cd4f9b07c92487b41_f.jpg",
+      "asset": "src/assets/generated/photo-ai-airfryer-gyeranppang-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-airfryer-gyeranppang.webp",
+        "slug": "airfryer-gyeranppang",
+        "title": "에어프라이어 계란빵 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Homemade air-fryer Korean egg bread: three small round muffin-shaped golden pancake-batter breads, each containing ONE fully cooked whole egg on top with set white and cooked golden yolk, one bread cut open showing fluffy pale interior. No street vendor griddle, no ham or bacon, no garnish. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-shrimp-cream-risotto",
+      "slug": "shrimp-cream-risotto",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7072924",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2026/03/11/9d3de453564299bc550dc152599b45c91_f.jpg",
+      "asset": "src/assets/generated/photo-ai-shrimp-cream-risotto-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-shrimp-cream-risotto.webp",
+        "slug": "shrimp-cream-risotto",
+        "title": "새우 크림 리조또 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean home-style shrimp cream risotto: glossy creamy white rice with clearly visible juicy pink peeled shrimp and diced king oyster mushrooms, tiny cooked onion and scallion bits, subtle Parmesan. Shallow bowl, thick creamy sauce coating individual rice grains, not soupy. No lemon, asparagus, tomato or chives. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-tuna-gimbap",
+      "slug": "tuna-gimbap",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/6869925",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2017/05/18/28973effc4b210dbd696da31a230f74d1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-tuna-gimbap-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-tuna-gimbap.webp",
+        "slug": "tuna-gimbap",
+        "title": "참치 김밥 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean simple tuna mayo gimbap: neatly sliced round seaweed rice rolls, dark nori outer ring, white rice layer and only creamy canned tuna and finely minced onion filling. Close-up cross sections on a plate, subtle sesame seeds. NO carrot, yellow pickled radish, egg, cucumber or other colorful fillings. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-butter-garaetteok",
+      "slug": "butter-garaetteok",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/6871668",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2017/06/22/fa283d6299a3244a24dbf4523fe933621_f.jpg",
+      "asset": "src/assets/generated/photo-ai-butter-garaetteok-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-butter-garaetteok.webp",
+        "slug": "butter-garaetteok",
+        "title": "버터 가래떡구이 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean pan-fried butter garaetteok: short plump WHITE CYLINDRICAL rice cake sticks with golden-brown seared patches, glossy melted butter and a light honey drizzle with a little finely grated Parmesan. Clean plate, show chewy white rice-cake cross section on one cut piece. No skewers, chili sauce or filling. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-green-onion-bagel",
+      "slug": "green-onion-bagel",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/7046054",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2025/02/26/19446b3a1363e38157f30ad962f18cbf1_f.jpg",
+      "asset": "src/assets/generated/photo-ai-green-onion-bagel-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-green-onion-bagel.webp",
+        "slug": "green-onion-bagel",
+        "title": "대파 크림치즈 베이글 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean scallion cream cheese bagel: a golden toasted plain bagel split horizontally, generously filled with smooth white cream cheese mixed with small cooked green scallion pieces, one half angled to show cream filling and soft chewy bread. No bacon, salmon, lettuce or sesame topping. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-egg-green-onion-ramyeon",
+      "slug": "egg-green-onion-ramyeon",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.10000recipe.com/recipe/6946261",
+      "referenceImage": "https://recipe1.ezmember.co.kr/cache/recipe/2020/11/13/37320a7eb0f6e632c5d02b8a7b5772531_f.jpg",
+      "asset": "src/assets/generated/photo-ai-egg-green-onion-ramyeon-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-egg-green-onion-ramyeon.webp",
+        "slug": "egg-green-onion-ramyeon",
+        "title": "계란 파 라면 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean instant ramyeon with egg and scallions: springy curly yellow instant noodles in steaming red-orange broth with delicate fully cooked stirred egg ribbons and sliced green scallion. Dark ceramic bowl, noodles partially raised in a tidy central mound without utensils or hands. No whole egg, meat or extra vegetables. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    },
+    {
+      "key": "photo-ai-pork-sprout-stir-fry",
+      "slug": "pork-sprout-stir-fry",
+      "generatedAt": "2026-11-20",
+      "tool": "OpenAI image_gen",
+      "referenceSource": "https://www.okitchen.co.kr/category/m_detail?idx=1175",
+      "referenceImage": "https://www.okitchen.co.kr/pds/upfile/2021-05-29_147251679[4].jpg",
+      "asset": "src/assets/generated/photo-ai-pork-sprout-stir-fry-ref-v2.webp",
+      "review": "참고 사진의 형태·재료·단면과 생성 결과를 직접 대조함. 원본 참고 사진은 게시하지 않음.",
+      "previous": {
+        "asset": "src/assets/generated/photo-ai-pork-sprout-stir-fry.webp",
+        "slug": "pork-sprout-stir-fry",
+        "title": "대패삼겹 숙주볶음 AI 생성 예시 이미지",
+        "tool": "OpenAI image_gen",
+        "generatedAt": "2026-11-13",
+        "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: Korean thin-sliced pork belly and bean sprout stir fry: curled thin slices of fully cooked golden-brown pork belly, crisp white bean sprouts with yellow tips, cooked sliced onion and pale cabbage in a light glossy savory brown sauce, a few toasted sesame seeds. Broad shallow ceramic plate. No noodles, chilies or extra herbs. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
+        "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+      }
+    }
+  ]
+}

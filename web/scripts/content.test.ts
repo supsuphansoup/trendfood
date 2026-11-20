@@ -10,6 +10,7 @@ import { draftSnapshot } from "./pipeline/content.ts";
 import { curatedLicenses, photoCredits } from "../src/data/photo-credits.ts";
 import { validPhotoSource } from "../src/data/photo-source.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
+import referenceRevisions from "../src/data/content/generated-reference-revisions.json" with { type: "json" };
 import sharp from "sharp";
 
 const target = new URL("../src/data/content/foods.json", import.meta.url);
@@ -117,13 +118,39 @@ test("모든 음식에 개별 이미지가 있고 생성 예시는 실사 출처
     assert.match(image.note, /AI 생성/);
     assert.match(food.alt, /AI 생성/);
     assert.equal(photoCredits[food.image], undefined);
-    assert.ok(bundle.includes(`${food.image}.webp`));
-    const bytes = await readFile(new URL(`../src/assets/generated/${food.image}.webp`, import.meta.url));
+    const revision = referenceRevisions.revisions.find((entry) => entry.key === food.image);
+    const asset = revision?.asset ?? `src/assets/generated/${food.image}.webp`;
+    assert.ok(bundle.includes(asset.replace("src/", "@/")));
+    const bytes = await readFile(new URL(`../${asset}`, import.meta.url));
     const metadata = await sharp(bytes).metadata();
     assert.equal(metadata.format, "webp");
     assert.equal(metadata.width, 1200);
     assert.equal(metadata.height, 800);
     assert.ok(bytes.length > 1000 && bytes.length < 300_000);
+  }
+});
+
+test("실물 참고 교체본은 출처·이전 프롬프트·원본을 보존하고 실제 연결된 새 파일을 검사한다", async () => {
+  const { revisions } = referenceRevisions;
+  assert.equal(referenceRevisions.version, 1);
+  assert.equal(new Set(revisions.map((entry) => entry.key)).size, revisions.length);
+  const bundle = await readFile(new URL("../src/lib/generated-photos.ts", import.meta.url), "utf8");
+  for (const revision of revisions) {
+    const current = generatedImages[revision.key];
+    assert.equal(current.slug, revision.slug);
+    assert.equal(current.generatedAt, revision.generatedAt);
+    assert.match(revision.referenceSource, /^https:\/\//);
+    assert.match(revision.referenceImage, /^https:\/\//);
+    assert.ok(current.prompt.includes(revision.referenceSource));
+    assert.ok(revision.previous.prompt.length > 100);
+    assert.notEqual(current.prompt, revision.previous.prompt);
+    assert.match(revision.asset, /^src\/assets\/generated\/[a-z0-9-]+\.webp$/);
+    assert.match(revision.previous.asset, /^src\/assets\/generated\/[a-z0-9-]+\.webp$/);
+    assert.ok(bundle.includes(revision.asset.replace("src/", "@/")));
+    const before = await readFile(new URL(`../${revision.previous.asset}`, import.meta.url));
+    const after = await readFile(new URL(`../${revision.asset}`, import.meta.url));
+    assert.notDeepEqual(after, before);
+    assert.equal(before.subarray(8, 12).toString(), "WEBP");
   }
 });
 
