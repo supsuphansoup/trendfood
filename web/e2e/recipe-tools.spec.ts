@@ -148,3 +148,20 @@ test("정적 SEO: 사이트맵·크롤링 규칙·canonical·Recipe가 실제 �
   expect(recipe.recipeInstructions.length).toBe(await page.locator("#recipe ol > li").count());
   expect(recipe.aggregateRating).toBeUndefined();
 });
+
+test("동의한 음식 선택·찜·구매 클릭은 각각 한 번 집계하고 관리자에서는 분석하지 않는다", async ({ page, context }) => {
+  await context.route(/https?:\/\/(?:[^/]+\.)?coupang\.com\//, (route) => route.fulfill({ contentType: "text/html", body: "<!doctype html><title>구매 테스트</title>" }));
+  await page.goto("/");
+  await page.getByRole("button", { name: "통계 허용", exact: true }).click();
+  await page.getByRole("button", { name: "버터 가래떡구이 찜하기", exact: true }).click();
+  await page.getByRole("heading", { name: "버터 가래떡구이", exact: true }).getByRole("link").click();
+  await expect(page).toHaveURL(/\/food\/butter-garaetteok/);
+  const popup = page.waitForEvent("popup");
+  await page.locator("#cart").getByRole("link", { name: /장보기 시작:/ }).click();
+  await (await popup).close();
+  const events = await page.evaluate(() => (window.dataLayer ?? []) as unknown[][]);
+  for (const name of ["select_content", "food_like", "purchase_click"]) expect(events.filter((row) => row[0] === "event" && row[1] === name), name).toHaveLength(1);
+  await page.goto("/admin");
+  await expect(page.locator("#tf-ga")).toHaveCount(0);
+  expect(await page.evaluate(() => window.dataLayer)).toBeUndefined();
+});
