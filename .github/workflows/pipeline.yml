@@ -7,6 +7,10 @@ on:
     - cron: "17 1 * * *" # 한국 시간 매일 10:17. 전날 UTC 날짜 확보·정각 혼잡 회피.
   workflow_dispatch:
     inputs:
+      pending_only:
+        description: "추가 AI 호출 없이 등록한 생성 사진과 원문 재확인으로 대기 음식 공개"
+        type: boolean
+        default: false
       checks_only:
         description: "외부 수집·AI 호출 없이 현재 콘텐츠와 전체 검사만 실행"
         type: boolean
@@ -63,7 +67,7 @@ jobs:
           restore-keys: |
             food-discovery-v1-
       - run: npm run pipeline
-        if: inputs.checks_only != true && inputs.photos_only != true && inputs.links_only != true
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.photos_only != true && inputs.links_only != true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -77,8 +81,13 @@ jobs:
           PIPELINE_AUTO_PUBLISH: ${{ vars.PIPELINE_AUTO_PUBLISH || 'true' }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: 등록한 생성 사진·공식 원문으로 사진 대기 음식 반영
+        if: inputs.pending_only == true && inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
+        run: node scripts/restore-pending-photos.ts
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
       - name: 사진 검색·이용 조건·이미지 일치 자동 확인
-        if: inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
         run: npm run photos:auto
         env:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
@@ -88,11 +97,11 @@ jobs:
           PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
       - name: 사진 검증 후 신규 음식 우선·일일 추천 갱신 (추가 API 호출 없음)
-        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
         run: node scripts/refresh-recommendations.ts
       - name: 쿠팡 호출 기록 복원
         id: coupang_cache
-        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
         uses: actions/cache/restore@v4
         with:
           path: web/data/coupang-state.json
@@ -101,7 +110,7 @@ jobs:
             coupang-search-v1-${{ vars.COUPANG_SUB_ID || 'unconfigured' }}-
       - name: 쿠팡 재료 상품·제휴 링크 자동 연결
         id: coupang
-        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG == 'true'
         run: npm run links:auto
         env:
           COUPANG_ACCESS_KEY: ${{ secrets.COUPANG_ACCESS_KEY }}
@@ -119,7 +128,7 @@ jobs:
           key: ${{ steps.coupang_cache.outputs.cache-primary-key }}
       - name: 일반 상품 검색 기록 복원
         id: product_cache
-        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
         uses: actions/cache/restore@v4
         with:
           path: web/data/product-link-state.json
@@ -128,7 +137,7 @@ jobs:
             product-links-v1-
       - name: 일반 쿠팡 상품 상세주소 검색·재료 대조
         id: products
-        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_COUPANG != 'true' && vars.PIPELINE_AUTO_PRODUCT_LINKS == 'true'
         run: npm run links:auto -- --web-products
         env:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
@@ -219,7 +228,7 @@ jobs:
     secrets: inherit
   notify:
     needs: [collect, publish]
-    if: always() && !cancelled() && inputs.compare_models != true && inputs.checks_only != true && inputs.photos_only != true && inputs.links_only != true
+    if: always() && !cancelled() && inputs.pending_only != true && inputs.compare_models != true && inputs.checks_only != true && inputs.photos_only != true && inputs.links_only != true
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -7,10 +7,66 @@ import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { contentToRecords, mergeContent, parseContent, type ContentSnapshot } from "../../src/data/content.ts";
 import { generatedImages } from "../../src/data/generated-images.ts";
-import { refreshRecommendations } from "./recommendations.ts";
+import { publishPendingPhotos, refreshRecommendations } from "./recommendations.ts";
+import { emptyDiscovery } from "./discovery.ts";
 import type { Scored } from "./logic.ts";
 
 const raw = JSON.parse(await readFile(new URL("../../src/data/content/foods.json", import.meta.url), "utf8"));
+
+test("사진 대기 원고는 등록한 같은 음식의 생성 사진과 최근 두 제작자·원문 재확인이 있어야 공개한다", async () => {
+  const date = "2026-11-20";
+  const current = baseline();
+  const ids = ["Abcdef_1230", "Abcdef_1231"];
+  const draft = { ...current.foods[0], slug: "yogurt-mochi", name: "요거트 찹쌀떡", kind: "discovery" as const,
+    image: "pending", heroImage: "pending", ingredients: [], steps: [], cookMinutes: 0,
+    summary: "원문 소개: “요거트 찹쌀떡 먹방”", sources: ids.map((id) => ({ title: "요거트 찹쌀떡 먹방", url: `https://www.youtube.com/watch?v=${id}` })) };
+  const state = { ...emptyDiscovery(), pending: [{ food: draft, savedAt: date }] };
+  const details = ids.map((id, index) => ({ id, title: "요거트 찹쌀떡 먹방", description: "", channelId: `UC${String(index).repeat(22)}`, publishedAt: "2026-11-19T00:00:00Z" }));
+  const result = await publishPendingPhotos(current, state, date, async (requested) => { assert.deepEqual(requested, ids); return details; });
+  const published = result.snapshot.foods.find((food) => food.slug === draft.slug)!;
+  assert.equal(published.image, "photo-ai-yogurt-mochi");
+  assert.equal(published.heroImage, published.image);
+  assert.match(published.alt, /AI 생성/);
+  assert.match(published.heroAlt!, /AI 생성/);
+  assert.equal(published.publishedAt, date);
+  assert.deepEqual(result.accepted, [{ name: draft.name, slug: draft.slug }]);
+  assert.equal(state.pending.length, 1);
+  for (const invalid of [details.slice(0, 1), details.map((item) => ({ ...item, title: "다른 음식" })), details.map((item) => ({ ...item, publishedAt: "2026-10-01T00:00:00Z" }))]) {
+    const blocked = await publishPendingPhotos(current, state, date, async () => invalid);
+    assert.equal(blocked.snapshot.foods.some((food) => food.slug === draft.slug), false);
+    assert.equal(blocked.deferred[0].reason, "최근 제작자·원문 근거 재확인 미통과");
+  }
+  const repeated = await publishPendingPhotos(result.snapshot, state, date, async () => { throw new Error("이미 공개한 음식은 조회하지 않음"); });
+  assert.equal(repeated.accepted.length, 0);
+  assert.equal(repeated.snapshot.foods.filter((food) => food.slug === draft.slug).length, 1);
+});
+
+test("생성 사진을 등록하지 않은 원고는 외부 조회 없이 보류하고 기존 실사 사진은 보존한다", async () => {
+  const current = baseline();
+  const original = current.foods[0];
+  const draft = { ...original, slug: "unregistered-photo-draft", image: "pending" };
+  const result = await publishPendingPhotos(current, { ...emptyDiscovery(), pending: [{ food: draft, savedAt: "2026-11-20" }] }, "2026-11-20", async () => { throw new Error("조회 금지"); });
+  assert.equal(result.accepted.length, 0);
+  assert.equal(result.deferred[0].reason, "등록한 생성 예시 사진 없음");
+  const registered = { ...original, slug: "yogurt-mochi", heroImage: original.image };
+  const preserved = refreshRecommendations({ ...current, foods: [...current.foods, registered] }, { baseline: current, signals: [], date: "2026-11-20" }).snapshot.foods.find((food) => food.slug === registered.slug)!;
+  assert.equal(preserved.image, original.image);
+  assert.equal(preserved.heroImage, original.image);
+});
+
+test("사진 대기 전용 실행은 음식·사진·상품 AI 호출을 모두 건너뛰고 YouTube 키만 연결한다", async () => {
+  const workflow = await readFile(new URL("../../../.github/workflows/pipeline.yml", import.meta.url), "utf8");
+  const steps = workflow.split(/\n      - /);
+  for (const command of ["npm run pipeline", "npm run photos:auto", "npm run links:auto", "npm run links:auto -- --web-products"]) {
+    const step = steps.find((step) => step.split(/\r?\n/).some((line) => line.trim() === `run: ${command}`) || step.startsWith(`run: ${command}\n`) || step.startsWith(`run: ${command}\r\n`));
+    assert.ok(step, command);
+    assert.match(step, /inputs\.pending_only != true/, command);
+  }
+  const restore = steps.find((step) => step.includes("run: node scripts/restore-pending-photos.ts"))!;
+  assert.match(restore, /inputs\.pending_only == true/);
+  assert.match(restore, /YOUTUBE_API_KEY:/);
+  assert.doesNotMatch(restore, /OPENAI_API_KEY|GEMINI_API_KEY|SUPABASE_SERVICE_ROLE_KEY/);
+});
 function baseline(): ContentSnapshot {
   const snapshot = structuredClone(raw);
   delete snapshot.recommendation;

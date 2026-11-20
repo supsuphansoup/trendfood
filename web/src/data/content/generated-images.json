@@ -1,4 +1,28 @@
 {
+  "photo-ai-yogurt-mochi": {
+    "slug": "yogurt-mochi",
+    "title": "요거트 찹쌀떡 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-20",
+    "prompt": "Use case: photorealistic-natural. Create an original appetizing editorial food photograph for a Korean food discovery website, landscape 3:2. The input is a supporting reference ONLY for the real physical construction of fruit Greek-yogurt mochi on its RIGHT half. New composition: a low matte ivory plate holding one whole plump white mochi and two neatly cut halves, one showing a whole green kiwi center surrounded by thick white Greek yogurt cream and a thin soft white glutinous rice skin, the other showing two green grapes inside white yogurt cream. Preserve realistic small dessert size, thin mochi skin, moist fruit and dense white yogurt textures, natural subtle irregularities. Soft daylight from a side window, quiet pale wood table, close 3/4 view, food comfortably centered with 15% breathing room on all edges for mobile 3:2 cropping. Keep the cut centers sharp and delicious, neutral warm whites, gentle shadow. This is an AI illustrative food example, not a branded product photo. Do not reproduce the reference advertisement layout, platforms, typography or logo. No lettering, packaging, watermark, hands, utensils, extraneous topping, chocolate, artificial shine or collage.\nReference source (appearance only): https://m.gosiweek.com/article/1065591720308048",
+    "note": "실제 메뉴의 형태와 재료 구성을 참고해 만든 AI 생성 예시 이미지예요. 직접 촬영한 사진이나 실제 판매 제품 사진이 아니며 실제 모습과 다를 수 있어요."
+  },
+  "photo-ai-nama-chocolate-mochi": {
+    "slug": "nama-chocolate-mochi",
+    "title": "생초코 찹쌀떡 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-20",
+    "prompt": "Use case: photorealistic-natural. Make an original delicious editorial food photograph for a Korean food discovery website, landscape 3:2. Input image is a supporting reference ONLY for the food construction of plain nama chocolate mochi at upper LEFT: very thin snow-white glutinous rice skin surrounding a generous smooth deep-brown soft chocolate ganache center. New scene: a simple warm grey ceramic plate with two palm-sized white mochi, one intact and one cut cleanly into halves exposing the rich dense silky dark chocolate filling. No fruit in this plain version. Ganache is softly firm and cleanly cut, not a liquid spill; exterior has a whisper of starch, no cocoa dust. Natural believable edible imperfections, soft side window light, close three-quarter view, tactile matte white mochi contrasted with moist dark chocolate. Food centered with at least 15% margin for a 3:2 crop. Premium bakery editorial realism without overly glossy synthetic textures. An illustrative AI food example, not a branded advertisement. Do not copy the ad's layout, splashes, typography, logo or exact arrangement. No writing, packaging, hands, utensils, decorations, additional foods or collage.\nReference source (appearance only): https://m.gosiweek.com/article/1065591720308048",
+    "note": "실제 메뉴의 형태와 재료 구성을 참고해 만든 AI 생성 예시 이미지예요. 직접 촬영한 사진이나 실제 판매 제품 사진이 아니며 실제 모습과 다를 수 있어요."
+  },
+  "photo-ai-crunch-27-cube": {
+    "slug": "crunch-27-cube",
+    "title": "크런치 27 큐브 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-20",
+    "prompt": "Use case: photorealistic-natural. Create an original editorial food photograph, landscape 3:2, illustrating a 27 cube ice cream cake with crunchy layers. Input is a reference for dessert geometry and edible materials only. Keep the essential construction faithful: a 3 by 3 by 3 stack of twenty-seven bite-sized ice-cream cubes, three layers separated by thin dark chocolate crunchy square sheets. Cubes show restrained recognizable ice cream colors: chocolate brown, cookies-and-cream ivory speckles, pale mint with chocolate flecks, strawberry pastel pink, light blue and berry swirls. Upper top tiles have delicate golden, cocoa-brown and natural pistachio-green crisp kataifi textures. Present the unbranded cake on a plain round ivory platter on a pale neutral table, photographed from a lower 3/4 angle with natural side daylight, realistic creamy microtextures and crisp layer edges, no dripping or impossible melting. All of the cake must fit comfortably within central 70% with generous surrounding margin for a mobile 3:2 crop. This is an illustrative AI example, not an exact photo of the commercial product. Use an original angle, backdrop and serving plate. Remove all branding, letters, numbers, labels, signs, decorative plaques and original commercial cake board. No 27 signage, no text, no logo, no watermark, no packaging, no hands, no collage.\nReference source (appearance only): https://www.baskinrobbins.co.kr/menu/view.php?seq=1176",
+    "note": "실제 메뉴의 형태와 재료 구성을 참고해 만든 AI 생성 예시 이미지예요. 직접 촬영한 사진이나 실제 판매 제품 사진이 아니며 실제 모습과 다를 수 있어요."
+  },
   "photo-ai-dubai-chewy-cookie": {
     "slug": "dubai-chewy-cookie",
     "title": "두바이 쫀득쿠키 AI 생성 예시 이미지",

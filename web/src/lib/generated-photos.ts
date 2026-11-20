@@ -25,8 +25,14 @@ import image22 from "@/assets/generated/photo-ai-butter-garaetteok.webp";
 import image23 from "@/assets/generated/photo-ai-green-onion-bagel.webp";
 import image24 from "@/assets/generated/photo-ai-egg-green-onion-ramyeon.webp";
 import image25 from "@/assets/generated/photo-ai-pork-sprout-stir-fry.webp";
+import image26 from "@/assets/generated/photo-ai-yogurt-mochi.webp";
+import image27 from "@/assets/generated/photo-ai-nama-chocolate-mochi.webp";
+import image28 from "@/assets/generated/photo-ai-crunch-27-cube.webp";
 
 export const generatedPhotos = {
+  "photo-ai-yogurt-mochi": image26,
+  "photo-ai-nama-chocolate-mochi": image27,
+  "photo-ai-crunch-27-cube": image28,
   "photo-ai-dubai-chewy-cookie": image0,
   "photo-ai-butter-tteok": image1,
   "photo-ai-pizza-seolgi": image2,

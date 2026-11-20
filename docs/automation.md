@@ -86,6 +86,14 @@ GitHub Secrets: `YOUTUBE_API_KEY`, `NAVER_API_HUB_KEY_ID`, `NAVER_API_HUB_KEY`, 
 
 ## 로컬 명령 (web 폴더)
 
+### 생성 예시 사진으로 대기 음식 반영 (2026-11-20)
+
+- 실제 메뉴의 모양·단면을 확인해 대화의 이미지 생성 도구로 예시를 만들고, `src/assets/generated/` 파일·`src/data/content/generated-images.json` 프롬프트/참고 주소·`src/lib/generated-photos.ts` 번들을 함께 등록한다. 실제 참고 사진은 공개 번들에 복사하지 않는다.
+- 추천 반영은 음식 slug와 일치하는 등록 이미지가 있을 때 `pending` 사진만 연결한다. 기존 실사·업로드 사진은 보존한다. 대체 설명과 상세의 접힌 사진 정보에 AI 생성 예시를 표시한다.
+- Actions `pipeline`의 `pending_only=true`는 등록한 사진이 있는 대기 원고만 복원하고, 공식 YouTube `videos.list`로 최근 서로 다른 제작자 2명·원문 인용을 다시 확인한다. 통과 후 기존 전체 검사와 배포를 수행한다. 추가 음식 발견·AI 원고·사진 판별·상품 검색은 호출하지 않는다.
+- 대기 캐시는 검사·push 전에 제거하지 않는다. 다음 정규 수집에서 실제 공개 목록과 대조해 정리한다. 하루 1회 정규 수집에서도 등록한 생성 사진을 사용한다.
+- 이번 등록: 요거트 찹쌀떡·생초코 찹쌀떡·크런치 27 큐브. 생성은 대화 도구로 실행했으며, GitHub 예약 작업에 신규 이미지 자동 생성 API를 연결한 것은 아니다.
+
 ```bash
 npm run pipeline -- --auto-publish --dry-run # 실제 API 키 필요. 검증 보고서만 만들고 페이지·DB는 바꾸지 않음
 npm run content:check
