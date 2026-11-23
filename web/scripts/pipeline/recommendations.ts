@@ -14,7 +14,7 @@ export async function publishPendingPhotos(current: ContentSnapshot, state: Disc
   const eligible = { ...state, pending: state.pending.filter(({ food }) => !known.has(food.slug) && Object.values(generatedImages).some((image) => image.slug === food.slug)) };
   const verified = await readyPending(eligible, date, descriptions);
   const restored = restorePending(current, verified);
-  const result = refreshRecommendations(restored, { baseline: current, signals: [], date });
+  const result = refreshRecommendations(restored, { baseline: current, signals: verified.signals, date });
   const accepted = result.snapshot.foods.filter((food) => !known.has(food.slug)).map(({ name, slug }) => ({ name, slug }));
   const published = new Set(result.snapshot.foods.map((food) => food.slug));
   return { ...result, accepted,
@@ -42,7 +42,7 @@ export function refreshRecommendations(current: ContentSnapshot, input: Recommen
     (food.image === "pending" || food.heroImage === "pending"))
     .map((food) => ({ name: food.name, slug: food.slug, reason: "게시 가능한 음식 사진 미확보" }));
   const blocked = new Set(deferred.map((food) => food.slug));
-  const ready = publicationCandidates(current, baseline).filter((food) => !blocked.has(food.slug));
+  const ready = publicationCandidates(current, baseline, signals).filter((food) => !blocked.has(food.slug));
   for (const food of ready.slice(publicationSlots(baseline, date))) {
     blocked.add(food.slug);
     deferred.push({ name: food.name, slug: food.slug, reason: `하루 신규 음식 ${DAILY_NEW_FOOD_LIMIT}개 한도: 다음 실행에서 원문 재확인 후 게시` });
@@ -51,7 +51,7 @@ export function refreshRecommendations(current: ContentSnapshot, input: Recommen
   const edition = current.recommendation?.date === date ? current : baseline;
   const sameDay = edition.recommendation?.date === date;
   const newSlugs = [...new Set([
-    ...foods.filter((food) => !known.has(food.slug)).map((food) => food.slug),
+    ...ready.filter((food) => !blocked.has(food.slug)).map((food) => food.slug),
     ...(sameDay ? edition.recommendation!.newSlugs.filter((slug) => foods.some((food) => food.slug === slug)) : []),
   ])];
   let basis: "new" | "trend" | "rotation" = "rotation";

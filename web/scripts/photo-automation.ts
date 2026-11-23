@@ -106,10 +106,11 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
   const used = new Set(Object.values(registered).map((credit) => credit.url));
   const prioritySlugs = dependencies.publication?.prioritySlugs ?? [];
   const priority = new Set(prioritySlugs);
-  const readyNew = () => snapshot.foods.filter((food) => priority.has(food.slug) && food.image !== "pending" && food.heroImage !== "pending").length;
-  const filled = () => dependencies.publication !== undefined && readyNew() >= dependencies.publication.slots;
+  const filled = (slug: string) => dependencies.publication !== undefined && snapshot.foods.filter((food) =>
+    priority.has(food.slug) && prioritySlugs.indexOf(food.slug) < prioritySlugs.indexOf(slug) &&
+    food.image !== "pending" && food.heroImage !== "pending").length >= dependencies.publication.slots;
   for (const food of photoBatch(snapshot.foods, now, limit, prioritySlugs)) {
-    if (priority.has(food.slug) && filled()) continue;
+    if (priority.has(food.slug) && filled(food.slug)) continue;
     const previousImage = food.image;
     const retainedGenerated = !!(generatedImages[food.image] || generatedImages[food.heroImage ?? ""]);
     try {
@@ -194,7 +195,7 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
   const ordered = [...references].sort((a, b) => Number(priority.has(b.food.slug)) - Number(priority.has(a.food.slug)) ||
     (priority.has(a.food.slug) && priority.has(b.food.slug) ? prioritySlugs.indexOf(a.food.slug) - prioritySlugs.indexOf(b.food.slug) : Number(!!b.credit) - Number(!!a.credit)));
   for (const reference of ordered) {
-    if (!dependencies.illustrate || (priority.has(reference.food.slug) && filled())) continue;
+    if (!dependencies.illustrate || (priority.has(reference.food.slug) && filled(reference.food.slug))) continue;
     try {
       const result = await dependencies.illustrate(reference.food, reference.credit, reference.bytes);
       generated[result.key] = result.record; generatedAssets.set(result.key, result.bytes);

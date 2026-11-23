@@ -258,7 +258,9 @@ async function main() {
         generate: (prompt, schema) => askJson(prompt, schema, aiConfig()?.provider === "openai" ? { model: env.AI_MODEL!, maxOutputTokens: 6000 } : undefined),
       }, date);
       const preview = process.argv.includes("--dry-run");
-      if (!preview) await atomicJson("data/recommendation-input.json", { baseline, signals: scored, date });
+      const measured = new Set(scored.map((item) => candidateIdentity(item.name)));
+      const signals = [...scored, ...rechecked.signals.filter((item) => !measured.has(candidateIdentity(item.name)))];
+      if (!preview) await atomicJson("data/recommendation-input.json", { baseline, signals, date });
       await atomicJson("data/automation-report.json", { checkedAt: date, preview, accepted: result.accepted, deferred: result.deferred });
       if (!preview) {
         await atomicJson(discoveryPath, retainPending(discovery, result.snapshot, baseline, date));

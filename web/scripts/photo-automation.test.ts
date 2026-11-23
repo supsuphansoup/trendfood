@@ -12,6 +12,8 @@ import { photoModule } from "./photo-assets.ts";
 import { photoHeroFit } from "../src/data/photo-presentation.ts";
 import { editReference, generatedPhotoFactory, type ImageState } from "./generated-photo-automation.ts";
 import { refreshRecommendations } from "./pipeline/recommendations.ts";
+import { publicationCandidates } from "./pipeline/publish-policy.ts";
+import type { Scored } from "./pipeline/logic.ts";
 
 const input = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 // 실사가 늘어나 현재 목록의 생성 예시가 0개여도, 보존한 등록부로 교체 동작을 검사한다.
@@ -461,4 +463,35 @@ test("한 음식의 생성이 실패해도 다음 원고로 세 자리를 채우
   assert.equal(calls, 4); assert.equal(result.generatedAssets.size, 3);
   assert.equal(result.snapshot.foods[0].image, "pending"); assert.equal(result.snapshot.foods[4].image, "pending");
   assert.match(result.deferred.find((item) => item.name === drafts[0].name)!.reason, /품질 보완/);
+});
+
+test("하위 후보 사진 세 개가 준비됐어도 인기 상위 후보를 먼저 생성하고 같은 순서로 게시한다", async () => {
+  const baseline = { ...structuredClone(input), recommendation: undefined };
+  const drafts = Array.from({ length: 5 }, (_, index) => ({ ...structuredClone(protectedReal), slug: `popularity-photo-${index}`, name: `인기 사진 음식 ${index}`,
+    publishedAt: undefined, checkedAt: "2026-11-12", ...(index === 0 ? { image: "pending", heroImage: undefined } : {}) }));
+  const signals: Scored[] = drafts.map((food, index) => ({ name: food.name, category: food.category, mentions: 2, multiplier: 2, trend: [1, 2], score: 10 - index }));
+  const staged = { ...baseline, foods: [...baseline.foods, ...drafts].reverse() };
+  const searches: string[] = [], generations: string[] = [];
+  const photos = await automaticPhotos(staged, {}, {
+    publication: { prioritySlugs: publicationCandidates(staged, baseline, signals).map((food) => food.slug), slots: 3 },
+    generate: async () => ({ queries: [] }), search: async (query) => { searches.push(query); return []; }, download: async () => bytes,
+    illustrate: async (food) => {
+      generations.push(food.slug);
+      return { key: `photo-ai-auto-${food.slug}-20261112`, bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API", generatedAt: "2026-11-12", prompt: "설명 생성", note: "AI 생성 예시" } };
+    },
+  }, now, 1);
+  assert.deepEqual(searches, [drafts[0].name]);
+  assert.deepEqual(generations, [drafts[0].slug]);
+  const originalLength = contentImages.length;
+  try {
+    Object.assign(generatedImages, photos.generated);
+    contentImages.push(...Object.keys(photos.generated));
+    const result = refreshRecommendations(photos.snapshot, { baseline, signals, date: "2026-11-12" });
+    assert.deepEqual(result.snapshot.recommendation!.newSlugs, drafts.slice(0, 3).map((food) => food.slug));
+    assert.deepEqual(result.snapshot.foods.slice(0, 3).map((food) => food.slug), drafts.slice(0, 3).map((food) => food.slug));
+    assert.equal(result.deferred.length, 2);
+  } finally {
+    contentImages.splice(originalLength);
+    for (const key of Object.keys(photos.generated)) delete generatedImages[key];
+  }
 });

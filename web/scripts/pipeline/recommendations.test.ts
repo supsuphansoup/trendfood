@@ -10,7 +10,7 @@ import { generatedImages } from "../../src/data/generated-images.ts";
 import { publishPendingPhotos, refreshRecommendations } from "./recommendations.ts";
 import { emptyDiscovery } from "./discovery.ts";
 import type { Scored } from "./logic.ts";
-import { publicationDate, publicationSlots } from "./publish-policy.ts";
+import { publicationCandidates, publicationDate, publicationSlots } from "./publish-policy.ts";
 
 const raw = JSON.parse(await readFile(new URL("../../src/data/content/foods.json", import.meta.url), "utf8"));
 
@@ -55,6 +55,26 @@ test("생성 사진을 등록하지 않은 원고는 외부 조회 없이 보류
   const preserved = refreshRecommendations({ ...current, foods: [...current.foods, registered] }, { baseline: current, signals: [], date: "2026-11-20" }).snapshot.foods.find((food) => food.slug === registered.slug)!;
   assert.equal(preserved.image, original.image);
   assert.equal(preserved.heroImage, original.image);
+});
+
+test("대기 전용 실행도 새로 재확인한 영상 언급 점수로 상위 세 개를 게시한다", async () => {
+  const current = baseline();
+  const records = Object.entries(generatedImages).slice(0, 4);
+  current.foods = current.foods.filter((food) => !records.some(([, record]) => record.slug === food.slug));
+  const details: { id: string; title: string; description: string; channelId: string; publishedAt: string }[] = [];
+  const pending = records.map(([, record], index) => {
+    const name = `대기 음식 ${index}`;
+    const videos = Array.from({ length: index + 2 }, (_, video) => ({ id: `Abcdef_${index}${String(video).padStart(3, "0")}`, title: `${name} 먹방`, description: "",
+      channelId: `UC${String(video).repeat(22)}`, publishedAt: "2026-11-19T00:00:00Z" }));
+    details.push(...videos);
+    return { savedAt: "2026-11-19", food: { ...current.foods[0], slug: record.slug, name, kind: "discovery" as const, publishedAt: undefined,
+      image: "pending", heroImage: "pending", ingredients: [], steps: [], cookMinutes: 0, checkedAt: "2026-11-19",
+      summary: `원문 소개: “${videos[0].title}”`, sources: videos.map((video) => ({ title: video.title, url: `https://www.youtube.com/watch?v=${video.id}` })) } };
+  });
+  const result = await publishPendingPhotos(current, { ...emptyDiscovery(), pending }, "2026-11-20", async () => details);
+  assert.deepEqual(result.snapshot.recommendation!.newSlugs, pending.slice(1).reverse().map(({ food }) => food.slug));
+  assert.equal(result.deferred.length, 1);
+  assert.equal(result.deferred[0].slug, pending[0].food.slug);
 });
 
 test("사진 대기 전용 실행은 음식·사진·상품 AI 호출을 모두 건너뛰고 YouTube 키만 연결한다", async () => {
@@ -209,6 +229,38 @@ test("사진이 확보된 신규 한 개가 이미 있으면 나머지 두 자�
   assert.equal(result.snapshot.recommendation!.newSlugs.length, 3);
   assert.equal(result.snapshot.foods.find((food) => food.slug === source.slug)!.tip, "보강한 조리 팁");
   assert.equal(result.deferred.length, 1);
+});
+
+test("신규·대기 원고 전체에서 사진을 확보한 인기 점수 상위 세 개를 점수순으로 게시한다", () => {
+  const current = baseline();
+  const source = current.foods.find((food) => !generatedImages[food.image] && !generatedImages[food.heroImage ?? ""])!;
+  const drafts = Array.from({ length: 6 }, (_, index) => ({ ...structuredClone(source), slug: `popular-food-${index}`, name: `인기 후보 ${index}`,
+    publishedAt: undefined, checkedAt: index < 3 ? "2026-11-15" : date,
+    ...(index === 0 ? { image: "pending", heroImage: undefined } : {}) }));
+  const signals = drafts.map((food, index) => signal(food.name, [100, 90, 70, 10, 80, 20][index]));
+  const staged = { ...current, foods: [...current.foods, ...drafts] };
+  const expected = [drafts[1], drafts[4], drafts[2]].map((food) => food.slug);
+  for (const foods of [staged.foods, [...staged.foods].reverse()]) {
+    const result = refreshRecommendations({ ...staged, foods }, { baseline: current, signals, date });
+    assert.deepEqual(result.snapshot.recommendation!.newSlugs, expected);
+    assert.deepEqual(result.snapshot.foods.slice(0, 3).map((food) => food.slug), expected);
+    assert.equal(result.deferred.length, 3);
+    assert.ok(result.deferred.some((item) => item.slug === drafts[0].slug && item.reason.includes("사진 미확보")));
+  }
+});
+
+test("인기 점수는 음식명 표기를 정규화하고 비정상·근거 없는 점수는 제외하며 동점 순서를 고정한다", () => {
+  const current = baseline();
+  const drafts = ["동점 음식", "인기 음식", "잘못된 신호", "신호 없는 음식"].map((name, index) => ({ ...current.foods[0], name,
+    slug: `ranking-${index}`, checkedAt: date, publishedAt: undefined }));
+  const staged = { ...current, foods: [...current.foods, ...drafts] };
+  const signals = [signal("인기음식", 20), signal("인기 음식", 5), signal(drafts[0].name, 20),
+    signal(drafts[2].name, Infinity), signal(drafts[2].name, NaN), signal(drafts[2].name, -1),
+    { ...signal(drafts[2].name, 100), multiplier: 1 }, { ...signal(drafts[2].name, 100), multiplier: NaN }];
+  assert.deepEqual(publicationCandidates(staged, current, signals).map((food) => food.slug), drafts.map((food) => food.slug));
+  assert.deepEqual(publicationCandidates({ ...staged, foods: [...staged.foods].reverse() }, current, signals).map((food) => food.slug), drafts.map((food) => food.slug));
+  // 검색 상승이 없는 최신 음식도 확인된 언급 점수로 비교한다.
+  assert.equal(publicationCandidates(staged, current, [{ ...signal(drafts[3].name, 30), multiplier: 1, recent: true, trend: [] }])[0].slug, drafts[3].slug);
 });
 
 test("한국 자정을 기준으로 게시 한도를 초기화하고 UTC 날짜 변경만으로 세 자리를 다시 허용하지 않는다", () => {

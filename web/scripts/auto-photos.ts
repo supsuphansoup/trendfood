@@ -45,7 +45,7 @@ async function main() {
   const result = await automaticPhotos(current, photoCredits, {
     search: (query, checkedAt) => searchPhotoSources(query, checkedAt, { onWarning: (provider) => searchWarnings.add(`${provider}: 검색 실패`) }), download: downloadCandidate,
     generate: inspect,
-    publication: { prioritySlugs: publicationCandidates(current, publication.baseline).map((food) => food.slug), slots: publicationSlots(publication.baseline, publication.date) },
+    publication: { prioritySlugs: publicationCandidates(current, publication.baseline, publication.signals).map((food) => food.slug), slots: publicationSlots(publication.baseline, publication.date) },
     ...(imageEnabled ? { illustrate: generatedPhotoFactory({ state: imageState, now, inspect,
       saveState: (state) => atomic(imageStatePath, JSON.stringify(state, null, 2) + "\n"),
       edit: (prompt, reference) => editReference(prompt, reference, process.env.OPENAI_API_KEY!),

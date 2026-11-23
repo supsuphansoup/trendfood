@@ -80,8 +80,12 @@ test("사진 대기 소개도 출처의 삭제·편집·게시일을 다시 확�
   const details = videos.map((video) => ({ ...video, description: "" }));
   const checked = await readyPending(state, date, async (ids) => { assert.equal(ids.length, 2); return details; });
   assert.equal(checked.pending.length, 1);
+  assert.deepEqual(checked.signals, [{ name: draft.name, category: draft.category, mentions: 2, multiplier: 1, recent: true, trend: [], score: 2 }]);
+  assert.deepEqual((await readyPending(state, date, async () => [...details, ...details])).signals, checked.signals);
   for (const changed of [details.slice(0, 1), details.map((item) => ({ ...item, title: "다른 음식" })), details.map((item) => ({ ...item, publishedAt: "2026-10-01T01:00:00Z" }))]) {
-    assert.equal((await readyPending(state, date, async () => changed)).pending.length, 0);
+    const rejected = await readyPending(state, date, async () => changed);
+    assert.equal(rejected.pending.length, 0);
+    assert.equal(rejected.signals.length, 0);
   }
   assert.equal(state.pending.length, 1);
 });

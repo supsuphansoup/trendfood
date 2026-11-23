@@ -1,6 +1,6 @@
 import { candidateIdentity, normalizeName } from "../../src/data/candidates.ts";
 import { parseContent, type ContentFood, type ContentSnapshot } from "../../src/data/content.ts";
-import { cleanExtracted, type Extracted } from "./logic.ts";
+import { cleanExtracted, scoreOf, type Extracted, type Scored } from "./logic.ts";
 import type { RecipeVideo, Video } from "./sources.ts";
 
 type Observation = Extracted & { firstSeen: string; lastSeen: string; lastChecked?: string; days: string[]; history: { date: string; creators: number; videos: number }[]; creators: number; stage: "새로 포착" | "여러 제작자 확인" };
@@ -112,22 +112,28 @@ export function restorePending(current: ContentSnapshot, state: DiscoveryState):
 }
 
 /** 보관 원고도 출처를 다시 조회해 최근의 다른 제작자 2명을 확인한 뒤 사진 검색에 넣는다. */
-export async function readyPending(state: DiscoveryState, date: string, descriptions: (ids: string[]) => Promise<RecipeVideo[]>): Promise<DiscoveryState> {
+export async function readyPending(state: DiscoveryState, date: string, descriptions: (ids: string[]) => Promise<RecipeVideo[]>): Promise<DiscoveryState & { signals: Scored[] }> {
   const ids = state.pending.flatMap(({ food }) => food.sources.flatMap(({ url }) => {
     const source = new URL(url);
     const id = source.hostname === "www.youtube.com" && source.pathname === "/watch" ? source.searchParams.get("v") : null;
     return id && /^[a-zA-Z0-9_-]{11}$/.test(id) ? [id] : [];
   }));
-  if (!ids.length) return { ...state, pending: [] };
+  if (!ids.length) return { ...state, pending: [], signals: [] };
   const details = await descriptions([...new Set(ids)]);
-  return { ...state, pending: state.pending.filter(({ food }) => {
-    const related = matchingVideos(food.name, details).filter((video) => {
+  const signals: Scored[] = [];
+  const pending = state.pending.filter(({ food }) => {
+    const related = [...new Map(matchingVideos(food.name, details).filter((video) => {
       const age = Date.parse(`${date}T23:59:59Z`) - Date.parse(video.publishedAt ?? "");
       return food.sources.some((source) => source.url === `https://www.youtube.com/watch?v=${video.id}`) && video.channelId && age >= 0 && age <= 8 * 86_400_000;
-    });
+    }).map((video) => [video.id, video])).values()];
     if (new Set(related.map((video) => video.channelId)).size < 2) return false;
-    if (food.kind !== "discovery") return true;
-    const excerpt = food.summary.match(/^원문 소개: “([\s\S]*)”$/)?.[1];
-    return !!excerpt && related.some((video) => video.title.includes(excerpt) || video.description.includes(excerpt));
-  }) };
+    if (food.kind === "discovery") {
+      const excerpt = food.summary.match(/^원문 소개: “([\s\S]*)”$/)?.[1];
+      if (!excerpt || !related.some((video) => video.title.includes(excerpt) || video.description.includes(excerpt))) return false;
+    }
+    // 이번 실행에 검색 추이가 없으면 재확인한 최근 영상 수만 쓴다. 상승률은 추정하지 않는다.
+    signals.push({ name: food.name, category: food.category, mentions: related.length, multiplier: 1, recent: true, trend: [], score: scoreOf(1, related.length) });
+    return true;
+  });
+  return { ...state, pending, signals };
 }

@@ -26,7 +26,7 @@ async function atomic(path: string, value: unknown) {
 // 검사·push 전에 캐시에서 원고를 제거하지 않는다. 다음 정규 수집이 공개 목록과 대조해 정리한다.
 if (process.argv.includes("--prepare")) {
   const rechecked = await readyPending(state, date, descriptions);
-  await atomic("data/recommendation-input.json", { baseline: current, signals: [], date });
+  await atomic("data/recommendation-input.json", { baseline: current, signals: rechecked.signals, date });
   await atomic(target, restorePending(current, rechecked));
   console.log(`사진 검색 전 대기 원문 재확인: 통과 ${rechecked.pending.length}개 · AI 원고 생성 없음`);
 } else {
