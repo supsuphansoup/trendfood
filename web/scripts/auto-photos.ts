@@ -44,7 +44,7 @@ async function main() {
       edit: (prompt, reference) => editReference(prompt, reference, process.env.OPENAI_API_KEY!),
     }) } : {}),
   }, now, limit);
-  const generated = Object.entries(result.generated).map(([key, image]) => ({ name: image.title, slug: image.slug, key, source: image.reference?.url }));
+  const generated = Object.entries(result.generated).map(([key, image]) => ({ name: image.title, slug: image.slug, key, basis: image.basis, source: image.reference?.url }));
   await atomic("data/photo-report.json", `${JSON.stringify({ checkedAt: now.toISOString(), preview, sources: { commons: true, openverse: true, pexels: pexelsConfigured }, searchWarnings: [...searchWarnings], imageGeneration: { enabled: imageEnabled, dailyLimit: 1, skipReason: imageSkipReason, attempts: imageState.attempts }, generated, accepted: result.accepted, deferred: result.deferred }, null, 2)}\n`);
   if ((result.accepted.length || generated.length) && !preview) {
     await mkdir("src/assets/curated", { recursive: true });
@@ -60,7 +60,7 @@ async function main() {
     await atomic(target, `${JSON.stringify(result.snapshot, null, 2)}\n`);
   }
   console.log(`[photos:auto] 적용 가능 ${result.accepted.length}개 · 보류 ${result.deferred.length}개${preview ? " (미리보기, 파일 변경 없음)" : ""}`);
-  console.log(`[photos:auto] 참고 사진 기반 AI 생성 ${generated.length}개 · 자동 생성 ${imageEnabled ? "활성 (하루 최대 1회, 실패도 차감)" : "비활성"}`);
+  console.log(`[photos:auto] AI 생성 ${generated.length}개 (참고 사진 ${generated.filter((item) => item.basis === "reference").length} · 음식 설명 ${generated.filter((item) => item.basis === "description").length}) · 자동 생성 ${imageEnabled ? "활성 (하루 최대 1회, 실패도 차감)" : "비활성"}`);
   console.log(`[photos:auto] 생성 예시 → 실사 ${result.accepted.filter((item) => item.replacedGenerated).length}개 · 기존 생성 예시 유지 ${result.deferred.filter((item) => item.retainedGenerated).length}개`);
   if (!pexelsConfigured) console.log("[photos:auto] Pexels 키 미설정: Commons·Openverse로 검색했어요");
   for (const warning of searchWarnings) console.log(`[photos:auto] ${warning}`);

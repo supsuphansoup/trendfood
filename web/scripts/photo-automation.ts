@@ -73,7 +73,7 @@ const matchSchema = {
 };
 type Generate = (prompt: string, schema: Record<string, unknown>, images?: { mimeType: "image/webp"; data: string }[]) => Promise<unknown>;
 type Dependencies = { generate: Generate; search: typeof searchPhotos; download: (candidate: PhotoCandidate) => Promise<Buffer>;
-  illustrate?: (food: ContentFood, reference: PhotoCredit, bytes: Buffer) => Promise<{ key: string; record: GeneratedImage; bytes: Buffer }> };
+  illustrate?: (food: ContentFood, reference?: PhotoCredit, bytes?: Buffer) => Promise<{ key: string; record: GeneratedImage; bytes: Buffer }> };
 
 export function photoBatch(foods: ContentFood[], now: Date, limit = 5): ContentFood[] {
   // 수동 실사·업로드 사진은 보존하고 등록된 생성 예시만 실사 교체를 시도한다.
@@ -99,7 +99,7 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
   const generatedAssets = new Map<string, Buffer>();
   const accepted: { name: string; slug: string; key: string; source: string; license: string; replacedGenerated: boolean }[] = [];
   const deferred: { name: string; reason: string; retainedGenerated: boolean }[] = [];
-  const references: { food: ContentFood; credit: PhotoCredit; bytes: Buffer; deferred: (typeof deferred)[number] }[] = [];
+  const references: { food: ContentFood; credit?: PhotoCredit; bytes?: Buffer; deferred: (typeof deferred)[number] }[] = [];
   const used = new Set(Object.values(registered).map((credit) => credit.url));
   for (const food of photoBatch(snapshot.foods, now, limit)) {
     const previousImage = food.image;
@@ -173,15 +173,17 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
       if (food.image === previousImage) {
         const item = { name: food.name, reason, retainedGenerated };
         deferred.push(item);
-        if (food.image === "pending" && reference) references.push({ food, ...reference, deferred: item });
+        if (food.image === "pending") references.push({ food, ...reference, deferred: item });
       }
     } catch (error) {
       if (error instanceof AiQuotaError) throw error;
-      deferred.push({ name: food.name, reason: error instanceof Error ? error.message : "사진 검색 실패", retainedGenerated });
+      const item = { name: food.name, reason: error instanceof Error ? error.message : "사진 검색 실패", retainedGenerated };
+      deferred.push(item);
+      if (food.image === "pending") references.push({ food, deferred: item });
     }
   }
   // 실사 검색을 모두 끝낸 뒤 유료 생성을 한 번만 시도한다. 이후 검색 오류로 생성 파일을 잃지 않는다.
-  const reference = references[0];
+  const reference = references.find((item) => item.credit) ?? references[0];
   if (reference && dependencies.illustrate) {
     try {
       const result = await dependencies.illustrate(reference.food, reference.credit, reference.bytes);
@@ -189,7 +191,7 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
       reference.food.image = result.key; reference.food.alt = result.record.title;
       delete reference.food.heroImage; delete reference.food.heroAlt;
       deferred.splice(deferred.indexOf(reference.deferred), 1);
-    } catch (error) { reference.deferred.reason = error instanceof Error ? error.message : "참고 사진 기반 생성 실패"; }
+    } catch (error) { reference.deferred.reason = error instanceof Error ? error.message : "음식 이미지 생성 실패"; }
   }
   return { snapshot, credits, assets, accepted, deferred, generated, generatedAssets };
 }

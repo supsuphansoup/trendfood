@@ -315,8 +315,8 @@ test("같은 음식의 실사를 끝까지 우선 검색하고 구도만 탈락�
   const dependencies = {
     search: async () => [candidate()], download: async () => bytes,
     generate: async (_prompt: string, _schema: Record<string, unknown>, images?: unknown[]) => images?.length ? { ...verdict, presentationSuitable: false } : { queries: [] },
-    illustrate: async (food: ContentFood, reference: PhotoCredit, original: Buffer) => {
-      calls++; assert.equal(food.image, "pending"); assert.equal(reference.url, candidate().url); assert.deepEqual(original, bytes);
+    illustrate: async (food: ContentFood, reference?: PhotoCredit, original?: Buffer) => {
+      calls++; assert.equal(food.image, "pending"); assert.equal(reference?.url, candidate().url); assert.deepEqual(original, bytes);
       return { key: "photo-ai-auto-test-pending-20261112", bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API" as const, generatedAt: "2026-11-12", prompt: "참고 생성", note: "AI 생성 예시" } };
     },
   };
@@ -329,11 +329,53 @@ test("같은 음식의 실사를 끝까지 우선 검색하고 구도만 탈락�
   await automaticPhotos(current(), {}, { ...dependencies, generate: async (_prompt, _schema, images) => images?.length ? verdict : { queries: [] } }, now);
   assert.equal(calls, 1);
   for (const field of ["match", "photograph", "metadataMatches", "recipeMatches", "confidence"]) {
-    const blocked = await automaticPhotos(current(), {}, { ...dependencies, generate: async (_prompt, _schema, images) => images?.length ? { ...verdict, [field]: field === "confidence" ? 0.94 : false } : { queries: [] } }, now);
-    assert.equal(blocked.snapshot.foods[1].image, "pending");
-    assert.equal(calls, 1);
+    let fallback = 0;
+    const result = await automaticPhotos(current(), {}, { ...dependencies,
+      generate: async (_prompt, _schema, images) => images?.length ? { ...verdict, [field]: field === "confidence" ? 0.94 : false } : { queries: [] },
+      illustrate: async (food, reference, original) => {
+        fallback++; assert.equal(reference, undefined); assert.equal(original, undefined);
+        return { key: "photo-ai-auto-test-pending-20261112", bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API", generatedAt: "2026-11-12", prompt: "설명 생성", note: "AI 생성 예시", basis: "description" } };
+      },
+    }, now);
+    assert.match(result.snapshot.foods[1].image, /photo-ai-auto/); assert.equal(fallback, 1);
   }
   const retained = { ...current(), foods: [generatedFixtures[0]] };
   await automaticPhotos(retained, {}, dependencies, now);
   assert.equal(calls, 1);
+});
+
+test("검색 결과가 없거나 검색이 실패해도 빈 사진만 설명으로 생성하고 실패 결과는 공개하지 않는다", async () => {
+  for (const fails of [false, true]) {
+    let calls = 0;
+    const dependencies = { search: async () => { if (fails) throw new Error("검색 장애"); return []; }, download: async () => bytes,
+      generate: async () => ({ queries: [] }),
+      illustrate: async (food: ContentFood, reference?: PhotoCredit, original?: Buffer) => {
+        calls++; assert.equal(reference, undefined); assert.equal(original, undefined);
+        return { key: "photo-ai-auto-test-pending-20261112", bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API" as const, generatedAt: "2026-11-12", prompt: "설명 생성", note: "AI 생성 예시" } };
+      },
+    };
+    const result = await automaticPhotos(current(), {}, dependencies, now);
+    assert.equal(calls, 1); assert.equal(result.deferred.length, 0); assert.equal(result.generatedAssets.size, 1);
+    assert.equal(result.snapshot.foods[0].image, current().foods[0].image);
+    const rejected = await automaticPhotos(current(), {}, { ...dependencies, illustrate: async () => { throw new Error("생성 검수 탈락"); } }, now);
+    assert.equal(rejected.snapshot.foods[1].image, "pending"); assert.equal(rejected.generatedAssets.size, 0);
+    assert.match(rejected.deferred[0].reason, /생성 검수 탈락/);
+  }
+});
+
+test("여러 빈 사진 중 검증된 참고가 있으면 우선하며 묶음당 생성 요청은 한 번이다", async () => {
+  const snapshot = current();
+  snapshot.foods = input.foods.slice(0, 3).map((food, index) => ({ ...structuredClone(food), slug: `pending-${index}`, image: "pending", heroImage: undefined }));
+  const preferred = photoBatch(snapshot.foods, now)[1];
+  let calls = 0;
+  const result = await automaticPhotos(snapshot, {}, {
+    generate: async (_prompt, _schema, images) => images?.length ? { ...verdict, presentationSuitable: false } : { queries: [] },
+    search: async (query) => query === preferred.name ? [candidate()] : [], download: async () => bytes,
+    illustrate: async (food, reference) => {
+      calls++; assert.equal(food.slug, preferred.slug); assert.equal(reference?.url, candidate().url);
+      return { key: "photo-ai-auto-test-pending-20261112", bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API", generatedAt: "2026-11-12", prompt: "참고 생성", note: "AI 생성 예시" } };
+    },
+  }, now);
+  assert.equal(calls, 1); assert.equal(result.generatedAssets.size, 1);
+  assert.equal(result.snapshot.foods.filter((food) => food.image === "pending").length, 2);
 });

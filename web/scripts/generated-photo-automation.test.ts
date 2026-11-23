@@ -47,7 +47,7 @@ test("출처·판별·크롭을 통과한 생성 결과만 별도 등록하고 K
     saveState: async (value) => { saved.push(structuredClone(value)); },
     edit: async (prompt, referenceBytes) => {
       assert.equal(saved[0].attempts[0].status, "reserved");
-      assert.match(prompt, /정확한 음식/); assert.ok(referenceBytes.length); return bytes;
+      assert.match(prompt, /정확한 음식/); assert.ok(referenceBytes?.length); return bytes;
     },
     inspect: async (_prompt, schema, images) => {
       assert.equal(images?.length, 4);
@@ -81,6 +81,42 @@ test("실패·판별 탈락 후에도 기록을 복원하면 같은 날 다시 �
     assert.equal(state.attempts[0].status, failure === "api" ? "failed" : "rejected");
     await assert.rejects(generatedPhotoFactory({ ...options, state: readImageState(JSON.parse(JSON.stringify(state))) })(food, reference, bytes), /1회 한도/);
     assert.equal(calls, 1);
+  }
+});
+
+test("참고 사진이 없어도 검증된 설명으로 생성하고 사진 출처를 꾸미지 않으며 같은 일일 한도를 쓴다", async () => {
+  const output = await editReference("음식 설명", undefined, "test-key", (async (url, init) => {
+    assert.equal(url, "https://api.openai.com/v1/images/generations");
+    assert.equal((init!.headers as Record<string, string>)["Content-Type"], "application/json");
+    assert.deepEqual(JSON.parse(init!.body as string), { model: "gpt-image-2", prompt: "음식 설명", n: 1, size: "1536x1024", quality: "medium", output_format: "webp" });
+    return Response.json({ data: [{ b64_json: bytes.toString("base64") }] });
+  }) as typeof fetch);
+  assert.deepEqual(output, bytes);
+  const state: ImageState = { version: 1, attempts: [] };
+  let calls = 0;
+  const generate = generatedPhotoFactory({ state, now, saveState: async () => {},
+    edit: async (prompt, original) => {
+      calls++; assert.equal(original, undefined); assert.match(prompt, /참고 사진은 없어요/);
+      assert.ok(prompt.includes(food.summary)); assert.equal(state.attempts[0].status, "reserved"); return bytes;
+    },
+    inspect: async (prompt, schema, images) => {
+      assert.equal(images?.length, 3); assert.match(prompt, /설명만으로 일치를 판단할 수 없으면 거절/);
+      assert.ok(!(schema.required as string[]).includes("referenceMatches"));
+      assert.ok(!("referenceMatches" in (schema.properties as object)));
+      const { referenceMatches: _referenceMatches, ...verdict } = approved; void _referenceMatches; return verdict;
+    },
+  });
+  const result = await generate(food);
+  assert.equal(result.record.basis, "description"); assert.equal(result.record.reference, undefined);
+  assert.match(result.record.note, /참고 사진 없이/); assert.doesNotMatch(result.record.note, /CC BY/);
+  await assert.rejects(generate(food, reference, bytes), /1회 한도/); assert.equal(calls, 1);
+  for (const failure of ["match", "recipeMatches", "presentationSuitable", "noText", "confidence"]) {
+    const state: ImageState = { version: 1, attempts: [] };
+    const generate = generatedPhotoFactory({ state, now, saveState: async () => {}, edit: async () => bytes,
+      inspect: async () => ({ ...approved, [failure]: failure === "confidence" ? 0.94 : false }),
+    });
+    await assert.rejects(generate(food), /판별 보류/); assert.equal(state.attempts[0].status, "rejected");
+    await assert.rejects(generate(food), /1회 한도/);
   }
 });
 

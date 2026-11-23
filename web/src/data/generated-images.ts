@@ -11,6 +11,7 @@ export type GeneratedImage = {
   automatic?: true;
   model?: "gpt-image-2";
   reference?: PhotoCredit;
+  basis?: "reference" | "description";
   confidence?: number;
 };
 
