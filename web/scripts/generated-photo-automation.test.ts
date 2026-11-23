@@ -1,0 +1,141 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { execFileSync, spawnSync } from "node:child_process";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import sharp from "sharp";
+import type { ContentSnapshot } from "../src/data/content.ts";
+import type { PhotoCredit } from "../src/data/photo-credits.ts";
+import { appendGeneratedPhotos, editReference, generatedPhotoFactory, imageDate, readImageState, type ImageState } from "./generated-photo-automation.ts";
+import { imageReservationSaved } from "./check-image-reservation.ts";
+
+const snapshot = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
+const food = { ...snapshot.foods[0], slug: "test-food", image: "pending", heroImage: undefined };
+const reference: PhotoCredit = { title: "Test food", author: "작가", url: "https://commons.wikimedia.org/wiki/File:Test_food.jpg", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Test.jpg", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", verifiedAt: "2026-11-23", note: "" };
+const now = new Date("2026-11-22T23:00:00Z");
+const bytes = await sharp({ create: { width: 1536, height: 1024, channels: 3, background: "orange" } }).webp().toBuffer();
+const approved = { match: true, referenceMatches: true, recipeMatches: true, presentationSuitable: true, noText: true, confidence: 0.99, reason: "일치" };
+
+test("이미지 API는 실제 참고 파일·고정 모델·1장만 보내며 유료 재시도를 하지 않는다", async () => {
+  let calls = 0;
+  const output = await editReference("생성 요청", bytes, "test-key", (async (url, init) => {
+    calls++;
+    assert.equal(url, "https://api.openai.com/v1/images/edits");
+    assert.equal(init?.redirect, "error");
+    const form = init!.body as FormData;
+    assert.equal(form.get("model"), "gpt-image-2"); assert.equal(form.get("n"), "1");
+    assert.equal(form.get("size"), "1536x1024"); assert.equal(form.get("quality"), "medium");
+    assert.ok(form.get("image[]") instanceof Blob);
+    assert.deepEqual(Buffer.from(await (form.get("image[]") as Blob).arrayBuffer()), bytes);
+    return Response.json({ data: [{ b64_json: bytes.toString("base64") }] });
+  }) as typeof fetch);
+  assert.deepEqual(output, bytes); assert.equal(calls, 1);
+  calls = 0;
+  await assert.rejects(editReference("요청", bytes, "test-key", (async () => { calls++; return new Response("비밀 응답", { status: 429 }); }) as typeof fetch), /429.*재시도하지/);
+  assert.equal(calls, 1);
+  for (const data of [[], [{ url: "https://example.com/image" }], [{ b64_json: "%%%" }], [{ b64_json: "AAAA" }, { b64_json: "AAAA" }]]) {
+    await assert.rejects(editReference("요청", bytes, "test-key", (async () => Response.json({ data })) as typeof fetch), /응답 형식/);
+  }
+});
+
+test("출처·판별·크롭을 통과한 생성 결과만 별도 등록하고 KST 일일 호출을 먼저 저장한다", async () => {
+  const state: ImageState = { version: 1, attempts: [] };
+  const saved: ImageState[] = [];
+  const generate = generatedPhotoFactory({ state, now,
+    saveState: async (value) => { saved.push(structuredClone(value)); },
+    edit: async (prompt, referenceBytes) => {
+      assert.equal(saved[0].attempts[0].status, "reserved");
+      assert.match(prompt, /정확한 음식/); assert.ok(referenceBytes.length); return bytes;
+    },
+    inspect: async (_prompt, schema, images) => {
+      assert.equal(images?.length, 4);
+      assert.ok((schema.required as string[]).includes("referenceMatches"));
+      const mobile = await sharp(Buffer.from(images![3].data, "base64")).metadata();
+      assert.equal(mobile.width, 390); assert.equal(mobile.height, 440);
+      return approved;
+    },
+  });
+  const result = await generate(food, reference, bytes);
+  assert.equal(result.key, "photo-ai-auto-test-food-20261123");
+  assert.equal(result.record.tool, "OpenAI Images API");
+  assert.deepEqual(result.record.reference, reference);
+  assert.match(result.record.note, /AI 생성.*CC BY-SA 4.0/);
+  assert.equal(saved.at(-1)!.attempts[0].status, "generated");
+  const meta = await sharp(result.bytes).metadata();
+  assert.equal(meta.width, 1200); assert.equal(meta.height, 800); assert.equal(meta.format, "webp");
+  await assert.rejects(generate(food, reference, bytes), /1회 한도/);
+  assert.equal(imageDate(new Date("2026-11-23T15:00:00Z")), "2026-11-24");
+});
+
+test("실패·판별 탈락 후에도 기록을 복원하면 같은 날 다시 생성하지 않는다", async () => {
+  for (const failure of ["api", "match", "referenceMatches", "recipeMatches", "presentationSuitable", "noText", "confidence"]) {
+    const state: ImageState = { version: 1, attempts: [] };
+    let calls = 0;
+    const options = { state, now, saveState: async () => {},
+      edit: async () => { calls++; if (failure === "api") throw new Error("API 실패"); return bytes; },
+      inspect: async () => ({ ...approved, [failure]: failure === "confidence" ? 0.94 : false }),
+    };
+    await assert.rejects(generatedPhotoFactory(options)(food, reference, bytes));
+    assert.equal(state.attempts[0].status, failure === "api" ? "failed" : "rejected");
+    await assert.rejects(generatedPhotoFactory({ ...options, state: readImageState(JSON.parse(JSON.stringify(state))) })(food, reference, bytes), /1회 한도/);
+    assert.equal(calls, 1);
+  }
+});
+
+test("기록 저장 실패·비허용 출처·실사 보유 음식은 유료 API를 호출하지 않는다", async () => {
+  let calls = 0;
+  const options = { state: { version: 1 as const, attempts: [] }, now,
+    saveState: async () => { throw new Error("디스크 실패"); },
+    edit: async () => { calls++; return bytes; }, inspect: async () => approved,
+  };
+  await assert.rejects(generatedPhotoFactory(options)(food, reference, bytes), /디스크 실패/);
+  await assert.rejects(generatedPhotoFactory(options)({ ...food, image: "photo-existing" }, reference, bytes), /빈 대표 사진/);
+  await assert.rejects(generatedPhotoFactory(options)(food, { ...reference, imageUrl: "https://localhost/a.webp" }, bytes), /출처/);
+  assert.equal(calls, 0);
+  for (const value of [null, {}, { version: 1, attempts: [{}] }, { version: 1, attempts: [{ date: "2026-11-23", slug: "test", reference: "url", status: "unknown" }] }]) assert.throws(() => readImageState(value), /호출 기록/);
+});
+
+test("전날 호출은 다음 날 생성 한도를 막지 않으며 기존 생성 번들 경로를 보존한다", async () => {
+  const state: ImageState = { version: 1, attempts: [{ date: "2026-11-22", slug: "old-food", reference: reference.url, status: "failed" }] };
+  await generatedPhotoFactory({ state, now, saveState: async () => {}, edit: async () => bytes, inspect: async () => approved })(food, reference, bytes);
+  assert.equal(state.attempts.length, 2);
+  const old = 'import image0 from "@/assets/generated/old-ref-v2.webp";\nexport const generatedPhotos = {\n  "photo-old": image0,\n};\n';
+  const result = appendGeneratedPhotos(old, ["photo-ai-auto-test-food-20261123"]);
+  assert.ok(result.includes('"@/assets/generated/old-ref-v2.webp"'));
+  assert.ok(result.includes('"photo-old": image0'));
+  assert.match(result, /photo-ai-auto-test-food-20261123.webp/);
+  assert.throws(() => appendGeneratedPhotos(result, ["photo-ai-auto-test-food-20261123"]), /중복/);
+  assert.throws(() => appendGeneratedPhotos(old, ["../evil"]), /잘못/);
+});
+
+test("일일 예약 캐시를 서버에서 확인하지 못하면 유료 생성을 허용하지 않는다", async () => {
+  const key = "food-image-generation-day-v1-2026-11-23";
+  for (const result of [new Response("", { status: 403 }), Response.json({ actions_caches: [] }), Response.json({ actions_caches: [{ key: `${key}-other`, ref: "refs/heads/main" }] }), Response.json({ actions_caches: [{ key, ref: "refs/heads/branch" }] })]) {
+    assert.equal(await imageReservationSaved("owner/repo", key, "test-token", (async () => result) as typeof fetch), false);
+  }
+  assert.equal(await imageReservationSaved("owner/repo", key, "test-token", (async (url, init) => {
+    assert.equal(new URL(String(url)).hostname, "api.github.com"); assert.equal(init?.redirect, "error");
+    return Response.json({ actions_caches: [{ key, ref: "refs/heads/main" }] });
+  }) as typeof fetch), true);
+});
+
+test("사진 전용 준비는 AI 키 없이 기준 목록을 보존하고 대기 원고의 공식 원문 확인을 생략하지 않는다", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "trendfood-photo-prepare-"));
+  await mkdir(join(directory, "src/data/content"), { recursive: true });
+  await mkdir(join(directory, "data"));
+  const target = join(directory, "src/data/content/foods.json");
+  await writeFile(target, JSON.stringify(snapshot));
+  const script = fileURLToPath(new URL("./restore-pending-photos.ts", import.meta.url));
+  const env = { ...process.env, YOUTUBE_API_KEY: "", OPENAI_API_KEY: "", GEMINI_API_KEY: "" };
+  const output = execFileSync(process.execPath, [script, "--prepare"], { cwd: directory, env, encoding: "utf8" });
+  assert.match(output, /통과 0개.*AI 원고 생성 없음/);
+  assert.deepEqual(JSON.parse(await readFile(target, "utf8")), snapshot);
+  assert.deepEqual(JSON.parse(await readFile(join(directory, "data/recommendation-input.json"), "utf8")).baseline, snapshot);
+  const pending = snapshot.foods.find((food) => food.sources.some((source) => source.url.startsWith("https://www.youtube.com/watch?v=")))!;
+  await writeFile(join(directory, "data/discovery-state.json"), JSON.stringify({ version: 1, observations: [], channels: [], pending: [{ food: { ...pending, slug: "new-pending", image: "pending", heroImage: undefined }, savedAt: new Date().toISOString().slice(0, 10) }] }));
+  const result = spawnSync(process.execPath, [script, "--prepare"], { cwd: directory, env, encoding: "utf8" });
+  assert.equal(result.status, 1); assert.match(result.stderr, /YOUTUBE_API_KEY/);
+  assert.deepEqual(JSON.parse(await readFile(target, "utf8")), snapshot);
+});

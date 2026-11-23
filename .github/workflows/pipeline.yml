@@ -20,7 +20,7 @@ on:
         type: boolean
         default: false
       photos_only:
-        description: "음식 수집 없이 빈 사진·생성 예시의 실사 검색"
+        description: "원고 생성 없이 대기 원문 재확인·실사 검색·참고 사진 기반 생성"
         type: boolean
         default: false
       links_only:
@@ -38,6 +38,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: read
 
 jobs:
   collect:
@@ -59,7 +60,7 @@ jobs:
       - run: npm ci
       - name: 음식 후보 관찰·사진 대기 기록 복원
         id: discovery_cache
-        if: inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true
+        if: inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true
         uses: actions/cache/restore@v4
         with:
           path: web/data/discovery-state.json
@@ -86,6 +87,44 @@ jobs:
         run: node scripts/restore-pending-photos.ts
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      - name: 사진 전용 실행의 대기 원고·공식 원문 재확인 (AI 원고 생성 없음)
+        if: inputs.photos_only == true && inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
+        run: node scripts/restore-pending-photos.ts --prepare
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+      - name: 이미지 생성 한국 날짜·호출 예약 준비
+        id: image_day
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false' && vars.PIPELINE_AUTO_IMAGE_GENERATION != 'false'
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import { imageDate } from './scripts/generated-photo-automation.ts';
+          const date = imageDate(new Date());
+          fs.mkdirSync('data', { recursive: true });
+          fs.writeFileSync('data/image-generation-reservation.json', JSON.stringify({ date }));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `key=food-image-generation-day-v1-${date}\n`);
+          NODE
+      - name: 오늘 이미지 생성 예약 확인
+        id: image_reservation
+        if: steps.image_day.outputs.key != ''
+        uses: actions/cache/restore@v4
+        with:
+          path: web/data/image-generation-reservation.json
+          key: ${{ steps.image_day.outputs.key }}
+          lookup-only: true
+      - name: 유료 호출 전에 일일 예약 보존 (중단·실패도 당일 추가 생성 금지)
+        if: steps.image_day.outputs.key != '' && steps.image_reservation.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: web/data/image-generation-reservation.json
+          key: ${{ steps.image_day.outputs.key }}
+      - name: 예약 저장 확인 후에만 유료 생성 허용
+        id: image_budget
+        if: steps.image_day.outputs.key != '' && steps.image_reservation.outputs.cache-hit != 'true'
+        run: node scripts/check-image-reservation.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_RESERVATION_KEY: ${{ steps.image_day.outputs.key }}
       - name: 사진 검색·이용 조건·이미지 일치 자동 확인
         if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false' && vars.PIPELINE_AUTO_PHOTOS != 'false'
         run: npm run photos:auto
@@ -96,8 +135,9 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIPELINE_AUTO_IMAGE_GENERATION: ${{ steps.image_budget.outputs.allowed || 'false' }}
       - name: 사진 검증 후 신규 음식 우선·일일 추천 갱신 (추가 API 호출 없음)
-        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.photos_only != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
+        if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
         run: node scripts/refresh-recommendations.ts
       - name: 쿠팡 호출 기록 복원
         id: coupang_cache
@@ -198,7 +238,7 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add src/data/content/foods.json src/data/content/auto-photo-credits.json src/assets/curated src/lib/curated-photos.ts
+          git add src/data/content/foods.json src/data/content/auto-photo-credits.json src/assets/curated src/lib/curated-photos.ts src/data/content/generated-images.json src/assets/generated src/lib/generated-photos.ts
           git commit -m "콘텐츠: 검증된 음식·사진·재료 링크와 일일 추천 반영"
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -215,6 +255,7 @@ jobs:
           for (const [path, label] of [['data/automation-report.json', '음식 검증'], ['data/recommendation-report.json', '공개 추천'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 제휴 링크'], ['data/product-link-report.json', '일반 상품 링크']]) {
             if (!fs.existsSync(path)) continue;
             const report = JSON.parse(fs.readFileSync(path, 'utf8'));
+            if (report.generated) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `참고 사진 기반 AI 생성: ${report.generated.length}개 · 하루 최대 1회 (실패도 차감)\n\n${report.generated.map(item => `- 생성·검증 통과: ${item.name}`).join('\n')}\n\n`);
             if (report.reason) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label}: ${report.reason}\n\n`);
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label} 자동 검증 결과: 적용 가능 ${report.accepted.length}개 · 보류 ${report.deferred.length}개\n\n${report.accepted.map(item => `- 적용: ${item.name}`).join('\n')}\n${report.deferred.map(item => `- 보류: ${item.name}: ${item.reason}`).join('\n')}\n`);
           }

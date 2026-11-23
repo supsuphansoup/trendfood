@@ -112,7 +112,13 @@ test("모든 음식에 개별 이미지가 있고 생성 예시는 실사 출처
   for (const food of foods.filter((food) => generatedImages[food.image])) {
     const image = generatedImages[food.image];
     assert.equal(image.slug, food.slug);
-    assert.equal(image.tool, "OpenAI image_gen");
+    assert.ok(["OpenAI image_gen", "OpenAI Images API"].includes(image.tool));
+    if (image.automatic) {
+      assert.equal(image.tool, "OpenAI Images API");
+      assert.equal(image.model, "gpt-image-2");
+      assert.ok(image.reference && validPhotoSource(image.reference));
+      assert.ok(image.confidence! >= 0.95 && image.confidence! <= 1);
+    }
     assert.match(image.generatedAt, /^\d{4}-\d{2}-\d{2}$/);
     assert.ok(image.prompt.length > 100);
     assert.match(image.note, /AI 생성/);

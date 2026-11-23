@@ -2,6 +2,7 @@ import sharp from "sharp";
 import type { ContentFood, ContentSnapshot } from "../src/data/content.ts";
 import type { PhotoCredit } from "../src/data/photo-credits.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
+import type { GeneratedImage } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { trustedPhotoUrl, validPhotoSource } from "../src/data/photo-source.ts";
 import { photoHeroFit } from "../src/data/photo-presentation.ts";
@@ -71,7 +72,8 @@ const matchSchema = {
   properties: { match: { type: "boolean" }, confidence: { type: "number" }, photograph: { type: "boolean" }, unobstructed: { type: "boolean" }, metadataMatches: { type: "boolean" }, recipeMatches: { type: "boolean" }, presentationSuitable: { type: "boolean" }, reason: { type: "string" } },
 };
 type Generate = (prompt: string, schema: Record<string, unknown>, images?: { mimeType: "image/webp"; data: string }[]) => Promise<unknown>;
-type Dependencies = { generate: Generate; search: typeof searchPhotos; download: (candidate: PhotoCandidate) => Promise<Buffer> };
+type Dependencies = { generate: Generate; search: typeof searchPhotos; download: (candidate: PhotoCandidate) => Promise<Buffer>;
+  illustrate?: (food: ContentFood, reference: PhotoCredit, bytes: Buffer) => Promise<{ key: string; record: GeneratedImage; bytes: Buffer }> };
 
 export function photoBatch(foods: ContentFood[], now: Date, limit = 5): ContentFood[] {
   // 수동 실사·업로드 사진은 보존하고 등록된 생성 예시만 실사 교체를 시도한다.
@@ -93,8 +95,11 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
   const snapshot = structuredClone(current);
   const credits: Record<string, PhotoCredit> = {};
   const assets = new Map<string, Buffer>();
+  const generated: Record<string, GeneratedImage> = {};
+  const generatedAssets = new Map<string, Buffer>();
   const accepted: { name: string; slug: string; key: string; source: string; license: string; replacedGenerated: boolean }[] = [];
   const deferred: { name: string; reason: string; retainedGenerated: boolean }[] = [];
+  const references: { food: ContentFood; credit: PhotoCredit; bytes: Buffer; deferred: (typeof deferred)[number] }[] = [];
   const used = new Set(Object.values(registered).map((credit) => credit.url));
   for (const food of photoBatch(snapshot.foods, now, limit)) {
     const previousImage = food.image;
@@ -110,6 +115,7 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
         for (const batch of batches) if (batch[index] && !used.has(batch[index].url)) candidates.set(batch[index].url, batch[index]);
       }
       let reason = "음식과 이용 조건에 맞는 공개 라이선스 사진 없음";
+      let reference: { credit: PhotoCredit; bytes: Buffer } | undefined;
       for (const candidate of [...candidates.values()].slice(0, 6)) {
         try {
           const bytes = await dependencies.download(candidate);
@@ -136,6 +142,12 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
             context, JSON.stringify({ title: candidate.title, description: candidate.description }),
           ].join("\n");
           const verdict = await dependencies.generate(prompt, matchSchema, [preview, cardPreview, desktopPreview, mobilePreview].map((bytes) => ({ mimeType: "image/webp", data: bytes.toString("base64") }))) as Record<string, unknown>;
+          // 음식 자체가 검증된 실사만 생성 참고로 보존한다. 구도가 나빠도 다른 메뉴는 허용하지 않는다.
+          if (!reference && food.image === "pending" && validPhotoSource(candidate) && verdict?.match === true && verdict.photograph === true && verdict.metadataMatches === true && verdict.recipeMatches === true && typeof verdict.confidence === "number" && Number.isFinite(verdict.confidence) && verdict.confidence >= 0.95 && verdict.confidence <= 1) {
+            const { description: _description, ...credit } = candidate;
+            void _description;
+            reference = { credit, bytes };
+          }
           if (!verdict || verdict.match !== true || verdict.photograph !== true || verdict.unobstructed !== true || verdict.metadataMatches !== true || verdict.recipeMatches !== true || verdict.presentationSuitable !== true || typeof verdict.confidence !== "number" || !Number.isFinite(verdict.confidence) || verdict.confidence < 0.95 || verdict.confidence > 1) {
             reason = `이미지 판별 보류${typeof verdict?.reason === "string" ? `: ${verdict.reason.replace(/\s+/g, " ").slice(0, 180)}` : ""}`;
             continue;
@@ -158,11 +170,26 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
           reason = error instanceof Error ? error.message : "사진 검사 실패";
         }
       }
-      if (food.image === previousImage) deferred.push({ name: food.name, reason, retainedGenerated });
+      if (food.image === previousImage) {
+        const item = { name: food.name, reason, retainedGenerated };
+        deferred.push(item);
+        if (food.image === "pending" && reference) references.push({ food, ...reference, deferred: item });
+      }
     } catch (error) {
       if (error instanceof AiQuotaError) throw error;
       deferred.push({ name: food.name, reason: error instanceof Error ? error.message : "사진 검색 실패", retainedGenerated });
     }
   }
-  return { snapshot, credits, assets, accepted, deferred };
+  // 실사 검색을 모두 끝낸 뒤 유료 생성을 한 번만 시도한다. 이후 검색 오류로 생성 파일을 잃지 않는다.
+  const reference = references[0];
+  if (reference && dependencies.illustrate) {
+    try {
+      const result = await dependencies.illustrate(reference.food, reference.credit, reference.bytes);
+      generated[result.key] = result.record; generatedAssets.set(result.key, result.bytes);
+      reference.food.image = result.key; reference.food.alt = result.record.title;
+      delete reference.food.heroImage; delete reference.food.heroAlt;
+      deferred.splice(deferred.indexOf(reference.deferred), 1);
+    } catch (error) { reference.deferred.reason = error instanceof Error ? error.message : "참고 사진 기반 생성 실패"; }
+  }
+  return { snapshot, credits, assets, accepted, deferred, generated, generatedAssets };
 }

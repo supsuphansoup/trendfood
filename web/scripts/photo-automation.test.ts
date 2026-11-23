@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import sharp from "sharp";
 import type { ContentFood, ContentSnapshot } from "../src/data/content.ts";
+import type { PhotoCredit } from "../src/data/photo-credits.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { automaticPhotos, downloadCandidate, licensedPhoto, photoBatch, searchPhotos, trustedPhotoUrl } from "./photo-automation.ts";
@@ -307,4 +308,32 @@ test("키 없는 사진 실행은 기존 사진·등록부·페이지를 바꾸�
   const result = spawnSync(process.execPath, ["scripts/auto-photos.ts", "--dry-run"], { encoding: "utf8", env: { ...process.env, AI_MODEL: "", OPENAI_API_KEY: "", GEMINI_API_KEY: "" } });
   assert.equal(result.status, 1); assert.match(result.stderr, /API 키가 필요/);
   assert.deepEqual(await Promise.all(paths.map((path) => readFile(new URL(path, import.meta.url), "utf8"))), before);
+});
+
+test("같은 음식의 실사를 끝까지 우선 검색하고 구도만 탈락한 실제 참고로 빈 사진을 생성한다", async () => {
+  let calls = 0;
+  const dependencies = {
+    search: async () => [candidate()], download: async () => bytes,
+    generate: async (_prompt: string, _schema: Record<string, unknown>, images?: unknown[]) => images?.length ? { ...verdict, presentationSuitable: false } : { queries: [] },
+    illustrate: async (food: ContentFood, reference: PhotoCredit, original: Buffer) => {
+      calls++; assert.equal(food.image, "pending"); assert.equal(reference.url, candidate().url); assert.deepEqual(original, bytes);
+      return { key: "photo-ai-auto-test-pending-20261112", bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API" as const, generatedAt: "2026-11-12", prompt: "참고 생성", note: "AI 생성 예시" } };
+    },
+  };
+  const result = await automaticPhotos(current(), {}, dependencies, now);
+  assert.equal(calls, 1); assert.equal(result.deferred.length, 0);
+  assert.match(result.snapshot.foods[1].image, /photo-ai-auto/);
+  assert.equal(result.generatedAssets.size, 1); assert.equal(result.assets.size, 0);
+  assert.equal(Object.keys(result.credits).length, 0);
+  // 같은 음식의 게시 가능한 실사가 있으면 유료 생성은 하지 않는다.
+  await automaticPhotos(current(), {}, { ...dependencies, generate: async (_prompt, _schema, images) => images?.length ? verdict : { queries: [] } }, now);
+  assert.equal(calls, 1);
+  for (const field of ["match", "photograph", "metadataMatches", "recipeMatches", "confidence"]) {
+    const blocked = await automaticPhotos(current(), {}, { ...dependencies, generate: async (_prompt, _schema, images) => images?.length ? { ...verdict, [field]: field === "confidence" ? 0.94 : false } : { queries: [] } }, now);
+    assert.equal(blocked.snapshot.foods[1].image, "pending");
+    assert.equal(calls, 1);
+  }
+  const retained = { ...current(), foods: [generatedFixtures[0]] };
+  await automaticPhotos(retained, {}, dependencies, now);
+  assert.equal(calls, 1);
 });

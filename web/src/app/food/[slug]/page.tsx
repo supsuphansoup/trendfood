@@ -142,6 +142,11 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                 <p className="font-bold">AI 생성 예시 이미지</p>
                 <p>{food.generatedImage.note}</p>
                 <p>제작: {food.generatedImage.tool} · {food.generatedImage.generatedAt}</p>
+                {food.generatedImage.reference && <>
+                  <a href={food.generatedImage.reference.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center font-bold underline underline-offset-4">생성 참고 원본 · {food.generatedImage.reference.author} ↗<span className="sr-only"> (새 창)</span></a>
+                  <p>{food.generatedImage.reference.attributionNotice}</p>
+                  <a href={food.generatedImage.reference.licenseUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center underline underline-offset-4">참고 사진·변환본 이용 조건 · {food.generatedImage.reference.license} ↗<span className="sr-only"> (새 창)</span></a>
+                </>}
               </div>}
               {food.photoCredit && "note" in food.photoCredit && <div className="pt-3 text-sm leading-relaxed text-body">
                 <p>{food.photoCredit.note}</p>

@@ -2,10 +2,11 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import type { ContentSnapshot } from "../src/data/content";
+import type { GeneratedImage } from "../src/data/generated-images";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { url: string; licenseUrl: string; license: string; title: string; automatic?: boolean }>;
-const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, { note: string }>;
+const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, GeneratedImage>;
 
 test("대표 사진은 원본 구도를 보존하고 가장자리·키보드로 상세에 연결된다", async ({ page }, info) => {
   const food = snapshot.foods[0];
@@ -391,6 +392,12 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       await expect(photoInfo.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toBeVisible();
       await expect(sources.getByText("AI 생성 예시 이미지", { exact: true })).toBeVisible();
       await expect(sources.getByText(generatedImages[food.image].note, { exact: true })).toBeVisible();
+      const reference = generatedImages[food.image].reference;
+      if (reference) {
+        await expect(photoInfo.getByRole("link", { name: /생성 참고 원본/ })).toHaveAttribute("href", reference.url);
+        await expect(photoInfo.getByRole("link", { name: /참고 사진·변환본 이용 조건/ })).toHaveAttribute("href", reference.licenseUrl!);
+        await page.screenshot({ path: `test-results/content/auto-generated-${food.slug}-${info.project.name}.png`, fullPage: true });
+      }
       await expect(page.getByRole("link", { name: /사진 출처|사진 라이선스/ })).toHaveCount(0);
       expect(await introduction.locator("img").evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
       if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });
