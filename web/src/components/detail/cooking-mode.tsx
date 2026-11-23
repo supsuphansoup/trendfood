@@ -45,11 +45,12 @@ function CookingDialog({ food, onClose }: { food: Food; onClose: () => void }) {
     return () => { stopped = true; document.removeEventListener("visibilitychange", visible); if (lock) void lock.release().catch(() => {}); };
   }, [awake]);
   const close = () => { dialog.current?.close(); onClose(); };
-  return <dialog ref={dialog} aria-labelledby="cooking-title" onCancel={(event) => { event.preventDefault(); close(); }} className="fixed inset-0 m-auto max-h-[100dvh] w-full max-w-3xl overflow-auto rounded-none border bg-background p-5 text-foreground backdrop:bg-foreground/60 md:max-h-[90dvh] md:rounded-3xl md:p-8">
-    <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b bg-background pb-3">
+  return <dialog ref={dialog} aria-labelledby="cooking-title" onCancel={(event) => { event.preventDefault(); close(); }} className="motion-dialog fixed inset-0 m-auto max-h-[100dvh] w-full max-w-3xl overflow-auto rounded-none border bg-background p-0 text-foreground backdrop:bg-foreground/60 md:max-h-[90dvh] md:rounded-3xl">
+    <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b bg-background px-5 pt-5 pb-3 md:px-8 md:pt-8">
       <h2 id="cooking-title" className="text-2xl font-black">{food.name} · 요리 모드</h2>
-      <button autoFocus type="button" onClick={close} className="min-h-11 shrink-0 rounded-md border px-4 font-bold">닫기</button>
+      <button autoFocus type="button" onClick={close} className="motion-press min-h-11 shrink-0 rounded-md border px-4 font-bold">닫기</button>
     </div>
+    <div className="px-5 pb-5 md:px-8 md:pb-8">
     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">단계의 수치와 시간은 기본 {food.servings} 기준이에요. 타이머는 이 모드를 닫으면 종료돼요.</p>
     <p role="status" className="mt-3 font-bold">{count}/{food.steps.length}단계 완료{count === food.steps.length ? " · 요리 완료!" : ""}</p>
     <label className="mt-2 flex min-h-11 cursor-pointer items-center gap-3 text-sm font-bold"><input type="checkbox" checked={awake} onChange={(event) => { setAwake(event.target.checked); if (!event.target.checked) setWakeStatus(""); }} className="size-5 accent-primary" />화면 켜두기</label>
@@ -61,7 +62,8 @@ function CookingDialog({ food, onClose }: { food: Food; onClose: () => void }) {
         {step.timerMinutes && <StepTimer minutes={step.timerMinutes} />}
       </li>)}
     </ol>
-    <button type="button" className="min-h-11 rounded-md border px-4 font-bold" onClick={() => food.steps.forEach((step) => completed.toggle(step.text, false))}>완료 표시 초기화</button>
+    <button type="button" className="motion-press min-h-11 rounded-md border px-4 font-bold" onClick={() => food.steps.forEach((step) => completed.toggle(step.text, false))}>완료 표시 초기화</button>
+    </div>
   </dialog>;
 }
 
@@ -69,7 +71,7 @@ export function CookingMode({ food }: { food: Food }) {
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
   return <>
-    <button ref={trigger} type="button" onClick={() => setOpen(true)} className="mb-4 min-h-11 rounded-full bg-primary px-5 font-bold text-primary-foreground">요리 모드</button>
+    <button ref={trigger} type="button" onClick={() => setOpen(true)} className="motion-press mb-4 min-h-11 rounded-full bg-primary px-5 font-bold text-primary-foreground">요리 모드</button>
     {open && <CookingDialog food={food} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}
   </>;
 }

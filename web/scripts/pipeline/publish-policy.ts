@@ -2,10 +2,11 @@ import type { ContentSnapshot } from "../../src/data/content.ts";
 import { candidateIdentity } from "../../src/data/candidates.ts";
 import type { Scored } from "./logic.ts";
 
+export { publicationDate } from "../../src/data/content.ts";
+
 export const DAILY_NEW_FOOD_LIMIT = 3;
 export const IMAGE_ATTEMPTS_PER_FOOD = 2;
 export const DAILY_IMAGE_REQUEST_LIMIT = DAILY_NEW_FOOD_LIMIT * IMAGE_ATTEMPTS_PER_FOOD;
-export const publicationDate = (now: Date) => new Date(now.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
 export function publishedToday(snapshot: ContentSnapshot, date: string): string[] {
   return snapshot.foods.filter((food) => food.publishedAt === date ||

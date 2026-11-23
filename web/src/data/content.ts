@@ -18,11 +18,14 @@ export type ContentSnapshot = {
   recommendation?: { date: string; basis: "new" | "trend" | "rotation"; newSlugs: string[] };
 };
 
+export const publicationDate = (now: Date) =>
+  new Date(now.getTime() + 9 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
 const object = (v: unknown): v is Record<string, unknown> => !!v && typeof v === "object" && !Array.isArray(v);
 const text = (v: unknown, max = 2000): v is string => typeof v === "string" && v.trim().length > 0 && v.length <= max;
 const positive = (v: unknown): v is number => typeof v === "number" && Number.isInteger(v) && v > 0 && v <= 1440;
-const validDate = (v: unknown): v is string => text(v) && /^\d{4}-\d{2}-\d{2}$/.test(v) &&
-  Number.isFinite(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v && v <= new Date().toISOString().slice(0, 10);
+const validDate = (v: unknown, today: string): v is string => text(v) && /^\d{4}-\d{2}-\d{2}$/.test(v) &&
+  Number.isFinite(Date.parse(v)) && new Date(v).toISOString().slice(0, 10) === v && v <= today;
 const https = (v: unknown): v is string => {
   if (!text(v)) return false;
   try {
@@ -34,9 +37,10 @@ const https = (v: unknown): v is string => {
 /** 빌드·파일 가져오기에서 같은 검증을 사용한다. 초안은 승인 전 공개하지 않는다. */
 export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot {
   const fail = (message: string): never => { throw new Error(`콘텐츠 검증 실패: ${message}`); };
+  const today = publicationDate(new Date());
   if (!object(raw) || raw.version !== 1) return fail("version은 1이어야 해요");
   if (raw.status !== "ready" && !(allowDraft && raw.status === "draft")) return fail("승인한 ready 콘텐츠만 반영할 수 있어요");
-  if (!validDate(raw.checkedAt)) return fail("확인 날짜가 잘못됐어요");
+  if (!validDate(raw.checkedAt, today)) return fail("확인 날짜가 잘못됐어요");
   if (!Array.isArray(raw.foods) || !raw.foods.length || raw.foods.length > 1000) return fail("음식은 1~1000개여야 해요");
   const seen = new Set<string>();
   for (const [index, f] of raw.foods.entries()) {
@@ -49,8 +53,8 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
       const h = f.history;
       if (!object(h) || !Array.isArray(h.years) || !h.years.length || h.years.some((year) => !Number.isInteger(year) || year < 2020 || year > Number(String(f.checkedAt ?? raw.checkedAt).slice(0, 4))) || new Set(h.years).size !== h.years.length || !text(h.note) || !Array.isArray(h.sources) || !h.sources.length || h.sources.some((s) => !object(s) || !text(s.title, 200) || !https(s.url))) return fail(`${label}: 유행 연도와 근거 출처를 확인해 주세요`);
     }
-    if (f.checkedAt !== undefined && !validDate(f.checkedAt)) return fail(`${label}: 확인 날짜가 잘못됐어요`);
-    if (f.publishedAt !== undefined && !validDate(f.publishedAt)) return fail(`${label}: 등록 날짜가 잘못됐어요`);
+    if (f.checkedAt !== undefined && !validDate(f.checkedAt, today)) return fail(`${label}: 확인 날짜가 잘못됐어요`);
+    if (f.publishedAt !== undefined && !validDate(f.publishedAt, today)) return fail(`${label}: 등록 날짜가 잘못됐어요`);
     for (const key of ["name", "why", "summary", "servings", "alt", "tip", "recipeNote"]) {
       if (!text(f[key], key === "name" ? 30 : 2000)) return fail(`${label}: ${key}를 채워 주세요`);
     }
@@ -78,7 +82,7 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
   }
   if (raw.recommendation !== undefined) {
     const r = raw.recommendation;
-    if (!object(r) || !validDate(r.date) || !["new", "trend", "rotation"].includes(String(r.basis)) ||
+    if (!object(r) || !validDate(r.date, today) || !["new", "trend", "rotation"].includes(String(r.basis)) ||
       !Array.isArray(r.newSlugs) || new Set(r.newSlugs).size !== r.newSlugs.length ||
       r.newSlugs.some((slug) => typeof slug !== "string" || !seen.has(slug)) ||
       (r.basis === "new" && (!r.newSlugs.length || !r.newSlugs.includes(raw.foods[0].slug))) ||

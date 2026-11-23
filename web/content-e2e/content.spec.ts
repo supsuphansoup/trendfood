@@ -3,10 +3,144 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import type { ContentSnapshot } from "../src/data/content";
 import type { GeneratedImage } from "../src/data/generated-images";
+import { parseYouTubeId } from "../src/data/youtube";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { url: string; licenseUrl: string; license: string; title: string; automatic?: boolean }>;
 const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, GeneratedImage>;
+
+test("트렌드 추천 1~3위는 첫 화면에서 선택할 수 있고 사진과 출처 영상이 바뀐다", async ({ page }, info) => {
+  const foods = snapshot.foods.slice(0, 3);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.route("https://www.youtube-nocookie.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>YouTube 플레이어 자리</p>" }));
+  await page.goto("/");
+  const board = page.getByRole("region", { name: "트렌드 추천 순위" });
+  const preview = page.getByRole("region", { name: "오늘의 음식", exact: true });
+  const ranks = board.getByRole("button");
+  await expect(ranks).toHaveCount(3);
+  const firstRankBox = (await ranks.first().boundingBox())!;
+  await expect(ranks.first()).toHaveAttribute("aria-pressed", "true");
+  const indicator = () => board.getByRole("list").evaluate((list) => getComputedStyle(list, "::after").translate);
+  expect(await indicator()).toBe("0%");
+  for (const [index, food] of foods.entries()) {
+    const row = board.getByRole("button", { name: new RegExp(`^${index + 1}위`) });
+    await expect(row).toContainText(food.name);
+    await expect(row.getByText(food.name, { exact: true })).toHaveCSS("font-size", "16px");
+    await expect(row).toBeInViewport({ ratio: 1 });
+    const rankBox = (await row.boundingBox())!;
+    expect(rankBox.height).toBeGreaterThanOrEqual(44);
+    expect(rankBox.y).toBeCloseTo(firstRankBox.y, 0);
+    if (index > 0) expect(rankBox.x).toBeGreaterThan(firstRankBox.x);
+  }
+  await page.screenshot({ path: `test-results/content/ranks-below-${info.project.name}.png`, animations: "disabled" });
+  await ranks.nth(1).focus();
+  await ranks.nth(1).press("Enter");
+  await expect(ranks.nth(1)).toBeFocused();
+  await expect(ranks.nth(1)).toHaveAttribute("aria-pressed", "true");
+  await expect.poll(indicator).toBe("100%");
+  await expect(ranks.first()).toHaveAttribute("aria-pressed", "false");
+  await expect(preview.getByRole("heading", { name: foods[1].name, exact: true })).toBeVisible();
+  await expect(preview.getByRole("link", { name: `${foods[1].name} 상세 보기` })).toHaveAttribute("href", `/food/${foods[1].slug}`);
+  await expect(page.locator("iframe")).toHaveCount(0);
+
+  const rankedWithVideo = foods.findIndex((food) => food.videoId || food.sources.some(({ url }) => parseYouTubeId(url)));
+  if (rankedWithVideo !== -1) {
+    await ranks.nth(rankedWithVideo).click();
+    const food = foods[rankedWithVideo];
+    const id = food.videoId ?? food.sources.map(({ url }) => parseYouTubeId(url)).find(Boolean);
+    const video = preview.getByRole("button", { name: "영상 보기" });
+    await video.click();
+    const dialog = page.getByRole("dialog", { name: `${food.name} 원본 영상` });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator("iframe")).toHaveAttribute("src", `https://www.youtube-nocookie.com/embed/${id}?playsinline=1`);
+    await expect(dialog.getByRole("link", { name: "YouTube에서 보기" })).toHaveAttribute("href", `https://www.youtube.com/watch?v=${id}`);
+    await expect(dialog.getByRole("button", { name: "영상 닫기" })).toBeFocused();
+    expect(await dialog.locator("iframe").evaluate((frame: HTMLIFrameElement) => frame.offsetHeight)).toBeGreaterThanOrEqual(200);
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(page.locator("iframe")).toHaveCount(0);
+    await expect(video).toBeFocused();
+    await preview.getByRole("link", { name: "음식 살펴보기" }).click();
+    if (!food.videoId) {
+      await expect(page.locator("iframe")).toHaveCount(0);
+      await page.getByRole("button", { name: "영상 보기" }).click();
+      await expect(page.getByRole("dialog").locator("iframe")).toHaveAttribute("src", `https://www.youtube-nocookie.com/embed/${id}?playsinline=1`);
+    }
+  }
+});
+
+test("순위 표시와 사진·설명, 목록 결과, 상세 화면이 동작에 맞춰 전환된다", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const board = page.getByRole("region", { name: "트렌드 추천 순위" });
+  const ranks = board.getByRole("button");
+  const preview = page.getByRole("region", { name: "오늘의 음식", exact: true });
+  const food = snapshot.foods[1];
+  const list = board.getByRole("list");
+  await list.evaluate((element) => {
+    element.addEventListener("transitionend", (event) => {
+      if (event instanceof TransitionEvent && event.pseudoElement === "::after" && event.propertyName === "translate") element.dataset.moved = "true";
+    });
+  });
+  await ranks.nth(1).click();
+  await expect(list).toHaveAttribute("data-moved", "true");
+  await expect(preview.getByRole("heading", { name: food.name })).toHaveCSS("animation-name", "content-in");
+  await expect(preview.getByText(/^(다시 보는 유행|오늘 살펴볼 음식)/)).toHaveCSS("animation-name", "content-in");
+  await expect(preview.getByTestId("feature-description")).toHaveCSS("animation-name", "content-in");
+  await expect(preview.getByRole("link", { name: `${food.name} 상세 보기` })).toHaveCSS("animation-name", "feature-in");
+  await preview.getByRole("link", { name: "음식 살펴보기" }).click();
+  const detail = page.getByRole("region", { name: "음식 소개", exact: true });
+  await expect(detail.getByRole("heading", { level: 1 })).toHaveText(food.name);
+  await expect(detail.locator(".motion-copy")).toHaveCSS("animation-name", "content-in");
+  await expect(detail.locator(".motion-feature")).toHaveCSS("animation-name", "feature-in");
+
+  await page.goto("/#list");
+  const filters = page.getByRole("button", { name: "필터", exact: true });
+  await filters.click();
+  const panel = page.getByRole("complementary", { name: "음식 필터" });
+  await expect(panel).toHaveCSS("animation-name", "filters-in");
+  await filters.click();
+  const category = page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^자취 요리/ });
+  await category.click();
+  await expect(category.getByText("자취 요리")).toHaveCSS("animation-name", "content-in");
+  const resultTitle = page.getByRole("heading", { name: "자취 요리", exact: true });
+  await expect.poll(() => resultTitle.evaluate((heading) => heading.parentElement?.getAnimations().some((animation) => animation.playState === "running"))).toBe(true);
+});
+
+test("짧은 화면에서 대표 음식 아래의 순위를 연속으로 선택할 수 있다", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const viewports = info.project.name === "mobile" ? [{ width: 320, height: 568 }]
+    : [{ width: 768, height: 390 }, { width: 844, height: 390 }];
+  for (const viewport of viewports) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const board = page.getByRole("region", { name: "트렌드 추천 순위" });
+    const ranks = board.getByRole("button");
+    const preview = page.getByRole("region", { name: "오늘의 음식", exact: true });
+    const featureBox = (await preview.boundingBox())!;
+    expect((await board.boundingBox())!.y).toBeGreaterThan(featureBox.y + featureBox.height);
+    await expect(page.getByRole("link", { name: "음식 목록", exact: true })).toBeInViewport({ ratio: 1 });
+    const heading = preview.getByRole("heading", { level: 2 });
+    const detail = preview.getByRole("link", { name: "음식 살펴보기" });
+    await expect(heading).toHaveText(snapshot.foods[0].name);
+    await expect(heading).toBeInViewport({ ratio: 1 });
+    await expect(detail).toBeInViewport({ ratio: 1 });
+    if (snapshot.foods[0].videoId || snapshot.foods[0].sources.some(({ url }) => parseYouTubeId(url))) {
+      await expect(preview.getByRole("button", { name: "영상 보기" })).toBeInViewport({ ratio: 1 });
+    }
+    await board.evaluate((element) => element.scrollIntoView({ block: "end" }));
+    for (const index of [1, 2, 0]) {
+      const rank = ranks.nth(index);
+      await rank.click();
+      await expect(rank).toHaveAttribute("aria-pressed", "true");
+      await expect(rank).toBeInViewport({ ratio: 1 });
+      await expect(heading).toHaveText(snapshot.foods[index].name);
+      await expect(heading).toHaveCSS("animation-name", "none");
+      await expect(detail).toHaveAttribute("href", `/food/${snapshot.foods[index].slug}`);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width);
+  }
+});
 
 test("대표 사진은 원본 구도를 보존하고 가장자리·키보드로 상세에 연결된다", async ({ page }, info) => {
   const food = snapshot.foods[0];
@@ -42,7 +176,7 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   await expect(page.getByLabel("추천과 출처 안내")).not.toHaveAttribute("open");
   await expect(page.getByRole("link", { name: /재료 \d+개 담기|레시피 보기/ })).toHaveCount(0);
   if (snapshot.recommendation?.basis === "rotation" && snapshot.foods[0].history) await expect(feature.getByText(/^다시 보는 유행/)).toBeVisible();
-  await expect(page.getByRole("link", { name: "음식 둘러보기", exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(page.getByRole("link", { name: "음식 목록", exact: true })).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: `test-results/content/discovery-home-${info.project.name}.png` });
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   const notes = page.getByLabel("추천과 출처 안내");
@@ -51,7 +185,7 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   await expect(notes.getByText(new RegExp(`출처 확인 ${snapshot.foods[0].checkedAt ?? snapshot.checkedAt}`))).toBeVisible();
   await notes.locator("summary").press("Enter");
   await expect(notes).not.toHaveAttribute("open");
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   const collections = page.getByRole("navigation", { name: "음식 모음", exact: true });
   await collections.getByRole("button", { name: "유행 기록", exact: true }).click();
   const trends = snapshot.foods.filter((food) => food.history?.years.length || food.kind === "discovery");
@@ -109,7 +243,7 @@ test("자취 요리 카테고리: 비유행 레시피만 모으고 연도·주�
   await page.reload();
   await expect(everyday).toHaveAttribute("aria-current", "true");
   await expect(page.locator("#list li h3")).toHaveText(recipes.map((food) => food.name));
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: `test-results/content/everyday-category-${info.project.name}.png` });
@@ -172,16 +306,17 @@ test("재검토 사진은 카드와 상세에서 같은 실사·출처로 표시
 });
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const intro = page.getByRole("main").getByRole("heading", { level: 1 });
-  await expect(intro).toHaveText("유행 음식부터 집밥 레시피까지", { useInnerText: true });
+  await expect(intro).toHaveText("유행 음식과 집밥");
   await expect(intro).toBeInViewport({ ratio: 1 });
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
   await expect(feature.getByRole("link", { name: "음식 살펴보기", exact: true })).toHaveAttribute("href", `/food/${snapshot.foods[0].slug}`);
   await expect(feature.locator("figcaption")).toHaveCount(0);
   await expect(feature.getByText(/^(AI 생성 예시|참고 사진)$/)).toHaveCount(0);
   await expect(feature.locator("figure img").last()).toBeVisible();
-  await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
+  await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", info.project.name === "desktop" ? "18px" : "16px");
   await expect(feature.getByRole("heading", { level: 2 })).toHaveText(snapshot.foods[0].name);
   const notesBox = (await page.getByLabel("추천과 출처 안내").boundingBox())!;
   const featureBox = (await feature.boundingBox())!;
@@ -202,11 +337,11 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   await expect(page.getByRole("button", { name: /^장바구니/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "좋아요순", exact: true })).toHaveCount(0);
   await expect(page.getByText(new RegExp(`출처 확인 ${snapshot.foods[0].checkedAt ?? snapshot.checkedAt}`))).toBeVisible();
-  await expect(page.getByText("오늘 가장 많이 찾은 음식, 1위")).toHaveCount(0);
+  await expect(page.getByText("오늘 가장 많이 찾은 음식", { exact: true })).toHaveCount(0);
   await expect(page.getByText(/11위부터/)).toHaveCount(0);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: `test-results/content/home-${info.project.name}.png` });
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   await expect(page.locator("#list h2")).toBeInViewport();
   // 펼친 필터가 상단 탐색 아래로 일부만 남지 않게 목록 시작을 맞춘다.
   const stickyBottom = await page.getByRole("region", { name: "필터 설정" }).evaluate((el) => el.getBoundingClientRect().bottom);
@@ -247,7 +382,7 @@ test("간식 탭 없이 기존 간식 주소는 전체로 열리고 음식 검�
   await expect(categories.getByRole("button", { name: /^전체/ })).toHaveAttribute("aria-current", "true");
   await expect(page).not.toHaveURL(/cat=/);
   await expect(page.locator("#list li h3")).toHaveCount(snapshot.foods.length - 1);
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   await page.screenshot({ path: `test-results/content/no-snack-tab-${info.project.name}.png` });
   const snack = snapshot.foods.find((food) => food.category === "간식")!;
   await page.getByRole("searchbox").fill(snack.name);
@@ -270,7 +405,7 @@ test("정렬·태그·연도는 카테고리 아래에서 음식 목록을 필�
   expect(sortBox.y).toBeGreaterThanOrEqual(categoryBox.y + categoryBox.height);
   expect(yearBox.y).toBeGreaterThanOrEqual(sortBox.y + sortBox.height);
   expect(yearBox.y + yearBox.height).toBeLessThanOrEqual(listBox.y);
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   await filters.getByRole("button", { name: "조리시간순", exact: true }).click();
   await filters.getByRole("button", { name: "#10분컷", exact: true }).click();
   await expect(page).toHaveURL(/sort=/);

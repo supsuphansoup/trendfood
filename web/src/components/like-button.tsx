@@ -13,9 +13,19 @@ export function LikeButton({ slug, name, className }: { slug: string; name: stri
       type="button"
       aria-pressed={on}
       aria-label={`${name} 찜하기`}
-      onClick={() => { likes.toggle(slug); track("food_like", { food_slug: slug, selected: !on }); }}
+      onClick={(event) => {
+        likes.toggle(slug);
+        track("food_like", { food_slug: slug, selected: !on });
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const heart = event.currentTarget.querySelector("svg");
+        heart?.getAnimations().forEach((animation) => animation.cancel());
+        heart?.animate(
+          [{ scale: "1" }, { scale: on ? "0.82" : "1.35", offset: 0.4 }, { scale: "1" }],
+          { duration: 300, easing: "ease-out" },
+        );
+      }}
       className={cn(
-        "flex size-11 items-center justify-center rounded-full bg-white/95 text-foreground transition-colors",
+        "motion-press flex size-11 items-center justify-center rounded-full bg-white/95 text-foreground",
         className,
       )}
     >

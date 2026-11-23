@@ -344,6 +344,7 @@ test("음식 소개는 조리법·재료 구매 없이 탐색하고 출처와 �
 });
 
 test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바로가기", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   // 플랫폼별 입력칸의 기본 너비 차이가 검색창을 화면 밖으로 밀지 않게 한다.
   await page.getByRole("searchbox").evaluate((el: HTMLInputElement) => { el.size = 40; });
@@ -357,7 +358,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await search.click();
   expect((await cardTitles(page)).sort()).toEqual(["새우 로제 떡볶이", "새우 크림 리조또"]);
   await page.getByRole("button", { name: "전체 보기", exact: true }).click();
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   await expect(page).toHaveURL(/#list$/);
   await expect(page.locator("#list h2")).toBeInViewport();
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
@@ -394,14 +395,12 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
 test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 상세에 연결된다", async ({ page }, info) => {
   await page.goto("/");
   const intro = page.getByRole("main").getByRole("heading", { level: 1 });
-  await expect(intro).toHaveText("유행 음식부터 집밥 레시피까지", { useInnerText: true });
+  await expect(intro).toHaveText("유행 음식과 집밥");
   await expect(intro).toBeInViewport({ ratio: 1 });
-  await expect(intro.locator("..")).toHaveCSS("background-color", "rgb(201, 49, 53)");
-  await expect(intro).toHaveCSS("font-size", info.project.name === "desktop" ? "72px" : "36px");
-  await expect(page.getByText(/어떤 음식이 왜 유행했는지 보고.*재료와 조리법/)).toBeInViewport({ ratio: 1 });
-  const browse = page.getByRole("link", { name: "음식 둘러보기", exact: true });
+  await expect(intro).toHaveCSS("color", "rgb(37, 37, 37)");
+  await expect(page.getByText("유행의 배경부터 만드는 법까지.")).toBeInViewport({ ratio: 1 });
+  const browse = page.getByRole("link", { name: "음식 목록", exact: true });
   await expect(browse).toBeInViewport({ ratio: 1 });
-  await expect(browse).toHaveCSS("color", "rgb(201, 49, 53)");
   expect((await browse.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
   const featureBox = (await feature.boundingBox())!;
@@ -414,17 +413,32 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;
   const introBox = (await intro.boundingBox())!;
-  if (info.project.name === "desktop") expect(imageBox.x).toBeGreaterThan(introBox.x + introBox.width);
-  else expect(imageBox.y).toBeGreaterThan(introBox.y + introBox.height);
+  const ranksBox = (await page.getByRole("region", { name: "트렌드 추천 순위" }).boundingBox())!;
+  expect(ranksBox.y).toBeGreaterThan(featureBox.y + featureBox.height);
+  expect(imageBox.y).toBeGreaterThan(introBox.y + introBox.height);
   const title = feature.getByRole("heading", { level: 2, name: "두바이 초콜릿" });
-  expect((await title.boundingBox())!.y).toBeGreaterThanOrEqual(imageBox.y + imageBox.height);
+  await expect(title).toBeInViewport({ ratio: 1 });
+  const titleBox = (await title.boundingBox())!;
+  expect(titleBox.y).toBeGreaterThan(introBox.y + introBox.height);
+  if (info.project.name === "desktop") {
+    expect(imageBox.x).toBeGreaterThan(titleBox.x + titleBox.width);
+  } else {
+    expect(imageBox.y).toBeGreaterThan(titleBox.y + titleBox.height);
+  }
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "음식 살펴보기", exact: true });
+  await expect(cta).toBeInViewport({ ratio: 1 });
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toHaveAttribute("href", "/food/dubai-chocolate");
-  await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
+  await expect(cta).toHaveCSS("background-color", "rgb(201, 49, 53)");
+  const featureDescription = feature.getByTestId("feature-description");
+  await expect(featureDescription).toHaveCSS("font-size", info.project.name === "desktop" ? "18px" : "16px");
+  const descriptionBox = (await featureDescription.boundingBox())!;
+  expect(descriptionBox.y).toBeGreaterThan(titleBox.y + titleBox.height);
+  expect((await cta.boundingBox())!.y).toBeGreaterThan(descriptionBox.y + descriptionBox.height);
+  if (info.project.name === "mobile") expect(imageBox.y).toBeGreaterThan((await cta.boundingBox())!.y + (await cta.boundingBox())!.height);
   const notes = page.getByLabel("추천과 출처 안내");
   await expect(notes).toHaveCSS("font-size", "14px");
   // 주목할 음식과 출처·추천 정보의 영역이 겹치지 않아야 한다.
@@ -488,7 +502,7 @@ test("메인: 필터 버튼으로 열고 닫으며 선택 조건과 주소를 �
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(toggle).toHaveAttribute("aria-controls", "food-filters");
   await expect(panel).toBeHidden();
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   const closedWidth = (await page.locator("#list").boundingBox())!.width;
   await page.screenshot({ path: `test-results/filters-closed-${info.project.name}.png` });
   await toggle.focus();
@@ -613,7 +627,7 @@ test("자취 요리 탭: 순위와 분리하고 주소·검색·기본 목록 �
   await page.getByRole("button", { name: "검색", exact: true }).click();
   await expect(page.locator("#list li h3")).toHaveText(["치킨마요 덮밥"]);
   await page.getByRole("button", { name: "검색어 지우기", exact: true }).click();
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expectNoA11yViolations(page);
   await page.screenshot({ path: `test-results/everyday-tab-${info.project.name}.png` });

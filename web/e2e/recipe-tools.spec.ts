@@ -83,6 +83,20 @@ test("요리 모드: 완료 기억·키보드 닫기·포커스 복원·화면 �
   await expect(dialog.getByRole("checkbox", { name: "단계 1 완료", exact: true })).not.toBeChecked();
 });
 
+test("요리 모드의 고정 제목 위에 조리 문장이 보이지 않는다", async ({ page }, info) => {
+  await page.setViewportSize(info.project.name === "mobile" ? { width: 320, height: 568 } : { width: 844, height: 390 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/food/butter-garaetteok");
+  await page.getByRole("button", { name: "요리 모드", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  const heading = dialog.getByRole("heading").locator("..");
+  await dialog.evaluate((el) => { el.scrollTop = 240; });
+  await expect.poll(() => dialog.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+  const dialogTop = (await dialog.boundingBox())!.y;
+  expect((await heading.boundingBox())!.y - dialogTop).toBeLessThanOrEqual(1);
+  await expect(dialog.getByRole("button", { name: "닫기", exact: true })).toBeInViewport({ ratio: 1 });
+});
+
 test("화면 켜두기는 모드를 닫는 동안 늦게 승인돼도 즉시 해제한다", async ({ page }) => {
   await page.addInitScript(() => {
     const state = window as unknown as { wakeApprove: () => void; wakeReleased: number };

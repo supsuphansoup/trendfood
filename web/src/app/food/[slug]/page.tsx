@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FoodImage } from "@/components/food-image";
+import { FoodVideo } from "@/components/food-video";
 import { RecipeWorkspace } from "@/components/detail/recipe-workspace";
 import { ShareButton } from "@/components/detail/share-button";
 import { TrendChart } from "@/components/detail/trend-chart";
@@ -11,6 +12,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteLogo } from "@/components/site-logo";
 import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
 import { foodUrl, recipeJson, safeJson } from "@/data/seo";
+import { foodVideoId } from "@/data/youtube";
 
 // 빌드할 때 게시된 음식의 상세 페이지만 만든다. 목록에 없는 주소는 404.html 로 간다.
 export const dynamicParams = false;
@@ -29,6 +31,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
   if (!food) notFound();
 
   const discovery = food.kind === "discovery";
+  const sourceVideo = food.videoId ? null : foodVideoId(food);
   const structured = recipeJson(food, food.imageAvailable ? (food.heroImage ?? food.image).src : undefined);
   const chips = [...new Set([food.change, food.cookLabel, ...(!discovery ? [`난이도 ${food.difficulty}`, food.servings] : [])])];
 
@@ -52,10 +55,10 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
           </div>
       </header>
       <section aria-label="음식 소개" className={`mx-auto grid max-w-[1200px] gap-6 px-5 pt-6 pb-8 md:gap-10 md:pt-9 md:pb-11${food.imageAvailable ? " md:grid-cols-2 md:items-center" : ""}`}>
-          {food.imageAvailable && <div className="relative aspect-[4/3] overflow-hidden rounded-feature bg-secondary md:aspect-square">
+          {food.imageAvailable && <div className="motion-feature relative aspect-[4/3] overflow-hidden rounded-feature bg-secondary md:aspect-square">
             <FoodImage food={food} hero preload sizes="(max-width: 767px) 100vw, 580px" />
           </div>}
-          <div className="flex min-w-0 flex-col items-start gap-5">
+          <div className="motion-copy flex min-w-0 flex-col items-start gap-5">
             <nav aria-label="현재 위치" className="text-[13px] text-muted-foreground">
               <ol className="m-0 flex list-none gap-2 p-0">
                 <li>
@@ -89,8 +92,9 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
               </li>}
             </ul>
             <div className="flex flex-wrap gap-3">
-              <a href={discovery ? "#sources" : "#recipe"} className="inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{discovery ? "소개 출처 보기" : food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
-              {!discovery && <a href="#cart" className="inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">재료 살펴보기</a>}
+              <a href={discovery ? "#sources" : "#recipe"} className="motion-press inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{discovery ? "소개 출처 보기" : food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
+              {!discovery && <a href="#cart" className="motion-press inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">재료 살펴보기</a>}
+              {sourceVideo && <FoodVideo name={food.name} videoId={sourceVideo} />}
             </div>
           </div>
       </section>

@@ -19,6 +19,19 @@ const fresh = () => structuredClone(input);
 const recipeInput = { ...input, recommendation: undefined, foods: input.foods.filter((food: { kind?: string }) => !food.kind || food.kind === "recipe") };
 const freshRecipe = () => structuredClone(recipeInput);
 
+test("한국 자정 이후 오늘 날짜를 허용하고 내일 날짜를 거절한다", (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: new Date("2026-11-23T15:30:00.000Z") });
+  const today = "2026-11-24";
+  const snapshot = {
+    ...fresh(),
+    checkedAt: today,
+    recommendation: { date: today, basis: "rotation", newSlugs: [] },
+    foods: [{ ...input.foods[0], history: undefined, checkedAt: today, publishedAt: today }],
+  };
+  assert.equal(parseContent(snapshot).foods[0].publishedAt, today);
+  assert.throws(() => parseContent({ ...snapshot, checkedAt: "2026-11-25" }), /확인 날짜/);
+});
+
 test("음식 소개는 재료·단계 없이 제공하고 조리법과 혼합한 데이터는 거절한다", () => {
   const snapshot = freshRecipe();
   Object.assign(snapshot.foods[0], { kind: "discovery", cookMinutes: 0, ingredients: [], steps: [] });

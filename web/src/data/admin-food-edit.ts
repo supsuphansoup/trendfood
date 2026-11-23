@@ -1,4 +1,5 @@
 import { tagOptions, type Category, type FoodRecord, type Step } from "./catalog-schema.ts";
+import { parseYouTubeId } from "./youtube.ts";
 
 export type FoodBasicInfo = {
   name: string;
@@ -29,22 +30,9 @@ export function cleanTakedownNote(draft: { reason: string; memo: string }): Resu
 }
 
 export function youtubeId(input: string): Result<string | null> {
-  const value = input.trim();
-  if (!value) return { value: null };
-  const validId = /^[A-Za-z0-9_-]{11}$/;
-  if (validId.test(value)) return { value };
-  const invalid = { error: "YouTube 주소나 11자 영상 ID를 적어 주세요." };
-  if (!/^https?:\/\//i.test(value)) return invalid;
-  try {
-    const url = new URL(value);
-    if (!["http:", "https:"].includes(url.protocol) || !["youtube.com", "www.youtube.com", "m.youtube.com", "youtu.be", "www.youtube-nocookie.com"].includes(url.host)) return invalid;
-    const id = url.host === "youtu.be"
-      ? url.pathname.match(/^\/([A-Za-z0-9_-]{11})\/?$/)?.[1]
-      : url.pathname === "/watch" ? url.searchParams.get("v") : url.pathname.match(/^\/(?:shorts|embed|live)\/([A-Za-z0-9_-]{11})\/?$/)?.[1];
-    return id && validId.test(id) ? { value: id } : invalid;
-  } catch {
-    return invalid;
-  }
+  if (!input.trim()) return { value: null };
+  const value = parseYouTubeId(input);
+  return value ? { value } : { error: "YouTube 주소나 11자 영상 ID를 적어 주세요." };
 }
 type IngredientFields = { name: string; hard: boolean; pantry: boolean; position: number };
 type IngredientChanges = { removed: number[]; updated: { id: number; patch: IngredientFields }[]; added: IngredientFields[] };

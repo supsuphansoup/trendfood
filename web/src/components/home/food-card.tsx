@@ -9,9 +9,9 @@ import type { pantryMatch } from "@/data/recipe-tools";
 export function FoodCard({ food, wide = false, unranked = false, match }: { food: Food; wide?: boolean; unranked?: boolean; match?: ReturnType<typeof pantryMatch> }) {
   const href = `/food/${food.slug}`;
   return (
-    <li className={cn("relative flex min-w-0 flex-col overflow-hidden rounded-feature bg-card", wide && "md:col-span-full md:grid md:grid-cols-2 md:items-stretch")}>
+    <li data-motion-result className={cn("relative flex min-w-0 flex-col overflow-hidden rounded-feature bg-card", wide && "md:col-span-full md:grid md:grid-cols-2 md:items-stretch")}>
       {food.imageAvailable ? <div className={cn("relative aspect-[3/2] overflow-hidden bg-secondary", wide && "md:aspect-auto md:min-h-[300px]")}>
-        <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0">
+        <Link href={href} aria-label={`${food.name} 상세 보기`} className="food-image-link absolute inset-0">
           <FoodImage food={food} sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 460px" />
         </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-3 right-3" />
@@ -25,7 +25,7 @@ export function FoodCard({ food, wide = false, unranked = false, match }: { food
           <span className="text-meta text-muted-foreground">{unranked && !match ? "일상 레시피" : food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || (food.kind === "discovery" ? "유행 시기 미확정" : "일상 레시피") : food.change}</span>
         </div>
         <h3 className="text-2xl leading-[1.35] font-bold tracking-[-0.02em] md:text-card-grid-title">
-          <Link href={href} className="flex min-h-11 items-center text-foreground hover:text-foreground hover:underline">
+          <Link href={href} className="motion-press flex min-h-11 items-center text-foreground hover:text-foreground hover:underline">
             {food.name}
           </Link>
         </h3>
@@ -34,7 +34,7 @@ export function FoodCard({ food, wide = false, unranked = false, match }: { food
         {match && <p data-testid="pantry-match" className="rounded-lg bg-muted px-3 py-2 text-sm leading-relaxed"><b>{match.have}/{match.total}개 재료 보유</b><br />{match.missing.length ? `부족한 재료 ${match.missing.length}개: ${match.missing.map((item) => item.name).join(", ")}` : "재료가 모두 있어요"}</p>}
         <div className="mt-auto flex w-full flex-wrap items-center justify-between gap-x-3 pt-1">
           <span className="text-meta text-muted-foreground">{food.kind === "discovery" ? "음식 소개" : food.kind === "product" ? "완제품 소개" : "레시피 제공"}</span>
-          <Link href={href} className="inline-flex min-h-11 items-center gap-1.5 text-base font-bold text-foreground hover:text-accent">
+          <Link href={href} className="motion-press inline-flex min-h-11 items-center gap-1.5 text-base font-bold text-foreground hover:text-accent">
             음식 살펴보기 <ArrowUpRight className="size-4" aria-hidden />
           </Link>
         </div>
