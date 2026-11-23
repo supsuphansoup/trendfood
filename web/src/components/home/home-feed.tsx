@@ -293,14 +293,14 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       <main>
       <div className="mx-auto w-full max-w-[1200px] px-5 pt-4 pb-2 md:pt-7">
         <div className="grid gap-4 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-6">
-          <div className="flex flex-col items-start justify-center gap-4 rounded-feature border-t-4 border-primary bg-accent-soft px-5 py-5 md:px-7 md:py-8 lg:gap-6 lg:px-9">
-            <h1 className="text-intro-mobile leading-[1.06] font-black tracking-[-0.055em] text-primary lg:text-intro xl:text-stage-title">
+          <div className="flex flex-col items-start justify-center gap-4 rounded-feature bg-primary px-5 py-6 text-primary-foreground md:px-7 md:py-8 lg:gap-6 lg:px-9">
+            <h1 className="text-stage-mobile leading-[1.06] font-black tracking-[-0.055em] lg:text-intro xl:text-hero-detail">
               유행 음식부터<br />집밥 레시피까지
             </h1>
-            <p className="max-w-[22em] text-base leading-relaxed text-body lg:text-reading">
+            <p className="max-w-[22em] text-base leading-relaxed lg:text-reading">
               어떤 음식이 왜 유행했는지 보고, 집에서 만들고 싶은 메뉴의 재료와 조리법을 찾아보세요.
             </p>
-            <a href="#list" className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground md:min-h-12 md:px-5">
+            <a href="#list" className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary-foreground px-4 text-base font-bold text-primary hover:bg-accent-soft hover:text-destructive focus-visible:outline-primary-foreground md:min-h-12 md:px-5">
               음식 둘러보기 <ArrowDown className="size-4" aria-hidden />
             </a>
           </div>

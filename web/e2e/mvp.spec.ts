@@ -396,10 +396,12 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const intro = page.getByRole("main").getByRole("heading", { level: 1 });
   await expect(intro).toHaveText("유행 음식부터 집밥 레시피까지", { useInnerText: true });
   await expect(intro).toBeInViewport({ ratio: 1 });
+  await expect(intro.locator("..")).toHaveCSS("background-color", "rgb(201, 49, 53)");
+  await expect(intro).toHaveCSS("font-size", info.project.name === "desktop" ? "72px" : "36px");
   await expect(page.getByText(/어떤 음식이 왜 유행했는지 보고.*재료와 조리법/)).toBeInViewport({ ratio: 1 });
   const browse = page.getByRole("link", { name: "음식 둘러보기", exact: true });
   await expect(browse).toBeInViewport({ ratio: 1 });
-  await expect(browse).toHaveCSS("background-color", "rgb(201, 49, 53)");
+  await expect(browse).toHaveCSS("color", "rgb(201, 49, 53)");
   expect((await browse.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
   const featureBox = (await feature.boundingBox())!;
