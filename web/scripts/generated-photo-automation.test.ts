@@ -9,7 +9,7 @@ import sharp from "sharp";
 import type { ContentSnapshot } from "../src/data/content.ts";
 import type { PhotoCredit } from "../src/data/photo-credits.ts";
 import { appendGeneratedPhotos, editReference, generatedPhotoFactory, imageDate, readImageState, type ImageState } from "./generated-photo-automation.ts";
-import { imageReservationSaved } from "./check-image-reservation.ts";
+import { imageReservationSaved, releaseUnusedImageReservation } from "./check-image-reservation.ts";
 
 const snapshot = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const food = { ...snapshot.foods[0], slug: "test-food", image: "pending", heroImage: undefined };
@@ -119,6 +119,32 @@ test("일일 예약 캐시를 서버에서 확인하지 못하면 유료 생성�
     assert.equal(new URL(String(url)).hostname, "api.github.com"); assert.equal(init?.redirect, "error");
     return Response.json({ actions_caches: [{ key, ref: "refs/heads/main" }] });
   }) as typeof fetch), true);
+});
+
+test("생성 시도 0회가 확인된 당일 main 예약만 반환하고 실패·생성·불명확한 기록은 보존한다", async () => {
+  const key = "food-image-generation-day-v1-2026-11-23";
+  const unused = { checkedAt: now.toISOString(), generated: [], imageGeneration: { enabled: true, attempts: [] } };
+  let calls = 0;
+  const fetcher = (async (url, init) => {
+    calls++;
+    if (init?.method === "DELETE") {
+      assert.equal(url, "https://api.github.com/repos/owner/repo/actions/caches/123");
+      return new Response(null, { status: 204 });
+    }
+    return Response.json({ actions_caches: [{ id: 999, key: `${key}-other`, ref: "refs/heads/main" }, { id: 123, key, ref: "refs/heads/main" }] });
+  }) as typeof fetch;
+  assert.equal(await releaseUnusedImageReservation("owner/repo", key, "test-token", unused, now, fetcher), true);
+  assert.equal(calls, 2);
+  for (const report of [null, {}, { ...unused, checkedAt: "invalid" }, { ...unused, checkedAt: "2026-11-21T00:00:00Z" }, { ...unused, generated: [{}] },
+    ...["reserved", "failed", "rejected", "generated"].map((status) => ({ ...unused, imageGeneration: { enabled: true, attempts: [{ status }] } })),
+    { ...unused, imageGeneration: { enabled: false, attempts: [] } },
+  ]) assert.equal(await releaseUnusedImageReservation("owner/repo", key, "test-token", report, now, fetcher), false);
+  assert.equal(calls, 2);
+  for (const caches of [[], [{ id: 123, key, ref: "refs/heads/other" }], [{ id: "123", key, ref: "refs/heads/main" }]]) {
+    assert.equal(await releaseUnusedImageReservation("owner/repo", key, "test-token", unused, now, (async () => Response.json({ actions_caches: caches })) as typeof fetch), false);
+  }
+  assert.equal(await releaseUnusedImageReservation("owner/repo", key, "test-token", unused, now, (async () => new Response("", { status: 403 })) as typeof fetch), false);
+  assert.equal(await releaseUnusedImageReservation("owner/repo", key, "test-token", unused, now, (async (_url, init) => init?.method === "DELETE" ? new Response("", { status: 500 }) : Response.json({ actions_caches: [{ id: 123, key, ref: "refs/heads/main" }] })) as typeof fetch), false);
 });
 
 test("사진 전용 준비는 AI 키 없이 기준 목록을 보존하고 대기 원고의 공식 원문 확인을 생략하지 않는다", async () => {

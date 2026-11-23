@@ -38,7 +38,7 @@ concurrency:
 
 permissions:
   contents: write
-  actions: read
+  actions: write # 이미지 생성 0회가 확인된 현재 실행의 미사용 캐시 예약만 반환
 
 jobs:
   collect:
@@ -136,6 +136,12 @@ jobs:
           PIPELINE_PHOTO_LIMIT: ${{ inputs.photo_limit || '5' }}
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIPELINE_AUTO_IMAGE_GENERATION: ${{ steps.image_budget.outputs.allowed || 'false' }}
+      - name: 이미지 생성 시도 0회인 미사용 예약만 반환
+        if: steps.image_budget.outputs.allowed == 'true' && hashFiles('web/data/photo-report.json') != ''
+        run: node scripts/check-image-reservation.ts --release-unused
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_RESERVATION_KEY: ${{ steps.image_day.outputs.key }}
       - name: 사진 검증 후 신규 음식 우선·일일 추천 갱신 (추가 API 호출 없음)
         if: inputs.pending_only != true && inputs.checks_only != true && inputs.compare_models != true && inputs.links_only != true && vars.PIPELINE_AUTO_PUBLISH != 'false'
         run: node scripts/refresh-recommendations.ts
