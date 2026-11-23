@@ -3,13 +3,15 @@ import { test } from "node:test";
 import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import sharp from "sharp";
-import type { ContentFood, ContentSnapshot } from "../src/data/content.ts";
+import { contentImages, type ContentFood, type ContentSnapshot } from "../src/data/content.ts";
 import type { PhotoCredit } from "../src/data/photo-credits.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { automaticPhotos, downloadCandidate, licensedPhoto, photoBatch, searchPhotos, trustedPhotoUrl } from "./photo-automation.ts";
 import { photoModule } from "./photo-assets.ts";
 import { photoHeroFit } from "../src/data/photo-presentation.ts";
+import { editReference, generatedPhotoFactory, type ImageState } from "./generated-photo-automation.ts";
+import { refreshRecommendations } from "./pipeline/recommendations.ts";
 
 const input = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 // 실사가 늘어나 현재 목록의 생성 예시가 0개여도, 보존한 등록부로 교체 동작을 검사한다.
@@ -363,7 +365,7 @@ test("검색 결과가 없거나 검색이 실패해도 빈 사진만 설명으�
   }
 });
 
-test("여러 빈 사진 중 검증된 참고가 있으면 우선하며 묶음당 생성 요청은 한 번이다", async () => {
+test("빈 사진 세 개 모두 생성하되 검증된 참고가 있는 음식부터 처리한다", async () => {
   const snapshot = current();
   snapshot.foods = input.foods.slice(0, 3).map((food, index) => ({ ...structuredClone(food), slug: `pending-${index}`, image: "pending", heroImage: undefined }));
   const preferred = photoBatch(snapshot.foods, now)[1];
@@ -372,10 +374,91 @@ test("여러 빈 사진 중 검증된 참고가 있으면 우선하며 묶음당
     generate: async (_prompt, _schema, images) => images?.length ? { ...verdict, presentationSuitable: false } : { queries: [] },
     search: async (query) => query === preferred.name ? [candidate()] : [], download: async () => bytes,
     illustrate: async (food, reference) => {
-      calls++; assert.equal(food.slug, preferred.slug); assert.equal(reference?.url, candidate().url);
-      return { key: "photo-ai-auto-test-pending-20261112", bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API", generatedAt: "2026-11-12", prompt: "참고 생성", note: "AI 생성 예시" } };
+      calls++;
+      if (calls === 1) { assert.equal(food.slug, preferred.slug); assert.equal(reference?.url, candidate().url); }
+      return { key: `photo-ai-auto-${food.slug}-20261112`, bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API", generatedAt: "2026-11-12", prompt: "참고 생성", note: "AI 생성 예시" } };
     },
   }, now);
-  assert.equal(calls, 1); assert.equal(result.generatedAssets.size, 1);
-  assert.equal(result.snapshot.foods.filter((food) => food.image === "pending").length, 2);
+  assert.equal(calls, 3); assert.equal(result.generatedAssets.size, 3);
+  assert.equal(result.snapshot.foods.filter((food) => food.image === "pending").length, 0);
+});
+
+test("대기 원고가 많아도 새 음식 세 개를 사진 검색·생성에 우선 배정하고 나머지는 유지한다", async () => {
+  const snapshot = current();
+  const drafts = Array.from({ length: 9 }, (_, index) => ({ ...structuredClone(protectedReal), slug: `draft-${index}`, name: `검증 음식 ${index}`, image: "pending", heroImage: undefined }));
+  snapshot.foods = [protectedReal, ...drafts];
+  const prioritySlugs = drafts.slice(-3).map((food) => food.slug);
+  const searches: string[] = [], generated: string[] = [];
+  const result = await automaticPhotos(snapshot, {}, {
+    publication: { prioritySlugs: drafts.slice().reverse().map((food) => food.slug), slots: 3 },
+    generate: async () => ({ queries: [] }), download: async () => bytes,
+    search: async (query) => { searches.push(query); return []; },
+    illustrate: async (food) => {
+      generated.push(food.slug);
+      return { key: `photo-ai-auto-${food.slug}-20261112`, bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API", generatedAt: "2026-11-12", prompt: "설명 생성", note: "AI 생성 예시" } };
+    },
+  }, now);
+  assert.equal(searches.length, 5);
+  assert.deepEqual(new Set(generated), new Set(prioritySlugs));
+  assert.equal(result.generatedAssets.size, 3);
+  assert.equal(result.snapshot.foods.filter((food) => food.image === "pending").length, 6);
+  assert.equal(result.snapshot.foods[0].image, protectedReal.image);
+  const filled = await automaticPhotos(snapshot, {}, {
+    publication: { prioritySlugs: drafts.map((food) => food.slug), slots: 0 }, generate: async () => ({ queries: [] }), download: async () => bytes,
+    search: async () => [], illustrate: async () => { throw new Error("일일 게시 한도 이후 신규 생성 금지"); },
+  }, now);
+  assert.equal(filled.generatedAssets.size, 0);
+});
+
+test("사진 검색 결과가 전혀 없어도 세 음식의 생성·보완·등록을 거쳐 세 개 모두 실제 게시 대상으로 반영한다", async () => {
+  const generatedBytes = await sharp({ create: { width: 1536, height: 1024, channels: 3, background: "orange" } }).webp().toBuffer();
+  const baseline = structuredClone(input);
+  delete baseline.recommendation;
+  const drafts = Array.from({ length: 3 }, (_, index) => ({ ...structuredClone(protectedReal), slug: `end-to-end-food-${index}`, name: `신규 검증 음식 ${index}`, image: "pending", heroImage: undefined, publishedAt: undefined }));
+  const state: ImageState = { version: 1, attempts: [] };
+  let calls = 0;
+  const generate = generatedPhotoFactory({ state, now, saveState: async () => {},
+    edit: (prompt, reference) => editReference(prompt, reference, "test-key", (async () => {
+      calls++; return Response.json({ data: [{ b64_json: generatedBytes.toString("base64") }] });
+    }) as typeof fetch),
+    inspect: async () => ({ match: true, recipeMatches: true, presentationSuitable: calls % 2 === 0, noText: true, confidence: 0.99, reason: "모바일 크롭 보완" }),
+  });
+  const photos = await automaticPhotos({ ...baseline, foods: [...baseline.foods, ...drafts] }, {}, {
+    publication: { prioritySlugs: drafts.map((food) => food.slug), slots: 3 },
+    search: async () => [], download: async () => bytes, generate: async () => ({ queries: [] }), illustrate: generate,
+  }, now);
+  assert.equal(calls, 6); assert.equal(photos.generatedAssets.size, 3); assert.equal(photos.deferred.filter((item) => drafts.some((food) => food.name === item.name)).length, 0);
+  // 실제 CLI가 다음 프로세스를 시작하기 전에 저장하는 사진 등록부·키 목록을 재현한다.
+  const originalLength = contentImages.length;
+  try {
+    Object.assign(generatedImages, photos.generated);
+    contentImages.push(...Object.keys(photos.generated));
+    const result = refreshRecommendations(photos.snapshot, { baseline, signals: [], date: "2026-11-12" });
+    assert.deepEqual(result.snapshot.recommendation!.newSlugs, drafts.map((food) => food.slug));
+    assert.equal(result.snapshot.foods.length, baseline.foods.length + 3);
+    for (const food of result.snapshot.foods.slice(0, 3)) {
+      assert.ok(photos.generated[food.image]); assert.ok(photos.generatedAssets.has(food.image));
+      assert.match(food.alt, /AI 생성/); assert.equal(food.publishedAt, "2026-11-12");
+    }
+  } finally {
+    contentImages.splice(originalLength);
+    for (const key of Object.keys(photos.generated)) delete generatedImages[key];
+  }
+});
+
+test("한 음식의 생성이 실패해도 다음 원고로 세 자리를 채우고 실패 원고는 보존한다", async () => {
+  const drafts = Array.from({ length: 5 }, (_, index) => ({ ...structuredClone(protectedReal), slug: `replacement-${index}`, name: `대체 검증 음식 ${index}`, image: "pending", heroImage: undefined }));
+  let calls = 0;
+  const result = await automaticPhotos({ ...input, foods: drafts }, {}, {
+    publication: { prioritySlugs: drafts.map((food) => food.slug), slots: 3 },
+    generate: async () => ({ queries: [] }), search: async () => [], download: async () => bytes,
+    illustrate: async (food) => {
+      calls++;
+      if (food.slug === drafts[0].slug) throw new Error("품질 보완 후에도 음식 불일치");
+      return { key: `photo-ai-auto-${food.slug}-20261112`, bytes, record: { slug: food.slug, title: `${food.name} AI 생성 예시`, tool: "OpenAI Images API", generatedAt: "2026-11-12", prompt: "설명 생성", note: "AI 생성 예시" } };
+    },
+  }, now);
+  assert.equal(calls, 4); assert.equal(result.generatedAssets.size, 3);
+  assert.equal(result.snapshot.foods[0].image, "pending"); assert.equal(result.snapshot.foods[4].image, "pending");
+  assert.match(result.deferred.find((item) => item.name === drafts[0].name)!.reason, /품질 보완/);
 });

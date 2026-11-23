@@ -3,9 +3,10 @@ import { parseContent } from "../src/data/content.ts";
 import { emptyDiscovery, readDiscovery, readyPending, restorePending } from "./pipeline/discovery.ts";
 import { publishPendingPhotos } from "./pipeline/recommendations.ts";
 import { recipeDescriptions } from "./pipeline/sources.ts";
+import { publicationDate } from "./pipeline/publish-policy.ts";
 
 // 별도 AI 키를 읽거나 원고·사진·상품 검색을 호출하지 않는다.
-const date = new Date().toISOString().slice(0, 10);
+const date = publicationDate(new Date());
 const target = "src/data/content/foods.json";
 const current = parseContent(JSON.parse(await readFile(target, "utf8")));
 let state = emptyDiscovery();

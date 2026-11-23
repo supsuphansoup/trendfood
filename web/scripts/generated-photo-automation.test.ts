@@ -65,11 +65,11 @@ test("출처·판별·크롭을 통과한 생성 결과만 별도 등록하고 K
   assert.equal(saved.at(-1)!.attempts[0].status, "generated");
   const meta = await sharp(result.bytes).metadata();
   assert.equal(meta.width, 1200); assert.equal(meta.height, 800); assert.equal(meta.format, "webp");
-  await assert.rejects(generate(food, reference, bytes), /1회 한도/);
+  await assert.rejects(generate(food, reference, bytes), /오늘 이미 처리/);
   assert.equal(imageDate(new Date("2026-11-23T15:00:00Z")), "2026-11-24");
 });
 
-test("실패·판별 탈락 후에도 기록을 복원하면 같은 날 다시 생성하지 않는다", async () => {
+test("API 오류는 재시도하지 않고 품질 탈락은 최대 두 번 차감하며 복원 후 한도를 유지한다", async () => {
   for (const failure of ["api", "match", "referenceMatches", "recipeMatches", "presentationSuitable", "noText", "confidence"]) {
     const state: ImageState = { version: 1, attempts: [] };
     let calls = 0;
@@ -79,8 +79,9 @@ test("실패·판별 탈락 후에도 기록을 복원하면 같은 날 다시 �
     };
     await assert.rejects(generatedPhotoFactory(options)(food, reference, bytes));
     assert.equal(state.attempts[0].status, failure === "api" ? "failed" : "rejected");
-    await assert.rejects(generatedPhotoFactory({ ...options, state: readImageState(JSON.parse(JSON.stringify(state))) })(food, reference, bytes), /1회 한도/);
-    assert.equal(calls, 1);
+    await assert.rejects(generatedPhotoFactory({ ...options, state: readImageState(JSON.parse(JSON.stringify(state))) })(food, reference, bytes), /2회 한도|오늘 이미 처리/);
+    assert.equal(calls, failure === "api" ? 1 : 2);
+    assert.equal(state.attempts.length, calls);
   }
 });
 
@@ -111,15 +112,47 @@ test("참고 사진이 없어도 검증된 설명으로 생성하고 사진 출�
   const result = await generate(food);
   assert.equal(result.record.basis, "description"); assert.equal(result.record.reference, undefined);
   assert.match(result.record.note, /참고 사진 없이/); assert.doesNotMatch(result.record.note, /CC BY/);
-  await assert.rejects(generate(food, reference, bytes), /1회 한도/); assert.equal(calls, 1);
+  await assert.rejects(generate(food, reference, bytes), /오늘 이미 처리/); assert.equal(calls, 1);
   for (const failure of ["match", "recipeMatches", "presentationSuitable", "noText", "confidence"]) {
     const state: ImageState = { version: 1, attempts: [] };
     const generate = generatedPhotoFactory({ state, now, saveState: async () => {}, edit: async () => bytes,
       inspect: async () => ({ ...approved, [failure]: failure === "confidence" ? 0.94 : false }),
     });
     await assert.rejects(generate(food), /판별 보류/); assert.equal(state.attempts[0].status, "rejected");
-    await assert.rejects(generate(food), /1회 한도/);
+    await assert.rejects(generate(food), /2회 한도/);
   }
+});
+
+test("세 음식이 각각 첫 품질 검사에서 탈락해도 사유를 보완해 모두 생성하며 총 6회에서 멈춘다", async () => {
+  const state: ImageState = { version: 1, attempts: [] };
+  let calls = 0;
+  const generate = generatedPhotoFactory({ state, now, saveState: async () => {},
+    edit: async (prompt) => {
+      calls++;
+      if (calls % 2 === 0) assert.match(prompt, /검사 지적.*모바일에서 접시가 잘림/);
+      else assert.doesNotMatch(prompt, /이전 생성 결과의 검사/);
+      return bytes;
+    },
+    inspect: async () => calls % 2 ? { ...approved, presentationSuitable: false, reason: "모바일에서 접시가 잘림" } : approved,
+  });
+  for (let index = 0; index < 3; index++) {
+    const result = await generate({ ...food, slug: `new-food-${index}` });
+    assert.equal(result.record.slug, `new-food-${index}`);
+    assert.match(result.record.prompt, /모바일에서 접시가 잘림/);
+  }
+  assert.equal(calls, 6);
+  assert.deepEqual(state.attempts.map((item) => item.status), ["rejected", "generated", "rejected", "generated", "rejected", "generated"]);
+  await assert.rejects(generate({ ...food, slug: "fourth-food" }), /총|요청 6회/);
+  assert.equal(calls, 6);
+});
+
+test("생성 세 장이 첫 시도에 통과하면 남은 요청 예산으로 네 번째 음식을 만들지 않는다", async () => {
+  const state: ImageState = { version: 1, attempts: [] };
+  let calls = 0;
+  const generate = generatedPhotoFactory({ state, now, saveState: async () => {}, edit: async () => { calls++; return bytes; }, inspect: async () => approved });
+  for (let index = 0; index < 3; index++) await generate({ ...food, slug: `food-${index}` });
+  await assert.rejects(generate({ ...food, slug: "food-four" }), /하루 이미지 생성 3개/);
+  assert.equal(calls, 3);
 });
 
 test("기록 저장 실패·비허용 출처·실사 보유 음식은 유료 API를 호출하지 않는다", async () => {

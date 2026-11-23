@@ -43,7 +43,7 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 60 # 신규 3개와 사진 품질 보완·전체 검사 시간을 확보한다.
     outputs:
       changed: ${{ steps.save.outputs.changed }}
       revision: ${{ steps.save.outputs.revision }}
@@ -112,7 +112,7 @@ jobs:
           path: web/data/image-generation-reservation.json
           key: ${{ steps.image_day.outputs.key }}
           lookup-only: true
-      - name: 유료 호출 전에 일일 예약 보존 (중단·실패도 당일 추가 생성 금지)
+      - name: 유료 호출 전에 일일 예약 보존 (중단·실패 후 당일 중복 실행 금지)
         if: steps.image_day.outputs.key != '' && steps.image_reservation.outputs.cache-hit != 'true'
         uses: actions/cache/save@v4
         with:
@@ -269,7 +269,8 @@ jobs:
           for (const [path, label] of [['data/automation-report.json', '음식 검증'], ['data/recommendation-report.json', '공개 추천'], ['data/photo-report.json', '사진'], ['data/coupang-report.json', '쿠팡 제휴 링크'], ['data/product-link-report.json', '일반 상품 링크']]) {
             if (!fs.existsSync(path)) continue;
             const report = JSON.parse(fs.readFileSync(path, 'utf8'));
-            if (report.generated) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `AI 생성: ${report.generated.length}개 · 하루 최대 1회 (실패도 차감)\n\n${report.generated.map(item => `- 생성·검증 통과: ${item.name}`).join('\n')}\n\n`);
+            if (report.generated) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `AI 생성: ${report.generated.length}개 · 하루 ${report.imageGeneration.foodLimit}개 · 음식당 ${report.imageGeneration.attemptsPerFood}회 · 총 ${report.imageGeneration.dailyLimit}회 이내 (실패도 차감)\n\n${report.generated.map(item => `- 생성·검증 통과: ${item.name}`).join('\n')}\n\n`);
+            if (report.publication) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `오늘 신규 공개 대상: ${report.publication.publishedToday}/${report.publication.target}개 · 부족 ${report.publication.shortfall}개${report.publication.shortfall ? ' (검증 원고 부족·아래 보류 사유 확인)' : ''} · 전체 검사·저장·배포 성공 후 공개\n\n`);
             if (report.reason) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label}: ${report.reason}\n\n`);
             fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `${label} 자동 검증 결과: 적용 가능 ${report.accepted.length}개 · 보류 ${report.deferred.length}개\n\n${report.accepted.map(item => `- 적용: ${item.name}`).join('\n')}\n${report.deferred.map(item => `- 보류: ${item.name}: ${item.reason}`).join('\n')}\n`);
           }

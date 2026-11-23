@@ -73,9 +73,10 @@ const matchSchema = {
 };
 type Generate = (prompt: string, schema: Record<string, unknown>, images?: { mimeType: "image/webp"; data: string }[]) => Promise<unknown>;
 type Dependencies = { generate: Generate; search: typeof searchPhotos; download: (candidate: PhotoCandidate) => Promise<Buffer>;
+  publication?: { prioritySlugs: string[]; slots: number };
   illustrate?: (food: ContentFood, reference?: PhotoCredit, bytes?: Buffer) => Promise<{ key: string; record: GeneratedImage; bytes: Buffer }> };
 
-export function photoBatch(foods: ContentFood[], now: Date, limit = 5): ContentFood[] {
+export function photoBatch(foods: ContentFood[], now: Date, limit = 5, prioritySlugs: string[] = []): ContentFood[] {
   // 수동 실사·업로드 사진은 보존하고 등록된 생성 예시만 실사 교체를 시도한다.
   const pending = foods.filter((food) => [food.image, ...(food.heroImage ? [food.heroImage] : [])]
     .every((key) => key === "pending" || generatedImages[key]?.slug === food.slug));
@@ -86,7 +87,9 @@ export function photoBatch(foods: ContentFood[], now: Date, limit = 5): ContentF
     return [...items.slice(start), ...items.slice(0, start)];
   };
   const empty = pending.filter((food) => food.image === "pending" || food.heroImage === "pending");
-  return [...rotate(empty), ...rotate(pending.filter((food) => !empty.includes(food)))].slice(0, count);
+  const priority = prioritySlugs.flatMap((slug) => pending.filter((food) => food.slug === slug));
+  return [...priority, ...rotate(empty), ...rotate(pending.filter((food) => !empty.includes(food)))]
+    .filter((food, index, items) => items.indexOf(food) === index).slice(0, count);
 }
 
 /** 검증된 실사로 빈 사진·생성 예시를 교체하고, 실패하면 기존 표시를 보존한다. */
@@ -101,7 +104,12 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
   const deferred: { name: string; reason: string; retainedGenerated: boolean }[] = [];
   const references: { food: ContentFood; credit?: PhotoCredit; bytes?: Buffer; deferred: (typeof deferred)[number] }[] = [];
   const used = new Set(Object.values(registered).map((credit) => credit.url));
-  for (const food of photoBatch(snapshot.foods, now, limit)) {
+  const prioritySlugs = dependencies.publication?.prioritySlugs ?? [];
+  const priority = new Set(prioritySlugs);
+  const readyNew = () => snapshot.foods.filter((food) => priority.has(food.slug) && food.image !== "pending" && food.heroImage !== "pending").length;
+  const filled = () => dependencies.publication !== undefined && readyNew() >= dependencies.publication.slots;
+  for (const food of photoBatch(snapshot.foods, now, limit, prioritySlugs)) {
+    if (priority.has(food.slug) && filled()) continue;
     const previousImage = food.image;
     const retainedGenerated = !!(generatedImages[food.image] || generatedImages[food.heroImage ?? ""]);
     try {
@@ -182,16 +190,21 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
       if (food.image === "pending") references.push({ food, deferred: item });
     }
   }
-  // 실사 검색을 모두 끝낸 뒤 유료 생성을 한 번만 시도한다. 이후 검색 오류로 생성 파일을 잃지 않는다.
-  const reference = references.find((item) => item.credit) ?? references[0];
-  if (reference && dependencies.illustrate) {
+  // 실사 검색을 먼저 마친 뒤 게시할 새 음식부터 생성한다. 한 음식의 탈락이 나머지를 막지 않는다.
+  const ordered = [...references].sort((a, b) => Number(priority.has(b.food.slug)) - Number(priority.has(a.food.slug)) ||
+    (priority.has(a.food.slug) && priority.has(b.food.slug) ? prioritySlugs.indexOf(a.food.slug) - prioritySlugs.indexOf(b.food.slug) : Number(!!b.credit) - Number(!!a.credit)));
+  for (const reference of ordered) {
+    if (!dependencies.illustrate || (priority.has(reference.food.slug) && filled())) continue;
     try {
       const result = await dependencies.illustrate(reference.food, reference.credit, reference.bytes);
       generated[result.key] = result.record; generatedAssets.set(result.key, result.bytes);
       reference.food.image = result.key; reference.food.alt = result.record.title;
       delete reference.food.heroImage; delete reference.food.heroAlt;
       deferred.splice(deferred.indexOf(reference.deferred), 1);
-    } catch (error) { reference.deferred.reason = error instanceof Error ? error.message : "음식 이미지 생성 실패"; }
+    } catch (error) {
+      if (error instanceof AiQuotaError) throw error;
+      reference.deferred.reason = error instanceof Error ? error.message : "음식 이미지 생성 실패";
+    }
   }
   return { snapshot, credits, assets, accepted, deferred, generated, generatedAssets };
 }

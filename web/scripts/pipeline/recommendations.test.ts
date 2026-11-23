@@ -10,6 +10,7 @@ import { generatedImages } from "../../src/data/generated-images.ts";
 import { publishPendingPhotos, refreshRecommendations } from "./recommendations.ts";
 import { emptyDiscovery } from "./discovery.ts";
 import type { Scored } from "./logic.ts";
+import { publicationDate, publicationSlots } from "./publish-policy.ts";
 
 const raw = JSON.parse(await readFile(new URL("../../src/data/content/foods.json", import.meta.url), "utf8"));
 
@@ -179,6 +180,46 @@ test("같은 날 재실행은 순서·신규 표시를 유지하고 다음 날�
   assert.throws(() => refreshRecommendations(next, { baseline: next, signals: [], date: "2026-11-15" }), /이전 날짜/);
 });
 
+test("복원 원고와 신규 원고가 섞여도 하루 세 개만 게시하고 같은 날 재실행에서 초과하지 않는다", () => {
+  const current = baseline();
+  const source = current.foods.find((food) => !generatedImages[food.image] && !generatedImages[food.heroImage ?? ""])!;
+  const drafts = Array.from({ length: 6 }, (_, index) => ({ ...structuredClone(source), slug: `daily-food-${index}`, name: `신규 검증 음식 ${index}`,
+    publishedAt: undefined, checkedAt: index < 3 ? "2026-11-15" : date }));
+  const staged = { ...current, foods: [...current.foods, ...drafts] };
+  const first = refreshRecommendations(staged, { baseline: current, signals: [], date });
+  assert.deepEqual(first.snapshot.recommendation!.newSlugs, drafts.slice(3).map((food) => food.slug));
+  assert.equal(first.snapshot.foods.length, current.foods.length + 3);
+  assert.equal(first.deferred.length, 3);
+  assert.ok(first.deferred.every((item) => item.reason.includes("하루 신규 음식 3개 한도")));
+  const rerun = refreshRecommendations({ ...first.snapshot, foods: [...first.snapshot.foods, ...drafts.slice(0, 3)] }, { baseline: first.snapshot, signals: [], date });
+  assert.deepEqual(rerun.snapshot, first.snapshot);
+  assert.equal(rerun.deferred.length, 3);
+  const next = refreshRecommendations({ ...first.snapshot, foods: [...first.snapshot.foods, ...drafts.slice(0, 3)] }, { baseline: first.snapshot, signals: [], date: "2026-11-17" });
+  assert.equal(next.snapshot.foods.length, current.foods.length + 6);
+  assert.deepEqual(next.snapshot.recommendation!.newSlugs, drafts.slice(0, 3).map((food) => food.slug));
+});
+
+test("사진이 확보된 신규 한 개가 이미 있으면 나머지 두 자리만 채우고 기존 음식 보강은 계속 반영한다", () => {
+  const current = baseline();
+  const first = refreshRecommendations(incoming(current, true), { baseline: current, signals: [], date }).snapshot;
+  const source = current.foods.find((food) => !generatedImages[food.image] && !generatedImages[food.heroImage ?? ""])!;
+  const drafts = Array.from({ length: 3 }, (_, index) => ({ ...structuredClone(source), slug: `remaining-${index}`, name: `나머지 음식 ${index}`, publishedAt: undefined, checkedAt: date }));
+  const staged = { ...first, foods: [...first.foods.map((food) => food.slug === source.slug ? { ...food, tip: "보강한 조리 팁" } : food), ...drafts] };
+  const result = refreshRecommendations(staged, { baseline: first, signals: [], date });
+  assert.equal(result.snapshot.recommendation!.newSlugs.length, 3);
+  assert.equal(result.snapshot.foods.find((food) => food.slug === source.slug)!.tip, "보강한 조리 팁");
+  assert.equal(result.deferred.length, 1);
+});
+
+test("한국 자정을 기준으로 게시 한도를 초기화하고 UTC 날짜 변경만으로 세 자리를 다시 허용하지 않는다", () => {
+  const current = baseline();
+  const source = current.foods.find((food) => !generatedImages[food.image] && !generatedImages[food.heroImage ?? ""])!;
+  current.foods.push(...Array.from({ length: 3 }, (_, index) => ({ ...source, slug: `kst-${index}`, name: `한국 날짜 음식 ${index}`, publishedAt: "2026-11-16" })));
+  assert.equal(publicationDate(new Date("2026-11-15T15:01:00Z")), "2026-11-16");
+  assert.equal(publicationSlots(current, publicationDate(new Date("2026-11-16T00:01:00Z"))), 0);
+  assert.equal(publicationSlots(current, publicationDate(new Date("2026-11-16T15:01:00Z"))), 3);
+});
+
 test("추천 메타데이터는 잘못된 날짜·주소·근거·신규 표시를 거부한다", () => {
   const current = baseline();
   for (const recommendation of [
@@ -208,4 +249,5 @@ test("추천 반영 CLI는 API 키 없이 검증된 입력을 읽어 저장하�
   const report = JSON.parse(await readFile(join(temporary, "data/recommendation-report.json"), "utf8"));
   assert.equal(report.accepted.length, 0);
   assert.equal(report.deferred.length, 1);
+  assert.deepEqual(report.publication, { target: 3, publishedToday: 0, shortfall: 3 });
 });

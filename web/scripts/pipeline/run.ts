@@ -17,6 +17,7 @@ import { type ContentCandidate, draftSnapshot } from "./content.ts";
 import { parseContent } from "../../src/data/content.ts";
 import { automaticUpdate } from "./autopublish.ts";
 import { discoverVideos, emptyDiscovery, followCandidates, readDiscovery, readyPending, restorePending, retainPending } from "./discovery.ts";
+import { publicationDate } from "./publish-policy.ts";
 
 const env = process.env;
 const compareModels = env.PIPELINE_COMPARE_MODELS === "true";
@@ -72,7 +73,7 @@ async function main() {
       log("DB 없음 → 30일 정리 건너뜀");
     }
 
-    const date = new Date().toISOString().slice(0, 10);
+    const date = publicationDate(new Date());
     const target = new URL("../../src/data/content/foods.json", import.meta.url);
     const baseline = parseContent(JSON.parse(await readFile(target, "utf8")));
     let discovery = emptyDiscovery();
@@ -258,7 +259,7 @@ async function main() {
       }, date);
       const preview = process.argv.includes("--dry-run");
       if (!preview) await atomicJson("data/recommendation-input.json", { baseline, signals: scored, date });
-      await atomicJson("data/automation-report.json", { checkedAt: new Date().toISOString().slice(0, 10), preview, accepted: result.accepted, deferred: result.deferred });
+      await atomicJson("data/automation-report.json", { checkedAt: date, preview, accepted: result.accepted, deferred: result.deferred });
       if (!preview) {
         await atomicJson(discoveryPath, retainPending(discovery, result.snapshot, baseline, date));
         if (result.accepted.length || discovery.pending.length) await atomicJson(target, result.snapshot);

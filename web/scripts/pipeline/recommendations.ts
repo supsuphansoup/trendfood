@@ -4,6 +4,7 @@ import type { Scored } from "./logic.ts";
 import { generatedImages } from "../../src/data/generated-images.ts";
 import { readyPending, restorePending, type DiscoveryState } from "./discovery.ts";
 import type { RecipeVideo } from "./sources.ts";
+import { DAILY_NEW_FOOD_LIMIT, publicationCandidates, publicationSlots } from "./publish-policy.ts";
 
 export type RecommendationInput = { baseline: ContentSnapshot; signals: Scored[]; date: string };
 
@@ -18,7 +19,7 @@ export async function publishPendingPhotos(current: ContentSnapshot, state: Disc
   const published = new Set(result.snapshot.foods.map((food) => food.slug));
   return { ...result, accepted,
     deferred: state.pending.filter(({ food }) => !published.has(food.slug)).map(({ food }) => ({ name: food.name, slug: food.slug,
-      reason: eligible.pending.some((item) => item.food.slug === food.slug) ? "최근 제작자·원문 근거 재확인 미통과" : "등록한 생성 예시 사진 없음" })),
+      reason: result.deferred.find((item) => item.slug === food.slug)?.reason ?? (eligible.pending.some((item) => item.food.slug === food.slug) ? "최근 제작자·원문 근거 재확인 미통과" : "등록한 생성 예시 사진 없음") })),
   };
 }
 
@@ -41,6 +42,11 @@ export function refreshRecommendations(current: ContentSnapshot, input: Recommen
     (food.image === "pending" || food.heroImage === "pending"))
     .map((food) => ({ name: food.name, slug: food.slug, reason: "게시 가능한 음식 사진 미확보" }));
   const blocked = new Set(deferred.map((food) => food.slug));
+  const ready = publicationCandidates(current, baseline).filter((food) => !blocked.has(food.slug));
+  for (const food of ready.slice(publicationSlots(baseline, date))) {
+    blocked.add(food.slug);
+    deferred.push({ name: food.name, slug: food.slug, reason: `하루 신규 음식 ${DAILY_NEW_FOOD_LIMIT}개 한도: 다음 실행에서 원문 재확인 후 게시` });
+  }
   const foods = current.foods.filter((food) => !blocked.has(food.slug));
   const edition = current.recommendation?.date === date ? current : baseline;
   const sameDay = edition.recommendation?.date === date;
