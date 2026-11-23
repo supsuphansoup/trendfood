@@ -12,7 +12,7 @@ import { appendGeneratedPhotos, editReference, generatedPhotoFactory, imageDate,
 import { imageReservationSaved, releaseUnusedImageReservation } from "./check-image-reservation.ts";
 
 const snapshot = JSON.parse(await readFile(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
-const food = { ...snapshot.foods[0], slug: "test-food", image: "pending", heroImage: undefined };
+const food = { ...snapshot.foods[0], slug: "test-food", image: "pending", heroImage: undefined, summary: '원문에서 "특별한 음식"으로 소개했어요.\n소개와 같은 모습이에요.' };
 const reference: PhotoCredit = { title: "Test food", author: "작가", url: "https://commons.wikimedia.org/wiki/File:Test_food.jpg", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Test.jpg", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", verifiedAt: "2026-11-23", note: "" };
 const now = new Date("2026-11-22T23:00:00Z");
 const bytes = await sharp({ create: { width: 1536, height: 1024, channels: 3, background: "orange" } }).webp().toBuffer();
@@ -97,7 +97,9 @@ test("참고 사진이 없어도 검증된 설명으로 생성하고 사진 출�
   const generate = generatedPhotoFactory({ state, now, saveState: async () => {},
     edit: async (prompt, original) => {
       calls++; assert.equal(original, undefined); assert.match(prompt, /참고 사진은 없어요/);
-      assert.ok(prompt.includes(food.summary)); assert.equal(state.attempts[0].status, "reserved"); return bytes;
+      assert.equal(JSON.parse(prompt.split("\n").at(-1)!).summary, food.summary);
+      assert.match(prompt, /별도의 치즈 토핑을 의미하지/); assert.match(prompt, /가로 44%·세로 56%/);
+      assert.equal(state.attempts[0].status, "reserved"); return bytes;
     },
     inspect: async (prompt, schema, images) => {
       assert.equal(images?.length, 3); assert.match(prompt, /설명만으로 일치를 판단할 수 없으면 거절/);
@@ -129,6 +131,8 @@ test("기록 저장 실패·비허용 출처·실사 보유 음식은 유료 API
   await assert.rejects(generatedPhotoFactory(options)(food, reference, bytes), /디스크 실패/);
   await assert.rejects(generatedPhotoFactory(options)({ ...food, image: "photo-existing" }, reference, bytes), /빈 대표 사진/);
   await assert.rejects(generatedPhotoFactory(options)(food, { ...reference, imageUrl: "https://localhost/a.webp" }, bytes), /출처/);
+  await assert.rejects(generatedPhotoFactory(options)({ ...food, summary: " " }), /검증된 음식 설명/);
+  await assert.rejects(generatedPhotoFactory(options)(food, reference), /출처/);
   assert.equal(calls, 0);
   for (const value of [null, {}, { version: 1, attempts: [{}] }, { version: 1, attempts: [{ date: "2026-11-23", slug: "test", reference: "url", status: "unknown" }] }]) assert.throws(() => readImageState(value), /호출 기록/);
 });
