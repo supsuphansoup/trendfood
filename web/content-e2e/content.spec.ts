@@ -42,8 +42,7 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   await expect(page.getByLabel("추천과 출처 안내")).not.toHaveAttribute("open");
   await expect(page.getByRole("link", { name: /재료 \d+개 담기|레시피 보기/ })).toHaveCount(0);
   if (snapshot.recommendation?.basis === "rotation" && snapshot.foods[0].history) await expect(feature.getByText(/^다시 보는 유행/)).toBeVisible();
-  // 모바일에서 음식과 행동 뒤에 탐색 메뉴까지 첫 화면에 진입해야 한다.
-  expect((await page.getByRole("region", { name: "필터 설정" }).boundingBox())!.y).toBeLessThan(info.project.name === "mobile" ? 720 : 650);
+  await expect(page.getByRole("link", { name: "음식 둘러보기", exact: true })).toBeInViewport({ ratio: 1 });
   await page.screenshot({ path: `test-results/content/discovery-home-${info.project.name}.png` });
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   const notes = page.getByLabel("추천과 출처 안내");
@@ -88,7 +87,7 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
 test("자취 요리 카테고리: 비유행 레시피만 모으고 연도·주소·상세·순위 복귀를 유지한다", async ({ page }, info) => {
   await page.goto("/");
   const original = await page.locator("#list li h3").allTextContents();
-  const featureTitle = await page.getByRole("heading", { level: 1 }).textContent();
+  const featureTitle = page.getByRole("region", { name: "오늘의 음식", exact: true }).getByRole("heading", { level: 2 });
   const recipes = snapshot.foods.filter((food) => !food.history?.years.length && (!food.kind || food.kind === "recipe"));
   expect(recipes.length).toBeGreaterThan(0);
   await page.goto("/?collection=trends&year=2026");
@@ -103,7 +102,7 @@ test("자취 요리 카테고리: 비유행 레시피만 모으고 연도·주�
   await expect(categories.getByRole("button", { name: /^전체/ })).toHaveText(`전체${snapshot.foods.length}`);
   await expect(page).toHaveURL(/collection=everyday/);
   await expect(page).not.toHaveURL(/year=|cat=/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(featureTitle!);
+  await expect(featureTitle).toHaveText(snapshot.foods[0].name);
   await page.getByRole("button", { name: "필터", exact: true }).click();
   await expect(page.getByRole("navigation", { name: "유행 연도", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "필터", exact: true }).click();
@@ -174,25 +173,23 @@ test("재검토 사진은 카드와 상세에서 같은 실사·출처로 표시
 
 test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ page }, info) => {
   await page.goto("/");
-  await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
-  await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "오늘의 음식", exact: true }).getByRole("link", { name: "음식 살펴보기", exact: true })).toBeInViewport();
-  await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "오늘의 음식", exact: true })).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  const intro = page.getByRole("main").getByRole("heading", { level: 1 });
+  await expect(intro).toHaveText("유행 음식부터 집밥 레시피까지", { useInnerText: true });
+  await expect(intro).toBeInViewport({ ratio: 1 });
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
+  await expect(feature.getByRole("link", { name: "음식 살펴보기", exact: true })).toHaveAttribute("href", `/food/${snapshot.foods[0].slug}`);
   await expect(feature.locator("figcaption")).toHaveCount(0);
   await expect(feature.getByText(/^(AI 생성 예시|참고 사진)$/)).toHaveCount(0);
   await expect(feature.locator("figure img").last()).toBeVisible();
   await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
-  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(201, 49, 53)");
-  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("font-size", info.project.name === "desktop" ? "64px" : "36px");
+  await expect(feature.getByRole("heading", { level: 2 })).toHaveText(snapshot.foods[0].name);
   const notesBox = (await page.getByLabel("추천과 출처 안내").boundingBox())!;
   const featureBox = (await feature.boundingBox())!;
   expect(notesBox.y).toBeGreaterThanOrEqual(featureBox.y + featureBox.height);
-  await page.screenshot({ path: `test-results/content/hierarchy-home-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/content/intro-home-${info.project.name}.png` });
   await page.getByText("AI 안내·출처 정보", { exact: true }).click();
   await page.getByRole("button", { name: "필터", exact: true }).click();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText(snapshot.foods[0].name);
+  await expect(feature.getByRole("heading", { level: 2 })).toHaveText(snapshot.foods[0].name);
   if (snapshot.recommendation) {
     await expect(page.getByTestId("recommendation-edition")).toContainText(`추천 갱신 ${snapshot.recommendation.date}`);
     if (snapshot.recommendation.basis === "rotation") {

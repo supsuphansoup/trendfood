@@ -307,7 +307,7 @@ async function expectNoA11yViolations(page: Page) {
 test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
+  await expect(page.getByRole("region", { name: "오늘의 1위", exact: true }).getByRole("heading", { level: 2 })).toHaveText("두바이 초콜릿");
   expect(await cardTitles(page)).toHaveLength(9);
   await expect(page.getByLabel("광고")).toHaveCount(1);
 
@@ -391,50 +391,49 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
 });
 
-test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조하고 선호 배치를 유지한다", async ({ page }, info) => {
+test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 상세에 연결된다", async ({ page }, info) => {
   await page.goto("/");
-  await expect(page.getByText("요즘 눈길 가는 맛.", { exact: true })).toHaveCount(0);
-  await expect(page.getByText("궁금했던 유행 음식부터 직접 만들어 볼 레시피까지.", { exact: true })).toHaveCount(0);
+  const intro = page.getByRole("main").getByRole("heading", { level: 1 });
+  await expect(intro).toHaveText("유행 음식부터 집밥 레시피까지", { useInnerText: true });
+  await expect(intro).toBeInViewport({ ratio: 1 });
+  await expect(page.getByText(/어떤 음식이 왜 유행했는지 보고.*재료와 조리법/)).toBeInViewport({ ratio: 1 });
+  const browse = page.getByRole("link", { name: "음식 둘러보기", exact: true });
+  await expect(browse).toBeInViewport({ ratio: 1 });
+  await expect(browse).toHaveCSS("background-color", "rgb(201, 49, 53)");
+  expect((await browse.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
-  const header = (await page.getByRole("banner").boundingBox())!;
   const featureBox = (await feature.boundingBox())!;
-  expect(featureBox.y - (header.y + header.height)).toBeLessThanOrEqual(32);
-  const photo = feature.getByRole("img").last();
-  await expect(photo).toBeVisible();
+  const photo = feature.getByRole("img");
+  await expect(photo).toBeInViewport();
   await expect(photo).toHaveCSS("object-fit", "contain");
   await expect(photo).toHaveCSS("object-position", "50% 50%");
   await expect(feature.locator("figure img")).toHaveCount(1);
   await expect(feature.locator("figcaption")).toHaveCount(0);
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;
-  const titleBox = (await feature.getByRole("heading", { level: 1 }).boundingBox())!;
-  if (info.project.name === "desktop") expect(imageBox.x).toBeGreaterThan(titleBox.x + titleBox.width);
-  else expect(imageBox.y + imageBox.height).toBeLessThanOrEqual(titleBox.y);
-  await expect(page.getByRole("region", { name: "함께 둘러볼 음식" })).toHaveCount(0);
-  await expect(page.locator("body")).toHaveCSS("background-color", "rgb(255, 255, 255)");
-  await expect(feature).toHaveCSS("background-color", "rgb(255, 255, 255)");
-  await expect(feature.locator("figure")).toHaveCSS("padding", "0px");
-  await expect(feature.locator("figure > div")).toHaveCSS("border-radius", "8px");
-  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("color", "rgb(201, 49, 53)");
-  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("font-size", info.project.name === "desktop" ? "64px" : "36px");
+  const introBox = (await intro.boundingBox())!;
+  if (info.project.name === "desktop") expect(imageBox.x).toBeGreaterThan(introBox.x + introBox.width);
+  else expect(imageBox.y).toBeGreaterThan(introBox.y + introBox.height);
+  const title = feature.getByRole("heading", { level: 2, name: "두바이 초콜릿" });
+  expect((await title.boundingBox())!.y).toBeGreaterThanOrEqual(imageBox.y + imageBox.height);
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "음식 살펴보기", exact: true });
-  await expect(cta).toHaveCSS("background-color", "rgb(201, 49, 53)");
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-  await expect(cta).toBeInViewport();
+  await expect(cta).toHaveAttribute("href", "/food/dubai-chocolate");
   await expect(feature.getByTestId("feature-description")).toHaveCSS("font-size", "18px");
   const notes = page.getByLabel("추천과 출처 안내");
   await expect(notes).toHaveCSS("font-size", "14px");
   // 주목할 음식과 출처·추천 정보의 영역이 겹치지 않아야 한다.
   expect((await notes.boundingBox())!.y).toBeGreaterThanOrEqual(featureBox.y + featureBox.height);
-  await expect(feature.getByRole("heading", { level: 1 })).toHaveCSS("font-weight", "800");
-  await page.screenshot({ path: `test-results/hierarchy-home-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/intro-home-${info.project.name}.png` });
   await cta.click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
   await page.goto("/");
-  await page.getByRole("link", { name: "음식 둘러보기", exact: true }).click();
+  await browse.press("Enter");
+  await expect(page).toHaveURL(/#list$/);
+  await expect(page.locator("#list")).toBeFocused();
   const firstCard = page.locator(".food-grid > li").first();
   // 홈은 음식 탐색에 집중하고 조리법·구매는 상세에서 이어진다.
   const explore = firstCard.getByRole("link", { name: "음식 살펴보기", exact: true });
@@ -458,7 +457,7 @@ test("시각 위계: 흰 면의 큰 레드 음식명과 넓은 사진을 강조�
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {
   await page.goto("/");
   const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
-  const name = await feature.getByRole("heading", { level: 1 }).innerText();
+  const name = await feature.getByRole("heading", { level: 2 }).innerText();
   const featurePhoto = feature.getByRole("link", { name: `${name} 상세 보기`, exact: true });
   const featureHref = await featurePhoto.getAttribute("href");
   await featurePhoto.getByRole("img").click();
@@ -605,7 +604,7 @@ test("자취 요리 탭: 순위와 분리하고 주소·검색·기본 목록 �
   expect(await cardTitles(page)).toContain("치킨마요 덮밥");
   expect(await cardTitles(page)).not.toContain("계란 파 라면"); // 소개 전용 예시는 제외한다.
   await expect(page.locator("#list").getByText("순위", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("region", { name: "오늘의 1위", exact: true }).getByRole("heading", { level: 1 })).toHaveText("두바이 초콜릿");
+  await expect(page.getByRole("region", { name: "오늘의 1위", exact: true }).getByRole("heading", { level: 2 })).toHaveText("두바이 초콜릿");
   await page.reload();
   await expect(everyday).toHaveAttribute("aria-current", "true");
   await page.getByRole("searchbox").fill("치킨마요");

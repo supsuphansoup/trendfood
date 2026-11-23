@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowDown,
   ArrowUp,
   ArrowUpRight,
   ChevronDown,
@@ -88,7 +89,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const pantry = useStoredSet(PANTRY_KEY);
   const need = useStoredSet("tf:need");
   const [pantryActive, setPantryActive] = useState(false);
-  const listRef = useRef<HTMLElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
   // 처음 열 때 주소의 필터를 읽는다
@@ -289,34 +290,40 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
           </div>
       </header>
 
-      <section aria-label="유행 음식 탐색" className="mx-auto w-full max-w-[1200px] px-5 pt-4 pb-3 md:pt-7 md:pb-4">
-        <section aria-label={curated ? "오늘의 음식" : "오늘의 1위"} className={cn("bg-feature-surface text-foreground", top.imageAvailable && "grid gap-3 md:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)] md:gap-10")}>
-          <div className="flex flex-col items-start gap-3 md:justify-center md:gap-5 md:py-4">
-            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-meta font-bold text-foreground">
-              <span>{curated ? recommendation?.basis === "new" ? "새로 소개하는 음식" : recommendation?.basis === "trend" ? "검색 흐름으로 살펴본 음식" : top.history ? "다시 보는 유행" : "오늘 살펴볼 음식" : "오늘 가장 많이 찾은 음식, 1위"}</span>
-              {top.history && <span className="font-medium text-muted-foreground">{top.history.years.map((year) => `${year}년`).join(" · ")}</span>}
+      <main>
+      <div className="mx-auto w-full max-w-[1200px] px-5 pt-4 pb-2 md:pt-7">
+        <div className="grid gap-4 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] md:gap-6">
+          <div className="flex flex-col items-start justify-center gap-4 rounded-feature border-t-4 border-primary bg-accent-soft px-5 py-5 md:px-7 md:py-8 lg:gap-6 lg:px-9">
+            <h1 className="text-intro-mobile leading-[1.06] font-black tracking-[-0.055em] text-primary lg:text-intro xl:text-stage-title">
+              유행 음식부터<br />집밥 레시피까지
+            </h1>
+            <p className="max-w-[22em] text-base leading-relaxed text-body lg:text-reading">
+              어떤 음식이 왜 유행했는지 보고, 집에서 만들고 싶은 메뉴의 재료와 조리법을 찾아보세요.
             </p>
-            <h1 className="text-stage-mobile leading-[1.12] font-extrabold tracking-[-0.035em] text-primary md:text-stage-tablet lg:text-stage-title">{top.name}</h1>
-            <p data-testid="feature-description" className="max-w-[30em] text-reading leading-[1.65] text-body">{(top.history?.note ?? top.why).split(/(?<=[.!?])\s+/)[0]}</p>
-            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <Link
-                href={`/food/${top.slug}`}
-                className="inline-flex min-h-11 items-center justify-center rounded-lg bg-primary px-5 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground md:min-h-12 md:px-6"
-              >
-                음식 살펴보기
-              </Link>
-              <a href="#list" className="inline-flex min-h-11 items-center gap-1.5 text-base font-bold text-foreground hover:text-accent">음식 둘러보기 <ArrowUpRight className="size-4" aria-hidden /></a>
-            </div>
+            <a href="#list" className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 text-base font-bold text-primary-foreground hover:bg-destructive hover:text-primary-foreground md:min-h-12 md:px-5">
+              음식 둘러보기 <ArrowDown className="size-4" aria-hidden />
+            </a>
           </div>
-          {top.imageAvailable && <figure className="order-first min-w-0 md:order-none md:self-center">
-            <div className="overflow-hidden rounded-photo bg-secondary">
-              <Link href={`/food/${top.slug}`} aria-label={`${top.name} 상세 보기`} className="block">
-                <FoodImage food={top} hero fullFrame preload sizes="(max-width: 767px) 100vw, 640px" />
+          <section aria-label={curated ? "오늘의 음식" : "오늘의 1위"} className="min-w-0 self-center bg-feature-surface text-foreground">
+            {top.imageAvailable && <figure className="overflow-hidden rounded-photo bg-secondary">
+              <Link href={`/food/${top.slug}`} aria-label={`${top.name} 상세 보기`} className="block focus-visible:-outline-offset-4">
+                <FoodImage food={top} hero fullFrame preload sizes="(max-width: 767px) calc(100vw - 40px), 640px" />
               </Link>
+            </figure>}
+            <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 pt-3 md:gap-x-5 md:pt-4">
+              <p className="col-span-full flex flex-wrap items-center gap-x-3 text-meta font-bold text-muted-foreground">
+                <span>{curated ? recommendation?.basis === "new" ? "새로 소개하는 음식" : recommendation?.basis === "trend" ? "검색 흐름으로 살펴본 음식" : top.history ? "다시 보는 유행" : "오늘 살펴볼 음식" : "오늘 가장 많이 찾은 음식, 1위"}</span>
+                {top.history && <span className="font-medium">{top.history.years.map((year) => `${year}년`).join(" · ")}</span>}
+              </p>
+              <h2 className="text-2xl leading-tight font-extrabold tracking-tight text-foreground lg:text-intro-mobile">{top.name}</h2>
+              <Link href={`/food/${top.slug}`} className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-line-strong px-3 text-sm font-bold text-foreground hover:border-primary hover:text-primary md:px-4">
+                음식 살펴보기 <ArrowUpRight className="size-4" aria-hidden />
+              </Link>
+              <p data-testid="feature-description" className="col-span-full max-w-[38em] text-reading leading-relaxed text-body">{(top.history?.note ?? top.why).split(/(?<=[.!?])\s+/)[0]}</p>
             </div>
-          </figure>}
-        </section>
-        <details aria-label="추천과 출처 안내" className="group mt-2 border-t text-meta leading-relaxed text-muted-foreground">
+          </section>
+        </div>
+        <details aria-label="추천과 출처 안내" className="group mt-3 border-t text-meta leading-relaxed text-muted-foreground">
           <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 focus-visible:rounded-md [&::-webkit-details-marker]:hidden">
             <span>{curated ? "AI 안내·출처 정보" : "예시 데이터 안내"}</span><ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
           </summary>
@@ -326,7 +333,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
           {curated && <p>{top.kind === "discovery" ? "AI 음식 소개" : "AI 조리 안내"}<br />실시간 인기 순위가 아닌 유행 기록이에요.</p>}
           </div>
         </details>
-      </section>
+      </div>
 
       <div className="w-full border-t bg-feed-surface">
       <div className="mx-auto w-full max-w-[1200px] px-5">
@@ -384,7 +391,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
         </aside>
 
         <div className="min-w-0">
-          <main id="list" ref={listRef} className="scroll-mt-16 pt-6 pb-14">
+          <div id="list" ref={listRef} tabIndex={-1} className="scroll-mt-16 pt-6 pb-14">
             {curated && <nav aria-label="음식 모음" className="mb-4 flex flex-wrap gap-2">
               {collections.map(({ value, label }) => <button key={value} type="button" aria-pressed={collection === value} onClick={() => { if (value === "everyday") pickTab("자취 요리"); else { setCollection(value); toList(); } }} className="min-h-11 rounded-md border border-line-strong px-4 text-sm font-semibold text-foreground hover:bg-card aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background">{label}</button>)}
             </nav>}
@@ -445,11 +452,12 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                 11위부터는 트렌드 수집이 연결되면 보여요
               </p>
             )}
-          </main>
+          </div>
         </div>
         </div>
       </div>
       </div>
+      </main>
 
       {showTop && (
         <button
