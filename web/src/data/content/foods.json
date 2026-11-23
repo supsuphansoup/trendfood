@@ -1,105 +1,8 @@
 {
   "version": 1,
   "status": "ready",
-  "checkedAt": "2026-11-21",
+  "checkedAt": "2026-11-23",
   "foods": [
-    {
-      "slug": "nama-chocolate-mochi",
-      "name": "생초코 찹쌀떡",
-      "category": "디저트",
-      "kind": "discovery",
-      "why": "서로 다른 제작자의 최근 영상에서 새로 확인한 음식이에요.",
-      "summary": "원문 소개: “초콜릿 생초코 찹쌀떡 디저트 먹방”",
-      "tags": [
-        "디저트"
-      ],
-      "cookMinutes": 0,
-      "difficulty": "쉬움",
-      "servings": "음식 소개",
-      "ingredients": [],
-      "steps": [],
-      "tip": "음식 정보는 아래 원문 출처에서 확인하세요.",
-      "image": "photo-ai-nama-chocolate-mochi",
-      "alt": "생초코 찹쌀떡 AI 생성 예시 이미지",
-      "convenience": [],
-      "sources": [
-        {
-          "title": "1년 9개월 만에 돌아온 GS25 편의점 먹방! 치즈카레불닭볶음면 소바바치킨 날치알묵은지참치김밥 직화짜장 대왕닭다리 콘치즈소시지 생초코찹쌀떡 고구마휘낭시에 ASMR Mukbang",
-          "url": "https://www.youtube.com/watch?v=9XA663UnbT8"
-        },
-        {
-          "title": "GS25 신상 간식 5종, 생초코찹쌀떡은 진짜 맛있을까?",
-          "url": "https://www.youtube.com/watch?v=uXE_1cBGfg4"
-        },
-        {
-          "title": "GS편의점 생초코 찹쌀떡! 생초코가 미쳤는데?(#shorts)",
-          "url": "https://www.youtube.com/watch?v=o9o1f795ig4"
-        },
-        {
-          "title": "생초코 찹쌀떡 소개 원문",
-          "url": "https://www.youtube.com/watch?v=_h4ZYDVIkcU"
-        },
-        {
-          "title": "지에스 생초코 찹쌀떡",
-          "url": "https://www.youtube.com/watch?v=2MwZSowjZe0"
-        },
-        {
-          "title": "지금 당장 GS25 가야할 이유가 생김❗️ 🍫🍡 생초코 찹쌀떡 먹으러❗️",
-          "url": "https://www.youtube.com/watch?v=ywlmBX4S4N0"
-        },
-        {
-          "title": "생초코찹쌀떡🍫+캔디머신🐰#shorts#신상",
-          "url": "https://www.youtube.com/watch?v=RlQWEHsTGn4"
-        },
-        {
-          "title": "ASMR Lava Chocolate Mochi Truffles Dessert Mukbang | 초콜릿 생초코 찹쌀떡 디저트 먹방 | 生チョコ大福 デザート モッパン",
-          "url": "https://www.youtube.com/watch?v=SrkV8_25lMQ"
-        }
-      ],
-      "checkedAt": "2026-11-16",
-      "history": {
-        "years": [
-          2026
-        ],
-        "note": "2026-11-16에 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.",
-        "sources": [
-          {
-            "title": "1년 9개월 만에 돌아온 GS25 편의점 먹방! 치즈카레불닭볶음면 소바바치킨 날치알묵은지참치김밥 직화짜장 대왕닭다리 콘치즈소시지 생초코찹쌀떡 고구마휘낭시에 ASMR Mukbang",
-            "url": "https://www.youtube.com/watch?v=9XA663UnbT8"
-          },
-          {
-            "title": "GS25 신상 간식 5종, 생초코찹쌀떡은 진짜 맛있을까?",
-            "url": "https://www.youtube.com/watch?v=uXE_1cBGfg4"
-          },
-          {
-            "title": "GS편의점 생초코 찹쌀떡! 생초코가 미쳤는데?(#shorts)",
-            "url": "https://www.youtube.com/watch?v=o9o1f795ig4"
-          },
-          {
-            "title": "생초코 찹쌀떡 소개 원문",
-            "url": "https://www.youtube.com/watch?v=_h4ZYDVIkcU"
-          },
-          {
-            "title": "지에스 생초코 찹쌀떡",
-            "url": "https://www.youtube.com/watch?v=2MwZSowjZe0"
-          },
-          {
-            "title": "지금 당장 GS25 가야할 이유가 생김❗️ 🍫🍡 생초코 찹쌀떡 먹으러❗️",
-            "url": "https://www.youtube.com/watch?v=ywlmBX4S4N0"
-          },
-          {
-            "title": "생초코찹쌀떡🍫+캔디머신🐰#shorts#신상",
-            "url": "https://www.youtube.com/watch?v=RlQWEHsTGn4"
-          },
-          {
-            "title": "ASMR Lava Chocolate Mochi Truffles Dessert Mukbang | 초콜릿 생초코 찹쌀떡 디저트 먹방 | 生チョコ大福 デザート モッパン",
-            "url": "https://www.youtube.com/watch?v=SrkV8_25lMQ"
-          }
-        ]
-      },
-      "recipeNote": "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
-      "publishedAt": "2026-11-20"
-    },
     {
       "slug": "crunch-27-cube",
       "name": "크런치 27 큐브",
@@ -5836,10 +5739,107 @@
       },
       "recipeNote": "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
       "publishedAt": "2026-11-20"
+    },
+    {
+      "slug": "nama-chocolate-mochi",
+      "name": "생초코 찹쌀떡",
+      "category": "디저트",
+      "kind": "discovery",
+      "why": "서로 다른 제작자의 최근 영상에서 새로 확인한 음식이에요.",
+      "summary": "원문 소개: “초콜릿 생초코 찹쌀떡 디저트 먹방”",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "ingredients": [],
+      "steps": [],
+      "tip": "음식 정보는 아래 원문 출처에서 확인하세요.",
+      "image": "photo-ai-nama-chocolate-mochi",
+      "alt": "생초코 찹쌀떡 AI 생성 예시 이미지",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "1년 9개월 만에 돌아온 GS25 편의점 먹방! 치즈카레불닭볶음면 소바바치킨 날치알묵은지참치김밥 직화짜장 대왕닭다리 콘치즈소시지 생초코찹쌀떡 고구마휘낭시에 ASMR Mukbang",
+          "url": "https://www.youtube.com/watch?v=9XA663UnbT8"
+        },
+        {
+          "title": "GS25 신상 간식 5종, 생초코찹쌀떡은 진짜 맛있을까?",
+          "url": "https://www.youtube.com/watch?v=uXE_1cBGfg4"
+        },
+        {
+          "title": "GS편의점 생초코 찹쌀떡! 생초코가 미쳤는데?(#shorts)",
+          "url": "https://www.youtube.com/watch?v=o9o1f795ig4"
+        },
+        {
+          "title": "생초코 찹쌀떡 소개 원문",
+          "url": "https://www.youtube.com/watch?v=_h4ZYDVIkcU"
+        },
+        {
+          "title": "지에스 생초코 찹쌀떡",
+          "url": "https://www.youtube.com/watch?v=2MwZSowjZe0"
+        },
+        {
+          "title": "지금 당장 GS25 가야할 이유가 생김❗️ 🍫🍡 생초코 찹쌀떡 먹으러❗️",
+          "url": "https://www.youtube.com/watch?v=ywlmBX4S4N0"
+        },
+        {
+          "title": "생초코찹쌀떡🍫+캔디머신🐰#shorts#신상",
+          "url": "https://www.youtube.com/watch?v=RlQWEHsTGn4"
+        },
+        {
+          "title": "ASMR Lava Chocolate Mochi Truffles Dessert Mukbang | 초콜릿 생초코 찹쌀떡 디저트 먹방 | 生チョコ大福 デザート モッパン",
+          "url": "https://www.youtube.com/watch?v=SrkV8_25lMQ"
+        }
+      ],
+      "checkedAt": "2026-11-16",
+      "history": {
+        "years": [
+          2026
+        ],
+        "note": "2026-11-16에 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.",
+        "sources": [
+          {
+            "title": "1년 9개월 만에 돌아온 GS25 편의점 먹방! 치즈카레불닭볶음면 소바바치킨 날치알묵은지참치김밥 직화짜장 대왕닭다리 콘치즈소시지 생초코찹쌀떡 고구마휘낭시에 ASMR Mukbang",
+            "url": "https://www.youtube.com/watch?v=9XA663UnbT8"
+          },
+          {
+            "title": "GS25 신상 간식 5종, 생초코찹쌀떡은 진짜 맛있을까?",
+            "url": "https://www.youtube.com/watch?v=uXE_1cBGfg4"
+          },
+          {
+            "title": "GS편의점 생초코 찹쌀떡! 생초코가 미쳤는데?(#shorts)",
+            "url": "https://www.youtube.com/watch?v=o9o1f795ig4"
+          },
+          {
+            "title": "생초코 찹쌀떡 소개 원문",
+            "url": "https://www.youtube.com/watch?v=_h4ZYDVIkcU"
+          },
+          {
+            "title": "지에스 생초코 찹쌀떡",
+            "url": "https://www.youtube.com/watch?v=2MwZSowjZe0"
+          },
+          {
+            "title": "지금 당장 GS25 가야할 이유가 생김❗️ 🍫🍡 생초코 찹쌀떡 먹으러❗️",
+            "url": "https://www.youtube.com/watch?v=ywlmBX4S4N0"
+          },
+          {
+            "title": "생초코찹쌀떡🍫+캔디머신🐰#shorts#신상",
+            "url": "https://www.youtube.com/watch?v=RlQWEHsTGn4"
+          },
+          {
+            "title": "ASMR Lava Chocolate Mochi Truffles Dessert Mukbang | 초콜릿 생초코 찹쌀떡 디저트 먹방 | 生チョコ大福 デザート モッパン",
+            "url": "https://www.youtube.com/watch?v=SrkV8_25lMQ"
+          }
+        ]
+      },
+      "recipeNote": "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
+      "publishedAt": "2026-11-20"
     }
   ],
   "recommendation": {
-    "date": "2026-11-21",
+    "date": "2026-11-23",
     "basis": "rotation",
     "newSlugs": []
   }
