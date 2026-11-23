@@ -5,7 +5,7 @@ export default defineConfig({
   outputDir: "./test-results/content",
   fullyParallel: true,
   reporter: "list",
-  use: { baseURL: "http://localhost:3101", locale: "ko-KR" },
+  use: { baseURL: "http://localhost:3101", locale: "ko-KR", screenshot: "only-on-failure" },
   projects: [
     { name: "mobile", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 } } },
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },

@@ -13,6 +13,7 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     locale: "ko-KR",
+    screenshot: "only-on-failure",
   },
   projects: [
     { name: "mobile", use: { ...devices["Desktop Chrome"], viewport: { width: 390, height: 844 } } },

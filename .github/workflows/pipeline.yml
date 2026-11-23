@@ -227,6 +227,14 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:e2e
           npm run test:content
+      - name: 실패한 브라우저 검사 화면·오류 문맥 보관
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-failure
+          path: web/test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: 검사를 통과한 음식만 저장
         id: save
         if: steps.changes.outputs.changed == 'true'

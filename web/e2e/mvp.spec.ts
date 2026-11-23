@@ -479,6 +479,8 @@ test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 �
 });
 
 test("메인: 필터 버튼으로 열고 닫으며 선택 조건과 주소를 유지한다", async ({ page }, info) => {
+  // 두 번의 axe 검사·키보드 조작·새로고침을 포함한다. 개별 화면 assertion의 5초 제한은 유지한다.
+  test.setTimeout(60_000);
   await page.goto("/");
   const toggle = page.getByRole("button", { name: "필터", exact: true });
   const panel = page.locator("#food-filters");
@@ -495,6 +497,7 @@ test("메인: 필터 버튼으로 열고 닫으며 선택 조건과 주소를 �
   expect((await page.locator("#list").boundingBox())!.width).toBe(closedWidth);
   await page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^면/ }).click();
   await panel.getByRole("button", { name: "조리시간순", exact: true }).click();
+  await expect(panel.getByRole("button", { name: "조리시간순", exact: true })).toHaveAttribute("aria-pressed", "true");
   const selectedUrl = page.url();
   const selectedTitles = await cardTitles(page);
   await panel.scrollIntoViewIfNeeded();
@@ -505,11 +508,11 @@ test("메인: 필터 버튼으로 열고 닫으며 선택 조건과 주소를 �
   await expect(panel).toBeHidden();
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(page).toHaveURL(selectedUrl);
-  expect(await cardTitles(page)).toEqual(selectedTitles);
+  await expect(page.locator("#list li h3")).toHaveText(selectedTitles);
   await expectNoA11yViolations(page);
-  await page.reload();
+  await page.reload({ waitUntil: "domcontentloaded" });
   await expect(panel).toBeHidden();
-  expect(await cardTitles(page)).toEqual(selectedTitles);
+  await expect(page.locator("#list li h3")).toHaveText(selectedTitles);
   await toggle.click();
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^면/ })).toHaveAttribute("aria-current", "true");
   await expect(panel.getByRole("button", { name: "조리시간순", exact: true })).toHaveAttribute("aria-pressed", "true");
