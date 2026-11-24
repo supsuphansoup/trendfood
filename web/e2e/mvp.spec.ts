@@ -452,7 +452,8 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   await expect(description).toHaveCSS("font-size", info.project.name === "desktop" ? "18px" : "14px");
   expect(await description.evaluate((el) => el.clientHeight <= parseFloat(getComputedStyle(el).lineHeight) * 2 + 1)).toBe(true);
   const actions = firstCard.getByRole("link");
-  for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  // 브라우저 좌표를 뺄 때 나타나는 부동소수점 오차만 허용한다.
+  for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44 - 0.001);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expectNoA11yViolations(page);
   await page.screenshot({ path: `test-results/readable-feed-${info.project.name}.png` });

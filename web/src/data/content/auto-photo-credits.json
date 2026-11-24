@@ -923,5 +923,114 @@
       "width": 0.82,
       "height": 0.94
     }
+  },
+  "photo-reviewed-croffle-20261125": {
+    "title": "Croffle",
+    "author": "Muhammad Fawdy",
+    "provider": "pexels",
+    "providerId": "16258093",
+    "url": "https://www.pexels.com/photo/croffle-16258093/",
+    "imageUrl": "https://images.pexels.com/photos/16258093/pexels-photo-16258093.jpeg",
+    "creatorUrl": "https://www.pexels.com/@ffawdyy/",
+    "license": "Pexels License",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "crop": {
+      "left": 0.025,
+      "top": 0.32,
+      "width": 0.95,
+      "height": 0.46
+    },
+    "note": "사진은 크로플에 시럽을 곁들인 담음새이며, 레시피에서는 바닐라 아이스크림을 곁들여요. 음식 중심으로 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. Pexels License 조건으로 사용해요."
+  },
+  "photo-reviewed-shrimp-cream-risotto-20261125": {
+    "title": "Prawn risotto, Brisbane, 2024.jpg",
+    "author": "Kgbo",
+    "url": "https://commons.wikimedia.org/wiki/File:Prawn_risotto,_Brisbane,_2024.jpg",
+    "pageId": 145091236,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Prawn_risotto%2C_Brisbane%2C_2024.jpg",
+    "license": "CC BY-SA 4.0",
+    "sha1": "6618877790c680706e3f34471245e8363739e483",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "note": "새우와 치즈를 곁들인 리조또 참고 사진으로, 허브와 소스는 레시피와 달라요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-reviewed-green-onion-bagel-20261125": {
+    "title": "Flour Moon Bagels, New Orleans, 6 October 2026 - 4.jpg",
+    "author": "Infrogmation",
+    "url": "https://commons.wikimedia.org/wiki/File:Flour_Moon_Bagels,_New_Orleans,_6_October_2026_-_4.jpg",
+    "pageId": 201196890,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/7/73/Flour_Moon_Bagels%2C_New_Orleans%2C_6_October_2026_-_4.jpg",
+    "license": "CC BY-SA 4.0",
+    "sha1": "6a585a77954f2fc3c97ad1a91264e28e9aeb0445",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "crop": {
+      "left": 0.23,
+      "top": 0.1,
+      "width": 0.75,
+      "height": 0.82
+    },
+    "note": "대파 크림치즈를 바른 로즈마리 베이글이며, 빵과 꿀 등 곁들임은 레시피와 달라요. 음식 중심으로 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-egg-fried-rice-20261125": {
+    "title": "Chinese egg fried rice.jpg",
+    "author": "Euniceyeoh07",
+    "url": "https://commons.wikimedia.org/wiki/File:Chinese_egg_fried_rice.jpg",
+    "pageId": 106353011,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/6/65/Chinese_egg_fried_rice.jpg",
+    "license": "CC BY-SA 4.0",
+    "sha1": "a18f635bb59a8b8f48919e864b6c0549d52ab1bb",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "crop": {
+      "left": 0.015,
+      "top": 0.105,
+      "width": 0.97,
+      "height": 0.865
+    },
+    "note": "달걀과 쪽파를 넣은 볶음밥이며, 채소 구성은 레시피와 다를 수 있어요. 음식 중심으로 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-egg-soup-20261125": {
+    "title": "Egg drop soup 1 2024-01-11.jpeg",
+    "author": "Fastily",
+    "url": "https://commons.wikimedia.org/wiki/File:Egg_drop_soup_1_2024-01-11.jpeg",
+    "pageId": 143814464,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0b/Egg_drop_soup_1_2024-01-11.jpeg",
+    "license": "CC BY-SA 4.0",
+    "sha1": "a0d2f723baf67c75cf68d7657422250309a14929",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "crop": {
+      "left": 0.145,
+      "top": 0,
+      "width": 0.68,
+      "height": 0.59
+    },
+    "note": "달걀물을 풀고 파를 올린 국이며, 국물과 고명은 레시피와 다를 수 있어요. 음식 중심으로 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-reviewed-egg-sandwich-20261125": {
+    "title": "Japanese egg sandwich in a sandwich case.jpg",
+    "author": "Quercus acuta",
+    "url": "https://commons.wikimedia.org/wiki/File:Japanese_egg_sandwich_in_a_sandwich_case.jpg",
+    "pageId": 185620422,
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/2/29/Japanese_egg_sandwich_in_a_sandwich_case.jpg",
+    "license": "CC BY-SA 4.0",
+    "sha1": "4a4859264e0e153cc474fa044b4393f61dea288b",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "crop": {
+      "left": 0.01,
+      "top": 0.105,
+      "width": 0.975,
+      "height": 0.85
+    },
+    "note": "삶은 달걀을 섞어 속을 채운 일본식 에그마요 샌드위치예요. 음식 중심으로 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
   }
 }

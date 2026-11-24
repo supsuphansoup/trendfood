@@ -48,13 +48,17 @@ test("출처·판별·크롭을 통과한 생성 결과만 별도 등록하고 K
     edit: async (prompt, referenceBytes) => {
       assert.equal(saved[0].attempts[0].status, "reserved");
       assert.match(prompt, /정확한 음식/); assert.match(prompt, /접시·카메라 각도·조명·배치·배경/);
+      assert.match(prompt, /굽기 편차·칼로 썬 단면·소스 두께/);
+      assert.match(prompt, /배경 여백을 늘려 음식이 작아지지 않게/);
       assert.ok(referenceBytes?.length); return bytes;
     },
-    inspect: async (_prompt, schema, images) => {
+    inspect: async (prompt, schema, images) => {
       assert.equal(images?.length, 4);
       assert.ok((schema.required as string[]).includes("referenceMatches"));
       assert.ok((schema.required as string[]).includes("distinctComposition"));
       assert.ok((schema.required as string[]).includes("naturalAppearance"));
+      assert.match(prompt, /같은 크기와 색으로 반복된 재료/);
+      assert.match(prompt, /과도한 여백으로 음식이 작거나/);
       const mobile = await sharp(Buffer.from(images![3].data, "base64")).metadata();
       assert.equal(mobile.width, 390); assert.equal(mobile.height, 440);
       return approved;
@@ -102,7 +106,8 @@ test("참고 사진이 없어도 검증된 설명으로 생성하고 사진 출�
     edit: async (prompt, original) => {
       calls++; assert.equal(original, undefined); assert.match(prompt, /참고 사진은 없어요/);
       assert.equal(JSON.parse(prompt.split("\n").at(-1)!).summary, food.summary);
-      assert.match(prompt, /별도의 치즈 토핑을 의미하지/); assert.match(prompt, /가로 44%·세로 56%/);
+      assert.match(prompt, /별도의 치즈 토핑을 의미하지/);
+      assert.match(prompt, /가로 44%로 자른 모바일 구도.*세로 61%로 자른 PC 구도/);
       assert.equal(state.attempts[0].status, "reserved"); return bytes;
     },
     inspect: async (prompt, schema, images) => {
@@ -135,16 +140,16 @@ test("세 음식이 각각 첫 품질 검사에서 탈락해도 사유를 보완
   const generate = generatedPhotoFactory({ state, now, saveState: async () => {},
     edit: async (prompt) => {
       calls++;
-      if (calls % 2 === 0) assert.match(prompt, /검사 지적.*모바일에서 접시가 잘림/);
+      if (calls % 2 === 0) assert.match(prompt, /검사 지적.*모바일에서 음식의 주요 부분이 잘림/);
       else assert.doesNotMatch(prompt, /이전 생성 결과의 검사/);
       return bytes;
     },
-    inspect: async () => calls % 2 ? { ...approved, presentationSuitable: false, reason: "모바일에서 접시가 잘림" } : approved,
+    inspect: async () => calls % 2 ? { ...approved, presentationSuitable: false, reason: "모바일에서 음식의 주요 부분이 잘림" } : approved,
   });
   for (let index = 0; index < 3; index++) {
     const result = await generate({ ...food, slug: `new-food-${index}` });
     assert.equal(result.record.slug, `new-food-${index}`);
-    assert.match(result.record.prompt, /모바일에서 접시가 잘림/);
+    assert.match(result.record.prompt, /모바일에서 음식의 주요 부분이 잘림/);
   }
   assert.equal(calls, 6);
   assert.deepEqual(state.attempts.map((item) => item.status), ["rejected", "generated", "rejected", "generated", "rejected", "generated"]);

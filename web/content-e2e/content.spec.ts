@@ -546,7 +546,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       }
       await expect(page.getByRole("link", { name: /사진 출처|사진 라이선스/ })).toHaveCount(0);
       expect(await introduction.locator("img").evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      if (["croffle", "crunch-27-cube"].includes(food.slug) || food.image.endsWith("-natural-20261125")) {
+      if (food.slug === "crunch-27-cube" || food.image.endsWith("-natural-20261125") || food.image.endsWith("-home-20261125")) {
         await introduction.getByRole("img", { name: food.alt, exact: true }).screenshot({ path: `test-results/content/photo-${food.slug}-${info.project.name}.png` });
       }
       if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });

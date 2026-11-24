@@ -60,7 +60,14 @@ import photo_ai_gyeran_mari_natural_20261125 from "@/assets/generated/photo-ai-g
 import photo_ai_egg_fried_rice_natural_20261125 from "@/assets/generated/photo-ai-egg-fried-rice-natural-20261125.webp";
 import photo_ai_egg_sandwich_natural_20261125 from "@/assets/generated/photo-ai-egg-sandwich-natural-20261125.webp";
 
+import butterTteokPhoto from "@/assets/generated/photo-ai-butter-tteok-home-20261125.webp";
+import pizzaSeolgiPhoto from "@/assets/generated/photo-ai-pizza-seolgi-home-20261125.webp";
+import bomdongBibimbapPhoto from "@/assets/generated/photo-ai-bomdong-bibimbap-home-20261125.webp";
+
 export const generatedPhotos = {
+  "photo-ai-butter-tteok-home-20261125": butterTteokPhoto,
+  "photo-ai-pizza-seolgi-home-20261125": pizzaSeolgiPhoto,
+  "photo-ai-bomdong-bibimbap-home-20261125": bomdongBibimbapPhoto,
   "photo-ai-egg-sandwich-natural-20261125": photo_ai_egg_sandwich_natural_20261125,
   "photo-ai-egg-fried-rice-natural-20261125": photo_ai_egg_fried_rice_natural_20261125,
   "photo-ai-gyeran-mari-natural-20261125": photo_ai_gyeran_mari_natural_20261125,

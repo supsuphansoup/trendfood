@@ -83,7 +83,20 @@ import photo_reviewed_dubai_chocolate_20261125 from "@/assets/curated/photo-revi
 import photo_everyday_tteokbokki_20261125 from "@/assets/curated/photo-everyday-tteokbokki-20261125.webp";
 import photo_everyday_tomato_pasta_20261125 from "@/assets/curated/photo-everyday-tomato-pasta-20261125.webp";
 
+import crofflePhoto from "@/assets/curated/photo-reviewed-croffle-20261125.webp";
+import shrimpCreamRisottoPhoto from "@/assets/curated/photo-reviewed-shrimp-cream-risotto-20261125.webp";
+import greenOnionBagelPhoto from "@/assets/curated/photo-reviewed-green-onion-bagel-20261125.webp";
+import eggFriedRicePhoto from "@/assets/curated/photo-everyday-reviewed-egg-fried-rice-20261125.webp";
+import eggSoupPhoto from "@/assets/curated/photo-everyday-reviewed-egg-soup-20261125.webp";
+import eggSandwichPhoto from "@/assets/curated/photo-everyday-reviewed-egg-sandwich-20261125.webp";
+
 export const curatedPhotos = {
+  "photo-reviewed-croffle-20261125": crofflePhoto,
+  "photo-reviewed-shrimp-cream-risotto-20261125": shrimpCreamRisottoPhoto,
+  "photo-reviewed-green-onion-bagel-20261125": greenOnionBagelPhoto,
+  "photo-everyday-reviewed-egg-fried-rice-20261125": eggFriedRicePhoto,
+  "photo-everyday-reviewed-egg-soup-20261125": eggSoupPhoto,
+  "photo-everyday-reviewed-egg-sandwich-20261125": eggSandwichPhoto,
   "photo-everyday-kimchi-jjigae-20261125": photo_everyday_kimchi_jjigae_20261125,
   "photo-everyday-tteok-guk-20261125": photo_everyday_tteok_guk_20261125,
   "photo-reviewed-dubai-chocolate-20261125": photo_reviewed_dubai_chocolate_20261125,

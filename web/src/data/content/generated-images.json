@@ -1,4 +1,28 @@
 {
+  "photo-ai-pizza-seolgi-home-20261125": {
+    "slug": "pizza-seolgi",
+    "title": "피자설기 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-25",
+    "prompt": "Landscape 3:2. Independent casual Korean food blogger recipe photo, close mid shot 60 degrees naturally shot with 40mm daylight exposure and restrained neutral colors. Pizza seolgi: two short thick rectangular pieces of steamed Baekseolgi, solid bright-white fine-grained soft moist rice cake, cross section very clearly a thick layer of compact fluffy snow-like steamed RICE crumbs and no baked edge or bread crust, with an interrupted thin red tomato sauce layer, softly melted mozzarella with moist uneven browning, small pink ham squares and a scattered few yellow corn kernels. Only these toppings. Slightly jagged edge of the slice from a regular knife; first piece facing foreground and second slightly behind at a natural offset. Both fit around central area. Serve two portions off-center on a simple plate on a pale blue-gray home counter, table and plate softly transitioning out of focus, no excessively symmetrical backdrop. Warm midday sunlight reflected softly from nearby wall, one gentle unsentimental shadow; realistic phone texture, no clipping, subtle imperfect highlights. No vegetable greenery, jalapeno, parsley, food styled syrup, fake cheese pull, typical pizza dough, skillet, hands, logos, letters, artificial color gradients or repeated exact patterns. Shoot at lunch, not an advertisement.\n형태 확인 출처: https://www.10000recipe.com/recipe/7083171",
+    "note": "실제 조리 형태를 확인한 뒤 담음새와 촬영 구도를 새로 구성한 AI 생성 예시예요. 실제 조리 결과와 다를 수 있어요."
+  },
+  "photo-ai-butter-tteok-home-20261125": {
+    "slug": "butter-tteok",
+    "title": "상하이 버터떡 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-25",
+    "prompt": "Wide 3:2 image. First create an independent, candid Korean home-baking documentary photograph for a recipe website. Subject: Shanghai butter tteok (shanghai huangyou niangao, rice cakes made with glutinous rice flour, whole eggs and butter) baked in a shell tin. Four small, irregularly browned and slightly flattened shell ridged cakes, each smaller and denser than a sponge madeleine. One naturally split item at front, showing sticky chewy ivory-colored, fairly dense low-porosity center; no butter pat, filling, cake crumbs avalanche or sugar dust. Shot by a Korean food blogger just after baking, 45-degree angle slightly above an off-white thin old everyday plate on lightly patterned warm ivory coarse cotton. Daylight coming across the table on an overcast morning. No cone lighting, no glow, no dramatic blur, the plate remains legible around the food. Nonuniform thin browned edges, faint heat marks from real baking and slight dents, subdued true colors and light natural phone noise. Place food in middle safe for both center landscape and portrait crops with the split one main at center. Single unique capture, no assembly or duplicate repeated textures, no human, no brand, no text. No utopian symmetrical spacing, large empty serving board or uniform glossy varnish. Food feels just set down and still belongs in a tasteful kitchen.\n형태 확인 출처: https://www.10000recipe.com/recipe/7073082",
+    "note": "실제 조리 형태를 확인한 뒤 담음새와 촬영 구도를 새로 구성한 AI 생성 예시예요. 실제 조리 결과와 다를 수 있어요."
+  },
+  "photo-ai-bomdong-bibimbap-home-20261125": {
+    "slug": "bomdong-bibimbap",
+    "title": "봄동 비빔밥 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-25",
+    "prompt": "Landscape 3:2 ratio documentary home lunch snapshot for Korean recipe web, at near-overhead 65-degree angle. Bomdong bibimbap in a modest brushed stainless Korean mixing bowl resting on a warm cream counter. Bowl holds white cooked short-grain rice, cut ends of young spring Napa cabbage bomdong with curly light green leaves broadly cut and delicate ivory leaf ribs, lightly coated with Korean red pepper dressing (deep reddish specks rather than heavy lacquer), a small loose spoonful of softly flaked canned tuna, and an asymmetrically shaped fried egg off center. Natural browned lace at a single edge of egg white, mix of translucent slightly cooked and matte soft surfaces, warm yolk. A couple of rice grains already stuck to cabbage at edges, scattered toasted sesame here and there. Mess-free plate, food arranged appetizingly without divisions, avoid garnish patterns. Morning side of a dining table in a Korean apartment on a cloudy day, subtle bounce and falloff, realistic 35mm phone lens slight grain, exposure natural, metal diffused reflection, minimal shallow focus. Tiny ends of a metal spoon by a clean folded beige tea towel may be near outer edge but food is main centered crop-safe. Show textures accurately, no synthetic waxy shine, no studio mood, red sauce puddles, separator piles, side dishes, extra ingredients, label, hand or smoke.\n형태 확인 출처: https://www.10000recipe.com/recipe/7064960",
+    "note": "실제 조리 형태를 확인한 뒤 담음새와 촬영 구도를 새로 구성한 AI 생성 예시예요. 실제 조리 결과와 다를 수 있어요."
+  },
   "photo-ai-egg-soup-natural-20261125": {
     "slug": "egg-soup",
     "title": "계란국 AI 생성 예시 이미지",
