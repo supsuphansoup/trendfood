@@ -9,6 +9,18 @@ const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json
 const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { url: string; licenseUrl: string; license: string; title: string; automatic?: boolean }>;
 const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, GeneratedImage>;
 
+test("정적 페이지와 음식 상세의 미리 불러오기 파일이 응답한다", async ({ request }) => {
+  const paths = [
+    "/about/__next.about.__PAGE__.txt",
+    `/food/${snapshot.foods[0].slug}/__next.food.$d$slug.__PAGE__.txt`,
+  ];
+  for (const path of paths) {
+    const response = await request.get(path, { params: { _rsc: "test" } });
+    expect(response.status(), path).toBe(200);
+    expect(response.headers()["content-type"], path).toContain("text/plain");
+  }
+});
+
 test("트렌드 추천 1~3위는 첫 화면에서 선택할 수 있고 사진과 출처 영상이 바뀐다", async ({ page }, info) => {
   const foods = snapshot.foods.slice(0, 3);
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -115,7 +127,7 @@ test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선�
   }
 });
 
-test("대표 포스터는 세로 사진과 가장자리·키보드 상세 연결을 제공한다", async ({ page }, info) => {
+test("대표 포스터는 둥근 모서리의 큰 사진을 원본 비율로 보여준다", async ({ page }, info) => {
   const food = snapshot.foods[0];
   await page.goto("/");
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
@@ -123,11 +135,24 @@ test("대표 포스터는 세로 사진과 가장자리·키보드 상세 연결
   await expect(photo).toHaveAttribute("href", `/food/${food.slug}`);
   const image = photo.getByRole("img");
   await image.evaluate((img: HTMLImageElement) => img.decode());
-  await expect(image).toHaveCSS("object-fit", "cover");
+  await expect(image).toHaveCSS("object-fit", "contain");
   await expect(image).toHaveCSS("object-position", "50% 50%");
   await expect(photo.locator("img")).toHaveCount(1);
   const dimensions = (await image.boundingBox())!;
-  expect(dimensions.height).toBeGreaterThan(dimensions.width);
+  const frame = (await feature.locator("figure").boundingBox())!;
+  expect(dimensions.width).toBeGreaterThanOrEqual(frame.width * 0.95);
+  expect(dimensions.width).toBeGreaterThan(info.project.name === "desktop" ? 500 : 275);
+  const originalRatio = await image.evaluate((img: HTMLImageElement) => img.naturalWidth / img.naturalHeight);
+  expect(dimensions.width / dimensions.height).toBeCloseTo(originalRatio, 2);
+  await expect(image).toHaveCSS("border-top-left-radius", info.project.name === "desktop" ? "20px" : "16px");
+  if (info.project.name === "desktop") {
+    const carousel = (await page.locator(".home-poster-carousel").boundingBox())!;
+    for (const caption of await page.locator(".home-poster-side-caption").all()) {
+      const box = (await caption.boundingBox())!;
+      expect(box.x).toBeGreaterThanOrEqual(carousel.x);
+      expect(box.x + box.width).toBeLessThanOrEqual(carousel.x + carousel.width);
+    }
+  }
   await page.screenshot({ path: `test-results/content/hero-poster-${info.project.name}.png` });
   await image.click({ position: { x: 8, y: 8 } });
   await expect(page).toHaveURL(new RegExp(`/food/${food.slug}/?$`));
@@ -320,24 +345,36 @@ test("수집 콘텐츠: 전체 음식, 큐레이션 표시와 검색", async ({ 
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;
-  if (info.project.name === "desktop") {
-    expect(Math.abs(first.y - second.y)).toBeLessThan(2);
-    expect(second.x).toBeGreaterThan(first.x + first.width);
-  } else {
-    expect(second.x).toBe(first.x);
-    expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
-  }
+  expect(Math.abs(first.y - second.y)).toBeLessThan(2);
+  expect(second.x).toBeGreaterThan(first.x + first.width);
   const third = (await cards.nth(2).boundingBox())!;
   expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
-  if (info.project.name === "desktop") expect(third.width).toBeGreaterThan(first.width * 2);
+  expect(third.width).toBeCloseTo(first.width, 0);
   await expect(cards.first().getByText(/^(AI 생성 예시|참고 사진)$/)).toHaveCount(0);
   // 목록은 두 줄 미리보기로 높이를 줄이고 전문은 상세에서 제공한다.
   for (const description of await cards.getByTestId("food-description").all()) {
-    await expect(description).toHaveCSS("font-size", "18px");
+    await expect(description).toHaveCSS("font-size", info.project.name === "desktop" ? "18px" : "14px");
     expect(await description.evaluate((el) => el.clientHeight <= parseFloat(getComputedStyle(el).lineHeight) * 2 + 1)).toBe(true);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/feed-${info.project.name}.png` });
+  const layout = page.getByRole("group", { name: "음식 목록 보기 방식" });
+  const twoColumns = layout.getByRole("button", { name: "크게 보기" });
+  const threeColumns = layout.getByRole("button", { name: "모아 보기" });
+  await expect(twoColumns).toHaveAttribute("aria-pressed", "true");
+  await threeColumns.press("Enter");
+  await expect(threeColumns).toHaveAttribute("aria-pressed", "true");
+  await expect(twoColumns).toHaveAttribute("aria-pressed", "false");
+  const compactFirst = (await cards.nth(0).boundingBox())!;
+  const compactThird = (await cards.nth(2).boundingBox())!;
+  expect(compactThird.y).toBeCloseTo(compactFirst.y, 0);
+  expect(compactThird.x).toBeGreaterThan(compactFirst.x);
+  expect(compactFirst.width).toBeLessThan(first.width);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: `test-results/content/feed-three-columns-${info.project.name}.png` });
+  await twoColumns.click();
+  await expect(twoColumns).toHaveAttribute("aria-pressed", "true");
+  expect((await cards.nth(2).boundingBox())!.y).toBeGreaterThan((await cards.nth(0).boundingBox())!.y);
 
   await page.getByRole("searchbox").fill("타피오카");
   await page.getByRole("button", { name: "검색", exact: true }).click();
@@ -543,7 +580,8 @@ test("사진 유형은 상세의 접힌 정보에서 확인하고 찜·재료 �
   const cards = page.locator("#list li").filter({ has: page.getByRole("heading", { level: 3 }) });
   for (const item of await cards.all()) {
     const image = item.locator("img");
-    await image.scrollIntoViewIfNeeded();
+    // 고정 메뉴와 맨 위로 버튼 사이에서 사진의 클릭 영역을 확인한다.
+    await image.evaluate((img) => img.scrollIntoView({ block: "center", behavior: "instant" }));
     await expect(image).toBeVisible();
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     const href = await item.getByRole("heading", { level: 3 }).getByRole("link").getAttribute("href");

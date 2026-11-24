@@ -364,16 +364,11 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;
-  if (info.project.name === "desktop") {
-    expect(Math.abs(first.y - second.y)).toBeLessThan(2);
-    expect(second.x).toBeGreaterThan(first.x + first.width);
-  } else {
-    expect(second.x).toBe(first.x);
-    expect(second.y).toBeGreaterThanOrEqual(first.y + first.height);
-  }
+  expect(Math.abs(first.y - second.y)).toBeLessThan(2);
+  expect(second.x).toBeGreaterThan(first.x + first.width);
   const third = (await cards.nth(2).boundingBox())!;
   expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
-  if (info.project.name === "desktop") expect(third.width).toBeGreaterThan(first.width * 2);
+  expect(third.width).toBeCloseTo(first.width, 0);
   const layout = await page.evaluate(() => ({
     width: document.documentElement.scrollWidth,
     viewport: innerWidth,
@@ -406,7 +401,7 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const featureBox = (await feature.boundingBox())!;
   const photo = feature.getByRole("img");
   await expect(photo).toBeInViewport();
-  await expect(photo).toHaveCSS("object-fit", "cover");
+  await expect(photo).toHaveCSS("object-fit", "contain");
   await expect(photo).toHaveCSS("object-position", "50% 50%");
   await expect(feature.locator("figure img")).toHaveCount(1);
   await expect(feature.locator("figcaption")).toHaveCount(0);
@@ -416,7 +411,7 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const ranks = page.getByRole("region", { name: "트렌드 추천 순위" });
   await expect(ranks.getByRole("button")).toHaveCount(2);
   expect(Math.abs(imageBox.x + imageBox.width / 2 - (info.project.name === "desktop" ? 640 : 195))).toBeLessThan(2);
-  const sidePhoto = (await ranks.locator(".home-poster-image").first().boundingBox())!;
+  const sidePhoto = (await ranks.locator(".home-poster-image img").first().boundingBox())!;
   expect(imageBox.height).toBeGreaterThan(sidePhoto.height);
   expect(imageBox.y).toBeGreaterThan(introBox.y + introBox.height);
   const title = feature.getByRole("heading", { level: 2, name: "두바이 초콜릿" });
@@ -451,10 +446,10 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const firstCard = page.locator(".food-grid > li").first();
   // 홈은 음식 탐색에 집중하고 조리법·구매는 상세에서 이어진다.
   const explore = firstCard.getByRole("link", { name: "음식 살펴보기", exact: true });
-  await expect(explore).toHaveCSS("font-size", "16px");
+  await expect(explore).toHaveCSS("font-size", info.project.name === "desktop" ? "16px" : "14px");
   await expect(firstCard.getByRole("link", { name: /재료.*담기|레시피 보기/ })).toHaveCount(0);
   const description = firstCard.getByTestId("food-description");
-  await expect(description).toHaveCSS("font-size", "18px");
+  await expect(description).toHaveCSS("font-size", info.project.name === "desktop" ? "18px" : "14px");
   expect(await description.evaluate((el) => el.clientHeight <= parseFloat(getComputedStyle(el).lineHeight) * 2 + 1)).toBe(true);
   const actions = firstCard.getByRole("link");
   for (const link of await actions.all()) expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -483,6 +478,27 @@ test("추천 포스터: 이웃 카드와 이전·다음 버튼으로 선택하�
   await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
   await expect(active.getByRole("heading", { level: 2 })).toHaveText(firstName);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("추천 포스터: 사진을 마우스로 양방향 드래그하고 클릭하면 상세로 이동한다", async ({ page }) => {
+  await page.goto("/");
+  const active = page.locator("#featured-trend-food");
+  const photo = active.getByRole("img");
+  await photo.scrollIntoViewIfNeeded();
+  const { x, y, width, height } = (await photo.boundingBox())!;
+  const centerX = x + width / 2;
+  const centerY = y + height / 2;
+  for (const [offset, rank] of [[-80, 2], [80, 1]]) {
+    await page.mouse.move(centerX, centerY);
+    await page.mouse.down();
+    await page.mouse.move(centerX + offset, centerY, { steps: 8 });
+    await page.mouse.up();
+    await expect(active).toHaveAttribute("aria-label", `오늘의 ${rank}위`);
+    await expect(page).toHaveURL(/\/$/);
+  }
+  const href = (await active.getByRole("link", { name: /상세 보기/ }).getAttribute("href"))!;
+  await photo.click();
+  await expect(page).toHaveURL(href);
 });
 
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {

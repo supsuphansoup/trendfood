@@ -9,6 +9,7 @@
     "build": "next build",
     "photos": "node scripts/fetch-photos.ts",
     "prebuild": "npm run photos",
+    "postbuild": "node scripts/fix-export-prefetch.ts",
     "start": "serve out -l 3000",
     "lint": "eslint",
     "test:e2e": "playwright test",

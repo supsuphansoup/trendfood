@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { type MouseEvent, type PointerEvent, useRef, useState } from "react";
 import { FoodImage } from "@/components/food-image";
 import { FoodVideo } from "@/components/food-video";
 import { foodVideoId } from "@/data/youtube";
@@ -8,6 +8,42 @@ import type { Food } from "@/lib/foods";
 
 export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolean }) {
   const [selected, setSelected] = useState(0);
+  const dragStart = useRef<{ id: number; x: number; y: number } | null>(null);
+  const suppressClick = useRef(false);
+
+  const move = (direction: number) => {
+    setSelected((current) => (current + direction + foods.length) % foods.length);
+  };
+
+  const startDrag = (event: PointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    suppressClick.current = false;
+    const target = event.target;
+    if (!(target instanceof Element) || !target.closest(".home-poster-image")) return;
+
+    dragStart.current = { id: event.pointerId, x: event.clientX, y: event.clientY };
+    target.setPointerCapture(event.pointerId);
+  };
+
+  const finishDrag = (event: PointerEvent<HTMLDivElement>) => {
+    const start = dragStart.current;
+    if (start?.id !== event.pointerId) return;
+    dragStart.current = null;
+
+    const horizontal = event.clientX - start.x;
+    const vertical = event.clientY - start.y;
+    if (Math.abs(horizontal) < 45 || Math.abs(horizontal) <= Math.abs(vertical)) return;
+
+    suppressClick.current = true;
+    move(horizontal < 0 ? 1 : -1);
+  };
+
+  const preventDragClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.detail === 0 || !suppressClick.current) return;
+    suppressClick.current = false;
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   const top = foods[selected] ?? foods[0];
   const recommendation = top.editorial?.recommendation;
@@ -27,28 +63,35 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
         </a>
         <p className="basis-full text-base leading-normal text-body">유행의 배경부터 만드는 법까지.</p>
       </header>
-      <div className="home-poster-carousel mt-4 md:mt-6">
+      <div
+        className="home-poster-carousel mt-4 md:mt-6"
+        onPointerDown={startDrag}
+        onPointerUp={finishDrag}
+        onPointerCancel={() => { dragStart.current = null; }}
+        onClickCapture={preventDragClick}
+        onDragStart={(event) => event.preventDefault()}
+      >
         <section aria-label="트렌드 추천 순위" className="home-poster-sides">
           {foods.map((food, index) => {
             if (index === selected) return null;
             const side = index === (selected + 1) % foods.length ? "next" : "previous";
             return <button key={food.slug} type="button" aria-controls="featured-trend-food" onClick={() => setSelected(index)} className={`home-poster-side home-poster-${side} text-foreground`}>
               <span className="sr-only">{index + 1}위 </span>
-              <span aria-hidden="true" className="home-poster-image relative block overflow-hidden rounded-3xl bg-secondary">
-                <FoodImage food={food} sizes="(min-width: 768px) 380px, 70vw" />
-                <span className="home-poster-rank absolute bottom-4 left-5 text-hero font-extrabold italic leading-none text-primary-foreground" aria-hidden>{index + 1}</span>
+              <span aria-hidden="true" className="home-poster-image relative block">
+                <span className="home-poster-photo"><FoodImage food={food} contain sizes="(min-width: 768px) 540px, 74vw" /></span>
               </span>
-              <span className="mt-4 block text-xl font-bold md:text-2xl">{food.name}</span>
-              <span className="mt-2 block text-meta text-muted-foreground">{food.kind === "discovery" ? "음식 소개" : "레시피"} · {food.category}</span>
+              <span className="home-poster-side-caption sr-only lg:not-sr-only lg:mt-4 lg:block">
+                <span className="block text-xl font-bold md:text-2xl">{food.name}</span>
+                <span className="mt-2 block text-meta text-muted-foreground">{food.kind === "discovery" ? "음식 소개" : "레시피"} · {food.category}</span>
+              </span>
             </button>;
           })}
         </section>
       <section id="featured-trend-food" aria-label={curated ? "오늘의 음식" : `오늘의 ${selected + 1}위`} className="home-poster-active relative text-center text-foreground">
-        <figure className="home-poster-image relative overflow-hidden rounded-3xl bg-secondary">
-          <Link key={top.slug} href={href} aria-label={`${top.name} 상세 보기`} className="food-image-link block h-full focus-visible:-outline-offset-4">
-            <FoodImage food={top} hero preload={selected === 0} sizes="(min-width: 768px) 400px, 70vw" />
+        <figure className="home-poster-image relative">
+          <Link key={top.slug} href={href} aria-label={`${top.name} 상세 보기`} className="home-poster-photo rounded-2xl focus-visible:-outline-offset-4 md:rounded-3xl">
+            <FoodImage food={top} hero contain preload={selected === 0} sizes="(min-width: 768px) 540px, 74vw" />
           </Link>
-          <span className="home-poster-rank pointer-events-none absolute bottom-4 left-5 text-hero font-extrabold italic leading-none text-primary-foreground" aria-label={`${selected + 1}위`}>{selected + 1}</span>
         </figure>
         <div className="home-feature-story mt-4 min-w-0">
           <div aria-live="polite">
@@ -67,8 +110,8 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
         </div>
       </section>
       <nav aria-label="추천 음식 넘기기" className="home-poster-controls pointer-events-none absolute inset-x-2 z-10 flex items-center justify-between">
-        <button type="button" aria-label="이전 추천 음식" onClick={() => setSelected((selected + foods.length - 1) % foods.length)} className="pointer-events-auto flex size-11 items-center justify-center rounded-full border bg-background text-foreground"><ChevronLeft aria-hidden className="size-5" /></button>
-        <button type="button" aria-label="다음 추천 음식" onClick={() => setSelected((selected + 1) % foods.length)} className="pointer-events-auto flex size-11 items-center justify-center rounded-full border bg-background text-foreground"><ChevronRight aria-hidden className="size-5" /></button>
+        <button type="button" aria-label="이전 추천 음식" onClick={() => move(-1)} className="pointer-events-auto flex size-11 items-center justify-center rounded-full border bg-background text-foreground"><ChevronLeft aria-hidden className="size-5" /></button>
+        <button type="button" aria-label="다음 추천 음식" onClick={() => move(1)} className="pointer-events-auto flex size-11 items-center justify-center rounded-full border bg-background text-foreground"><ChevronRight aria-hidden className="size-5" /></button>
       </nav>
       </div>
       <p className="mt-2 text-center text-meta tabular-nums" aria-live="polite">{selected + 1} / {foods.length}</p>

@@ -10,36 +10,48 @@
   position: relative;
   overflow: hidden;
   padding: 8px 0;
-  --poster-width: min(70vw, 380px);
-  --poster-gap: 20px;
+  --poster-width: min(74vw, 540px);
+  --poster-gap: 12px;
+  --poster-height: clamp(190px, 51vw, 360px);
 }
 .home-poster-active {
   width: var(--poster-width);
   margin-inline: auto;
 }
 .home-poster-image {
-  height: clamp(280px, 85vw, 500px);
+  height: var(--poster-height);
+  touch-action: pan-y pinch-zoom;
+  user-select: none;
 }
-.home-poster-image img {
-  object-fit: cover;
-  object-position: center;
+.home-poster-photo {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
 }
-.home-poster-rank {
-  text-shadow: 0 2px 8px var(--scrim);
+@media (pointer: fine) {
+  .home-poster-image,
+  .home-poster-photo {
+    cursor: grab;
+  }
+  .home-poster-image:active,
+  .home-poster-photo:active {
+    cursor: grabbing;
+  }
 }
 .home-poster-controls {
-  top: calc(8px + clamp(280px, 85vw, 500px) / 2);
+  top: calc(8px + var(--poster-height) / 2);
   transform: translateY(-50%);
 }
 .home-poster-side {
   position: absolute;
-  top: 28px;
+  top: 22px;
   width: var(--poster-width);
   cursor: pointer;
   text-align: center;
 }
 .home-poster-side .home-poster-image {
-  height: clamp(250px, 77vw, 460px);
+  height: calc(var(--poster-height) - 28px);
 }
 .home-poster-previous {
   right: calc(50% + var(--poster-width) / 2 + var(--poster-gap));
@@ -47,8 +59,22 @@
 .home-poster-next {
   left: calc(50% + var(--poster-width) / 2 + var(--poster-gap));
 }
+.home-poster-previous .home-poster-photo {
+  justify-content: flex-end;
+}
+.home-poster-next .home-poster-photo {
+  justify-content: flex-start;
+}
 @media (min-width: 768px) {
   .home-poster-carousel { --poster-gap: 24px; }
+}
+@media (min-width: 1024px) {
+  .home-poster-side-caption {
+    width: calc((min(100vw, 1200px) - 40px - var(--poster-width)) / 2 - var(--poster-gap));
+  }
+  .home-poster-previous .home-poster-side-caption {
+    margin-inline-start: auto;
+  }
 }
 
 /* 색·모서리·글꼴 토큰은 theme.css 에만 둔다 (docs/design.md 기준). 다크 모드는 미정이라 .dark 토큰 없음. */
