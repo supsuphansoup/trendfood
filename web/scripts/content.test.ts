@@ -73,9 +73,10 @@ test("기존 열 개 주소를 보존하고 2020~2026년 모두 근거 있는 �
   assert.deepEqual(foods.filter((food) => food.kind === "product").map((food) => food.slug).sort(), ["meoktaekkang", "pokemon-bread", "yonsei-cream-bread"]);
 });
 
-test("자취 요리 40개는 실사·원문·분량이 있는 비유행 레시피로 추가한다", () => {
+test("자취 요리 40개는 원문·분량과 확인한 음식 이미지가 있는 비유행 레시피로 유지한다", () => {
   const { foods } = parseContent(input);
-  const additions = foods.filter((food) => food.image.startsWith("photo-everyday-"));
+  const reviewedFallbacks = new Set(["egg-soup", "gyeran-mari", "egg-fried-rice", "egg-sandwich"]);
+  const additions = foods.filter((food) => food.image.startsWith("photo-everyday-") || reviewedFallbacks.has(food.slug));
   assert.equal(additions.length, 40);
   assert.ok(foods.filter((food) => !food.history && (!food.kind || food.kind === "recipe")).length >= 48);
   for (const slug of ["kimchi-fried-rice", "soy-sauce-egg-rice", "curry-rice", "kimchi-jjigae", "gyeran-mari", "dubu-jorim", "bibim-guksu", "egg-sandwich"]) {
@@ -89,9 +90,16 @@ test("자취 요리 40개는 실사·원문·분량이 있는 비유행 레시�
     assert.ok(food.ingredients.length >= 2 && food.ingredients.length <= 15);
     assert.ok(food.steps.length >= 3 && food.steps.length <= 4);
     assert.match(food.recipeNote, /AI 요약/);
-    assert.equal(generatedImages[food.image], undefined);
-    assert.ok(validPhotoSource(photoCredits[food.image]), food.slug);
-    assert.equal(photoCredits[food.image].verifiedAt, "2026-11-18");
+    const example = generatedImages[food.image];
+    if (example) {
+      assert.ok(reviewedFallbacks.has(food.slug), food.slug);
+      assert.ok(example.prompt.includes(food.sources[0].url), food.slug);
+    } else {
+      const credit = photoCredits[food.image];
+      assert.ok(validPhotoSource(credit), food.slug);
+      assert.match(credit.verifiedAt, /^\d{4}-\d{2}-\d{2}$/);
+      assert.ok(credit.verifiedAt >= "2026-11-18");
+    }
     assert.ok(food.ingredients.every((ingredient) => ingredient.url === undefined));
   }
 });
@@ -101,6 +109,7 @@ test("실사 사진은 허용 라이선스·출처와 파일을 보존한다", a
   for (const food of foods.filter((food) => food.image !== "pending" && !generatedImages[food.image])) {
     const credit = photoCredits[food.image];
     assert.ok(credit.author && credit.note && credit.verifiedAt);
+    assert.equal(credit.rejectedReason, undefined, food.slug);
     assert.ok(curatedLicenses.includes(credit.license));
     if (credit.automatic) {
       assert.ok(credit.licenseUrl);

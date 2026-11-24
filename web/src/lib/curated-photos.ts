@@ -40,7 +40,6 @@ import everydayPhoto20 from "@/assets/curated/photo-everyday-miyeok-guk.webp";
 import everydayPhoto21 from "@/assets/curated/photo-everyday-bean-sprout-muchim.webp";
 import everydayPhoto22 from "@/assets/curated/photo-everyday-eomuk-tang.webp";
 import everydayPhoto23 from "@/assets/curated/photo-everyday-dubu-jorim.webp";
-import everydayPhoto24 from "@/assets/curated/photo-everyday-gyeran-mari.webp";
 import everydayPhoto25 from "@/assets/curated/photo-everyday-gyeran-jjim.webp";
 import everydayPhoto26 from "@/assets/curated/photo-everyday-eomuk-bokkeum.webp";
 import everydayPhoto27 from "@/assets/curated/photo-everyday-cucumber-muchim.webp";
@@ -59,7 +58,6 @@ import everydayPhoto39 from "@/assets/curated/photo-everyday-spinach-namul.webp"
 
 import everydayPhoto11 from "@/assets/curated/photo-everyday-corn-cheese.webp";
 
-import reviewedPhoto0 from "@/assets/curated/photo-everyday-reviewed-egg-soup.webp";
 
 import reviewedPhoto1 from "@/assets/curated/photo-everyday-reviewed-cream-pasta.webp";
 
@@ -79,8 +77,18 @@ import reviewedPhoto7 from "@/assets/curated/photo-reviewed-ube-latte-20261118.w
 import reviewedPhoto9 from "@/assets/curated/photo-everyday-reviewed-janchi-guksu.webp";
 
 import reviewedPhoto10 from "@/assets/curated/photo-everyday-reviewed-cucumber-muchim.webp";
+import photo_everyday_kimchi_jjigae_20261125 from "@/assets/curated/photo-everyday-kimchi-jjigae-20261125.webp";
+import photo_everyday_tteok_guk_20261125 from "@/assets/curated/photo-everyday-tteok-guk-20261125.webp";
+import photo_reviewed_dubai_chocolate_20261125 from "@/assets/curated/photo-reviewed-dubai-chocolate-20261125.webp";
+import photo_everyday_tteokbokki_20261125 from "@/assets/curated/photo-everyday-tteokbokki-20261125.webp";
+import photo_everyday_tomato_pasta_20261125 from "@/assets/curated/photo-everyday-tomato-pasta-20261125.webp";
 
 export const curatedPhotos = {
+  "photo-everyday-kimchi-jjigae-20261125": photo_everyday_kimchi_jjigae_20261125,
+  "photo-everyday-tteok-guk-20261125": photo_everyday_tteok_guk_20261125,
+  "photo-reviewed-dubai-chocolate-20261125": photo_reviewed_dubai_chocolate_20261125,
+  "photo-everyday-tteokbokki-20261125": photo_everyday_tteokbokki_20261125,
+  "photo-everyday-tomato-pasta-20261125": photo_everyday_tomato_pasta_20261125,
   "photo-auto-dubai-chewy-cookie": photo0,
   "photo-auto-ube-latte": photo1,
   "photo-auto-yakgwa": photo2,
@@ -122,7 +130,6 @@ export const curatedPhotos = {
   "photo-everyday-bean-sprout-muchim": everydayPhoto21,
   "photo-everyday-eomuk-tang": everydayPhoto22,
   "photo-everyday-dubu-jorim": everydayPhoto23,
-  "photo-everyday-gyeran-mari": everydayPhoto24,
   "photo-everyday-gyeran-jjim": everydayPhoto25,
   "photo-everyday-eomuk-bokkeum": everydayPhoto26,
   "photo-everyday-cucumber-muchim": everydayPhoto27,
@@ -139,7 +146,6 @@ export const curatedPhotos = {
   "photo-everyday-tomato-egg-stir-fry": everydayPhoto38,
   "photo-everyday-spinach-namul": everydayPhoto39,
   "photo-everyday-corn-cheese": everydayPhoto11,
-  "photo-everyday-reviewed-egg-soup": reviewedPhoto0,
   "photo-everyday-reviewed-cream-pasta": reviewedPhoto1,
   "photo-everyday-reviewed-gamja-jorim": reviewedPhoto2,
   "photo-everyday-reviewed-eomuk-bokkeum": reviewedPhoto3,

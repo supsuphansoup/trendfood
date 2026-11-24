@@ -258,7 +258,8 @@ test("실사는 보존하고 등록된 생성 예시와 준비 중 사진을 매
   const pending = current().foods[1];
   const foods = [real, protectedHero, unknown, mismatched, ...generated, pending];
   const seen = new Set<string>();
-  for (let day = 0; day < generated.length + 1; day++) {
+  const generatedSlots = Math.min(4, generated.length);
+  for (let day = 0; day < Math.ceil(generated.length / generatedSlots); day++) {
     const batch = photoBatch(foods, new Date(now.getTime() + day * 86_400_000));
     assert.equal(batch.length, Math.min(5, generated.length + 1));
     assert.ok(batch.every((food) => food === pending || generated.includes(food)));

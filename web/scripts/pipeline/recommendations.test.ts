@@ -17,6 +17,7 @@ const raw = JSON.parse(await readFile(new URL("../../src/data/content/foods.json
 test("사진 대기 원고는 등록한 같은 음식의 생성 사진과 최근 두 제작자·원문 재확인이 있어야 공개한다", async () => {
   const date = "2026-11-20";
   const current = baseline();
+  const registered = current.foods.find((food) => food.slug === "yogurt-mochi")!.image;
   current.foods = current.foods.filter((food) => food.slug !== "yogurt-mochi");
   const ids = ["Abcdef_1230", "Abcdef_1231"];
   const draft = { ...current.foods[0], slug: "yogurt-mochi", name: "요거트 찹쌀떡", kind: "discovery" as const,
@@ -26,7 +27,7 @@ test("사진 대기 원고는 등록한 같은 음식의 생성 사진과 최근
   const details = ids.map((id, index) => ({ id, title: "요거트 찹쌀떡 먹방", description: "", channelId: `UC${String(index).repeat(22)}`, publishedAt: "2026-11-19T00:00:00Z" }));
   const result = await publishPendingPhotos(current, state, date, async (requested) => { assert.deepEqual(requested, ids); return details; });
   const published = result.snapshot.foods.find((food) => food.slug === draft.slug)!;
-  assert.equal(published.image, "photo-ai-yogurt-mochi");
+  assert.equal(published.image, registered);
   assert.equal(published.heroImage, published.image);
   assert.match(published.alt, /AI 생성/);
   assert.match(published.heroAlt!, /AI 생성/);
@@ -59,8 +60,9 @@ test("생성 사진을 등록하지 않은 원고는 외부 조회 없이 보류
 
 test("대기 전용 실행도 새로 재확인한 영상 언급 점수로 상위 세 개를 게시한다", async () => {
   const current = baseline();
+  const publishDate = "2026-11-20";
   const records = [...new Set(Object.values(generatedImages).map((image) => image.slug))].slice(0, 4);
-  current.foods = current.foods.filter((food) => !records.includes(food.slug));
+  current.foods = current.foods.filter((food) => !records.includes(food.slug) && food.publishedAt !== publishDate);
   const details: { id: string; title: string; description: string; channelId: string; publishedAt: string }[] = [];
   const pending = records.map((slug, index) => {
     const name = `대기 음식 ${index}`;
@@ -71,7 +73,7 @@ test("대기 전용 실행도 새로 재확인한 영상 언급 점수로 상위
       image: "pending", heroImage: "pending", ingredients: [], steps: [], cookMinutes: 0, checkedAt: "2026-11-19",
       summary: `원문 소개: “${videos[0].title}”`, sources: videos.map((video) => ({ title: video.title, url: `https://www.youtube.com/watch?v=${video.id}` })) } };
   });
-  const result = await publishPendingPhotos(current, { ...emptyDiscovery(), pending }, "2026-11-20", async () => details);
+  const result = await publishPendingPhotos(current, { ...emptyDiscovery(), pending }, publishDate, async () => details);
   assert.deepEqual(result.snapshot.recommendation!.newSlugs, pending.slice(1).reverse().map(({ food }) => food.slug));
   assert.equal(result.deferred.length, 1);
   assert.equal(result.deferred[0].slug, pending[0].food.slug);

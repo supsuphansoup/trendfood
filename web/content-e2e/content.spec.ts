@@ -278,11 +278,13 @@ test("추가 자취 요리는 검색·실사·재료 분량과 일반 구매 검
   await expect(page.getByText(/AI 생성 예시 ·/)).toHaveCount(0);
 });
 
-test("재검토 사진은 카드와 상세에서 같은 실사·출처로 표시한다", async ({ page }, info) => {
+test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 정보를 제공한다", async ({ page }, info) => {
   for (const slug of ["egg-soup", "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum", "udon-soup", "omurice", "ube-latte", "janchi-guksu", "cucumber-muchim"]) {
     const food = snapshot.foods.find((food) => food.slug === slug)!;
     const credit = automaticPhotos[food.image];
-    expect(credit.automatic).toBe(false);
+    const example = generatedImages[food.image];
+    expect(Boolean(credit || example)).toBe(true);
+    expect(Boolean(credit?.automatic || example?.automatic)).toBe(false);
     await page.goto(`/?q=${encodeURIComponent(food.name)}`);
     const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: food.name, exact: true }) });
     const image = card.getByRole("img", { name: food.alt, exact: true });
@@ -294,7 +296,12 @@ test("재검토 사진은 카드와 상세에서 같은 실사·출처로 표시
     const detail = page.getByRole("region", { name: "음식 소개", exact: true });
     await expect(detail.getByRole("img", { name: food.alt, exact: true })).toHaveAttribute("src", source!);
     await page.getByLabel("사진 정보", { exact: true }).locator("summary").click();
-    await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);
+    if (credit) {
+      await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);
+    } else {
+      await expect(page.getByLabel("사진 정보", { exact: true }).getByText(/AI 생성 예시 ·/)).toBeVisible();
+      await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
+    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (["egg-soup", "ube-latte", "cucumber-muchim"].includes(slug)) await page.screenshot({ path: `test-results/content/reviewed-${slug}-detail-${info.project.name}.png` });
   }
@@ -539,7 +546,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       }
       await expect(page.getByRole("link", { name: /사진 출처|사진 라이선스/ })).toHaveCount(0);
       expect(await introduction.locator("img").evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      if (["croffle", "crunch-27-cube"].includes(food.slug)) {
+      if (["croffle", "crunch-27-cube"].includes(food.slug) || food.image.endsWith("-natural-20261125")) {
         await introduction.getByRole("img", { name: food.alt, exact: true }).screenshot({ path: `test-results/content/photo-${food.slug}-${info.project.name}.png` });
       }
       if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });
@@ -566,6 +573,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
         if (automatic.automatic) await expect(sources.getByText(/운영자의 개별 검수는 하지 않았어요/)).toBeVisible();
         if (automatic.license.startsWith("CC BY")) await expect(sources.getByText(/변환본은 원본과 같은/)).toBeVisible();
       }
+      if (food.image.endsWith("-20261125")) await image.screenshot({ path: `test-results/content/photo-${food.slug}-${info.project.name}.png` });
       if (food.image.startsWith("photo-reviewed-")) await page.screenshot({ path: `test-results/content/real-${food.slug}-${info.project.name}.png` });
       if (food.slug === "kimchi-fried-rice") await page.screenshot({ path: `test-results/content/everyday-detail-${info.project.name}.png`, fullPage: true });
     }

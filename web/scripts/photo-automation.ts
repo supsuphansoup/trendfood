@@ -84,14 +84,19 @@ export function photoBatch(foods: ContentFood[], now: Date, limit = 5, priorityS
     .every((key) => key === "pending" || generatedImages[key]?.slug === food.slug));
   if (!pending.length) return [];
   const count = Math.min(20, Math.max(1, Math.floor(limit)));
-  const rotate = (items: ContentFood[]) => {
-    const start = items.length ? (Math.floor(now.getTime() / 86_400_000) * 5) % items.length : 0;
-    return [...items.slice(start), ...items.slice(0, start)];
-  };
-  const empty = pending.filter((food) => food.image === "pending" || food.heroImage === "pending");
-  const priority = prioritySlugs.flatMap((slug) => pending.filter((food) => food.slug === slug));
-  return [...priority, ...rotate(empty), ...rotate(pending.filter((food) => !empty.includes(food)))]
-    .filter((food, index, items) => items.indexOf(food) === index).slice(0, count);
+  const priority = new Set(prioritySlugs.flatMap((slug) => pending.filter((food) => food.slug === slug)));
+  const selected = [...priority].slice(0, count);
+  const remaining = pending.filter((food) => !priority.has(food));
+  const empty = remaining.filter((food) => food.image === "pending" || food.heroImage === "pending");
+  const generated = remaining.filter((food) => !empty.includes(food));
+  const day = Math.floor(now.getTime() / 86_400_000);
+  for (const items of [empty, generated]) {
+    const slots = count - selected.length;
+    // 빈 사진이 우선 사용한 자리를 빼고, 실제로 순회하는 개수만큼 이동한다.
+    const start = items.length ? (day * slots) % items.length : 0;
+    selected.push(...[...items.slice(start), ...items.slice(0, start)].slice(0, slots));
+  }
+  return selected;
 }
 
 /** 검증된 실사로 빈 사진·생성 예시를 교체하고, 실패하면 기존 표시를 보존한다. */

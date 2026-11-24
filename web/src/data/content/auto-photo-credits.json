@@ -441,6 +441,7 @@
     "note": "두부조림 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
   },
   "photo-everyday-gyeran-mari": {
+    "rejectedReason": "외부 원본에 대한 Commons 라이선스 검토 대기",
     "title": "Gyeran-mari 4.jpg",
     "author": "Asadal",
     "url": "https://commons.wikimedia.org/wiki/File:Gyeran-mari_4.jpg",
@@ -683,6 +684,7 @@
     "note": "콘치즈 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요."
   },
   "photo-everyday-reviewed-egg-soup": {
+    "rejectedReason": "외부 원본에 대한 Commons 라이선스 검토 대기",
     "title": "Chinese gyeran-tang.jpg",
     "author": "OLSO OLSO",
     "url": "https://commons.wikimedia.org/wiki/File:Chinese_gyeran-tang.jpg",
@@ -850,6 +852,76 @@
       "top": 0.1053740779768177,
       "width": 0.6354166666666666,
       "height": 0.7586933614330874
+    }
+  },
+  "photo-everyday-kimchi-jjigae-20261125": {
+    "title": "Kimchi jjigae - San Francisco, CA.jpg",
+    "author": "Daderot",
+    "url": "https://commons.wikimedia.org/wiki/File:Kimchi_jjigae_-_San_Francisco,_CA.jpg",
+    "license": "CC0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Kimchi_jjigae_-_San_Francisco%2C_CA.jpg",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "note": "김치찌개 참고 실사예요. 재료의 비율과 담음새는 레시피에 따라 달라질 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요.",
+    "pageId": 143591859
+  },
+  "photo-everyday-tteok-guk-20261125": {
+    "title": "Tteokguk (rice cake soup) 02.jpg",
+    "author": "한국교육방송공사",
+    "url": "https://commons.wikimedia.org/wiki/File:Tteokguk_(rice_cake_soup)_02.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/1a/Tteokguk_%28rice_cake_soup%29_02.jpg",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "note": "떡국 참고 실사예요. 재료의 비율과 담음새는 레시피에 따라 달라질 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요.",
+    "pageId": 114473445,
+    "attributionNotice": "https://gongu.copyright.or.kr/gongu/wrt/wrt/view.do?wrtSn=13063404&menuNo=200018"
+  },
+  "photo-reviewed-dubai-chocolate-20261125": {
+    "title": "Dubai-Schokolade-Riegel-Angeschnitten.jpg",
+    "author": "WiseWoman",
+    "url": "https://commons.wikimedia.org/wiki/File:Dubai-Schokolade-Riegel-Angeschnitten.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Dubai-Schokolade-Riegel-Angeschnitten.jpg",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "note": "두바이 초콜릿 참고 실사예요. 재료의 비율과 담음새는 레시피에 따라 달라질 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요.",
+    "pageId": 156905441
+  },
+  "photo-everyday-tteokbokki-20261125": {
+    "title": "Tteokbokki.JPG",
+    "author": "Popo le Chien",
+    "url": "https://commons.wikimedia.org/wiki/File:Tteokbokki.JPG",
+    "license": "CC0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4d/Tteokbokki.JPG",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "note": "떡볶이 참고 실사예요. 재료의 비율과 담음새는 레시피에 따라 달라질 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC0 조건으로 제공해요.",
+    "pageId": 43914433,
+    "sha1": "d42a9733e1c8fbe551d400244c4010a29020e9a5"
+  },
+  "photo-everyday-tomato-pasta-20261125": {
+    "title": "Spaghetti on a Plate",
+    "author": "adrian vieriu",
+    "url": "https://www.pexels.com/photo/spaghetti-on-a-plate-11654230/",
+    "license": "Pexels License",
+    "imageUrl": "https://images.pexels.com/photos/11654230/pexels-photo-11654230.jpeg",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "licenseUrl": "https://www.pexels.com/license/",
+    "note": "토마토파스타 참고 실사예요. 재료의 비율과 담음새는 레시피에 따라 달라질 수 있어요. 접시가 잘 보이도록 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. Pexels License 조건을 따라 제공해요.",
+    "provider": "pexels",
+    "providerId": "11654230",
+    "creatorUrl": "https://www.pexels.com/@printexstar/",
+    "crop": {
+      "left": 0.09,
+      "top": 0.03,
+      "width": 0.82,
+      "height": 0.94
     }
   }
 }
