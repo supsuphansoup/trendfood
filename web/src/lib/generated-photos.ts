@@ -28,8 +28,12 @@ import image25 from "@/assets/generated/photo-ai-pork-sprout-stir-fry-ref-v2.web
 import image26 from "@/assets/generated/photo-ai-yogurt-mochi.webp";
 import image27 from "@/assets/generated/photo-ai-nama-chocolate-mochi.webp";
 import image28 from "@/assets/generated/photo-ai-crunch-27-cube.webp";
+import croffleNatural from "@/assets/generated/photo-ai-croffle-natural-20261124.webp";
+import crunchCubeNatural from "@/assets/generated/photo-ai-crunch-27-cube-natural-20261124.webp";
 
 export const generatedPhotos = {
+  "photo-ai-crunch-27-cube-natural-20261124": crunchCubeNatural,
+  "photo-ai-croffle-natural-20261124": croffleNatural,
   "photo-ai-yogurt-mochi": image26,
   "photo-ai-nama-chocolate-mochi": image27,
   "photo-ai-crunch-27-cube": image28,

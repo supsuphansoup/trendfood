@@ -15,6 +15,14 @@
     "prompt": "Use case: photorealistic-natural. Make an original delicious editorial food photograph for a Korean food discovery website, landscape 3:2. Input image is a supporting reference ONLY for the food construction of plain nama chocolate mochi at upper LEFT: very thin snow-white glutinous rice skin surrounding a generous smooth deep-brown soft chocolate ganache center. New scene: a simple warm grey ceramic plate with two palm-sized white mochi, one intact and one cut cleanly into halves exposing the rich dense silky dark chocolate filling. No fruit in this plain version. Ganache is softly firm and cleanly cut, not a liquid spill; exterior has a whisper of starch, no cocoa dust. Natural believable edible imperfections, soft side window light, close three-quarter view, tactile matte white mochi contrasted with moist dark chocolate. Food centered with at least 15% margin for a 3:2 crop. Premium bakery editorial realism without overly glossy synthetic textures. An illustrative AI food example, not a branded advertisement. Do not copy the ad's layout, splashes, typography, logo or exact arrangement. No writing, packaging, hands, utensils, decorations, additional foods or collage.\nReference source (appearance only): https://m.gosiweek.com/article/1065591720308048",
     "note": "실제 메뉴의 형태와 재료 구성을 참고해 만든 AI 생성 예시 이미지예요. 직접 촬영한 사진이나 실제 판매 제품 사진이 아니며 실제 모습과 다를 수 있어요."
   },
+  "photo-ai-crunch-27-cube-natural-20261124": {
+    "slug": "crunch-27-cube",
+    "title": "크런치 27 큐브 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-24",
+    "prompt": "공식 메뉴에서 확인한 3×3 큐브 3단과 얇은 다크 초콜릿 사이층, 위에 얹은 쿠키·코코아·피스타치오색 크런치를 표현한다. 아이보리 무광 접시와 회색 린넨 위에 한 큐브를 따로 덜어 담고 낮은 사선 각도에서 창가 자연광으로 촬영한 새 플레이팅을 구성한다. 아이스크림의 서리와 미세한 질감, 몇 알의 크런치 부스러기를 살리고 과도한 광택과 원래 상품 받침·장식·로고·문구는 피한다. 음식은 카드와 상세 화면에서 가운데에 배치한다. 형태 확인 출처 https://www.baskinrobbins.co.kr/menu/view.php?seq=1176",
+    "note": "공식 메뉴에 나온 아이스크림 큐브와 초콜릿 층의 형태를 바탕으로 한 조각을 덜어 담은 구도를 만든 AI 생성 예시예요. 실제 판매 제품의 구성과 모습은 다를 수 있어요."
+  },
   "photo-ai-crunch-27-cube": {
     "slug": "crunch-27-cube",
     "title": "크런치 27 큐브 AI 생성 예시 이미지",
@@ -70,6 +78,25 @@
     "generatedAt": "2026-11-13",
     "prompt": "Use case: photorealistic-natural. Asset: appetizing Korean food website photograph-style AI example, landscape 3:2. Subject: One clear glass of chilled white milk and ice topped with a thick luscious cloud of light caramel-brown whipped instant coffee, softly sculpted peaks, recognizable homemade Korean dalgona coffee. No clutter, powders or toppings. Style: professional editorial food photography, realistic edible textures, warm soft side window light, simple neutral linen and clean table, minimal props. Close three-quarter view, whole dish centered with a little margin so a central 3:2 crop preserves its identity, selective depth of field with main food in focus. No text, watermark, logo, packaging, hands, busy scenery, collage or additional unlisted toppings.",
     "note": "레시피의 재료와 조리법을 참고해 만든 AI 생성 예시 이미지예요. 직접 조리한 완성 사진이 아니며 실제 결과와 다를 수 있어요."
+  },
+  "photo-ai-croffle-natural-20261124": {
+    "slug": "croffle",
+    "title": "크로플 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-24",
+    "prompt": "참고 실사에서는 크루아상 반죽을 누른 격자와 바삭하게 겹친 결만 확인한다. 오트밀 톤의 무광 접시에 금빛 크로플 두 개와 바닐라 아이스크림 한 스쿱을 따로 담고 슈가파우더를 가볍게 뿌린다. 위에서 내려다보는 구도, 부드러운 자연광, 차분한 린넨 배경으로 새로 구성한다. 과도한 윤기·채도·흐림이나 재료에 없는 토핑을 피한다. 참고 출처 https://commons.wikimedia.org/wiki/File:Croffle.jpg",
+    "note": "실사에서 크로플 반죽의 격자와 결을 참고해 접시·배치·각도를 새로 구성한 AI 생성 예시예요. 실제 조리 결과와 다를 수 있어요. 이 이미지는 CC BY-SA 4.0으로 제공해요.",
+    "basis": "reference",
+    "reference": {
+      "title": "Croffle.jpg",
+      "author": "Pkccccj",
+      "url": "https://commons.wikimedia.org/wiki/File:Croffle.jpg",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/5/5e/Croffle.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "verifiedAt": "2026-11-24",
+      "note": "Wikimedia Commons에 등록된 원본의 크롭 버전을 참고해 새 구도의 AI 예시를 만들었어요."
+    }
   },
   "photo-ai-croffle": {
     "slug": "croffle",

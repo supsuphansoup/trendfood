@@ -16,7 +16,7 @@ const food = { ...snapshot.foods[0], slug: "test-food", image: "pending", heroIm
 const reference: PhotoCredit = { title: "Test food", author: "작가", url: "https://commons.wikimedia.org/wiki/File:Test_food.jpg", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/a/ab/Test.jpg", license: "CC BY-SA 4.0", licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/", verifiedAt: "2026-11-23", note: "" };
 const now = new Date("2026-11-22T23:00:00Z");
 const bytes = await sharp({ create: { width: 1536, height: 1024, channels: 3, background: "orange" } }).webp().toBuffer();
-const approved = { match: true, referenceMatches: true, recipeMatches: true, presentationSuitable: true, noText: true, confidence: 0.99, reason: "일치" };
+const approved = { match: true, referenceMatches: true, distinctComposition: true, recipeMatches: true, presentationSuitable: true, naturalAppearance: true, noText: true, confidence: 0.99, reason: "일치" };
 
 test("이미지 API는 실제 참고 파일·고정 모델·1장만 보내며 유료 재시도를 하지 않는다", async () => {
   let calls = 0;
@@ -47,11 +47,14 @@ test("출처·판별·크롭을 통과한 생성 결과만 별도 등록하고 K
     saveState: async (value) => { saved.push(structuredClone(value)); },
     edit: async (prompt, referenceBytes) => {
       assert.equal(saved[0].attempts[0].status, "reserved");
-      assert.match(prompt, /정확한 음식/); assert.ok(referenceBytes?.length); return bytes;
+      assert.match(prompt, /정확한 음식/); assert.match(prompt, /접시·카메라 각도·조명·배치·배경/);
+      assert.ok(referenceBytes?.length); return bytes;
     },
     inspect: async (_prompt, schema, images) => {
       assert.equal(images?.length, 4);
       assert.ok((schema.required as string[]).includes("referenceMatches"));
+      assert.ok((schema.required as string[]).includes("distinctComposition"));
+      assert.ok((schema.required as string[]).includes("naturalAppearance"));
       const mobile = await sharp(Buffer.from(images![3].data, "base64")).metadata();
       assert.equal(mobile.width, 390); assert.equal(mobile.height, 440);
       return approved;
@@ -70,7 +73,7 @@ test("출처·판별·크롭을 통과한 생성 결과만 별도 등록하고 K
 });
 
 test("API 오류는 재시도하지 않고 품질 탈락은 최대 두 번 차감하며 복원 후 한도를 유지한다", async () => {
-  for (const failure of ["api", "match", "referenceMatches", "recipeMatches", "presentationSuitable", "noText", "confidence"]) {
+  for (const failure of ["api", "match", "referenceMatches", "distinctComposition", "recipeMatches", "presentationSuitable", "naturalAppearance", "noText", "confidence"]) {
     const state: ImageState = { version: 1, attempts: [] };
     let calls = 0;
     const options = { state, now, saveState: async () => {},
@@ -106,14 +109,17 @@ test("참고 사진이 없어도 검증된 설명으로 생성하고 사진 출�
       assert.equal(images?.length, 3); assert.match(prompt, /설명만으로 일치를 판단할 수 없으면 거절/);
       assert.ok(!(schema.required as string[]).includes("referenceMatches"));
       assert.ok(!("referenceMatches" in (schema.properties as object)));
-      const { referenceMatches: _referenceMatches, ...verdict } = approved; void _referenceMatches; return verdict;
+      assert.ok(!(schema.required as string[]).includes("distinctComposition"));
+      assert.ok(!("distinctComposition" in (schema.properties as object)));
+      const { referenceMatches: _referenceMatches, distinctComposition: _distinctComposition, ...verdict } = approved;
+      void _referenceMatches; void _distinctComposition; return verdict;
     },
   });
   const result = await generate(food);
   assert.equal(result.record.basis, "description"); assert.equal(result.record.reference, undefined);
   assert.match(result.record.note, /참고 사진 없이/); assert.doesNotMatch(result.record.note, /CC BY/);
   await assert.rejects(generate(food, reference, bytes), /오늘 이미 처리/); assert.equal(calls, 1);
-  for (const failure of ["match", "recipeMatches", "presentationSuitable", "noText", "confidence"]) {
+  for (const failure of ["match", "recipeMatches", "presentationSuitable", "naturalAppearance", "noText", "confidence"]) {
     const state: ImageState = { version: 1, attempts: [] };
     const generate = generatedPhotoFactory({ state, now, saveState: async () => {}, edit: async () => bytes,
       inspect: async () => ({ ...approved, [failure]: failure === "confidence" ? 0.94 : false }),

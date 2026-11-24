@@ -39,7 +39,7 @@ test("사진 묶음은 새 음식의 빈 사진을 먼저 확인하되 하루 5�
   assert.ok(selected.slice(1).every((food) => generated.some((item) => item.slug === food.slug)));
 });
 const bytes = await sharp({ create: { width: 800, height: 600, channels: 3, background: "#ddaa55" } }).jpeg().toBuffer();
-const verdict = { match: true, confidence: 0.99, photograph: true, unobstructed: true, metadataMatches: true, recipeMatches: true, presentationSuitable: true, reason: "메뉴와 일치" };
+const verdict = { match: true, confidence: 0.99, photograph: true, unobstructed: true, metadataMatches: true, recipeMatches: true, presentationSuitable: true, platingSuitable: true, reason: "메뉴와 일치" };
 // 매일 추천 순서·실사 교체가 달라져도 이 검사의 보호 사진과 빈 사진 수는 고정한다.
 const current = (): ContentSnapshot => ({ ...structuredClone(input), foods: [
   structuredClone(protectedReal),
@@ -96,6 +96,13 @@ test("공식 사진 메타데이터: 허용 이용 조건·작가·크기·출�
     (value: ReturnType<typeof page>) => { value.imageinfo[0].extmetadata.LicenseUrl.value = "https://creativecommons.org.evil.example/publicdomain/zero/1.0/"; },
     (value: ReturnType<typeof page>) => { value.imageinfo[0].extmetadata.Artist.value = ""; },
     (value: ReturnType<typeof page>) => { value.title = "File:AI-generated food.jpg"; },
+    (value: ReturnType<typeof page>) => {
+      Object.assign(value.imageinfo[0].extmetadata, {
+        LicenseShortName: { value: "CC BY 4.0" },
+        LicenseUrl: { value: "https://creativecommons.org/licenses/by/4.0/" },
+        Categories: { value: "Food|License review needed|Photographs" },
+      });
+    },
     (value: ReturnType<typeof page>) => { value.imageinfo[0].width = 200; },
     (value: ReturnType<typeof page>) => { value.imageinfo[0].mime = "image/svg+xml"; },
     (value: ReturnType<typeof page>) => { value.imageinfo[0].descriptionurl = "https://example.com/File:food"; },
@@ -147,6 +154,8 @@ test("일치 사진만 WebP·출처 등록부·콘텐츠로 연결하고 기존 
       assert.match(prompt, /일회용 포장 용기/); assert.match(prompt, /kind=product/);
       assert.ok((schema.required as string[]).includes("recipeMatches"));
       assert.ok((schema.required as string[]).includes("presentationSuitable"));
+      assert.ok((schema.required as string[]).includes("platingSuitable"));
+      assert.match(prompt, /플레이팅/);
       return verdict;
     },
   }, now);
@@ -200,7 +209,7 @@ test("검토에서 내린 자동 사진을 보존하면서 다른 적합 사진�
 });
 
 test("불일치·낮은 신뢰·가림·합성·메타데이터 불일치·빈 응답은 사진 준비 중으로 남긴다", async () => {
-  for (const answer of [{ ...verdict, match: false }, { ...verdict, confidence: 0.94 }, { ...verdict, confidence: NaN }, { ...verdict, photograph: false }, { ...verdict, unobstructed: false }, { ...verdict, metadataMatches: false }, { ...verdict, recipeMatches: false }, { ...verdict, presentationSuitable: false }, { ...verdict, recipeMatches: undefined }, { ...verdict, presentationSuitable: undefined }, null]) {
+  for (const answer of [{ ...verdict, match: false }, { ...verdict, confidence: 0.94 }, { ...verdict, confidence: NaN }, { ...verdict, photograph: false }, { ...verdict, unobstructed: false }, { ...verdict, metadataMatches: false }, { ...verdict, recipeMatches: false }, { ...verdict, presentationSuitable: false }, { ...verdict, platingSuitable: false }, { ...verdict, platingSuitable: undefined }, { ...verdict, recipeMatches: undefined }, { ...verdict, presentationSuitable: undefined }, null]) {
     const result = await automaticPhotos(current(), {}, { search: async () => [candidate()], download: async () => bytes, generate: async (_prompt, _schema, images) => images?.length ? answer : { queries: [] } }, now);
     assert.equal(result.accepted.length, 0); assert.equal(result.assets.size, 0); assert.equal(result.deferred.length, 1); assert.equal(result.snapshot.foods[1].image, "pending");
   }
@@ -240,7 +249,7 @@ test("사진 준비 중 항목을 날짜별로 순환하며 제한을 넘기지 
 });
 
 test("실사는 보존하고 등록된 생성 예시와 준비 중 사진을 매일 5개씩 순환 검색한다", () => {
-  const generated = generatedFixtures;
+  const generated = [...new Map(generatedFixtures.map((food) => [food.slug, food])).values()];
   assert.ok(generated.length > 0);
   const real = protectedReal;
   const protectedHero = { ...generated[0], slug: generated[0].slug, heroImage: real.image };
@@ -423,7 +432,7 @@ test("사진 검색 결과가 전혀 없어도 세 음식의 생성·보완·등
     edit: (prompt, reference) => editReference(prompt, reference, "test-key", (async () => {
       calls++; return Response.json({ data: [{ b64_json: generatedBytes.toString("base64") }] });
     }) as typeof fetch),
-    inspect: async () => ({ match: true, recipeMatches: true, presentationSuitable: calls % 2 === 0, noText: true, confidence: 0.99, reason: "모바일 크롭 보완" }),
+    inspect: async () => ({ match: true, recipeMatches: true, presentationSuitable: calls % 2 === 0, naturalAppearance: true, noText: true, confidence: 0.99, reason: "모바일 크롭 보완" }),
   });
   const photos = await automaticPhotos({ ...baseline, foods: [...baseline.foods, ...drafts] }, {}, {
     publication: { prioritySlugs: drafts.map((food) => food.slug), slots: 3 },

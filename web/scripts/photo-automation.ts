@@ -20,13 +20,15 @@ export function licensedPhoto(page: CommonsPage, checkedAt: string): PhotoCandid
   if (!info || !["image/jpeg", "image/png", "image/webp"].includes(info.mime) || Math.min(info.width, info.height) < 480 || Math.max(info.width, info.height) / Math.min(info.width, info.height) > 3 || info.size > maxBytes) return null;
   const metadata = info.extmetadata ?? {};
   const field = (name: string) => plain(metadata[name]?.value ?? "");
+  const categories = field("Categories");
+  if (categories.split("|").some((category) => category.trim().toLowerCase() === "license review needed")) return null;
   const name = field("LicenseShortName");
   const licenseUrl = field("LicenseUrl");
   const license = name === "CC0" && /^https?:\/\/creativecommons\.org\/publicdomain\/zero\/1\.0(?:\/|$)/.test(licenseUrl) ? "CC0"
     : name === "Public domain" && field("Copyrighted").toLowerCase() === "false" ? "Public domain"
     : name === "CC BY 4.0" && /^https?:\/\/creativecommons\.org\/licenses\/by\/4\.0\/?$/.test(licenseUrl) ? "CC BY 4.0"
     : name === "CC BY-SA 4.0" && /^https?:\/\/creativecommons\.org\/licenses\/by-sa\/4\.0\/?$/.test(licenseUrl) ? "CC BY-SA 4.0" : null;
-  if (!license || !field("Artist") || field("Restrictions") || /\b(?:AI-generated|AI generated|synthetic media|generative AI)\b/i.test(`${page.title} ${field("Categories")} ${field("ImageDescription")}`)) return null;
+  if (!license || !field("Artist") || field("Restrictions") || /\b(?:AI-generated|AI generated|synthetic media|generative AI)\b/i.test(`${page.title} ${categories} ${field("ImageDescription")}`)) return null;
   const imageUrl = info.thumburl ?? info.url;
   if (!trustedPhotoUrl(imageUrl) || !trustedPhotoUrl(info.descriptionurl, true) || !Number.isInteger(page.pageid) || !/^[a-z0-9]{31,40}$/i.test(info.sha1)) return null;
   return {
@@ -68,8 +70,8 @@ export async function downloadCandidate(candidate: PhotoCandidate, fetcher: type
 
 const querySchema = { type: "object", additionalProperties: false, required: ["queries"], properties: { queries: { type: "array", items: { type: "string" } } } };
 const matchSchema = {
-  type: "object", additionalProperties: false, required: ["match", "confidence", "photograph", "unobstructed", "metadataMatches", "recipeMatches", "presentationSuitable", "reason"],
-  properties: { match: { type: "boolean" }, confidence: { type: "number" }, photograph: { type: "boolean" }, unobstructed: { type: "boolean" }, metadataMatches: { type: "boolean" }, recipeMatches: { type: "boolean" }, presentationSuitable: { type: "boolean" }, reason: { type: "string" } },
+  type: "object", additionalProperties: false, required: ["match", "confidence", "photograph", "unobstructed", "metadataMatches", "recipeMatches", "presentationSuitable", "platingSuitable", "reason"],
+  properties: { match: { type: "boolean" }, confidence: { type: "number" }, photograph: { type: "boolean" }, unobstructed: { type: "boolean" }, metadataMatches: { type: "boolean" }, recipeMatches: { type: "boolean" }, presentationSuitable: { type: "boolean" }, platingSuitable: { type: "boolean" }, reason: { type: "string" } },
 };
 type Generate = (prompt: string, schema: Record<string, unknown>, images?: { mimeType: "image/webp"; data: string }[]) => Promise<unknown>;
 type Dependencies = { generate: Generate; search: typeof searchPhotos; download: (candidate: PhotoCandidate) => Promise<Buffer>;
@@ -144,7 +146,7 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
             "음식 소개(kind=discovery)는 조리법이 없으므로 이름·소개 원문과 같은 음식인지로 recipeMatches를 판단하세요. 조리법이 없다는 이유만으로 거절하지 마세요. 완제품이 명시된 소개는 같은 브랜드·제품과 필요한 포장을 확인하며, 다른 제품 사진으로 대체하지 마세요.",
             "recipeMatches는 레시피의 주요 재료·토핑·소스·따뜻함/차가움·조리 형태와 사진이 맞을 때만 true입니다. 새우 없는 떡볶이, 크림 없는 리조또, 청포도 대신 산사 탕후루, 기본 크로플 대신 오레오 크림 크로플, 따뜻한 라떼 대신 아이스 라떼처럼 다른 완성 모습은 참고 사진이어도 거절하세요.",
             "첫 이미지는 전체 사진, 두 번째는 3:2 카드, 세 번째는 PC 상세(1280×520), 네 번째는 모바일 상세(390×440)의 음식 표시 구도입니다. 세로·정사각 실사의 상세는 원본 비율을 보존하며 투명 여백은 화면에서 같은 사진의 흐린 배경으로 채웁니다. presentationSuitable는 네 이미지 모두 요청 음식이 명확하게 식별될 때만 true입니다. 다른 음료가 함께 주인공인 사진, 음식이 가려진 사진, 책상·컴퓨터·매대·가격표·조리 중인 철판이 두드러진 사진, 흐림·과도한 어둠·부적절한 크롭은 거절하세요. 거품만 남아 잔·우유가 사라지거나 음식 형태가 잘리는 구도는 거절하세요.",
-            "실사라는 이유만으로 승인하지 마세요. 음식의 질감과 색이 자연스럽고 선명하며 깔끔한 배경·적절한 조명으로 먹음직스럽게 보여야 합니다. 음식은 맞아도 반사·색 번짐·포장·진열 상태가 대표 사진의 품질을 떨어뜨리면 presentationSuitable=false입니다.",
+            "platingSuitable는 플레이팅 검사입니다. 완성 음식이 정갈하게 담겨 있고, 자연스러운 색·질감과 먹음직스럽게 보이는 조명, 음식에 집중되는 배경을 갖췄을 때만 true입니다. 흘러내린 얼룩, 과한 반사·채도, 어수선한 탁자, 매대·진열 상태, 음식 모양을 흐리는 포장이 두드러지면 false입니다.",
             "레시피 사진은 완성 음식 자체를 보여줘야 합니다. 일회용 포장 용기나 음식과 무관한 주변 여백이 크게 두드러져 대표 사진으로 어색하면 presentationSuitable=false입니다. 완제품 정보(kind=product)는 제품 확인에 필요한 포장을 허용합니다.",
             "photograph는 실제 음식 사진일 때만 true. 그림·AI 생성·로고·간판·콜라주·스크린샷은 false입니다. unobstructed는 사람·워터마크·큰 글자가 주제를 가리지 않을 때만 true입니다.",
             "하나라도 불확실하면 거절하세요. confidence는 0~1. 출처·저작권의 판단은 하지 마세요.",
@@ -157,7 +159,7 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
             void _description;
             reference = { credit, bytes };
           }
-          if (!verdict || verdict.match !== true || verdict.photograph !== true || verdict.unobstructed !== true || verdict.metadataMatches !== true || verdict.recipeMatches !== true || verdict.presentationSuitable !== true || typeof verdict.confidence !== "number" || !Number.isFinite(verdict.confidence) || verdict.confidence < 0.95 || verdict.confidence > 1) {
+          if (!verdict || verdict.match !== true || verdict.photograph !== true || verdict.unobstructed !== true || verdict.metadataMatches !== true || verdict.recipeMatches !== true || verdict.presentationSuitable !== true || verdict.platingSuitable !== true || typeof verdict.confidence !== "number" || !Number.isFinite(verdict.confidence) || verdict.confidence < 0.95 || verdict.confidence > 1) {
             reason = `이미지 판별 보류${typeof verdict?.reason === "string" ? `: ${verdict.reason.replace(/\s+/g, " ").slice(0, 180)}` : ""}`;
             continue;
           }

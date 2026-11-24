@@ -126,6 +126,11 @@ test("모든 음식에 개별 이미지가 있고 생성 예시는 실사 출처
     const image = generatedImages[food.image];
     assert.equal(image.slug, food.slug);
     assert.ok(["OpenAI image_gen", "OpenAI Images API"].includes(image.tool));
+    if (image.reference) {
+      assert.equal(image.basis, "reference");
+      assert.ok(image.reference.author && image.reference.licenseUrl);
+      assert.ok(validPhotoSource(image.reference));
+    }
     if (image.automatic) {
       assert.equal(image.tool, "OpenAI Images API");
       assert.equal(image.model, "gpt-image-2");

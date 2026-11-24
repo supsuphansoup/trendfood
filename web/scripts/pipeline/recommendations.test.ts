@@ -59,15 +59,15 @@ test("생성 사진을 등록하지 않은 원고는 외부 조회 없이 보류
 
 test("대기 전용 실행도 새로 재확인한 영상 언급 점수로 상위 세 개를 게시한다", async () => {
   const current = baseline();
-  const records = Object.entries(generatedImages).slice(0, 4);
-  current.foods = current.foods.filter((food) => !records.some(([, record]) => record.slug === food.slug));
+  const records = [...new Set(Object.values(generatedImages).map((image) => image.slug))].slice(0, 4);
+  current.foods = current.foods.filter((food) => !records.includes(food.slug));
   const details: { id: string; title: string; description: string; channelId: string; publishedAt: string }[] = [];
-  const pending = records.map(([, record], index) => {
+  const pending = records.map((slug, index) => {
     const name = `대기 음식 ${index}`;
     const videos = Array.from({ length: index + 2 }, (_, video) => ({ id: `Abcdef_${index}${String(video).padStart(3, "0")}`, title: `${name} 먹방`, description: "",
       channelId: `UC${String(video).repeat(22)}`, publishedAt: "2026-11-19T00:00:00Z" }));
     details.push(...videos);
-    return { savedAt: "2026-11-19", food: { ...current.foods[0], slug: record.slug, name, kind: "discovery" as const, publishedAt: undefined,
+    return { savedAt: "2026-11-19", food: { ...current.foods[0], slug, name, kind: "discovery" as const, publishedAt: undefined,
       image: "pending", heroImage: "pending", ingredients: [], steps: [], cookMinutes: 0, checkedAt: "2026-11-19",
       summary: `원문 소개: “${videos[0].title}”`, sources: videos.map((video) => ({ title: video.title, url: `https://www.youtube.com/watch?v=${video.id}` })) } };
   });
