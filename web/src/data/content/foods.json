@@ -1,73 +1,8 @@
 {
   "version": 1,
   "status": "ready",
-  "checkedAt": "2026-11-23",
+  "checkedAt": "2026-11-24",
   "foods": [
-    {
-      "slug": "crunch-27-cube",
-      "name": "크런치 27 큐브",
-      "category": "디저트",
-      "kind": "discovery",
-      "why": "서로 다른 제작자의 최근 영상에서 새로 확인한 음식이에요.",
-      "summary": "원문 소개: “크런치 27 큐브 아이스크림 케이크를 준비했습니다~!\n\n초콜릿 퐁듀에 퐁당 담가서 초코쉘처럼 굳혀 먹었는데”",
-      "tags": [
-        "디저트"
-      ],
-      "cookMinutes": 0,
-      "difficulty": "쉬움",
-      "servings": "음식 소개",
-      "ingredients": [],
-      "steps": [],
-      "tip": "음식 정보는 아래 원문 출처에서 확인하세요.",
-      "image": "photo-ai-crunch-27-cube-natural-20261124",
-      "alt": "크런치 27 큐브 AI 생성 예시 이미지",
-      "convenience": [],
-      "sources": [
-        {
-          "title": "크런치 27 큐브 소개 원문",
-          "url": "https://www.youtube.com/watch?v=dv_u4WB1dY0"
-        },
-        {
-          "title": "베라신상 크런치 27큐브 리뷰븅💕",
-          "url": "https://www.youtube.com/watch?v=yLdBoyDymlY"
-        },
-        {
-          "title": "베스킨라빈스 크런치27큐브 아이스크림케이크 먹방🍨🍧🍦🎂",
-          "url": "https://www.youtube.com/watch?v=GDO8RCFao6I"
-        },
-        {
-          "title": "크런치 27 큐브케이크 마시써요💓",
-          "url": "https://www.youtube.com/watch?v=tyw6uuL_jUs"
-        }
-      ],
-      "checkedAt": "2026-11-18",
-      "history": {
-        "years": [
-          2026
-        ],
-        "note": "2026-11-18에 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.",
-        "sources": [
-          {
-            "title": "크런치 27 큐브 소개 원문",
-            "url": "https://www.youtube.com/watch?v=dv_u4WB1dY0"
-          },
-          {
-            "title": "베라신상 크런치 27큐브 리뷰븅💕",
-            "url": "https://www.youtube.com/watch?v=yLdBoyDymlY"
-          },
-          {
-            "title": "베스킨라빈스 크런치27큐브 아이스크림케이크 먹방🍨🍧🍦🎂",
-            "url": "https://www.youtube.com/watch?v=GDO8RCFao6I"
-          },
-          {
-            "title": "크런치 27 큐브케이크 마시써요💓",
-            "url": "https://www.youtube.com/watch?v=tyw6uuL_jUs"
-          }
-        ]
-      },
-      "recipeNote": "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
-      "publishedAt": "2026-11-20"
-    },
     {
       "slug": "butter-tteok",
       "name": "상하이 버터떡",
@@ -5836,10 +5771,75 @@
       },
       "recipeNote": "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
       "publishedAt": "2026-11-20"
+    },
+    {
+      "slug": "crunch-27-cube",
+      "name": "크런치 27 큐브",
+      "category": "디저트",
+      "kind": "discovery",
+      "why": "서로 다른 제작자의 최근 영상에서 새로 확인한 음식이에요.",
+      "summary": "원문 소개: “크런치 27 큐브 아이스크림 케이크를 준비했습니다~!\n\n초콜릿 퐁듀에 퐁당 담가서 초코쉘처럼 굳혀 먹었는데”",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "ingredients": [],
+      "steps": [],
+      "tip": "음식 정보는 아래 원문 출처에서 확인하세요.",
+      "image": "photo-ai-crunch-27-cube-natural-20261124",
+      "alt": "크런치 27 큐브 AI 생성 예시 이미지",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "크런치 27 큐브 소개 원문",
+          "url": "https://www.youtube.com/watch?v=dv_u4WB1dY0"
+        },
+        {
+          "title": "베라신상 크런치 27큐브 리뷰븅💕",
+          "url": "https://www.youtube.com/watch?v=yLdBoyDymlY"
+        },
+        {
+          "title": "베스킨라빈스 크런치27큐브 아이스크림케이크 먹방🍨🍧🍦🎂",
+          "url": "https://www.youtube.com/watch?v=GDO8RCFao6I"
+        },
+        {
+          "title": "크런치 27 큐브케이크 마시써요💓",
+          "url": "https://www.youtube.com/watch?v=tyw6uuL_jUs"
+        }
+      ],
+      "checkedAt": "2026-11-18",
+      "history": {
+        "years": [
+          2026
+        ],
+        "note": "2026-11-18에 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.",
+        "sources": [
+          {
+            "title": "크런치 27 큐브 소개 원문",
+            "url": "https://www.youtube.com/watch?v=dv_u4WB1dY0"
+          },
+          {
+            "title": "베라신상 크런치 27큐브 리뷰븅💕",
+            "url": "https://www.youtube.com/watch?v=yLdBoyDymlY"
+          },
+          {
+            "title": "베스킨라빈스 크런치27큐브 아이스크림케이크 먹방🍨🍧🍦🎂",
+            "url": "https://www.youtube.com/watch?v=GDO8RCFao6I"
+          },
+          {
+            "title": "크런치 27 큐브케이크 마시써요💓",
+            "url": "https://www.youtube.com/watch?v=tyw6uuL_jUs"
+          }
+        ]
+      },
+      "recipeNote": "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
+      "publishedAt": "2026-11-20"
     }
   ],
   "recommendation": {
-    "date": "2026-11-23",
+    "date": "2026-11-24",
     "basis": "rotation",
     "newSlugs": []
   }
