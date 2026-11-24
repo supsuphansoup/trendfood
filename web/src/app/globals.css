@@ -5,6 +5,52 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* 중앙 포스터를 기준으로 이웃 추천 음식이 양옆에 이어지는 로컬 시안. */
+.home-poster-carousel {
+  position: relative;
+  overflow: hidden;
+  padding: 8px 0;
+  --poster-width: min(70vw, 380px);
+  --poster-gap: 20px;
+}
+.home-poster-active {
+  width: var(--poster-width);
+  margin-inline: auto;
+}
+.home-poster-image {
+  height: clamp(280px, 85vw, 500px);
+}
+.home-poster-image img {
+  object-fit: cover;
+  object-position: center;
+}
+.home-poster-rank {
+  text-shadow: 0 2px 8px var(--scrim);
+}
+.home-poster-controls {
+  top: calc(8px + clamp(280px, 85vw, 500px) / 2);
+  transform: translateY(-50%);
+}
+.home-poster-side {
+  position: absolute;
+  top: 28px;
+  width: var(--poster-width);
+  cursor: pointer;
+  text-align: center;
+}
+.home-poster-side .home-poster-image {
+  height: clamp(250px, 77vw, 460px);
+}
+.home-poster-previous {
+  right: calc(50% + var(--poster-width) / 2 + var(--poster-gap));
+}
+.home-poster-next {
+  left: calc(50% + var(--poster-width) / 2 + var(--poster-gap));
+}
+@media (min-width: 768px) {
+  .home-poster-carousel { --poster-gap: 24px; }
+}
+
 /* 색·모서리·글꼴 토큰은 theme.css 에만 둔다 (docs/design.md 기준). 다크 모드는 미정이라 .dark 토큰 없음. */
 
 @layer base {

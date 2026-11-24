@@ -1,6 +1,6 @@
-import { ArrowDown, ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowDown, ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { type CSSProperties, useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { FoodImage } from "@/components/food-image";
 import { FoodVideo } from "@/components/food-video";
 import { foodVideoId } from "@/data/youtube";
@@ -8,12 +8,6 @@ import type { Food } from "@/lib/foods";
 
 export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolean }) {
   const [selected, setSelected] = useState(0);
-  const activeRank = useRef<HTMLButtonElement>(null);
-  useLayoutEffect(() => {
-    // 대표 영역 높이가 달라져도 방금 누른 순위를 화면 안에 둔다.
-    activeRank.current?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
-    activeRank.current = null;
-  }, [selected]);
 
   const top = foods[selected] ?? foods[0];
   const recommendation = top.editorial?.recommendation;
@@ -33,50 +27,51 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
         </a>
         <p className="basis-full text-base leading-normal text-body">유행의 배경부터 만드는 법까지.</p>
       </header>
-      <section id="featured-trend-food" aria-label={curated ? "오늘의 음식" : `오늘의 ${selected + 1}위`} className="home-feature-preview mt-4 grid min-w-0 items-center gap-4 text-foreground md:mt-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] md:gap-6 lg:gap-10">
-        <div className="home-feature-story min-w-0 only:col-span-full">
+      <div className="home-poster-carousel mt-4 md:mt-6">
+        <section aria-label="트렌드 추천 순위" className="home-poster-sides">
+          {foods.map((food, index) => {
+            if (index === selected) return null;
+            const side = index === (selected + 1) % foods.length ? "next" : "previous";
+            return <button key={food.slug} type="button" aria-controls="featured-trend-food" onClick={() => setSelected(index)} className={`home-poster-side home-poster-${side} text-foreground`}>
+              <span className="sr-only">{index + 1}위 </span>
+              <span aria-hidden="true" className="home-poster-image relative block overflow-hidden rounded-3xl bg-secondary">
+                <FoodImage food={food} sizes="(min-width: 768px) 380px, 70vw" />
+                <span className="home-poster-rank absolute bottom-4 left-5 text-hero font-extrabold italic leading-none text-primary-foreground" aria-hidden>{index + 1}</span>
+              </span>
+              <span className="mt-4 block text-xl font-bold md:text-2xl">{food.name}</span>
+              <span className="mt-2 block text-meta text-muted-foreground">{food.kind === "discovery" ? "음식 소개" : "레시피"} · {food.category}</span>
+            </button>;
+          })}
+        </section>
+      <section id="featured-trend-food" aria-label={curated ? "오늘의 음식" : `오늘의 ${selected + 1}위`} className="home-poster-active relative text-center text-foreground">
+        <figure className="home-poster-image relative overflow-hidden rounded-3xl bg-secondary">
+          <Link key={top.slug} href={href} aria-label={`${top.name} 상세 보기`} className="food-image-link block h-full focus-visible:-outline-offset-4">
+            <FoodImage food={top} hero preload={selected === 0} sizes="(min-width: 768px) 400px, 70vw" />
+          </Link>
+          <span className="home-poster-rank pointer-events-none absolute bottom-4 left-5 text-hero font-extrabold italic leading-none text-primary-foreground" aria-label={`${selected + 1}위`}>{selected + 1}</span>
+        </figure>
+        <div className="home-feature-story mt-4 min-w-0">
           <div aria-live="polite">
-            <h2 key={top.slug} className="motion-copy text-3xl leading-tight font-extrabold tracking-tight wrap-anywhere lg:text-stage-tablet">{top.name}</h2>
+            <h2 key={top.slug} className="motion-copy text-2xl leading-tight font-extrabold tracking-tight wrap-anywhere md:text-card-grid-title">{top.name}</h2>
           </div>
           <p key={`${top.slug}-context`} className="motion-copy mt-1 text-meta leading-snug wrap-anywhere text-muted-foreground">
             {context}{top.history?.years.map((year) => ` · ${year}년`)}
           </p>
-          <p key={`${top.slug}-description`} data-testid="feature-description" className="home-feature-summary motion-copy mt-2 max-w-[26em] text-base leading-relaxed wrap-anywhere text-body lg:mt-3 lg:text-reading">{(top.history?.note ?? top.why).split(/(?<=[.!?])\s+/)[0]}</p>
-          <div className="home-feature-actions mt-3 flex flex-wrap items-center gap-2 lg:mt-5">
+          <p key={`${top.slug}-description`} data-testid="feature-description" className="home-feature-summary motion-copy mt-2 text-base leading-relaxed wrap-anywhere text-body lg:text-reading">{(top.history?.note ?? top.why).split(/(?<=[.!?])\s+/)[0]}</p>
+          <div className="home-feature-actions mt-3 flex flex-wrap items-center justify-center gap-2">
             <Link href={href} className="motion-press inline-flex min-h-11 items-center gap-1.5 rounded-lg bg-primary px-3 text-meta font-bold text-primary-foreground hover:bg-destructive md:min-h-12 md:px-4">
               음식 살펴보기 <ArrowUpRight className="size-4" aria-hidden />
             </Link>
             {videoId && <FoodVideo key={top.slug} name={top.name} videoId={videoId} variant="outline" />}
           </div>
         </div>
-        {top.imageAvailable && <figure className="home-feature-photo overflow-hidden rounded-photo bg-secondary">
-          <Link key={top.slug} href={href} aria-label={`${top.name} 상세 보기`} className="food-image-link motion-feature block focus-visible:-outline-offset-4">
-            <FoodImage food={top} hero fullFrame preload={selected === 0} sizes="(min-width: 1200px) 640px, (min-width: 768px) 55vw, calc(100vw - 40px)" />
-          </Link>
-        </figure>}
       </section>
-      <section aria-label="트렌드 추천 순위" className="home-feature-ranks mt-3 min-w-0 md:mt-4">
-        <ol className="home-rank-tabs relative grid list-none grid-cols-3 border-b p-0" style={{ "--rank-offset": `${selected * 100}%` } as CSSProperties}>
-          {foods.map((food, index) => (
-            <li key={food.slug} className="min-w-0">
-              <button
-                type="button"
-                aria-pressed={selected === index}
-                aria-controls="featured-trend-food"
-                onClick={(event) => {
-                  if (selected === index) return;
-                  activeRank.current = event.currentTarget;
-                  setSelected(index);
-                }}
-                className="motion-press flex h-full min-h-12 w-full min-w-0 flex-col items-center justify-center gap-x-2 gap-y-0.5 border-b-2 border-transparent px-1 py-2 text-center text-body hover:bg-muted focus-visible:-outline-offset-2 aria-pressed:font-bold aria-pressed:text-destructive max-[360px]:justify-start sm:flex-row sm:px-3"
-              >
-                <span className="shrink-0 text-meta leading-none font-semibold tabular-nums">{`${index + 1}위`}</span>
-                <span className="min-w-0 text-base leading-tight wrap-anywhere">{food.name}</span>
-              </button>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <nav aria-label="추천 음식 넘기기" className="home-poster-controls pointer-events-none absolute inset-x-2 z-10 flex items-center justify-between">
+        <button type="button" aria-label="이전 추천 음식" onClick={() => setSelected((selected + foods.length - 1) % foods.length)} className="pointer-events-auto flex size-11 items-center justify-center rounded-full border bg-background text-foreground"><ChevronLeft aria-hidden className="size-5" /></button>
+        <button type="button" aria-label="다음 추천 음식" onClick={() => setSelected((selected + 1) % foods.length)} className="pointer-events-auto flex size-11 items-center justify-center rounded-full border bg-background text-foreground"><ChevronRight aria-hidden className="size-5" /></button>
+      </nav>
+      </div>
+      <p className="mt-2 text-center text-meta tabular-nums" aria-live="polite">{selected + 1} / {foods.length}</p>
       <details aria-label="추천과 출처 안내" className="group mt-1 text-meta leading-relaxed text-muted-foreground">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 focus-visible:rounded-md [&::-webkit-details-marker]:hidden">
           <span>{curated ? "AI 안내·출처 정보" : "예시 데이터 안내"}</span><ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />

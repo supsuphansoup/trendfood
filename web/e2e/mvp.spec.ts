@@ -406,30 +406,29 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const featureBox = (await feature.boundingBox())!;
   const photo = feature.getByRole("img");
   await expect(photo).toBeInViewport();
-  await expect(photo).toHaveCSS("object-fit", "contain");
+  await expect(photo).toHaveCSS("object-fit", "cover");
   await expect(photo).toHaveCSS("object-position", "50% 50%");
   await expect(feature.locator("figure img")).toHaveCount(1);
   await expect(feature.locator("figcaption")).toHaveCount(0);
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;
   const introBox = (await intro.boundingBox())!;
-  const ranksBox = (await page.getByRole("region", { name: "트렌드 추천 순위" }).boundingBox())!;
-  expect(ranksBox.y).toBeGreaterThan(featureBox.y + featureBox.height);
+  const ranks = page.getByRole("region", { name: "트렌드 추천 순위" });
+  await expect(ranks.getByRole("button")).toHaveCount(2);
+  expect(Math.abs(imageBox.x + imageBox.width / 2 - (info.project.name === "desktop" ? 640 : 195))).toBeLessThan(2);
+  const sidePhoto = (await ranks.locator(".home-poster-image").first().boundingBox())!;
+  expect(imageBox.height).toBeGreaterThan(sidePhoto.height);
   expect(imageBox.y).toBeGreaterThan(introBox.y + introBox.height);
   const title = feature.getByRole("heading", { level: 2, name: "두바이 초콜릿" });
-  await expect(title).toBeInViewport({ ratio: 1 });
+  await expect(title).toBeVisible();
   const titleBox = (await title.boundingBox())!;
   expect(titleBox.y).toBeGreaterThan(introBox.y + introBox.height);
-  if (info.project.name === "desktop") {
-    expect(imageBox.x).toBeGreaterThan(titleBox.x + titleBox.width);
-  } else {
-    expect(imageBox.y).toBeGreaterThan(titleBox.y + titleBox.height);
-  }
+  expect(titleBox.y).toBeGreaterThanOrEqual(imageBox.y + imageBox.height);
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "음식 살펴보기", exact: true });
-  await expect(cta).toBeInViewport({ ratio: 1 });
+  await expect(cta).toBeVisible();
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toHaveAttribute("href", "/food/dubai-chocolate");
   await expect(cta).toHaveCSS("background-color", "rgb(201, 49, 53)");
@@ -438,7 +437,6 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const descriptionBox = (await featureDescription.boundingBox())!;
   expect(descriptionBox.y).toBeGreaterThan(titleBox.y + titleBox.height);
   expect((await cta.boundingBox())!.y).toBeGreaterThan(descriptionBox.y + descriptionBox.height);
-  if (info.project.name === "mobile") expect(imageBox.y).toBeGreaterThan((await cta.boundingBox())!.y + (await cta.boundingBox())!.height);
   const notes = page.getByLabel("추천과 출처 안내");
   await expect(notes).toHaveCSS("font-size", "14px");
   // 주목할 음식과 출처·추천 정보의 영역이 겹치지 않아야 한다.
@@ -468,6 +466,23 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   await expect(page).toHaveURL(/#cart$/);
   await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeInViewport();
 
+});
+
+test("추천 포스터: 이웃 카드와 이전·다음 버튼으로 선택하고 순환한다", async ({ page }) => {
+  await page.goto("/");
+  const active = page.locator("#featured-trend-food");
+  const firstName = await active.getByRole("heading", { level: 2 }).innerText();
+  const nextCard = page.getByRole("region", { name: "트렌드 추천 순위" }).getByRole("button", { name: /^2위 / });
+  const nextName = await nextCard.locator("span.font-bold").innerText();
+  await nextCard.click();
+  await expect(active.getByRole("heading", { level: 2 })).toHaveText(nextName);
+  await page.getByRole("button", { name: "이전 추천 음식", exact: true }).click();
+  await expect(active.getByRole("heading", { level: 2 })).toHaveText(firstName);
+  await page.getByRole("button", { name: "이전 추천 음식", exact: true }).click();
+  await expect(active).toHaveAttribute("aria-label", "오늘의 3위");
+  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
+  await expect(active.getByRole("heading", { level: 2 })).toHaveText(firstName);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {
