@@ -11,7 +11,8 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } } },
   ],
   webServer: {
-    command: "npm run content:build && npx serve@14.2.6 out -l 3101 --no-port-switching",
+    // serve 14.2.6은 ETag가 일치해 304를 반환할 때 이미 연 파일 스트림을 닫지 않는다.
+    command: "npm run content:build && npx serve@14.2.6 out -l 3101 --no-port-switching --no-etag",
     url: "http://localhost:3101",
     reuseExistingServer: false,
     timeout: 240_000,

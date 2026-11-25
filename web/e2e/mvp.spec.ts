@@ -548,7 +548,7 @@ test("메인: 필터 버튼으로 열고 닫으며 선택 조건과 주소를 �
   const selectedUrl = page.url();
   const selectedTitles = await cardTitles(page);
   await panel.scrollIntoViewIfNeeded();
-  await page.screenshot({ path: `test-results/filters-open-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/filters-open-${info.project.name}.png`, animations: "disabled" });
   await expectNoA11yViolations(page);
   await toggle.focus();
   await toggle.press("Space");

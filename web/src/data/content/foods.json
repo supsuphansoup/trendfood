@@ -5836,6 +5836,542 @@
           }
         ]
       }
+    },
+    {
+      "slug": "jjapaguri",
+      "kind": "recipe",
+      "name": "짜파구리",
+      "why": "짜장라면에 얼큰한 국물라면을 섞은 한 그릇이에요.",
+      "summary": "짜파게티와 너구리를 한 냄비에 끓여 비비는 볶음라면이에요. 영화 ‘기생충’에는 채끝을 얹은 형태가 등장했고, 2020년 아카데미 수상 뒤 이 조합이 다시 주목받았어요.",
+      "category": "면",
+      "tags": [
+        "10분컷",
+        "자취생"
+      ],
+      "cookMinutes": 10,
+      "difficulty": "쉬움",
+      "servings": "약 2인분",
+      "image": "photo-ai-jjapaguri",
+      "alt": "짜파구리 AI 생성 예시 이미지",
+      "ingredients": [
+        {
+          "name": "짜파게티",
+          "amount": "1봉"
+        },
+        {
+          "name": "너구리",
+          "amount": "1봉 (분말스프는 약 3/5봉 사용)"
+        }
+      ],
+      "steps": [
+        {
+          "text": "끓는 물에 두 라면의 면과 건더기스프를 넣고 4분 30초 삶아요."
+        },
+        {
+          "text": "면수 100mL를 남기고 물을 따라내요. 짜파게티 분말스프 1봉, 너구리 분말스프 약 3/5봉, 짜파게티 조미유를 남긴 면수와 함께 넣고 비벼요."
+        },
+        {
+          "text": "불 위에서 1분간 저으며 볶아 소스를 면에 입혀요.",
+          "timerMinutes": 1
+        }
+      ],
+      "tip": "매운맛을 줄이고 싶으면 너구리 분말스프를 반 봉부터 넣어 보세요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "농심 누들푸들 · 짜파구리 공식 조리법",
+          "url": "https://www.noodlefoodle.com/recipe/show_recipe?recipeId=40132"
+        },
+        {
+          "title": "연합뉴스 · 2020.03.18 영화 ‘기생충’ 수상 이후 짜파게티 매출 변화",
+          "url": "https://www.yna.co.kr/view/AKR20200318062000030"
+        }
+      ],
+      "recipeNote": "농심의 공개 조리법을 바탕으로 AI가 정리했어요. 약 2인분과 예상 10분은 라면 두 봉과 준비 시간을 기준으로 잡았어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2020
+        ],
+        "note": "2020년 영화 ‘기생충’의 아카데미 수상 뒤 짜파구리가 다시 화제가 되며 국내에서도 짜파게티 매출이 늘었어요.",
+        "sources": [
+          {
+            "title": "연합뉴스 · 2020.03.18 영화 ‘기생충’ 수상 이후 짜파게티 매출 변화",
+            "url": "https://www.yna.co.kr/view/AKR20200318062000030"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "kobuk-chip-choco-churros",
+      "kind": "discovery",
+      "name": "꼬북칩 초코츄러스맛",
+      "why": "네 겹의 바삭한 칩에 초콜릿을 입힌 과자예요.",
+      "summary": "초콜릿을 입힌 칩에 설탕을 더해 츄러스의 맛을 낸 제품이에요. 오리온에 따르면 2020년 9월 출시 뒤 50일 만에 350만 봉이 팔렸고, 2021년에는 출시 1년 누적 3천만 봉을 넘겼어요.",
+      "category": "간식",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-kobuk-chip-choco-churros",
+      "alt": "꼬북칩 초코츄러스맛 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "네 겹의 바삭한 칩에 초콜릿을 입힌 과자예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "오리온 · 2020.11.04 초코츄러스맛 출시 초기 판매 실적",
+          "url": "https://www.orionworld.com/board/view/87?boardno=967&cate=&keyname=&keyword=&page=29"
+        },
+        {
+          "title": "오리온 · 2021.09.23 출시 1년 누적 판매량",
+          "url": "https://www.orionworld.com/board/view/87?boardno=1064&cate=&keyname=&keyword=&page=22"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2020,
+          2021
+        ],
+        "note": "2020년 출시 초기에 일부 매장에서 품절됐고, 2021년에도 누적 판매량이 늘었어요.",
+        "sources": [
+          {
+            "title": "오리온 · 2020.11.04 초코츄러스맛 출시 초기 판매 실적",
+            "url": "https://www.orionworld.com/board/view/87?boardno=967&cate=&keyname=&keyword=&page=29"
+          },
+          {
+            "title": "오리온 · 2021.09.23 출시 1년 누적 판매량",
+            "url": "https://www.orionworld.com/board/view/87?boardno=1064&cate=&keyname=&keyword=&page=22"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "shine-muscat",
+      "kind": "discovery",
+      "name": "샤인머스캣",
+      "why": "껍질째 먹는 연둣빛 청포도예요.",
+      "summary": "샤인머스캣은 알이 크고 단맛이 나는 청포도 품종이에요. 2021년 이마트는 샤인머스캣의 인기가 포도를 자사 과일 매출 1위 품목으로 끌어올렸다고 소개했어요.",
+      "category": "간식",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-shine-muscat",
+      "alt": "샤인머스캣 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "껍질째 먹는 연둣빛 청포도예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "신세계그룹 뉴스룸 · 2021년 이마트 샤인머스캣 판매 동향",
+          "url": "https://www.shinsegaegroupnewsroom.com/2021-ssg-day-emart-shine/"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2021
+        ],
+        "note": "2021년 이마트 과일 매출에서 포도가 사과를 앞섰고, 이마트는 샤인머스캣을 주요 원인으로 꼽았어요.",
+        "sources": [
+          {
+            "title": "신세계그룹 뉴스룸 · 2021년 이마트 샤인머스캣 판매 동향",
+            "url": "https://www.shinsegaegroupnewsroom.com/2021-ssg-day-emart-shine/"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "folded-gimbap",
+      "kind": "discovery",
+      "name": "접어 먹는 김밥",
+      "why": "김에 밥과 속재료를 올려 네모나게 접는 김밥이에요.",
+      "summary": "한 장의 김에 밥과 여러 속재료를 나누어 얹고, 샌드위치처럼 접어 먹는 형태예요. 2021년 초 소셜미디어에서 만드는 영상이 퍼졌고 포털 실시간 검색어에도 올랐어요.",
+      "category": "밥",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-folded-gimbap",
+      "alt": "접어 먹는 김밥 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "김에 밥과 속재료를 올려 네모나게 접는 김밥이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "머니투데이 · 2021.02.18 접어 먹는 김밥 열풍",
+          "url": "https://www.mt.co.kr/culture/2021/02/18/2021021710273061953"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2021
+        ],
+        "note": "2021년 2월, 재료를 올리고 김을 접는 과정이 집에서 따라 하는 영상으로 퍼졌어요.",
+        "sources": [
+          {
+            "title": "머니투데이 · 2021.02.18 접어 먹는 김밥 열풍",
+            "url": "https://www.mt.co.kr/culture/2021/02/18/2021021710273061953"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "greek-yogurt",
+      "kind": "discovery",
+      "name": "그릭요거트",
+      "why": "숟가락으로 뜨면 모양이 남을 만큼 질감이 꾸덕한 요거트예요.",
+      "summary": "그릭요거트는 진하고 되직한 질감이 특징이에요. 2022년 7월 보도에 따르면 직전 1년간 네이버 쇼핑인사이트의 요구르트 분야에서 그릭요거트가 인기 검색어 1위였어요.",
+      "category": "디저트",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-greek-yogurt",
+      "alt": "그릭요거트 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "숟가락으로 뜨면 모양이 남을 만큼 질감이 꾸덕한 요거트예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "머니투데이 · 2022.07.10 그릭요거트 시장 성장과 검색 관심",
+          "url": "https://www.mt.co.kr/amp/living/2022/07/10/2022070515345765876"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2022
+        ],
+        "note": "2022년 보도는 닐슨코리아 집계를 인용해 2021년 국내 그릭요거트 시장이 전년보다 35% 커졌다고 전했어요.",
+        "sources": [
+          {
+            "title": "머니투데이 · 2022.07.10 그릭요거트 시장 성장과 검색 관심",
+            "url": "https://www.mt.co.kr/amp/living/2022/07/10/2022070515345765876"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "knotted-cream-donut",
+      "kind": "discovery",
+      "name": "노티드 크림 도넛",
+      "why": "둥근 도넛 안에 부드러운 크림을 채운 디저트예요.",
+      "summary": "2022년 한국일보는 노티드가 전국 15개 매장에서 하루 3만~4만 개의 도넛을 팔았다고 보도했어요. 일부 매장에서는 줄을 서야 했고, 인기 메뉴는 오후 늦게 품절되기도 했어요.",
+      "category": "디저트",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-knotted-cream-donut",
+      "alt": "노티드 크림 도넛 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "둥근 도넛 안에 부드러운 크림을 채운 디저트예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "한국일보 · 2022.06.11 노티드 운영사 대표 인터뷰와 판매 현황",
+          "url": "https://www.hankookilbo.com/news/article/amp/A2022060809420003434"
+        },
+        {
+          "title": "동아비즈니스리뷰 · 2022.02.09 노티드 크림 도넛 사례",
+          "url": "https://v.daum.net/v/20220209030622175"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2022
+        ],
+        "note": "2022년에는 크림을 가득 채운 도넛을 사려는 대기 줄과 매장 품절이 보도됐어요.",
+        "sources": [
+          {
+            "title": "한국일보 · 2022.06.11 노티드 운영사 대표 인터뷰와 판매 현황",
+            "url": "https://www.hankookilbo.com/news/article/amp/A2022060809420003434"
+          },
+          {
+            "title": "동아비즈니스리뷰 · 2022.02.09 노티드 크림 도넛 사례",
+            "url": "https://v.daum.net/v/20220209030622175"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "jumbo-dosirak-ramyeon",
+      "kind": "discovery",
+      "name": "점보 도시락 라면",
+      "why": "여럿이 나눠 먹기 좋은 대용량 사각 컵라면이에요.",
+      "summary": "GS25가 2023년 5월 선보인 대용량 컵라면이에요. 일반 도시락 컵라면보다 중량이 약 8.5배였고, 먹방과 인증 사진이 퍼지면서 초도 물량 약 5만 개가 사흘 만에 팔렸어요.",
+      "category": "면",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-jumbo-dosirak-ramyeon",
+      "alt": "점보 도시락 라면 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "여럿이 나눠 먹기 좋은 대용량 사각 컵라면이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "연합뉴스 · 2023.06.20 점보 도시락 라면 초도 판매와 상시 운영",
+          "url": "https://www.yna.co.kr/view/AKR20230620022300003"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2023
+        ],
+        "note": "2023년 출시 직후 초도 물량이 소진됐고, GS25는 한정 기획상품을 상시 운영으로 전환했어요.",
+        "sources": [
+          {
+            "title": "연합뉴스 · 2023.06.20 점보 도시락 라면 초도 판매와 상시 운영",
+            "url": "https://www.yna.co.kr/view/AKR20230620022300003"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "croongji",
+      "kind": "discovery",
+      "name": "크룽지",
+      "why": "크루아상을 누룽지처럼 얇게 눌러 바삭하게 구운 빵이에요.",
+      "summary": "크루아상의 버터 향과 여러 겹의 결은 남기고, 전체를 납작하고 바삭하게 구운 디저트예요. 2023년 7월 관련 해시태그 게시물이 8천 개를 넘었다는 보도가 나왔고 이마트24에서도 제품을 내놨어요.",
+      "category": "디저트",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-croongji",
+      "alt": "크룽지 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "크루아상을 누룽지처럼 얇게 눌러 바삭하게 구운 빵이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "아주경제 · 2023.07.21 크룽지 온라인 반응과 편의점 출시",
+          "url": "https://www.ajunews.com/view/20230721090347226"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2023
+        ],
+        "note": "2023년 카페 디저트로 입소문이 나며 소셜미디어에 먹방이 올라왔고 편의점 상품으로도 나왔어요.",
+        "sources": [
+          {
+            "title": "아주경제 · 2023.07.21 크룽지 온라인 반응과 편의점 출시",
+            "url": "https://www.ajunews.com/view/20230721090347226"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "frozen-gimbap",
+      "kind": "discovery",
+      "name": "냉동 김밥",
+      "why": "완성한 김밥을 급속 냉동해 데워 먹는 간편식이에요.",
+      "summary": "2023년 미국에서 인기를 얻은 한국산 냉동 김밥은 국내에서도 빠르게 팔렸어요. 이마트의 2023년 12월 판매 물량 약 5만 개가 닷새 만에 동났고, 이듬해 재판매한 세 종류 14만 개도 일주일 만에 팔렸어요.",
+      "category": "밥",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-frozen-gimbap",
+      "alt": "냉동 김밥 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "완성한 김밥을 급속 냉동해 데워 먹는 간편식이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "이투데이 · 2024.02.17 냉동 김밥 국내 판매 실적",
+          "url": "https://www.etoday.co.kr/news/view/2331667"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2023,
+          2024
+        ],
+        "note": "2023년 말 이마트 판매 물량이 품절됐고, 2024년 초 이마트가 물량을 늘려 다시 판매했어요.",
+        "sources": [
+          {
+            "title": "이투데이 · 2024.02.17 냉동 김밥 국내 판매 실적",
+            "url": "https://www.etoday.co.kr/news/view/2331667"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "swedish-gummy-candy",
+      "kind": "discovery",
+      "name": "스웨디시 젤리",
+      "why": "해골 등 독특한 모양과 쫀득한 식감으로 알려진 젤리예요.",
+      "summary": "스웨덴식 젤리가 국내 편의점 디저트로도 나왔어요. GS25는 2024년 11월 스웨디시 젤리를 선보였고, 한국일보에 따르면 출시 두 달 만에 판매량 200만 개를 넘겼어요.",
+      "category": "간식",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-swedish-gummy-candy",
+      "alt": "스웨디시 젤리 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "해골 등 독특한 모양과 쫀득한 식감으로 알려진 젤리예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "한국일보 · 2025.02.20 GS25 스웨디시 젤리 판매량",
+          "url": "https://www.hankookilbo.com/news/article/amp/A2025022017260004664"
+        },
+        {
+          "title": "CJ메조미디어 · 2025 편의점 디저트 트렌드 조사",
+          "url": "https://cdn.cjmezzomedia.com/attach-file/insight-m/2025__20251028164405.pdf"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2024,
+          2025
+        ],
+        "note": "2024년 말 출시한 편의점 제품이 2025년 초까지 두 달 동안 200만 개 넘게 팔렸어요.",
+        "sources": [
+          {
+            "title": "한국일보 · 2025.02.20 GS25 스웨디시 젤리 판매량",
+            "url": "https://www.hankookilbo.com/news/article/amp/A2025022017260004664"
+          },
+          {
+            "title": "CJ메조미디어 · 2025 편의점 디저트 트렌드 조사",
+            "url": "https://cdn.cjmezzomedia.com/attach-file/insight-m/2025__20251028164405.pdf"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "towel-crepe-cake",
+      "kind": "discovery",
+      "name": "수건케이크",
+      "why": "얇은 크레이프에 크림을 채워 수건 모양으로 만 케이크예요.",
+      "summary": "중국에서 알려진 크레이프 디저트로, 케이크를 자르면 겹겹의 크레이프와 크림이 보여요. 2025년 1월 먹방에서 인기를 끌자 국내 편의점도 출시했고, GS25 예약 물량 4천 개는 하루 만에 팔렸어요.",
+      "category": "디저트",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-towel-crepe-cake",
+      "alt": "수건케이크 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "얇은 크레이프에 크림을 채워 수건 모양으로 만 케이크예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "매일경제 · 2025.01.08 수건케이크 먹방과 편의점 예약 판매",
+          "url": "https://m.mk.co.kr/amp/11212593"
+        },
+        {
+          "title": "한국일보 · 2025.02.20 편의점 수건케이크 제품화와 예약 완판",
+          "url": "https://www.hankookilbo.com/news/article/amp/A2025022017260004664"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2025
+        ],
+        "note": "2025년 1월 CU와 GS25가 수건케이크를 예약 판매했고 양쪽 준비 물량이 모두 팔렸어요.",
+        "sources": [
+          {
+            "title": "매일경제 · 2025.01.08 수건케이크 먹방과 편의점 예약 판매",
+            "url": "https://m.mk.co.kr/amp/11212593"
+          },
+          {
+            "title": "한국일보 · 2025.02.20 편의점 수건케이크 제품화와 예약 완판",
+            "url": "https://www.hankookilbo.com/news/article/amp/A2025022017260004664"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "mango-pomelo-sago",
+      "kind": "discovery",
+      "name": "양즈깐루",
+      "why": "망고와 자몽류 과육, 코코넛밀크, 사고 펄을 넣은 홍콩식 디저트예요.",
+      "summary": "망고의 단맛, 자몽류 과육의 새콤쌉싸름한 맛, 사고 펄의 쫀득한 식감이 함께 나요. 2026년 여름 국내 카페와 편의점이 컵 디저트와 빙수로 선보였고, GS25 제품은 출시 나흘 만에 해당 디저트빵 판매 10위권에 들었어요.",
+      "category": "디저트",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-ai-mango-pomelo-sago",
+      "alt": "양즈깐루 AI 생성 예시 이미지",
+      "ingredients": [],
+      "steps": [],
+      "tip": "망고와 자몽류 과육, 코코넛밀크, 사고 펄을 넣은 홍콩식 디저트예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "한국경제 · 2026.07.24 양즈깐루 검색과 국내 유통 판매",
+          "url": "https://www.hankyung.com/article/202607243837g"
+        },
+        {
+          "title": "뉴시스 · 2026.07.27 양즈깐루 재료와 국내 판매 확산",
+          "url": "https://www.newsis.com/view/NISX20260727_0003724033"
+        }
+      ],
+      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2026
+        ],
+        "note": "2026년 여름 국내 검색 관심이 늘었고 편의점과 카페에서 관련 디저트와 음료를 잇따라 출시했어요.",
+        "sources": [
+          {
+            "title": "한국경제 · 2026.07.24 양즈깐루 검색과 국내 유통 판매",
+            "url": "https://www.hankyung.com/article/202607243837g"
+          },
+          {
+            "title": "뉴시스 · 2026.07.27 양즈깐루 재료와 국내 판매 확산",
+            "url": "https://www.newsis.com/view/NISX20260727_0003724033"
+          }
+        ]
+      }
     }
   ],
   "recommendation": {

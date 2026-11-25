@@ -70,6 +70,19 @@ import tunaGimbapHomePhoto from "@/assets/generated/photo-ai-tuna-gimbap-home-20
 import butterGaraetteokPlatedPhoto from "@/assets/generated/photo-ai-butter-garaetteok-plated-20261125.webp";
 import dubaiChewyCookiePlatedPhoto from "@/assets/generated/photo-ai-dubai-chewy-cookie-plated-20261125.webp";
 
+import photo_ai_jjapaguri from "@/assets/generated/photo-ai-jjapaguri.webp";
+import photo_ai_kobuk_chip_choco_churros from "@/assets/generated/photo-ai-kobuk-chip-choco-churros.webp";
+import photo_ai_shine_muscat from "@/assets/generated/photo-ai-shine-muscat.webp";
+import photo_ai_folded_gimbap from "@/assets/generated/photo-ai-folded-gimbap.webp";
+import photo_ai_greek_yogurt from "@/assets/generated/photo-ai-greek-yogurt.webp";
+import photo_ai_knotted_cream_donut from "@/assets/generated/photo-ai-knotted-cream-donut.webp";
+import photo_ai_jumbo_dosirak_ramyeon from "@/assets/generated/photo-ai-jumbo-dosirak-ramyeon.webp";
+import photo_ai_croongji from "@/assets/generated/photo-ai-croongji.webp";
+import photo_ai_frozen_gimbap from "@/assets/generated/photo-ai-frozen-gimbap.webp";
+import photo_ai_swedish_gummy_candy from "@/assets/generated/photo-ai-swedish-gummy-candy.webp";
+import photo_ai_towel_crepe_cake from "@/assets/generated/photo-ai-towel-crepe-cake.webp";
+import photo_ai_mango_pomelo_sago from "@/assets/generated/photo-ai-mango-pomelo-sago.webp";
+
 export const generatedPhotos = {
   "photo-ai-butter-garaetteok-plated-20261125": butterGaraetteokPlatedPhoto,
   "photo-ai-dubai-chewy-cookie-plated-20261125": dubaiChewyCookiePlatedPhoto,
@@ -140,4 +153,16 @@ export const generatedPhotos = {
   "photo-ai-green-onion-bagel": image23,
   "photo-ai-egg-green-onion-ramyeon": image24,
   "photo-ai-pork-sprout-stir-fry": image25,
+  "photo-ai-jjapaguri": photo_ai_jjapaguri,
+  "photo-ai-kobuk-chip-choco-churros": photo_ai_kobuk_chip_choco_churros,
+  "photo-ai-shine-muscat": photo_ai_shine_muscat,
+  "photo-ai-folded-gimbap": photo_ai_folded_gimbap,
+  "photo-ai-greek-yogurt": photo_ai_greek_yogurt,
+  "photo-ai-knotted-cream-donut": photo_ai_knotted_cream_donut,
+  "photo-ai-jumbo-dosirak-ramyeon": photo_ai_jumbo_dosirak_ramyeon,
+  "photo-ai-croongji": photo_ai_croongji,
+  "photo-ai-frozen-gimbap": photo_ai_frozen_gimbap,
+  "photo-ai-swedish-gummy-candy": photo_ai_swedish_gummy_candy,
+  "photo-ai-towel-crepe-cake": photo_ai_towel_crepe_cake,
+  "photo-ai-mango-pomelo-sago": photo_ai_mango_pomelo_sago,
 };
