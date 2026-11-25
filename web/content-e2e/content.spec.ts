@@ -486,27 +486,24 @@ test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 �
   await expect(page.locator("#list li h3")).toHaveText(["밤 티라미수"]);
 });
 
-test("과거 인기 음식은 연도 목록에서 실사와 소개·출처까지 연결된다", async ({ page, request }, info) => {
-  await page.goto("/?year=2022");
+test("요아정은 2024년 검색 결과에서 먹방 유행 출처와 가정용 레시피로 연결된다", async ({ page, request }, info) => {
+  await page.goto(`/?year=2024&q=${encodeURIComponent("요아정")}`);
   const list = page.locator("#list");
-  const name = "그릭요거트";
+  const name = "요아정 스타일 요거트 아이스크림";
   const card = list.getByRole("heading", { name, exact: true });
-  await expect(card).toBeVisible();
-  await expect(list.getByRole("heading", { name: "짜파구리", exact: true })).toHaveCount(0);
-  await expect(list.locator('img[src*="photo-history-greek-yogurt"]').first()).toBeVisible();
+  await expect(list.getByRole("heading", { level: 3 })).toHaveText([name]);
+  await expect(list.getByText(/먹방에서 요아정에 과일과 벌집꿀/)).toBeVisible();
   await card.scrollIntoViewIfNeeded();
-  await page.screenshot({ path: `test-results/content/history-2022-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/content/history-2024-${info.project.name}.png` });
 
   await card.click();
-  await expect(page).toHaveURL(/\/food\/greek-yogurt\/?$/);
+  await expect(page).toHaveURL(/\/food\/yogurt-ice-cream\/?$/);
   await expect(page.getByRole("heading", { level: 1, name, exact: true })).toBeVisible();
-  const sources = page.getByRole("region", { name: "참고한 출처" });
-  await expect(sources.getByRole("link", { name: /머니투데이/ })).toHaveAttribute("href", "https://www.mt.co.kr/amp/living/2022/07/10/2022070515345765876");
-  await expect(page.locator("#cart, #recipe")).toHaveCount(0);
-  const photoInfo = page.getByLabel("사진 정보", { exact: true });
-  await photoInfo.locator("summary").click();
-  await expect(photoInfo.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", "https://www.pexels.com/license/");
-  await page.screenshot({ path: `test-results/content/history-greek-yogurt-${info.project.name}.png`, fullPage: true });
+  const history = page.getByRole("region", { name: "주목받은 시기 · 2024년" });
+  await expect(history.getByRole("link", { name: /뉴시스/ })).toHaveAttribute("href", "https://www.newsis.com/view/NISX20240816_0002852073");
+  await expect(page.locator("#recipe").getByRole("heading", { name: "만드는 법" })).toBeVisible();
+  await page.screenshot({ path: `test-results/content/history-yoajung-${info.project.name}.png`, fullPage: true });
+  expect((await request.get("/food/greek-yogurt")).status()).toBe(404);
   expect((await request.get("/food/knotted-cream-donut")).status()).toBe(404);
 });
 
