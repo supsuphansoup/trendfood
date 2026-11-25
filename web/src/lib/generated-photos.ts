@@ -67,8 +67,12 @@ import butterGaraetteokHomePhoto from "@/assets/generated/photo-ai-butter-garaet
 import dubaiChewyCookieHomePhoto from "@/assets/generated/photo-ai-dubai-chewy-cookie-home-20261125.webp";
 import soySauceEggRiceHomePhoto from "@/assets/generated/photo-ai-soy-sauce-egg-rice-home-20261125.webp";
 import tunaGimbapHomePhoto from "@/assets/generated/photo-ai-tuna-gimbap-home-20261125.webp";
+import butterGaraetteokPlatedPhoto from "@/assets/generated/photo-ai-butter-garaetteok-plated-20261125.webp";
+import dubaiChewyCookiePlatedPhoto from "@/assets/generated/photo-ai-dubai-chewy-cookie-plated-20261125.webp";
 
 export const generatedPhotos = {
+  "photo-ai-butter-garaetteok-plated-20261125": butterGaraetteokPlatedPhoto,
+  "photo-ai-dubai-chewy-cookie-plated-20261125": dubaiChewyCookiePlatedPhoto,
   "photo-ai-butter-garaetteok-home-20261125": butterGaraetteokHomePhoto,
   "photo-ai-dubai-chewy-cookie-home-20261125": dubaiChewyCookieHomePhoto,
   "photo-ai-soy-sauce-egg-rice-home-20261125": soySauceEggRiceHomePhoto,

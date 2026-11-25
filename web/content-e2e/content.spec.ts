@@ -300,6 +300,9 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     const image = card.getByRole("img", { name: food.alt, exact: true });
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     const source = await image.getAttribute("src");
+    if (slug === "butter-garaetteok" || slug === "dubai-chewy-cookie") {
+      expect(source).toContain(`photo-ai-${slug}-plated-20261125`);
+    }
     await expect(card.getByText("참고 사진", { exact: true })).toHaveCount(0);
     await card.screenshot({ path: `test-results/content/reviewed-${slug}-card-${info.project.name}.png` });
     await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
@@ -557,7 +560,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       }
       await expect(page.getByRole("link", { name: /사진 출처|사진 라이선스/ })).toHaveCount(0);
       expect(await introduction.locator("img").evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      if (food.slug === "crunch-27-cube" || food.image.endsWith("-natural-20261125") || food.image.endsWith("-home-20261125")) {
+      if (food.slug === "crunch-27-cube" || food.image.endsWith("-natural-20261125") || food.image.endsWith("-home-20261125") || food.image.endsWith("-plated-20261125")) {
         await introduction.getByRole("img", { name: food.alt, exact: true }).screenshot({ path: `test-results/content/photo-${food.slug}-${info.project.name}.png` });
       }
       if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });
