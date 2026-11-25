@@ -35,11 +35,10 @@ function scrollBehavior(): ScrollBehavior {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
-const collections: { value: Collection; label: string }[] = [
-  { value: "all", label: "전체 음식" },
+const collections: { value: Exclude<Collection, "everyday">; label: string }[] = [
+  { value: "all", label: "유행 음식" },
   { value: "recent", label: "최근 발견" },
   { value: "trends", label: "유행 기록" },
-  { value: "everyday", label: "일상 레시피" },
 ];
 
 function matchesCollection(food: Food, collection: Collection, today = "") {
@@ -49,8 +48,13 @@ function matchesCollection(food: Food, collection: Collection, today = "") {
   return !food.history?.years.length && (!food.kind || food.kind === "recipe");
 }
 
+function compareTrendRank(a: Food, b: Food) {
+  return Math.max(0, ...(b.history?.years ?? [])) - Math.max(0, ...(a.history?.years ?? [])) || a.rank - b.rank;
+}
+
+const everydayTab = "일상 레시피";
 const tabs: Tab[] = ["전체", ...categoryOptions.filter((category) => category !== "간식")];
-const categoryTabs: (Tab | "자취 요리")[] = ["전체", "자취 요리", ...tabs.slice(1), "찜"];
+const categoryTabs: (Tab | typeof everydayTab)[] = ["전체", everydayTab, ...tabs.slice(1), "찜"];
 
 const chipClass =
   "motion-press min-h-11 shrink-0 rounded-md border border-transparent bg-muted px-4 text-sm font-medium whitespace-nowrap text-foreground hover:border-line-strong aria-pressed:bg-accent aria-pressed:font-bold aria-pressed:text-accent-foreground";
@@ -62,7 +66,8 @@ function readUrl(years: number[]) {
   const sort = p.get("sort");
   const tag = p.get("tag");
   const year = Number(p.get("year"));
-  const collection = collections.some(({ value }) => value === p.get("collection")) ? p.get("collection") as Collection : "all";
+  const view = p.get("collection");
+  const collection: Collection = view === "everyday" ? view : collections.find(({ value }) => value === view)?.value ?? "all";
   return {
     collection,
     pantry: p.get("pantry") === "1",
@@ -148,14 +153,23 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const trendFoods = useMemo(() => curated
+    ? foods.filter((food) => matchesCollection(food, "trends")).sort(compareTrendRank)
+    : foods, [foods, curated]);
   const counts = useMemo(() => {
-    const visible = foods.filter((food) => matchesCollection(food, collection === "everyday" ? "all" : collection, today) && (!pantryActive || pantryMatch(food, pantry.items, need.items) !== null));
-    const c: Record<string, number> = { 전체: visible.length, 찜: visible.filter((food) => likes.items.includes(food.slug)).length, "자취 요리": foods.filter((food) => matchesCollection(food, "everyday")).length };
+    const view = collection === "everyday" ? "all" : collection;
+    const matchesPantry = (food: Food) => !pantryActive || pantryMatch(food, pantry.items, need.items) !== null;
+    const visible = trendFoods.filter((food) => matchesCollection(food, view, today) && matchesPantry(food));
+    const favorites = (view === "all" ? foods : visible).filter((food) => likes.items.includes(food.slug) && matchesPantry(food));
+    const c: Record<string, number> = { 전체: visible.length, 찜: favorites.length, [everydayTab]: foods.filter((food) => matchesCollection(food, "everyday")).length };
     for (const f of visible) c[f.category] = (c[f.category] ?? 0) + 1;
     return c;
-  }, [foods, likes.items, collection, today, pantryActive, pantry.items, need.items]);
+  }, [foods, trendFoods, likes.items, collection, today, pantryActive, pantry.items, need.items]);
 
   const q = applied.trim();
+  const unified = collection === "all" && (tab === "찜" || (tab === "전체" && Boolean(q || pantryActive)));
+  const leadFood = trendFoods[0];
+  const showFeature = leadFood && collection !== "everyday";
   const filtering = Boolean(q || tag || tab !== "전체" || year !== null || collection !== "all" || pantryActive);
   const history = trendHistory.filter((item) => item.year === year);
 
@@ -182,9 +196,10 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   }, [ready, tab, sort, tag, q, year, collection, pantryActive]);
 
   const list = useMemo(() => {
-    const filtered = foods.filter(
+    const source = collection === "everyday" || unified ? foods : trendFoods;
+    const filtered = source.filter(
       (f) =>
-        (filtering || f.rank > 1) &&
+        (filtering || f.slug !== leadFood?.slug) &&
         (tab === "전체" || (tab === "찜" ? likes.items.includes(f.slug) : f.category === tab)) &&
         (!tag || f.tags.includes(tag)) &&
         (!curated || !year || f.history?.years.includes(year)) &&
@@ -193,20 +208,20 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
         (!q || f.name.includes(q) || f.ingredients.some((i) => i.name.includes(q)) || f.why.includes(q) || f.history?.note.includes(q)),
     );
     const by: Record<Sort, (a: Food, b: Food) => number> = {
-      급상승순: (a, b) => a.rank - b.rank,
+      급상승순: curated && collection !== "everyday" && !unified ? compareTrendRank : (a, b) => a.rank - b.rank,
       좋아요순: (a, b) => b.likes - a.likes,
       조리시간순: (a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes),
     };
-    return [...filtered].sort((a, b) => pantryActive ? pantryMatch(a, pantry.items, need.items)!.missing.length - pantryMatch(b, pantry.items, need.items)!.missing.length || by[sort](a, b) : by[sort](a, b));
-  }, [foods, sort, tag, tab, likes.items, q, year, filtering, curated, collection, today, pantryActive, pantry.items, need.items]);
+    return filtered.sort((a, b) => pantryActive ? pantryMatch(a, pantry.items, need.items)!.missing.length - pantryMatch(b, pantry.items, need.items)!.missing.length || by[sort](a, b) : by[sort](a, b));
+  }, [foods, trendFoods, sort, tag, tab, likes.items, q, year, filtering, curated, collection, today, pantryActive, pantry.items, need.items, unified, leadFood]);
 
   /** 목록 위쪽이 화면 밖에 있으면 목록 처음으로 올려 준다 */
   const toList = () => {
     const el = listRef.current;
     if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: scrollBehavior() });
   };
-  const pickTab = (t: Tab | "자취 요리") => {
-    if (t === "자취 요리") {
+  const pickTab = (t: Tab | typeof everydayTab) => {
+    if (t === everydayTab) {
       setCollection("everyday");
       setTab("전체");
       setYear(null);
@@ -238,9 +253,12 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     toList();
   };
 
-  const title = [tab === "전체" ? (collection === "everyday" ? "자취 요리" : curated ? collection === "all" ? "음식 둘러보기" : collections.find(({ value }) => value === collection)!.label : filtering ? "전체" : "2위부터") : tab === "찜" ? "찜한 음식" : tab, year && `${year}년 화제`, tag && `#${tag}`, q && `'${q}' 검색`]
+  const collectionTitle = collection === "everyday" ? everydayTab : unified ? "음식 둘러보기" : collections.find(({ value }) => value === collection)!.label;
+  const defaultTitle = curated || collection === "everyday" ? collectionTitle : filtering ? "전체" : "2위부터";
+  const title = [tab === "전체" ? defaultTitle : tab === "찜" ? "찜한 음식" : tab, year && `${year}년 화제`, tag && `#${tag}`, q && `'${q}' 검색`]
     .filter(Boolean)
     .join(" · ");
+  const ListHeading = showFeature ? "h2" : "h1";
 
   return (
     <>
@@ -317,14 +335,14 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       </header>
 
       <main>
-      <HomeFeature foods={foods.slice(0, 3)} curated={curated} />
+      {showFeature && <HomeFeature foods={trendFoods.slice(0, 3)} curated={curated} />}
 
       <div className="w-full border-t bg-feed-surface">
       <div className="mx-auto w-full max-w-[1200px] px-5">
         <section aria-label="필터 설정" className="sticky top-0 z-20 flex min-h-16 items-center gap-3 border-b bg-feed-surface">
           <nav aria-label="카테고리" className="flex min-w-0 flex-1 gap-4 overflow-x-auto md:gap-8 [scrollbar-width:thin]">
             {categoryTabs.map((t) => {
-              const selected = t === "자취 요리" ? collection === "everyday" : collection !== "everyday" && tab === t;
+              const selected = t === everydayTab ? collection === "everyday" : collection !== "everyday" && tab === t;
               return (
                 <button
                   key={t}
@@ -376,13 +394,13 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
 
         <div className="min-w-0">
           <div id="list" ref={listRef} tabIndex={-1} className="scroll-mt-16 pt-6 pb-14">
-            {curated && <nav aria-label="음식 모음" className="mb-4 flex flex-wrap gap-2">
-              {collections.map(({ value, label }) => <button key={value} type="button" aria-pressed={collection === value} onClick={() => { if (value === "everyday") pickTab("자취 요리"); else { setCollection(value); toList(); } }} className="motion-press min-h-11 rounded-md border border-line-strong px-4 text-sm font-semibold text-foreground hover:bg-card aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background">{label}</button>)}
+            {curated && collection !== "everyday" && <nav aria-label="음식 모음" className="mb-4 flex flex-wrap gap-2">
+              {collections.map(({ value, label }) => <button key={value} type="button" aria-pressed={collection === value} onClick={() => { setCollection(value); toList(); }} className="motion-press min-h-11 rounded-md border border-line-strong px-4 text-sm font-semibold text-foreground hover:bg-card aria-pressed:border-foreground aria-pressed:bg-foreground aria-pressed:text-background">{label}</button>)}
             </nav>}
             <PantryFinder foods={foods} active={pantryActive} onChange={(active) => { setPantryActive(active); if (active) setYear(null); }} />
             <div ref={resultsRef}>
             <div data-motion-result aria-live="polite" className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <h2 className="text-2xl font-bold tracking-tight">{pantryActive ? "보유 재료로 찾기" : !curated && year !== null ? `${year}년 유행 음식` : title}</h2>
+              <ListHeading className="text-2xl font-bold tracking-tight">{pantryActive ? "보유 재료로 찾기" : !curated && year !== null ? `${year}년 유행 음식` : title}</ListHeading>
               <span className="text-sm text-muted-foreground">{!curated && year !== null ? history.length : list.length}개</span>
               {filtering && (
                 <button type="button" onClick={reset} className="motion-press min-h-11 text-sm font-bold text-accent underline">
@@ -390,7 +408,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                 </button>
               )}
             </div>
-            {(curated || collection === "everyday") && <p className="mt-1 max-w-[42em] text-meta leading-relaxed text-muted-foreground">{collection === "recent" ? "최근 30일 안에 서비스에 처음 등록한 음식이에요. 등록일은 유행 시작일과 달라요." : collection === "everyday" ? "유행 순위와 별개로, 집에서 해먹기 좋은 레시피를 모았어요." : "출처로 확인한 유행 시기예요. 현재 인기 순위와는 달라요."}</p>}
+            {(curated || collection === "everyday") && <p className="mt-1 max-w-[42em] text-meta leading-relaxed text-muted-foreground">{collection === "recent" ? "최근 30일 안에 서비스에 처음 등록한 음식이에요. 등록일은 유행 시작일과 달라요." : collection === "everyday" ? "유행 순위와 별개로, 집에서 해먹기 좋은 레시피를 모았어요." : unified ? "유행 음식과 일상 레시피를 함께 찾아요." : "출처로 확인한 유행 시기예요. 추천순은 최신 유행 연도부터 적용해요."}</p>}
             {!curated && year !== null ? (
               <>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">당시 보도로 살펴본 유행 음식이에요. 순위가 아닌 대표 사례이며, 연도는 유행이 확인된 시기를 뜻해요.</p>
@@ -412,7 +430,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
             ) : list.length === 0 ? (
               <div data-motion-result className="flex flex-col items-center gap-3 py-16 text-center">
                 <p className="text-base text-body">
-                  {tab === "찜" ? "아직 찜한 음식이 없어요. 음식 옆 하트를 눌러 보세요." : collection === "recent" && !q && !tag && tab === "전체" ? "최근 30일에 등록일이 확인된 새 음식이 없어요. 유행 기록과 전체 음식을 둘러보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
+                  {tab === "찜" ? "아직 찜한 음식이 없어요. 음식 옆 하트를 눌러 보세요." : collection === "recent" && !q && !tag && tab === "전체" ? "최근 30일에 등록일이 확인된 새 음식이 없어요. 유행 음식과 유행 기록을 둘러보세요." : "맞는 음식이 없어요. 다른 말로 찾아보세요."}
                 </p>
                 <button type="button" onClick={reset} className="motion-press min-h-11 rounded-lg bg-primary px-5 font-bold text-white">
                   {curated ? "전체 음식 보기" : "전체 순위 보기"}
@@ -441,7 +459,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                 <ol id="food-grid" className={cn("food-grid m-0 mt-2 grid list-none gap-2 p-0 pb-8 sm:gap-4 lg:gap-6", columns === 2 ? "grid-cols-2" : "grid-cols-3")}>
                   {list.map((food, i) => (
                     <Fragment key={food.slug}>
-                      <FoodCard food={food} columns={columns} unranked={collection === "everyday" || pantryActive} match={pantryActive ? pantryMatch(food, pantry.items, need.items) : null} />
+                      <FoodCard food={food} columns={columns} heading={showFeature ? "h3" : "h2"} unranked={collection === "everyday" || pantryActive} match={pantryActive ? pantryMatch(food, pantry.items, need.items) : null} />
                       {i === columns - 1 && list.length > columns && (
                         <li className="col-span-full list-none">
                           <AdSlot label="인피드" className="my-7 h-[130px]" />

@@ -6,7 +6,7 @@ import { type Food } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 import type { pantryMatch } from "@/data/recipe-tools";
 
-export function FoodCard({ food, columns, unranked = false, match }: { food: Food; columns: 2 | 3; unranked?: boolean; match?: ReturnType<typeof pantryMatch> }) {
+export function FoodCard({ food, columns, heading: Heading = "h3", unranked = false, match }: { food: Food; columns: 2 | 3; heading?: "h2" | "h3"; unranked?: boolean; match?: ReturnType<typeof pantryMatch> }) {
   const href = `/food/${food.slug}`;
   return (
     <li data-motion-result className="relative flex min-w-0 flex-col overflow-hidden rounded-feature bg-card">
@@ -24,11 +24,11 @@ export function FoodCard({ food, columns, unranked = false, match }: { food: Foo
           </span>}
           <span className="text-meta text-muted-foreground">{unranked && !match ? "일상 레시피" : food.editorial ? food.history?.years.map((year) => `${year}년`).join(" · ") || (food.kind === "discovery" ? "유행 시기 미확정" : "일상 레시피") : food.change}</span>
         </div>
-        <h3 className="text-base leading-[1.35] font-bold tracking-[-0.02em] sm:text-xl md:text-2xl">
+        <Heading className="text-base leading-[1.35] font-bold tracking-[-0.02em] sm:text-xl md:text-2xl">
           <Link href={href} className="motion-press flex min-h-11 items-center text-foreground hover:text-foreground hover:underline">
             {food.name}
           </Link>
-        </h3>
+        </Heading>
         {food.publishedAt ? <p className="text-sm font-bold text-accent">등록일 {food.publishedAt}</p> : food.editorial?.newlyAdded && <p className="text-sm font-bold text-accent">새로 추가 · {food.editorial.recommendation!.date}</p>}
         <p data-testid="food-description" className="line-clamp-2 max-w-[32em] text-sm leading-relaxed text-body sm:text-reading">{food.history?.note ?? food.why}</p>
         {match && <p data-testid="pantry-match" className="rounded-lg bg-muted px-3 py-2 text-sm leading-relaxed"><b>{match.have}/{match.total}개 재료 보유</b><br />{match.missing.length ? `부족한 재료 ${match.missing.length}개: ${match.missing.map((item) => item.name).join(", ")}` : "재료가 모두 있어요"}</p>}
