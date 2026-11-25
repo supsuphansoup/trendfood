@@ -1,6 +1,6 @@
 import automaticPhotos from "./content/auto-photo-credits.json" with { type: "json" };
 
-export const curatedLicenses = ["CC0", "Public domain", "CC BY 4.0", "CC BY-SA 4.0", "Pexels License"] as const;
+export const curatedLicenses = ["CC0", "Public domain", "CC BY 2.0", "CC BY 4.0", "CC BY-SA 4.0", "Pexels License"] as const;
 export type PhotoProvider = "commons" | "openverse" | "pexels";
 export type PhotoCredit = { title: string; author: string; url: string; license: typeof curatedLicenses[number]; note: string; imageUrl: string; verifiedAt: string; rejectedReason?: string; automatic?: boolean; pageId?: number; sha1?: string; licenseUrl?: string; attributionNotice?: string; provider?: PhotoProvider; providerId?: string; creatorUrl?: string; crop?: { left: number; top: number; width: number; height: number } };
 

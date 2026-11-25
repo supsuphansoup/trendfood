@@ -1096,5 +1096,61 @@
       "height": 0.85
     },
     "note": "삶은 달걀을 섞어 속을 채운 일본식 에그마요 샌드위치예요. 음식 중심으로 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-history-jjapaguri": {
+    "author": "Jens Ohlig",
+    "creatorUrl": "https://www.flickr.com/photos/johl/",
+    "note": "영화에 나온 방식처럼 소고기를 얹어 차린 짜파구리 참고 사진이에요. 표시용 WebP로 바꿨어요. 변환본은 원본과 같은 CC BY 2.0 조건으로 제공해요. 본문의 기본 조리법은 면과 분말스프를 사용해요.",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "title": "Ram-don.jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Ram-don.jpg",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/dd/Ram-don.jpg",
+    "pageId": 87710087,
+    "sha1": "50667e867d0934455302183fb5760cbc0d90015c",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+  },
+  "photo-history-shine-muscat": {
+    "author": "Scudsvlad",
+    "creatorUrl": "https://commons.wikimedia.org/wiki/User:Scudsvlad",
+    "note": "접시에 놓은 샤인머스캣을 촬영한 사진이에요. 표시용 WebP로 크기와 형식을 바꿨어요. 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "title": "Shine muscat grapes.jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:Shine_muscat_grapes.jpg",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Shine_muscat_grapes.jpg",
+    "pageId": 129726247,
+    "sha1": "47055f9ba352bbab0513d4f862eee8fb6829a26c",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/"
+  },
+  "photo-history-greek-yogurt": {
+    "author": "Jenna Hamra",
+    "creatorUrl": "https://www.pexels.com/@jenna-hamra-248942/",
+    "note": "라즈베리와 부순 비스킷을 올린 그릭요거트 참고 사진이에요. 표시용 WebP로 크기와 형식을 바꿨어요.",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "title": "Delicious Greek yogurt with biscuit crumb and fresh raspberries",
+    "url": "https://www.pexels.com/photo/delicious-greek-yogurt-with-biscuit-crumb-and-fresh-raspberries-4006347/",
+    "imageUrl": "https://images.pexels.com/photos/4006347/pexels-photo-4006347.jpeg",
+    "provider": "pexels",
+    "providerId": "4006347",
+    "license": "Pexels License",
+    "licenseUrl": "https://www.pexels.com/license/"
+  },
+  "photo-history-mango-pomelo-sago": {
+    "author": "See-ming Lee (SML)",
+    "creatorUrl": "https://www.flickr.com/photos/seeminglee/",
+    "note": "홍콩 리원에서 제공한 양즈깐루를 촬영한 참고 사진이에요. 표시용 WebP로 크기와 형식을 바꿨어요. 변환본은 원본과 같은 CC BY 2.0 조건으로 제공해요.",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "title": "楊枝甘露 Yeung Ji Gum Lo, 利苑酒家午市點心 Lei Garden Lunchtime Dim Sum SML.20120925.G12.00428 (8099363414).jpg",
+    "url": "https://commons.wikimedia.org/wiki/File:%E6%A5%8A%E6%9E%9D%E7%94%98%E9%9C%B2_Yeung_Ji_Gum_Lo,_%E5%88%A9%E8%8B%91%E9%85%92%E5%AE%B6%E5%8D%88%E5%B8%82%E9%BB%9E%E5%BF%83_Lei_Garden_Lunchtime_Dim_Sum_SML.20120925.G12.00428_(8099363414).jpg",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/0/0c/%E6%A5%8A%E6%9E%9D%E7%94%98%E9%9C%B2_Yeung_Ji_Gum_Lo%2C_%E5%88%A9%E8%8B%91%E9%85%92%E5%AE%B6%E5%8D%88%E5%B8%82%E9%BB%9E%E5%BF%83_Lei_Garden_Lunchtime_Dim_Sum_SML.20120925.G12.00428_%288099363414%29.jpg",
+    "pageId": 97595037,
+    "sha1": "01736cff85041266dccfa4aa4f13fa647752871c",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
   }
 }

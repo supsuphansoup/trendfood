@@ -486,23 +486,28 @@ test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 �
   await expect(page.locator("#list li h3")).toHaveText(["밤 티라미수"]);
 });
 
-test("과거 인기 음식은 연도 목록에서 소개와 원문까지 연결된다", async ({ page }, info) => {
-  await page.goto("/?year=2025");
+test("과거 인기 음식은 연도 목록에서 실사와 소개·출처까지 연결된다", async ({ page, request }, info) => {
+  await page.goto("/?year=2022");
   const list = page.locator("#list");
-  const name = "수건케이크";
+  const name = "그릭요거트";
   const card = list.getByRole("heading", { name, exact: true });
   await expect(card).toBeVisible();
   await expect(list.getByRole("heading", { name: "짜파구리", exact: true })).toHaveCount(0);
+  await expect(list.locator('img[src*="photo-history-greek-yogurt"]').first()).toBeVisible();
   await card.scrollIntoViewIfNeeded();
-  await page.screenshot({ path: `test-results/content/history-2025-${info.project.name}.png` });
+  await page.screenshot({ path: `test-results/content/history-2022-${info.project.name}.png` });
 
   await card.click();
-  await expect(page).toHaveURL(/\/food\/towel-crepe-cake\/?$/);
+  await expect(page).toHaveURL(/\/food\/greek-yogurt\/?$/);
   await expect(page.getByRole("heading", { level: 1, name, exact: true })).toBeVisible();
   const sources = page.getByRole("region", { name: "참고한 출처" });
-  await expect(sources.getByRole("link", { name: /매일경제/ })).toHaveAttribute("href", "https://m.mk.co.kr/amp/11212593");
+  await expect(sources.getByRole("link", { name: /머니투데이/ })).toHaveAttribute("href", "https://www.mt.co.kr/amp/living/2022/07/10/2022070515345765876");
   await expect(page.locator("#cart, #recipe")).toHaveCount(0);
-  await page.screenshot({ path: `test-results/content/history-towel-crepe-cake-${info.project.name}.png`, fullPage: true });
+  const photoInfo = page.getByLabel("사진 정보", { exact: true });
+  await photoInfo.locator("summary").click();
+  await expect(photoInfo.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", "https://www.pexels.com/license/");
+  await page.screenshot({ path: `test-results/content/history-greek-yogurt-${info.project.name}.png`, fullPage: true });
+  expect((await request.get("/food/knotted-cream-donut")).status()).toBe(404);
 });
 
 test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제공하며 가짜 수치는 없다", async ({ page }, info) => {

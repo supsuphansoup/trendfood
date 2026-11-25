@@ -92,6 +92,10 @@ import eggSoupPhoto from "@/assets/curated/photo-everyday-reviewed-egg-soup-2026
 import eggSandwichPhoto from "@/assets/curated/photo-everyday-reviewed-egg-sandwich-20261125.webp";
 import tunaGimbapReviewedPhoto from "@/assets/curated/photo-reviewed-tuna-gimbap-20261125.webp";
 import soySauceEggRiceReviewedPhoto from "@/assets/curated/photo-everyday-soy-sauce-egg-rice-20261125.webp";
+import jjapaguriPhoto from "@/assets/curated/photo-history-jjapaguri.webp";
+import shineMuscatPhoto from "@/assets/curated/photo-history-shine-muscat.webp";
+import greekYogurtPhoto from "@/assets/curated/photo-history-greek-yogurt.webp";
+import mangoPomeloSagoPhoto from "@/assets/curated/photo-history-mango-pomelo-sago.webp";
 
 export const curatedPhotos = {
   "photo-reviewed-tuna-gimbap-20261125": tunaGimbapReviewedPhoto,
@@ -174,4 +178,8 @@ export const curatedPhotos = {
   "photo-reviewed-ube-latte-20261118": reviewedPhoto7,
   "photo-everyday-reviewed-janchi-guksu": reviewedPhoto9,
   "photo-everyday-reviewed-cucumber-muchim": reviewedPhoto10,
+  "photo-history-jjapaguri": jjapaguriPhoto,
+  "photo-history-shine-muscat": shineMuscatPhoto,
+  "photo-history-greek-yogurt": greekYogurtPhoto,
+  "photo-history-mango-pomelo-sago": mangoPomeloSagoPhoto,
 };

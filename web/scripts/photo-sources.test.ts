@@ -14,6 +14,24 @@ const openverse = () => ({
 const pexels = () => ({ id: 1234, width: 1200, height: 800, url: "https://www.pexels.com/photo/matcha-latte-1234/", photographer: "사진가", photographer_url: "https://www.pexels.com/@photographer", alt: "Matcha latte", src: { original: "https://images.pexels.com/photos/1234/pexels-photo-1234.jpeg" } });
 const json = (body: unknown) => new Response(JSON.stringify(body), { headers: { "content-type": "application/json" } });
 
+test("Commons CC BY 2.0은 공식 이용 조건을 확인한 수동 검수 사진만 허용한다", () => {
+  const photo = {
+    title: "Ram-don.jpg",
+    author: "사진가",
+    url: "https://commons.wikimedia.org/wiki/File:Ram-don.jpg",
+    imageUrl: "https://upload.wikimedia.org/wikipedia/commons/d/dd/Ram-don.jpg",
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    verifiedAt: date,
+    automatic: false,
+    note: "표시용 WebP로 변환",
+  } as const;
+  assert.ok(validPhotoSource(photo));
+  assert.equal(validPhotoSource({ ...photo, automatic: true }), false);
+  assert.equal(validPhotoSource({ ...photo, automatic: undefined }), false);
+  assert.equal(validPhotoSource({ ...photo, licenseUrl: "https://creativecommons.org/licenses/by/4.0/" }), false);
+});
+
 test("Openverse는 Flickr 원문·파일 ID·허용 라이선스 버전과 원작자를 대조한다", () => {
   const photo = openversePhoto(openverse(), date)!;
   assert.equal(photo.provider, "openverse"); assert.equal(photo.providerId, openverse().id);

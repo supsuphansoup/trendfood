@@ -34,6 +34,10 @@ export function validPhotoSource(photo: PhotoCredit): boolean {
     return !!id && /^[1-9]\d*$/.test(id) && photo.license === "Pexels License" && photo.licenseUrl === "https://www.pexels.com/license/"
       && new RegExp(`(?:-|/)${id}/?$`).test(new URL(photo.url).pathname) && new URL(photo.imageUrl).pathname.startsWith(`/photos/${id}/`);
   }
+  // 출처와 이용 조건을 직접 검토한 Commons 사진에만 이전 버전을 허용한다.
+  if (photo.license === "CC BY 2.0") {
+    return provider === "commons" && photo.automatic === false && photo.licenseUrl === "https://creativecommons.org/licenses/by/2.0/";
+  }
   const licenseUrls: Record<string, RegExp> = {
     "CC0": /^https:\/\/creativecommons\.org\/publicdomain\/zero\/1\.0\/?$/,
     "Public domain": /^https:\/\/(?:creativecommons\.org\/publicdomain\/mark\/1\.0\/?|commons\.wikimedia\.org\/wiki\/Help:Public_domain)$/,
