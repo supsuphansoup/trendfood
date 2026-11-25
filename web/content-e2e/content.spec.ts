@@ -507,6 +507,40 @@ test("요아정은 2024년 검색 결과에서 먹방 유행 출처와 가정용
   expect((await request.get("/food/knotted-cream-donut")).status()).toBe(404);
 });
 
+test("바이럴 출처가 확인된 음식은 해당 연도에, 민트초코 라떼는 일상 레시피에 표시한다", async ({ page, request }, info) => {
+  await page.goto("/");
+  const list = page.locator("#list");
+  for (const name of ["샤인머스캣", "크런치 27 큐브", "민트초코 라떼"]) {
+    await expect(list.getByRole("heading", { name, exact: true })).toHaveCount(0);
+  }
+  for (const slug of ["shine-muscat", "crunch-27-cube"]) {
+    expect((await request.get(`/food/${slug}`)).status()).toBe(404);
+  }
+
+  await page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^일상 레시피/ }).click();
+  const mint = page.getByRole("heading", { name: "민트초코 라떼", exact: true });
+  const mintCard = list.locator("li").filter({ has: mint });
+  await expect(mintCard).toBeVisible();
+  await mintCard.screenshot({ path: `test-results/content/viral-audit-everyday-${info.project.name}.png` });
+  await mintCard.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
+  await expect(page).toHaveURL(/\/food\/mint-choco-latte\/?$/);
+  await expect(page.locator("#recipe").getByRole("heading", { name: "만드는 법" })).toBeVisible();
+  await expect(page.getByRole("region", { name: /주목받은 시기/ })).toHaveCount(0);
+
+  const query = encodeURIComponent("들기름 막국수");
+  await page.goto(`/?year=2021&q=${query}`);
+  await expect(list.getByRole("heading", { name: "들기름 막국수", exact: true })).toHaveCount(0);
+  await page.goto(`/?year=2023&q=${query}`);
+  const noodles = page.getByRole("heading", { name: "들기름 막국수", exact: true });
+  const noodlesCard = list.locator("li").filter({ has: noodles });
+  await expect(noodlesCard.getByText(/BTS 정국이 라이브/)).toBeVisible();
+  await noodlesCard.screenshot({ path: `test-results/content/viral-audit-2023-${info.project.name}.png` });
+  await noodlesCard.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
+  const history = page.getByRole("region", { name: "주목받은 시기 · 2023년" });
+  await expect(history.getByText(/참소스로 만드는 레시피/)).toBeVisible();
+  await expect(history.getByRole("link", { name: /머니투데이/ })).toHaveAttribute("href", "https://www.mt.co.kr/amp/entertainment/2023/04/26/2023042611001375980");
+});
+
 test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제공하며 가짜 수치는 없다", async ({ page }, info) => {
   test.setTimeout(Math.max(120_000, snapshot.foods.length * 1000));
   for (const food of snapshot.foods) {
@@ -581,7 +615,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       }
       await expect(page.getByRole("link", { name: /사진 출처|사진 라이선스/ })).toHaveCount(0);
       expect(await introduction.locator("img").evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      if (food.slug === "crunch-27-cube" || food.image.endsWith("-natural-20261125") || food.image.endsWith("-home-20261125") || food.image.endsWith("-plated-20261125")) {
+      if (food.image.endsWith("-natural-20261125") || food.image.endsWith("-home-20261125") || food.image.endsWith("-plated-20261125")) {
         await introduction.getByRole("img", { name: food.alt, exact: true }).screenshot({ path: `test-results/content/photo-${food.slug}-${info.project.name}.png` });
       }
       if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });

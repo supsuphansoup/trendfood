@@ -262,8 +262,12 @@
         "years": [
           2026
         ],
-        "note": "2026년 3월 말 우베 검색 증가와 보라색 디저트·음료의 관심 이동이 보도됐어요. 연간 판매 순위라는 뜻은 아니에요.",
+        "note": "보라색 우베 라떼가 SNS에 올라오기 시작했고, 국내 카페에서도 잇따라 선보였어요.",
         "sources": [
+          {
+            "title": "한국경제 · 2026년 SNS 우베 라떼와 국내 카페 취재",
+            "url": "https://www.hankyung.com/article/2026031636337"
+          },
           {
             "title": "동아일보 · 2026.03.30 두쫀쿠·봄동 비빔밥·우베 유행 변화",
             "url": "https://www.donga.com/news/article/all/20260330/133636509/1"
@@ -329,18 +333,13 @@
       "checkedAt": "2026-11-12",
       "history": {
         "years": [
-          2025,
-          2026
+          2025
         ],
-        "note": "2025년 말차 소비가 늘었고 2026년에도 편의점·카페 제품 확장이 이어졌어요.",
+        "note": "제니가 영상에서 아이스 말차를 만들고, SNS에서 말차 인증샷과 따라 마시기가 퍼졌어요.",
         "sources": [
           {
-            "title": "신세계그룹 공식 · 이마트24 2025년 말차 판매와 2026년 상품 확대",
-            "url": "https://www.shinsegaegroupnewsroom.com/emart24-launches-a-large-number-of-exclusive-products-amid-the-matcha-core-craze/"
-          },
-          {
-            "title": "매일경제 · 2026.09.14 말차 한정 상품 판매 연장",
-            "url": "https://www.mk.co.kr/news/economy/12151866"
+            "title": "연합뉴스 · 2025년 말차 영상과 음료 유행",
+            "url": "https://www.yna.co.kr/amp/view/AKR20250827144400030"
           }
         ]
       }
@@ -413,8 +412,12 @@
         "years": [
           2020
         ],
-        "note": "2020년 집에서 따라 만드는 디저트·음료 유행을 대표한 메뉴로 기록돼요.",
+        "note": "2020년 집에서 커피를 수백 번 저어 만드는 달고나 커피 챌린지가 SNS에서 퍼졌어요.",
         "sources": [
+          {
+            "title": "연합뉴스 · 2020년 달고나 커피 만들기 챌린지",
+            "url": "https://www.yna.co.kr/view/AKR20200318089400505"
+          },
           {
             "title": "서울연구원 · 서울인포그래픽+ 357호, 디저트 유행 변화",
             "url": "https://si.re.kr/bbs/view.do?key=2024100042&pstSn=2411200001"
@@ -482,8 +485,12 @@
           2020,
           2021
         ],
-        "note": "2020~2021년 유행한 크로플은 이후 디저트 유행 주기 분석에도 대표 사례로 쓰였어요.",
+        "note": "강민경의 먹는 영상으로 알려지면서 인증샷과 집에서 생지를 와플 기계에 굽는 영상이 퍼졌어요.",
         "sources": [
+          {
+            "title": "중앙일보 · 2020년 크로플 인증샷과 홈카페 유행",
+            "url": "https://www.joongang.co.kr/article/23951754"
+          },
           {
             "title": "연합뉴스 · 2026.02.08 주요 디저트 검색 추이 분석",
             "url": "https://v.daum.net/v/20260208065651483"
@@ -584,10 +591,15 @@
       "checkedAt": "2026-11-12",
       "history": {
         "years": [
+          2020,
           2021
         ],
-        "note": "2021년 로제 떡볶이를 포함한 로제 소스 메뉴가 주목받았어요. 새우 토핑 자체의 유행 연도를 뜻하지 않아요.",
+        "note": "‘나 혼자 산다’에 나온 로제 떡볶이가 화제가 되며 여러 가게로 퍼졌어요. 여기서는 새우를 넣어 만들어요.",
         "sources": [
+          {
+            "title": "국립민속박물관 · 로제떡볶이 방송 노출과 SNS 확산",
+            "url": "https://folkency.nfm.go.kr/topic/detail/11940"
+          },
           {
             "title": "국민일보 · 2021년 민트초코·로제·들기름 식품 유행",
             "url": "https://www.kmib.co.kr/article/view.asp?arcid=0924203903"
@@ -675,13 +687,13 @@
       "checkedAt": "2026-11-12",
       "history": {
         "years": [
-          2021
+          2023
         ],
-        "note": "2021년 들기름을 활용한 면 요리가 주목받았어요. 이 배합은 참소스를 이용한 별도의 가정용 레시피예요.",
+        "note": "BTS 정국이 라이브에서 소개한 불마요 들기름 막국수가 SNS에서 화제가 됐어요. 여기서는 참소스로 만드는 레시피를 소개해요.",
         "sources": [
           {
-            "title": "국민일보 · 2021년 민트초코·로제·들기름 식품 유행",
-            "url": "https://www.kmib.co.kr/article/view.asp?arcid=0924203903"
+            "title": "머니투데이 · 2023년 정국의 불마요 들기름 막국수 공개",
+            "url": "https://www.mt.co.kr/amp/entertainment/2023/04/26/2023042611001375980"
           }
         ]
       }
@@ -697,8 +709,8 @@
         "10분컷",
         "디저트"
       ],
-      "why": "민트 시럽을 섞은 우유에 초코 시럽과 커피를 더한 차가운 라떼예요. 2021년 민트초코 유행을 홈카페로 응용했어요.",
-      "summary": "민트 시럽을 섞은 우유에 초코 시럽과 커피를 더한 차가운 라떼예요. 2021년 민트초코 유행을 홈카페로 응용했어요.",
+      "why": "민트 시럽을 섞은 우유에 초코 시럽과 커피를 더한 차가운 라떼예요.",
+      "summary": "민트 시럽을 섞은 우유에 초코 시럽과 커피를 더한 차가운 라떼예요.",
       "image": "photo-ai-mint-choco-latte-natural-20261125",
       "alt": "민트초코 라떼 AI 생성 예시 이미지. 실제 조리 결과와 다를 수 있어요.",
       "ingredients": [
@@ -760,19 +772,7 @@
         }
       ],
       "recipeNote": "공개 레시피를 바탕으로 AI가 순서와 설명을 다시 정리했어요. 분량·예상 시간은 가정용 안내이며 직접 조리 검증은 하지 않았어요. ",
-      "checkedAt": "2026-11-12",
-      "history": {
-        "years": [
-          2021
-        ],
-        "note": "2021년 민트초코 제품 출시가 활발했고 민초단이라는 팬덤이 주목받았어요. 라떼는 그 맛을 응용한 레시피예요.",
-        "sources": [
-          {
-            "title": "뉴시스 · 2021.07.07 민트초코 제품 출시 보도",
-            "url": "https://www.newsis.com/view/NISX20210706_0001501838"
-          }
-        ]
-      }
+      "checkedAt": "2026-11-12"
     },
     {
       "slug": "dalgona-candy",
@@ -935,8 +935,12 @@
         "years": [
           2022
         ],
-        "note": "2022년 국내 식음료 유행 사례로 소금빵과 포켓몬빵이 함께 기록돼요. 빵 자체가 처음 만들어진 연도는 아니에요.",
+        "note": "2022년 인스타그램에서 소금빵이 입소문을 타며, 맛집을 찾아다니는 소금빵 빵지순례가 생겼어요.",
         "sources": [
+          {
+            "title": "한국경제TV · 2022년 소금빵 인증과 빵지순례",
+            "url": "https://www.wowtv.co.kr/NewsCenter/News/Read?articleId=A202205240092"
+          },
           {
             "title": "유진투자증권 · 2025.02.05 보고서, 2022~2024 식음료 유행 사례",
             "url": "https://www.eugenefn.com/common/files/amail/20250205_B3010_jinwookim_2.pdf"
@@ -993,8 +997,12 @@
         "years": [
           2022
         ],
-        "note": "2022년 재출시와 함께 동봉 스티커 수집 열풍으로 품귀 현상을 빚었던 캐릭터 빵 시리즈예요.",
+        "note": "2022년 재출시되자 포켓몬 스티커를 모아 올리는 인증샷이 퍼지고 매장에서는 품귀가 이어졌어요.",
         "sources": [
+          {
+            "title": "세계일보 · 2022년 포켓몬빵과 스티커 인증샷 열풍",
+            "url": "https://www.segye.com/newsView/20220228513951"
+          },
           {
             "title": "비즈워치 · 2022.12.22 유통 결산, 포켓몬빵 열풍",
             "url": "https://news.bizwatch.co.kr/article/consumer/2022/12/21/0020"
@@ -1055,6 +1063,10 @@
         ],
         "note": "2022년 CU에서 출시한 크림빵 시리즈로, 빵을 반으로 갈라 크림을 보여주는 반갈샷이 화제가 됐어요.",
         "sources": [
+          {
+            "title": "한국일보 · 2022년 연세우유 크림빵 SNS 반갈샷",
+            "url": "https://www.hankookilbo.com/news/article/A2022101316070003156"
+          },
           {
             "title": "BGF 공식 · 2024.01.18 연세우유 크림빵 출시·판매 기록",
             "url": "https://www.bgf.co.kr/bgflive/view/?categoryId=1&id=891"
@@ -1241,8 +1253,12 @@
         "years": [
           2023
         ],
-        "note": "2023년 할매니얼 열풍과 함께 약과를 이용한 편의점 디저트와 전문 상품이 늘었어요.",
+        "note": "먹방 유튜버 여수언니가 여러 약과를 소개하면서, 인기 약과를 온라인으로 구하는 ‘약켓팅’이 퍼졌어요.",
         "sources": [
+          {
+            "title": "뉴시스 · 2023년 여수언니 약과 먹방과 약켓팅",
+            "url": "https://mobile.newsis.com/view.html?ar_id=NISX20230718_0002381178"
+          },
           {
             "title": "연합뉴스 · 2023.06.27 약과 디저트 출시·매출 보도",
             "url": "https://www.yna.co.kr/view/AKR20230627033500003"
@@ -1406,8 +1422,12 @@
         "years": [
           2023
         ],
-        "note": "2023년 먹태 맛을 활용한 스낵으로 주목받았어요. 농심은 2023년 사업 보고에서 대표 히트 상품으로 소개했어요.",
+        "note": "맥주 안주로 먹어본 후기와 구매 인증샷이 SNS에서 돌면서, 편의점에서 먹태깡을 구하기 어려워졌어요.",
         "sources": [
+          {
+            "title": "시빅뉴스 · 2023년 먹태깡 구매 인증샷과 품귀",
+            "url": "https://www.civicnews.com/news/articleViewAmp.html?idxno=35815"
+          },
           {
             "title": "농심 공식 · 2023 Annual Report, 먹태깡 출시·판매 기록",
             "url": "https://image.nongshim.com/non/cir/1711348646197.pdf"
@@ -2247,8 +2267,12 @@
         "years": [
           2024
         ],
-        "note": "2024년 SNS를 통해 알려지고 편의점에서도 관련 상품을 출시한 디저트예요.",
+        "note": "마리아 베하라의 먹는 영상이 퍼진 뒤, 2024년 국내에서도 두바이 초콜릿을 따라 만드는 영상이 이어졌어요.",
         "sources": [
+          {
+            "title": "연합뉴스 · 2024년 두바이 초콜릿 먹방과 따라 만들기",
+            "url": "https://www.yna.co.kr/view/AKR20240704113100030"
+          },
           {
             "title": "컨슈머타임스 · 2024년 요아정·두바이 초콜릿·밤 티라미수 결산",
             "url": "https://www.cstimes.com/news/articleView.html?idxno=627432"
@@ -5462,8 +5486,12 @@
           2025,
           2026
         ],
-        "note": "2025년 말 주목받기 시작해 2026년 초 카페·편의점까지 확산됐어요. 현재 실시간 1위로 집계한 것은 아니에요.",
+        "note": "2025년 말 두쫀쿠 먹방과 따라 만들기 영상이 퍼졌고, 2026년 초에는 매장에 줄이 이어졌어요.",
         "sources": [
+          {
+            "title": "YTN · 2026년 두바이 쫀득쿠키 SNS 확산 현장",
+            "url": "https://www.ytn.co.kr/_ln/0106_202603010254113775"
+          },
           {
             "title": "연합뉴스 · 2026.02.08 지난해 말 두쫀쿠 검색 추이",
             "url": "https://v.daum.net/v/20260208065651483"
@@ -5533,8 +5561,12 @@
         "years": [
           2026
         ],
-        "note": "2026-11-16에 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.",
+        "note": "2026년 한정선 요거트 찹쌀떡의 구매 인증과 시식 영상이 SNS에서 퍼졌어요.",
         "sources": [
+          {
+            "title": "전자신문 · 2026년 한정선 요거트 찹쌀떡 구매 인증·시식 영상 확산",
+            "url": "https://www.etnews.com/20260904000350"
+          },
           {
             "title": "그릭데이 요거트 찹쌀떡, 이렇게 먹어야 진짜 맛있음         #그릭데이#그릭요거트#디저트먹방 #먹방#GreekYogurt #Mukbang #Mochi #韓国スイーツ #モッパン",
             "url": "https://www.youtube.com/watch?v=fqnEm0TNN8U"
@@ -5630,8 +5662,12 @@
         "years": [
           2026
         ],
-        "note": "2026-11-16에 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.",
+        "note": "2026년 떡을 갈라 생초코 속을 보여주는 먹방이 퍼졌고, GS25 제품도 여러 제작자가 시식했어요.",
         "sources": [
+          {
+            "title": "미디어펜 · 2026년 생초코 찹쌀떡 숏폼 먹방이 퍼진 방식",
+            "url": "https://www.mediapen.com/news/view/1126446"
+          },
           {
             "title": "1년 9개월 만에 돌아온 GS25 편의점 먹방! 치즈카레불닭볶음면 소바바치킨 날치알묵은지참치김밥 직화짜장 대왕닭다리 콘치즈소시지 생초코찹쌀떡 고구마휘낭시에 ASMR Mukbang",
             "url": "https://www.youtube.com/watch?v=9XA663UnbT8"
@@ -5663,71 +5699,6 @@
           {
             "title": "ASMR Lava Chocolate Mochi Truffles Dessert Mukbang | 초콜릿 생초코 찹쌀떡 디저트 먹방 | 生チョコ大福 デザート モッパン",
             "url": "https://www.youtube.com/watch?v=SrkV8_25lMQ"
-          }
-        ]
-      },
-      "recipeNote": "공개 영상의 제목·설명란에서 AI가 음식 소개 인용을 골랐고 원문 일치를 자동 대조했어요. 운영자의 개별 검수는 하지 않았어요. 조리법·재료 구매는 제공하지 않아요.",
-      "publishedAt": "2026-11-20"
-    },
-    {
-      "slug": "crunch-27-cube",
-      "name": "크런치 27 큐브",
-      "category": "디저트",
-      "kind": "discovery",
-      "why": "서로 다른 제작자의 최근 영상에서 새로 확인한 음식이에요.",
-      "summary": "원문 소개: “크런치 27 큐브 아이스크림 케이크를 준비했습니다~!\n\n초콜릿 퐁듀에 퐁당 담가서 초코쉘처럼 굳혀 먹었는데”",
-      "tags": [
-        "디저트"
-      ],
-      "cookMinutes": 0,
-      "difficulty": "쉬움",
-      "servings": "음식 소개",
-      "ingredients": [],
-      "steps": [],
-      "tip": "음식 정보는 아래 원문 출처에서 확인하세요.",
-      "image": "photo-ai-crunch-27-cube-natural-20261124",
-      "alt": "크런치 27 큐브 AI 생성 예시 이미지",
-      "convenience": [],
-      "sources": [
-        {
-          "title": "크런치 27 큐브 소개 원문",
-          "url": "https://www.youtube.com/watch?v=dv_u4WB1dY0"
-        },
-        {
-          "title": "베라신상 크런치 27큐브 리뷰븅💕",
-          "url": "https://www.youtube.com/watch?v=yLdBoyDymlY"
-        },
-        {
-          "title": "베스킨라빈스 크런치27큐브 아이스크림케이크 먹방🍨🍧🍦🎂",
-          "url": "https://www.youtube.com/watch?v=GDO8RCFao6I"
-        },
-        {
-          "title": "크런치 27 큐브케이크 마시써요💓",
-          "url": "https://www.youtube.com/watch?v=tyw6uuL_jUs"
-        }
-      ],
-      "checkedAt": "2026-11-18",
-      "history": {
-        "years": [
-          2026
-        ],
-        "note": "2026-11-18에 여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.",
-        "sources": [
-          {
-            "title": "크런치 27 큐브 소개 원문",
-            "url": "https://www.youtube.com/watch?v=dv_u4WB1dY0"
-          },
-          {
-            "title": "베라신상 크런치 27큐브 리뷰븅💕",
-            "url": "https://www.youtube.com/watch?v=yLdBoyDymlY"
-          },
-          {
-            "title": "베스킨라빈스 크런치27큐브 아이스크림케이크 먹방🍨🍧🍦🎂",
-            "url": "https://www.youtube.com/watch?v=GDO8RCFao6I"
-          },
-          {
-            "title": "크런치 27 큐브케이크 마시써요💓",
-            "url": "https://www.youtube.com/watch?v=tyw6uuL_jUs"
           }
         ]
       },
@@ -5828,8 +5799,12 @@
         "years": [
           2026
         ],
-        "note": "2026년 봄 상하이 버터떡이 새 유행 디저트로 소개되고 관련 제품이 출시됐어요.",
+        "note": "중국 여행 브이로그와 숏폼에서 알려진 상하이 버터떡이 2026년 봄 국내 SNS와 베이커리에 퍼졌어요.",
         "sources": [
+          {
+            "title": "SBS 뉴스 · 2026년 상하이 버터떡 숏폼과 매장 현장",
+            "url": "https://www.youtube.com/watch?v=VnBZdolfUcE"
+          },
           {
             "title": "뉴스웨이 · 2026.04.09 버터떡 상품 출시 보도",
             "url": "https://www.newsway.co.kr/news/view?ud=2026040916303012473"
@@ -5907,49 +5882,11 @@
       }
     },
     {
-      "slug": "shine-muscat",
-      "kind": "discovery",
-      "name": "샤인머스캣",
-      "why": "껍질째 먹는 연둣빛 청포도예요.",
-      "summary": "샤인머스캣은 알이 크고 단맛이 나는 청포도 품종이에요. 2021년 이마트는 샤인머스캣의 인기가 포도를 자사 과일 매출 1위 품목으로 끌어올렸다고 소개했어요.",
-      "category": "간식",
-      "tags": [],
-      "cookMinutes": 0,
-      "difficulty": "쉬움",
-      "servings": "음식 소개",
-      "image": "photo-history-shine-muscat",
-      "alt": "흰 접시에 담긴 연둣빛 샤인머스캣 한 송이",
-      "ingredients": [],
-      "steps": [],
-      "tip": "껍질째 먹는 연둣빛 청포도예요.",
-      "convenience": [],
-      "sources": [
-        {
-          "title": "신세계그룹 뉴스룸 · 2021년 이마트 샤인머스캣 판매 동향",
-          "url": "https://www.shinsegaegroupnewsroom.com/2021-ssg-day-emart-shine/"
-        }
-      ],
-      "recipeNote": "유행 당시의 기사와 공식 자료를 바탕으로 AI가 음식 특징과 반응을 정리했어요.",
-      "checkedAt": "2026-11-26",
-      "history": {
-        "years": [
-          2021
-        ],
-        "note": "2021년 이마트 과일 매출에서 포도가 사과를 앞섰고, 이마트는 샤인머스캣을 주요 원인으로 꼽았어요.",
-        "sources": [
-          {
-            "title": "신세계그룹 뉴스룸 · 2021년 이마트 샤인머스캣 판매 동향",
-            "url": "https://www.shinsegaegroupnewsroom.com/2021-ssg-day-emart-shine/"
-          }
-        ]
-      }
-    },
-    {
       "slug": "mango-pomelo-sago",
       "kind": "discovery",
       "name": "양즈깐루",
       "why": "망고와 자몽류 과육, 코코넛밀크, 사고 펄을 넣은 홍콩식 디저트예요.",
-      "summary": "망고의 단맛, 자몽류 과육의 새콤쌉싸름한 맛, 사고 펄의 쫀득한 식감이 함께 나요. 2026년 여름 국내 카페와 편의점이 컵 디저트와 빙수로 선보였고, GS25 제품은 출시 나흘 만에 해당 디저트빵 판매 10위권에 들었어요.",
+      "summary": "망고의 단맛, 자몽류 과육의 새콤쌉싸름한 맛, 사고 펄의 쫀득한 식감이 함께 나요. 2026년 여름 국내 카페와 편의점이 컵 디저트와 빙수로 선보였고, GS25 제품은 출시 나흘 만에 해당 디저트빵 판매 10위권에 들었어요. 사진은 그릇에 담아 먹는 홍콩식 양즈깐루예요.",
       "category": "디저트",
       "tags": [
         "디저트"
@@ -5979,8 +5916,12 @@
         "years": [
           2026
         ],
-        "note": "2026년 여름 국내 검색 관심이 늘었고 편의점과 카페에서 관련 디저트와 음료를 잇따라 출시했어요.",
+        "note": "2026년 통망고에 요거트와 자몽을 담는 ‘고체 양즈깐루’ 인증샷이 국내 SNS에서 퍼졌어요.",
         "sources": [
+          {
+            "title": "코메디닷컴 · 2026년 고체 양즈깐루 인증샷과 기본 양즈깐루",
+            "url": "https://kormedi.com/2824061/"
+          },
           {
             "title": "한국경제 · 2026.07.24 양즈깐루 검색과 국내 유통 판매",
             "url": "https://www.hankyung.com/article/202607243837g"
