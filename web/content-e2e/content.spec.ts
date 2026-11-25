@@ -302,6 +302,7 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     await page.getByLabel("사진 정보", { exact: true }).locator("summary").click();
     if (credit) {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);
+      if (credit.licenseUrl) await expect(page.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", credit.licenseUrl);
     } else {
       await expect(page.getByLabel("사진 정보", { exact: true }).getByText(/AI 생성 예시 ·/)).toBeVisible();
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);

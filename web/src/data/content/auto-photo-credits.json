@@ -1,4 +1,45 @@
 {
+  "photo-reviewed-tuna-gimbap-20261125": {
+    "title": "Chamchigimbap at Hana Restaurant, Milan, 2023.jpg",
+    "author": "Chiyako92",
+    "url": "https://commons.wikimedia.org/wiki/File:Chamchigimbap_at_Hana_Restaurant,_Milan,_2023.jpg",
+    "license": "CC BY-SA 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/3/32/Chamchigimbap_at_Hana_Restaurant%2C_Milan%2C_2023.jpg",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "pageId": 156847465,
+    "sha1": "720cd6ffad7169921e928875a59fa2e1e44c281e",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "creatorUrl": "https://commons.wikimedia.org/wiki/User:Chiyako92",
+    "attributionNotice": "작가가 식당에서 직접 촬영한 사진이에요.",
+    "crop": {
+      "left": 0.085,
+      "top": 0.02,
+      "width": 0.81,
+      "height": 0.97
+    },
+    "note": "참치와 마요네즈가 들어간 식당 김밥을 촬영한 참고 사진이에요. 사진에는 오이·당근·단무지 등 채소가 들어가 이번 레시피와 속재료가 달라요. 접시 주변을 잘라 WebP로 바꿨어요. 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+  },
+  "photo-everyday-soy-sauce-egg-rice-20261125": {
+    "title": "Ganjang-gyeran-bap 1.jpg",
+    "author": "건강한 레시피",
+    "url": "https://commons.wikimedia.org/wiki/File:Ganjang-gyeran-bap_1.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/1/14/Ganjang-gyeran-bap_1.jpg",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "pageId": 135440004,
+    "sha1": "07c6809a3486d8c5aefbff5a65a62c12d91d9bfa",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "attributionNotice": "https://delivernews.tistory.com/12",
+    "crop": {
+      "left": 0,
+      "top": 0.3,
+      "width": 1,
+      "height": 0.64
+    },
+    "note": "건강한 레시피에서 실제로 차려 찍은 간장계란밥 참고 사진이에요. 그릇과 밥이 보이는 컷을 골랐어요. 사진에는 허브를 곁들여 이번 레시피와 담음새가 달라요. 그릇 주변을 잘라 WebP로 바꿨어요. 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
+  },
   "photo-auto-dubai-chewy-cookie": {
     "rejectedReason": "플라스틱 포장 용기와 주변 여백이 두드러져 음식 대표 사진으로 부적합하다는 사용자 검토로 제외",
     "title": "Dubai Chewy Cookie.jpg",

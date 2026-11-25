@@ -75,7 +75,7 @@ test("기존 열 개 주소를 보존하고 2020~2026년 모두 근거 있는 �
 
 test("자취 요리 40개는 원문·분량과 확인한 음식 이미지가 있는 비유행 레시피로 유지한다", () => {
   const { foods } = parseContent(input);
-  const reviewedFallbacks = new Set(["gyeran-mari", "soy-sauce-egg-rice"]);
+  const reviewedFallbacks = new Set(["gyeran-mari"]);
   const additions = foods.filter((food) => food.image.startsWith("photo-everyday-") || reviewedFallbacks.has(food.slug));
   assert.equal(additions.length, 40);
   assert.ok(foods.filter((food) => !food.history && (!food.kind || food.kind === "recipe")).length >= 48);

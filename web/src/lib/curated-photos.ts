@@ -90,8 +90,12 @@ import greenOnionBagelPhoto from "@/assets/curated/photo-reviewed-green-onion-ba
 import eggFriedRicePhoto from "@/assets/curated/photo-everyday-reviewed-egg-fried-rice-20261125.webp";
 import eggSoupPhoto from "@/assets/curated/photo-everyday-reviewed-egg-soup-20261125.webp";
 import eggSandwichPhoto from "@/assets/curated/photo-everyday-reviewed-egg-sandwich-20261125.webp";
+import tunaGimbapReviewedPhoto from "@/assets/curated/photo-reviewed-tuna-gimbap-20261125.webp";
+import soySauceEggRiceReviewedPhoto from "@/assets/curated/photo-everyday-soy-sauce-egg-rice-20261125.webp";
 
 export const curatedPhotos = {
+  "photo-reviewed-tuna-gimbap-20261125": tunaGimbapReviewedPhoto,
+  "photo-everyday-soy-sauce-egg-rice-20261125": soySauceEggRiceReviewedPhoto,
   "photo-reviewed-croffle-20261125": crofflePhoto,
   "photo-reviewed-shrimp-cream-risotto-20261125": shrimpCreamRisottoPhoto,
   "photo-reviewed-green-onion-bagel-20261125": greenOnionBagelPhoto,
