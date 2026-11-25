@@ -279,7 +279,11 @@ test("추가 자취 요리는 검색·실사·재료 분량과 일반 구매 검
 });
 
 test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 정보를 제공한다", async ({ page }, info) => {
-  for (const slug of ["dalgona-coffee", "egg-soup", "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum", "udon-soup", "omurice", "ube-latte", "janchi-guksu", "cucumber-muchim"]) {
+  for (const slug of [
+    "dalgona-coffee", "egg-soup", "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum",
+    "udon-soup", "omurice", "ube-latte", "janchi-guksu", "cucumber-muchim", "tuna-gimbap",
+    "butter-garaetteok", "soy-sauce-egg-rice", "dubai-chewy-cookie",
+  ]) {
     const food = snapshot.foods.find((food) => food.slug === slug)!;
     const credit = automaticPhotos[food.image];
     const example = generatedImages[food.image];

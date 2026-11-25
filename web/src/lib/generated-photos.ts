@@ -63,8 +63,16 @@ import photo_ai_egg_sandwich_natural_20261125 from "@/assets/generated/photo-ai-
 import butterTteokPhoto from "@/assets/generated/photo-ai-butter-tteok-home-20261125.webp";
 import pizzaSeolgiPhoto from "@/assets/generated/photo-ai-pizza-seolgi-home-20261125.webp";
 import bomdongBibimbapPhoto from "@/assets/generated/photo-ai-bomdong-bibimbap-home-20261125.webp";
+import butterGaraetteokHomePhoto from "@/assets/generated/photo-ai-butter-garaetteok-home-20261125.webp";
+import dubaiChewyCookieHomePhoto from "@/assets/generated/photo-ai-dubai-chewy-cookie-home-20261125.webp";
+import soySauceEggRiceHomePhoto from "@/assets/generated/photo-ai-soy-sauce-egg-rice-home-20261125.webp";
+import tunaGimbapHomePhoto from "@/assets/generated/photo-ai-tuna-gimbap-home-20261125.webp";
 
 export const generatedPhotos = {
+  "photo-ai-butter-garaetteok-home-20261125": butterGaraetteokHomePhoto,
+  "photo-ai-dubai-chewy-cookie-home-20261125": dubaiChewyCookieHomePhoto,
+  "photo-ai-soy-sauce-egg-rice-home-20261125": soySauceEggRiceHomePhoto,
+  "photo-ai-tuna-gimbap-home-20261125": tunaGimbapHomePhoto,
   "photo-ai-butter-tteok-home-20261125": butterTteokPhoto,
   "photo-ai-pizza-seolgi-home-20261125": pizzaSeolgiPhoto,
   "photo-ai-bomdong-bibimbap-home-20261125": bomdongBibimbapPhoto,

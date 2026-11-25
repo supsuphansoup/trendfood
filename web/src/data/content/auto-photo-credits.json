@@ -55,7 +55,8 @@
     "sha1": "5f3dff94df3b95e676bd58612e7ae85afcf1ab36",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "attributionNotice": "Own work",
-    "note": "두바이 쫀득쿠키 참고 사진이에요. 마시멜로 겉면과 카다이프·피스타치오 속이 보이는 단면 사진이에요. 원본 사진·음식·공식 이용 조건을 AI로 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 레시피를 직접 조리한 사진은 아니에요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+    "note": "두바이 쫀득쿠키 참고 사진이에요. 마시멜로 겉면과 카다이프·피스타치오 속이 보이는 단면 사진이에요. 원본 사진·음식·공식 이용 조건을 AI로 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 레시피를 직접 조리한 사진은 아니에요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "rejectedReason": "종이 포장 위에 놓인 단면 두 조각만 보여 완성된 쿠키 모양과 담음새가 잘 보이지 않음"
   },
   "photo-reviewed-salt-bread": {
     "title": "소금빵.jpg",
@@ -160,7 +161,8 @@
     "sha1": "c7aadbf62b7c8255753022ac3b4026f9377f61fd",
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
     "attributionNotice": "https://delivernews.tistory.com/12",
-    "note": "간장계란밥 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요."
+    "note": "간장계란밥 참고 사진이에요. AI가 음식과 구도를 대조해 선택했으며 이번 배합을 직접 조리한 사진은 아니에요. 토핑과 담음새는 레시피와 다를 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요.",
+    "rejectedReason": "허브가 두드러지고 밥과 달걀이 그릇 가장자리에서 잘려 완성 구성이 한눈에 보이지 않음"
   },
   "photo-everyday-egg-fried-rice": {
     "title": "Egg Fried Rice.jpg",
