@@ -71,6 +71,26 @@
     "attributionNotice": "Own work",
     "note": "소금빵 참고 사진이에요. 굵은 소금을 올려 구운 소금빵 사진이에요. 원본 사진·음식·공식 이용 조건을 AI로 대조했으며 운영자의 개별 검수는 하지 않았어요. 이번 레시피를 직접 조리한 사진은 아니에요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
   },
+  "photo-reviewed-dalgona-coffee-20261125": {
+    "title": "A Glass of Dalgona Coffee",
+    "author": "alleksana",
+    "url": "https://www.pexels.com/photo/a-glass-of-dalgona-coffee-4763637/",
+    "license": "Pexels License",
+    "imageUrl": "https://images.pexels.com/photos/4763637/pexels-photo-4763637.jpeg",
+    "verifiedAt": "2026-11-25",
+    "automatic": false,
+    "licenseUrl": "https://www.pexels.com/license/",
+    "note": "우유 위에 커피 거품을 올린 달고나 커피 실사예요. 잔과 우유 층이 보이도록 여백을 자르고 표시용 WebP로 크기와 형식을 바꿨어요. Pexels License 조건으로 사용해요.",
+    "provider": "pexels",
+    "providerId": "4763637",
+    "creatorUrl": "https://www.pexels.com/@alleksana/",
+    "crop": {
+      "left": 0,
+      "top": 0.392,
+      "width": 1,
+      "height": 0.48
+    }
+  },
   "photo-reviewed-dalgona-coffee": {
     "title": "Dalgona coffee.jpg",
     "author": "Kguirnela",
@@ -80,6 +100,7 @@
     "verifiedAt": "2026-11-13",
     "automatic": false,
     "pageId": 88822111,
+    "rejectedReason": "강한 반사와 클로즈업으로 우유와 커피 거품의 층이 잘 보이지 않아요.",
     "sha1": "576a4473df9502901c67555cc0ec59168e0d7bdd",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
     "attributionNotice": "Own work",

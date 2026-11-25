@@ -14,6 +14,7 @@ import photo12 from "@/assets/curated/photo-mala-tang.webp";
 import photo13 from "@/assets/curated/photo-reviewed-dubai-chewy-cookie.webp";
 import photo14 from "@/assets/curated/photo-reviewed-salt-bread.webp";
 import photo15 from "@/assets/curated/photo-reviewed-dalgona-coffee.webp";
+import dalgonaCoffeePhoto from "@/assets/curated/photo-reviewed-dalgona-coffee-20261125.webp";
 import photo16 from "@/assets/curated/photo-reviewed-matcha-latte.webp";
 import photo17 from "@/assets/curated/photo-reviewed-dalgona-candy.webp";
 
@@ -118,6 +119,7 @@ export const curatedPhotos = {
   "photo-reviewed-dubai-chewy-cookie": photo13,
   "photo-reviewed-salt-bread": photo14,
   "photo-reviewed-dalgona-coffee": photo15,
+  "photo-reviewed-dalgona-coffee-20261125": dalgonaCoffeePhoto,
   "photo-reviewed-matcha-latte": photo16,
   "photo-reviewed-dalgona-candy": photo17,
   "photo-everyday-kimchi-fried-rice": everydayPhoto0,
