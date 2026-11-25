@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import sharp from "sharp";
 import { contentImages, type ContentFood, type ContentSnapshot } from "../src/data/content.ts";
-import type { PhotoCredit } from "../src/data/photo-credits.ts";
+import { photoCredits, type PhotoCredit } from "../src/data/photo-credits.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { automaticPhotos, downloadCandidate, licensedPhoto, photoBatch, searchPhotos, trustedPhotoUrl } from "./photo-automation.ts";
@@ -127,6 +127,8 @@ test("다운로드: 임의 주소·리다이렉트·비이미지·크기 초과�
     assert.equal(init?.redirect, "error");
     return new Response(bytes, { headers: { "Content-Type": "image/jpeg" } });
   }) as typeof fetch), bytes);
+  const ktoPhoto = { ...photoCredits["photo-history-gaeseong-juak"], description: "" };
+  assert.deepEqual(await downloadCandidate(ktoPhoto, (async () => new Response(bytes, { headers: { "Content-Type": "image/jpg" } })) as typeof fetch), bytes);
   for (const response of [new Response("<html>"), new Response("", { status: 302 }), new Response("", { headers: { "Content-Type": "image/jpeg", "Content-Length": "30000000" } }), new Response(new Uint8Array(20 * 1024 * 1024 + 1), { headers: { "Content-Type": "image/jpeg" } })]) {
     await assert.rejects(downloadCandidate(candidate(), (async () => response) as typeof fetch));
   }

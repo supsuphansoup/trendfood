@@ -1152,5 +1152,18 @@
     "sha1": "01736cff85041266dccfa4aa4f13fa647752871c",
     "license": "CC BY 2.0",
     "licenseUrl": "https://creativecommons.org/licenses/by/2.0/"
+  },
+  "photo-history-gaeseong-juak": {
+    "author": "Toraii Republic",
+    "note": "한국관광공사 사진 갤러리의 개성주악 사진이에요. 원본 구도와 출처 표기를 유지하고 형식을 WebP로 바꿨어요.",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "title": "개성주악 (2620302202312003m)",
+    "url": "https://korean1.visitkorea.or.kr/enu/nphotogallery/photo.kto?func_name=photo_view&newphotoDTO.photo_code=2620302202312003m&newphotoDTO.sub_menu=plan&newphotoDTO.sub_menu_detail=49740",
+    "imageUrl": "https://tong.visitkorea.or.kr/cms/resource_photo/62/3106162_image2_1.jpg",
+    "license": "공공누리 제1유형",
+    "licenseUrl": "https://www.kogl.or.kr/info/licenseType1.do",
+    "attributionNotice": "ⓒ 한국관광공사-Toraii Republic",
+    "provider": "kto"
   }
 }

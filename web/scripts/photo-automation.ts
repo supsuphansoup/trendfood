@@ -52,7 +52,7 @@ export async function searchPhotos(query: string, checkedAt: string, fetcher: ty
 export async function downloadCandidate(candidate: PhotoCandidate, fetcher: typeof fetch = fetch): Promise<Buffer> {
   if (!validPhotoSource(candidate)) throw new Error("허용되지 않은 사진 출처·주소·이용 조건");
   const response = await fetcher(candidate.imageUrl, { headers: { "User-Agent": agent }, redirect: "error", signal: AbortSignal.timeout(30_000) });
-  if (!response.ok || !["image/jpeg", "image/png", "image/webp"].includes(response.headers.get("content-type")?.split(";")[0] ?? "") || Number(response.headers.get("content-length")) > maxBytes || !response.body) throw new Error(`사진 다운로드 실패: ${response.status}`);
+  if (!response.ok || !["image/jpeg", "image/jpg", "image/png", "image/webp"].includes(response.headers.get("content-type")?.split(";")[0] ?? "") || Number(response.headers.get("content-length")) > maxBytes || !response.body) throw new Error(`사진 다운로드 실패: ${response.status}`);
   const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
   let size = 0;

@@ -541,6 +541,42 @@ test("바이럴 출처가 확인된 음식은 해당 연도에, 민트초코 라
   await expect(history.getByRole("link", { name: /머니투데이/ })).toHaveAttribute("href", "https://www.mt.co.kr/amp/entertainment/2023/04/26/2023042611001375980");
 });
 
+test("추가한 바이럴 음식 6개를 유행 연도별로 찾고 상세 근거를 볼 수 있다", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const foods = [
+    { name: "아망추", slug: "amangchu", year: 2024, evidence: /1만 5천 잔/ },
+    { name: "창억떡 호박인절미", slug: "changeok-pumpkin-injeolmi", year: 2026, evidence: /배송 지연/ },
+    { name: "불그리", slug: "bulguri", year: 2023, evidence: /330만 회/ },
+    { name: "개성주악", slug: "gaeseong-juak", year: 2023, evidence: /2만 8천 건/ },
+    { name: "얼먹 젤리", slug: "frozen-jelly-asmr", year: 2026, evidence: /44\.6%/ },
+    { name: "컵라면 볶음밥", slug: "cup-noodle-fried-rice", year: 2021, evidence: /1천 건/ },
+  ];
+  for (const { name, slug, year, evidence } of foods) {
+    await page.goto(`/?year=${year}&q=${encodeURIComponent(name)}`);
+    const list = page.locator("#list");
+    const heading = page.getByRole("heading", { level: 3, name, exact: true });
+    const card = list.locator("li").filter({ has: heading });
+    await expect(card.getByTestId("food-description")).toHaveText(evidence);
+    if (slug === "amangchu") await card.screenshot({ path: `test-results/content/viral-amangchu-${info.project.name}.png` });
+
+    await heading.getByRole("link").click();
+    await expect(page).toHaveURL(new RegExp(`/food/${slug}$`));
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(name);
+    const history = page.getByRole("region", { name: `주목받은 시기 · ${year}년` });
+    await expect(history.getByRole("paragraph")).toHaveText(evidence);
+    expect(await history.getByRole("link").count()).toBeGreaterThanOrEqual(2);
+    if (slug === "gaeseong-juak") {
+      const intro = page.getByRole("region", { name: "음식 소개", exact: true });
+      const photo = intro.getByRole("img", { name: /윤기 나는 개성주악/ });
+      await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+      const photoInfo = page.getByLabel("사진 정보", { exact: true });
+      await photoInfo.locator("summary").click();
+      await expect(photoInfo.getByRole("link", { name: /사진 라이선스 · 공공누리 제1유형/ })).toHaveAttribute("href", "https://www.kogl.or.kr/info/licenseType1.do");
+      await page.screenshot({ path: `test-results/content/viral-gaeseong-juak-${info.project.name}.png`, fullPage: true });
+    }
+  }
+});
+
 test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제공하며 가짜 수치는 없다", async ({ page }, info) => {
   test.setTimeout(Math.max(120_000, snapshot.foods.length * 1000));
   for (const food of snapshot.foods) {
@@ -655,16 +691,21 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
 
 test("사진 유형은 상세의 접힌 정보에서 확인하고 찜·재료 담기를 유지한다", async ({ page }, info) => {
   const food = snapshot.foods.find((food, index) => index > 0 && food.kind !== "discovery" && generatedImages[food.image])!;
-  expect(snapshot.foods.every((item) => item.image !== "pending")).toBe(true);
   await page.goto("/");
   const cards = page.locator("#list li").filter({ has: page.getByRole("heading", { level: 3 }) });
   for (const item of await cards.all()) {
+    const href = await item.getByRole("heading", { level: 3 }).getByRole("link").getAttribute("href");
+    const entry = snapshot.foods.find((food) => `/food/${food.slug}` === href);
+    expect(entry, href ?? "카드의 상세 주소").toBeDefined();
     const image = item.locator("img");
+    if (entry?.image === "pending") {
+      await expect(image).toHaveCount(0);
+      continue;
+    }
     // 고정 메뉴와 맨 위로 버튼 사이에서 사진의 클릭 영역을 확인한다.
     await image.evaluate((img) => img.scrollIntoView({ block: "center", behavior: "instant" }));
     await expect(image).toBeVisible();
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-    const href = await item.getByRole("heading", { level: 3 }).getByRole("link").getAttribute("href");
     for (const x of [0.1, 0.5, 0.9]) {
       expect(await image.evaluate((img, x) => {
         const box = img.getBoundingClientRect();

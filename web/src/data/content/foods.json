@@ -5932,6 +5932,298 @@
           }
         ]
       }
+    },
+    {
+      "slug": "amangchu",
+      "kind": "discovery",
+      "name": "아망추",
+      "why": "복숭아 아이스티에 냉동 망고를 넣은 음료예요.",
+      "summary": "망고가 녹으면서 아이스티에 과일 향이 더해지고, 음료를 다 마신 뒤에는 잔에 남은 망고를 먹을 수 있어요.",
+      "category": "디저트",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "pending",
+      "alt": "아망추 사진 준비 중",
+      "ingredients": [],
+      "steps": [],
+      "tip": "복숭아 아이스티에 냉동 망고를 넣은 음료예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "한국경제 · 아망추가 퍼진 계기와 이디야 첫날 판매량",
+          "url": "https://www.hankyung.com/article/2024071180697"
+        },
+        {
+          "title": "아시아타임즈 · 아망추 게시물과 카페 메뉴 출시",
+          "url": "https://www.asiatime.co.kr/article/20240701500317"
+        }
+      ],
+      "recipeNote": "유행 당시의 보도와 공개 자료를 바탕으로 AI가 음식과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2024
+        ],
+        "note": "2024년 5월 X에 얼음 대신 냉동 망고를 넣자는 글이 퍼졌어요. 이디야가 메뉴로 내놓은 날 전국에서 1만 5천 잔 넘게 팔렸어요.",
+        "sources": [
+          {
+            "title": "한국경제 · 아망추가 퍼진 계기와 이디야 첫날 판매량",
+            "url": "https://www.hankyung.com/article/2024071180697"
+          },
+          {
+            "title": "아시아타임즈 · 아망추 게시물과 카페 메뉴 출시",
+            "url": "https://www.asiatime.co.kr/article/20240701500317"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "changeok-pumpkin-injeolmi",
+      "kind": "discovery",
+      "name": "창억떡 호박인절미",
+      "why": "호박을 넣은 찰떡 겉에 카스텔라 가루를 묻힌 광주 창억떡의 메뉴예요.",
+      "summary": "쫀득한 호박찰떡 표면에 카스텔라 가루가 붙어 있어요. 광주 여행 영상에서 기차 안에서 이 떡을 먹는 장면이 공유됐어요.",
+      "category": "간식",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "pending",
+      "alt": "창억떡 호박인절미 사진 준비 중",
+      "ingredients": [],
+      "steps": [],
+      "tip": "호박을 넣은 찰떡 겉에 카스텔라 가루를 묻힌 광주 창억떡의 메뉴예요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "뉴스1 · 광주 본점 방문객과 창억떡 관계자 취재",
+          "url": "https://www.news1.kr/local/gwangju-jeonnam/6100779"
+        },
+        {
+          "title": "동아일보 · 하말넘많 영상과 창억떡 배송 지연 공지",
+          "url": "https://www.donga.com/news/Economy/article/all/20260316/133539736/2"
+        }
+      ],
+      "recipeNote": "유행 당시의 보도와 공개 자료를 바탕으로 AI가 음식과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2026
+        ],
+        "note": "2026년 3월 유튜브 ‘하말넘많’의 광주 먹방 이후 본점 방문과 구매 인증이 이어졌어요. 택배 주문이 늘어 창억떡은 배송 지연을 안내했어요.",
+        "sources": [
+          {
+            "title": "뉴스1 · 광주 본점 방문객과 창억떡 관계자 취재",
+            "url": "https://www.news1.kr/local/gwangju-jeonnam/6100779"
+          },
+          {
+            "title": "동아일보 · 하말넘많 영상과 창억떡 배송 지연 공지",
+            "url": "https://www.donga.com/news/Economy/article/all/20260316/133539736/2"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "bulguri",
+      "kind": "discovery",
+      "name": "불그리",
+      "why": "BTS 정국이 불닭볶음면과 너구리를 함께 끓여 공개한 라면이에요.",
+      "summary": "두 라면의 면을 함께 끓이면서 불닭볶음면 액상소스와 너구리 분말스프를 섞는 조합이에요.",
+      "category": "면",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "pending",
+      "alt": "불그리 사진 준비 중",
+      "ingredients": [],
+      "steps": [],
+      "tip": "BTS 정국이 불닭볶음면과 너구리를 함께 끓여 공개한 라면이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "연합뉴스 · 정국의 불그리 공개와 농심의 상표 출원",
+          "url": "https://www.yna.co.kr/view/AKR20230321144300003"
+        },
+        {
+          "title": "스타뉴스 · 불그리 시식 영상과 틱톡 조회수",
+          "url": "https://www.starnewskorea.com/star/2023/05/10/2023051006595994927"
+        },
+        {
+          "title": "유튜브 · 정국의 불그리 따라 만든 먹방",
+          "url": "https://www.youtube.com/watch?v=2fuzQ_ACjdU"
+        }
+      ],
+      "recipeNote": "유행 당시의 보도와 공개 자료를 바탕으로 AI가 음식과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2023
+        ],
+        "note": "2023년 3월 정국이 위버스에 레시피를 올린 뒤 SNS에 따라 만든 영상이 퍼졌어요. 같은 해 5월 보도 당시 틱톡의 ‘#Bulguri’ 조회수는 330만 회였어요.",
+        "sources": [
+          {
+            "title": "연합뉴스 · 정국의 불그리 공개와 농심의 상표 출원",
+            "url": "https://www.yna.co.kr/view/AKR20230321144300003"
+          },
+          {
+            "title": "스타뉴스 · 불그리 시식 영상과 틱톡 조회수",
+            "url": "https://www.starnewskorea.com/star/2023/05/10/2023051006595994927"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "gaeseong-juak",
+      "kind": "discovery",
+      "name": "개성주악",
+      "why": "찹쌀 반죽을 둥글게 빚어 기름에 튀기고 조청을 입힌 전통 간식이에요.",
+      "summary": "찹쌀 반죽을 한입 크기로 빚어 튀긴 뒤 단맛이 나는 즙청에 담가요. 가게에 따라 대추나 견과류를 얹거나 과일과 크림으로 장식하기도 해요.",
+      "category": "디저트",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "photo-history-gaeseong-juak",
+      "alt": "접시에 담긴 윤기 나는 개성주악과 호박씨 장식",
+      "ingredients": [],
+      "steps": [],
+      "tip": "찹쌀 반죽을 둥글게 빚어 기름에 튀기고 조청을 입힌 전통 간식이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "한국경제 · 개성주악 매장 취재와 SNS 인증",
+          "url": "https://news.nate.com/view/20230907n36066"
+        },
+        {
+          "title": "한경비즈니스 · 개성주악 먹방과 판매 매장 확산",
+          "url": "https://magazine.hankyung.com/business/amp/202309067452b"
+        }
+      ],
+      "recipeNote": "유행 당시의 보도와 공개 자료를 바탕으로 AI가 음식과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2023
+        ],
+        "note": "2023년 인스타그램 인증 사진과 유튜브 먹방을 타고 퍼졌어요. 9월 현장 보도에서 관련 인스타그램 게시물 약 2만 8천 건과 전문점 품절 사례를 확인했어요.",
+        "sources": [
+          {
+            "title": "한국경제 · 개성주악 매장 취재와 SNS 인증",
+            "url": "https://news.nate.com/view/20230907n36066"
+          },
+          {
+            "title": "한경비즈니스 · 개성주악 먹방과 판매 매장 확산",
+            "url": "https://magazine.hankyung.com/business/amp/202309067452b"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "frozen-jelly-asmr",
+      "kind": "discovery",
+      "name": "얼먹 젤리",
+      "why": "시판 젤리를 냉동실에 얼려 달라진 식감을 즐기는 간식이에요.",
+      "summary": "젤리를 얼렸을 때 나는 소리를 담은 ASMR과 제품별 식감을 비교하는 영상이 올라왔어요. 어떤 젤리를 얼마나 얼렸는지 후기로 공유하는 사람들도 있었어요.",
+      "category": "간식",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "pending",
+      "alt": "얼먹 젤리 사진 준비 중",
+      "ingredients": [],
+      "steps": [],
+      "tip": "시판 젤리를 냉동실에 얼려 달라진 식감을 즐기는 간식이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "매일경제 · 얼먹 ASMR 조회수와 GS25 젤리 매출 변화",
+          "url": "https://news.nate.com/view/20260216n06123"
+        },
+        {
+          "title": "한국일보 · 얼먹 젤리 식감 비교와 검색 변화",
+          "url": "https://www.hankookilbo.com/news/article/A2026021917080002478"
+        }
+      ],
+      "recipeNote": "유행 당시의 보도와 공개 자료를 바탕으로 AI가 음식과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2026
+        ],
+        "note": "2026년 2월 얼린 젤리를 먹는 ASMR이 퍼졌어요. GS25의 2월 1~10일 젤리 전체 매출은 1월 같은 기간보다 44.6% 늘었어요.",
+        "sources": [
+          {
+            "title": "매일경제 · 얼먹 ASMR 조회수와 GS25 젤리 매출 변화",
+            "url": "https://news.nate.com/view/20260216n06123"
+          },
+          {
+            "title": "한국일보 · 얼먹 젤리 식감 비교와 검색 변화",
+            "url": "https://www.hankookilbo.com/news/article/A2026021917080002478"
+          }
+        ]
+      }
+    },
+    {
+      "slug": "cup-noodle-fried-rice",
+      "kind": "discovery",
+      "name": "컵라면 볶음밥",
+      "why": "잘게 부순 컵라면 면과 스프로 간을 하고 밥과 달걀을 볶은 음식이에요.",
+      "summary": "밥과 잘게 부순 면을 함께 볶은 뒤 빈 컵라면 용기에 눌러 담고, 접시에 뒤집어 컵 모양을 살려 내기도 해요.",
+      "category": "밥",
+      "tags": [],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "image": "pending",
+      "alt": "컵라면 볶음밥 사진 준비 중",
+      "ingredients": [],
+      "steps": [],
+      "tip": "잘게 부순 컵라면 면과 스프로 간을 하고 밥과 달걀을 볶은 음식이에요.",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "조선일보 · 동대문 컵라면 볶음밥과 인증 게시물",
+          "url": "https://www.chosun.com/national/weekend/2021/08/21/5CVMSGRV35BIVK4IWDEC3U64T4/"
+        },
+        {
+          "title": "MBC · 컵라면 볶음밥 조리 방식",
+          "url": "https://enews.imbc.com/News/RetrieveNewsInfo/326396"
+        },
+        {
+          "title": "Doobydobap · 동대문 컵라면 볶음밥 영상",
+          "url": "https://www.youtube.com/watch?v=ERIr2KNaQ-4"
+        }
+      ],
+      "recipeNote": "유행 당시의 보도와 공개 자료를 바탕으로 AI가 음식과 반응을 정리했어요.",
+      "checkedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2021
+        ],
+        "note": "2021년 동대문 가게의 컵라면 볶음밥이 방송과 유튜브에 소개됐어요. 당시 인스타그램에는 직접 만들거나 사 먹은 인증 게시물이 1천 건 넘게 올라왔어요.",
+        "sources": [
+          {
+            "title": "조선일보 · 동대문 컵라면 볶음밥과 인증 게시물",
+            "url": "https://www.chosun.com/national/weekend/2021/08/21/5CVMSGRV35BIVK4IWDEC3U64T4/"
+          },
+          {
+            "title": "MBC · 컵라면 볶음밥 조리 방식",
+            "url": "https://enews.imbc.com/News/RetrieveNewsInfo/326396"
+          }
+        ]
+      }
     }
   ],
   "recommendation": {

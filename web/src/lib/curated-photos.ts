@@ -96,6 +96,7 @@ import jjapaguriPhoto from "@/assets/curated/photo-history-jjapaguri.webp";
 import shineMuscatPhoto from "@/assets/curated/photo-history-shine-muscat.webp";
 import greekYogurtPhoto from "@/assets/curated/photo-history-greek-yogurt.webp";
 import mangoPomeloSagoPhoto from "@/assets/curated/photo-history-mango-pomelo-sago.webp";
+import gaeseongJuakPhoto from "@/assets/curated/photo-history-gaeseong-juak.webp";
 
 export const curatedPhotos = {
   "photo-reviewed-tuna-gimbap-20261125": tunaGimbapReviewedPhoto,
@@ -182,4 +183,5 @@ export const curatedPhotos = {
   "photo-history-shine-muscat": shineMuscatPhoto,
   "photo-history-greek-yogurt": greekYogurtPhoto,
   "photo-history-mango-pomelo-sago": mangoPomeloSagoPhoto,
+  "photo-history-gaeseong-juak": gaeseongJuakPhoto,
 };

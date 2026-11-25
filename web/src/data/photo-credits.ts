@@ -1,7 +1,7 @@
 import automaticPhotos from "./content/auto-photo-credits.json" with { type: "json" };
 
-export const curatedLicenses = ["CC0", "Public domain", "CC BY 2.0", "CC BY 4.0", "CC BY-SA 4.0", "Pexels License"] as const;
-export type PhotoProvider = "commons" | "openverse" | "pexels";
+export const curatedLicenses = ["CC0", "Public domain", "CC BY 2.0", "CC BY 4.0", "CC BY-SA 4.0", "Pexels License", "공공누리 제1유형"] as const;
+export type PhotoProvider = "commons" | "openverse" | "pexels" | "kto";
 export type PhotoCredit = { title: string; author: string; url: string; license: typeof curatedLicenses[number]; note: string; imageUrl: string; verifiedAt: string; rejectedReason?: string; automatic?: boolean; pageId?: number; sha1?: string; licenseUrl?: string; attributionNotice?: string; provider?: PhotoProvider; providerId?: string; creatorUrl?: string; crop?: { left: number; top: number; width: number; height: number } };
 
 /** 메뉴와 이용 조건을 확인한 사진. 출처와 확인 날짜를 보존한다. */

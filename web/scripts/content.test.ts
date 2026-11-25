@@ -125,11 +125,24 @@ test("실사 사진은 허용 라이선스·출처와 파일을 보존한다", a
   }
 });
 
-test("모든 음식에 개별 이미지가 있고 생성 예시는 실사 출처와 구분해 파일·프롬프트를 보존한다", async () => {
+test("등록한 사진을 다른 음식에 중복 사용하지 않는다", () => {
   const { foods } = parseContent(input);
-  const keys = foods.map((food) => food.image);
-  assert.ok(keys.every((key) => key !== "pending"));
+  const keys = foods.flatMap((food) => food.image === "pending" ? [] : [food.image]);
   assert.equal(new Set(keys).size, keys.length);
+});
+
+test("한국관광공사 사진은 공공누리 1유형과 출처를 확인한 수동 등록만 허용한다", () => {
+  const photo = photoCredits["photo-history-gaeseong-juak"];
+  assert.ok(validPhotoSource(photo));
+  for (const fields of [
+    { automatic: true }, { licenseUrl: undefined }, { attributionNotice: undefined },
+    { url: "https://korean1.visitkorea.or.kr/enu/nphotogallery/photo.kto" },
+    { imageUrl: "https://tong.visitkorea.or.kr/cms/other/image.jpg" },
+  ]) assert.equal(validPhotoSource({ ...photo, ...fields }), false);
+});
+
+test("생성 예시는 실사 출처와 구분해 파일·프롬프트를 보존한다", async () => {
+  const { foods } = parseContent(input);
   const bundle = await readFile(new URL("../src/lib/generated-photos.ts", import.meta.url), "utf8");
   for (const food of foods.filter((food) => generatedImages[food.image])) {
     const image = generatedImages[food.image];

@@ -13,6 +13,10 @@ export function trustedPhotoUrl(value: string, source = false, provider: PhotoPr
     if (provider === "pexels") return source
       ? url.hostname === "www.pexels.com" && /^\/photo\/(?:[a-z0-9-]+-)?[1-9]\d*\/?$/i.test(url.pathname)
       : url.hostname === "images.pexels.com" && /^\/photos\/\d+\/[^/]+\.(?:jpe?g|png|webp)$/i.test(url.pathname);
+    if (provider === "kto") return source
+      ? url.hostname === "korean1.visitkorea.or.kr" && url.pathname === "/enu/nphotogallery/photo.kto"
+        && url.searchParams.get("func_name") === "photo_view" && /^\d{16}[a-z]$/.test(url.searchParams.get("newphotoDTO.photo_code") ?? "")
+      : url.hostname === "tong.visitkorea.or.kr" && /^\/cms\/resource_photo\/\d{2}\/\d+_image2_1\.jpg$/.test(url.pathname);
     return false;
   } catch { return false; }
 }
@@ -33,6 +37,11 @@ export function validPhotoSource(photo: PhotoCredit): boolean {
     const id = photo.providerId;
     return !!id && /^[1-9]\d*$/.test(id) && photo.license === "Pexels License" && photo.licenseUrl === "https://www.pexels.com/license/"
       && new RegExp(`(?:-|/)${id}/?$`).test(new URL(photo.url).pathname) && new URL(photo.imageUrl).pathname.startsWith(`/photos/${id}/`);
+  }
+  if (provider === "kto") {
+    return photo.automatic === false && photo.license === "공공누리 제1유형"
+      && photo.licenseUrl === "https://www.kogl.or.kr/info/licenseType1.do"
+      && photo.attributionNotice === `ⓒ 한국관광공사-${photo.author}`;
   }
   // 출처와 이용 조건을 직접 검토한 Commons 사진에만 이전 버전을 허용한다.
   if (photo.license === "CC BY 2.0") {
