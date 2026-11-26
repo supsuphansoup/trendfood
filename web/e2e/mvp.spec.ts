@@ -608,10 +608,10 @@ test("진행 바가 사진 맨 위에 붙고 동작 줄이기 중에도 재생�
   const play = page.getByRole("button", { name: "자동 넘김 시작" });
   await expect(play).toBeVisible();
   const progress = page.locator(".home-hero-progress");
+  const fill = progress.locator(".home-hero-progress-fill");
   await expect(progress).toBeInViewport({ ratio: 1 });
   const bar = (await progress.boundingBox())!;
   const photo = (await active.locator(".home-hero-photo").boundingBox())!;
-  expect(bar.height).toBe(2);
   expect(bar.x).toBeCloseTo(photo.x, 1);
   expect(bar.y).toBeCloseTo(photo.y, 1);
   expect(bar.width).toBeCloseTo(photo.width, 1);
@@ -622,9 +622,12 @@ test("진행 바가 사진 맨 위에 붙고 동작 줄이기 중에도 재생�
   await expect(page.locator(".home-hero-track")).toHaveCSS("transition-property", "none");
   await play.click();
   await expect(page.getByRole("button", { name: "자동 넘김 일시정지" })).toBeVisible();
-  const filled = () => progress.locator(".home-hero-progress-fill").evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+  const filled = () => fill.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
   await page.clock.runFor(250);
   expect(await filled()).toBeCloseTo(250 / 8000, 2);
+  const line = (await fill.boundingBox())!;
+  expect(line.y - photo.y).toBeCloseTo(2, 1);
+  expect(line.height).toBe(3);
   await page.clock.runFor(250);
   expect(await filled()).toBeCloseTo(500 / 8000, 2);
 });

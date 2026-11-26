@@ -67,3 +67,14 @@
 - `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
 - 실제 공개 데이터의 320px WebKit과 1280px Chromium에서 상단 배치와 기본·동작 줄이기 재생을 확인했다. `web/test-results/hero-progress-mono-mobile.png`와 `hero-progress-mono-desktop.png`를 열어 확인했다.
 - 원격은 `76d783a`로 같았다. 새 팀원 변경이나 충돌 없이 로컬에 반영했다.
+
+### 헤더와 진행선의 경계 보강
+
+- `web/src/app/globals.css`의 흰 선이 흰 헤더에 묻힌다는 피드백을 반영했다. 사진 상단에 2px 어두운 경계를 두고, 그 아래에서 흰색 3px 선을 진한 바탕 위에 표시한다. `web/e2e/mvp.spec.ts`는 사진 상단 배치와 재생 중 선의 위치·두께를 검사한다.
+- `npm run lint` — `eslint` 종료 코드 0
+- `npm run typecheck` — `✓ Types generated successfully`, 종료 코드 0
+- `npm run test:unit` — `ℹ pass 229`, `ℹ fail 0`
+- `npm run test:e2e -- --workers=4 --retries=1` — `163 passed`, `1 skipped`
+- `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
+- 320px WebKit과 1280px Chromium에서 매 프레임 채움과 캡처의 실제 경계·흰 선·바탕 색을 확인했다. `web/test-results/hero-progress-edge-mobile.png`와 `hero-progress-edge-desktop.png`를 열어 확인했다.
+- 원격은 `76d783a`로 같았다. 팀원 변경이나 충돌 없이 로컬 미리보기에 반영했다.
