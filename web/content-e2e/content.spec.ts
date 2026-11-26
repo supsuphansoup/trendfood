@@ -457,6 +457,24 @@ test("보기 전환 양방향에서 음식 사진이 원래 위치에서 새 열
   }
 });
 
+test("디저트 탭은 기존 간식과 디저트를 함께 집계하고 카드와 상세에도 디저트로 표시한다", async ({ page }, info) => {
+  const desserts = trendFoods.filter((food) => food.category === "디저트" || food.category === "간식");
+  const snack = desserts.find((food) => food.category === "간식")!;
+  await page.goto("/");
+  const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
+  const tab = categories.getByRole("button", { name: /^디저트/ });
+  await expect(tab).toHaveText(`디저트${desserts.length}`);
+  await tab.click();
+  await expect(tab).toHaveAttribute("aria-current", "true");
+  await expect(page.locator("#food-grid li h3")).toHaveText(desserts.map((food) => food.name));
+  const card = page.locator("#food-grid li").filter({ has: page.getByRole("heading", { name: snack.name, exact: true }) });
+  await expect(card.getByText("디저트", { exact: true })).toBeVisible();
+  await tab.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `test-results/content/dessert-category-${info.project.name}.png` });
+  await card.getByRole("link", { name: snack.name, exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "현재 위치" }).getByText("디저트", { exact: true })).toBeVisible();
+});
+
 test("간식 탭 없이 기존 간식 주소는 전체로 열리고 음식 검색을 유지한다", async ({ page }, info) => {
   await page.goto("/?cat=" + encodeURIComponent("간식"));
   await page.getByRole("button", { name: "필터", exact: true }).click();

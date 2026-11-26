@@ -629,7 +629,7 @@ test("메인: 카테고리 탭, 주소에 필터 기억, 뒤로가기", async ({
   await page.goto("/?cat=" + encodeURIComponent("디저트"));
   await page.getByRole("button", { name: "필터", exact: true }).click();
   await expect(nav.getByRole("button", { name: /^디저트/ })).toHaveAttribute("aria-current", "true");
-  expect(await cardTitles(page)).toEqual(["두바이 초콜릿"]); // 카테고리 기준 (가래떡은 '간식', #디저트 태그만 있음)
+  expect(await cardTitles(page)).toEqual(["두바이 초콜릿", "에어프라이어 계란빵", "버터 가래떡구이", "대파 크림치즈 베이글"]);
   await page.screenshot({ path: `test-results/home-category-${info.project.name}.png` });
   await page.goto("/?cat=" + encodeURIComponent("간식"));
   await page.getByRole("button", { name: "필터", exact: true }).click();

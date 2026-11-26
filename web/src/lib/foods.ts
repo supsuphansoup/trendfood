@@ -58,6 +58,7 @@ export const toFood = (r: FoodRecord, uploaded: PublishedPhoto[] = []): Food => 
   const generatedImage = generatedImages[r.heroImage ?? r.image];
   return {
     ...r,
+    category: r.category === "간식" ? "디저트" : r.category,
     image: image ? localImage(image) : photos[r.image] ?? photos[FALLBACK_PHOTO],
     heroImage,
     imageAvailable: !!image || (!!photos[r.image] && r.image !== "pending"),
