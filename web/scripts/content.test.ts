@@ -148,6 +148,16 @@ test("한국관광공사 사진은 공공누리 1유형과 출처를 확인한 �
   ]) assert.equal(validPhotoSource({ ...photo, ...fields }), false);
 });
 
+test("공공누리 부대찌개 사진은 출처와 제1유형을 확인한 수동 등록만 허용한다", () => {
+  const photo = photoCredits["photo-everyday-budae-jjigae-plated-20261126"];
+  assert.ok(validPhotoSource(photo));
+  for (const fields of [
+    { automatic: true }, { licenseUrl: undefined }, { attributionNotice: undefined },
+    { url: "https://www.kogl.or.kr/recommend/recommendDivView.do?division=img" },
+    { imageUrl: "https://example.com/upload_recommend/thumb_V/budae.jpg" },
+  ]) assert.equal(validPhotoSource({ ...photo, ...fields }), false);
+});
+
 test("생성 예시는 실사 출처와 구분해 파일·프롬프트를 보존한다", async () => {
   const { foods } = parseContent(input);
   const bundle = await readFile(new URL("../src/lib/generated-photos.ts", import.meta.url), "utf8");

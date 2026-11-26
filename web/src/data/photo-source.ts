@@ -17,6 +17,10 @@ export function trustedPhotoUrl(value: string, source = false, provider: PhotoPr
       ? url.hostname === "korean1.visitkorea.or.kr" && url.pathname === "/enu/nphotogallery/photo.kto"
         && url.searchParams.get("func_name") === "photo_view" && /^\d{16}[a-z]$/.test(url.searchParams.get("newphotoDTO.photo_code") ?? "")
       : url.hostname === "tong.visitkorea.or.kr" && /^\/cms\/resource_photo\/\d{2}\/\d+_image2_1\.jpg$/.test(url.pathname);
+    if (provider === "kogl") return url.hostname === "www.kogl.or.kr" && (source
+      ? url.pathname === "/recommend/recommendDivView.do" && url.searchParams.get("division") === "img"
+        && /^[1-9]\d*$/.test(url.searchParams.get("recommendIdx") ?? "")
+      : /^\/upload_recommend\/thumb_V\/.+\.jpe?g$/i.test(url.pathname));
     return false;
   } catch { return false; }
 }
@@ -42,6 +46,11 @@ export function validPhotoSource(photo: PhotoCredit): boolean {
     return photo.automatic === false && photo.license === "공공누리 제1유형"
       && photo.licenseUrl === "https://www.kogl.or.kr/info/licenseType1.do"
       && photo.attributionNotice === `ⓒ 한국관광공사-${photo.author}`;
+  }
+  if (provider === "kogl") {
+    return photo.automatic === false && photo.license === "공공누리 제1유형"
+      && photo.licenseUrl === "https://www.kogl.or.kr/info/licenseType1.do"
+      && Boolean(photo.author.trim() && photo.attributionNotice?.includes(photo.author));
   }
   // 이전 버전은 직접 검수한 사진에만 허용하고 자동 검색 범위는 유지한다.
   if (photo.license === "CC BY 2.0" && photo.automatic !== false) return false;

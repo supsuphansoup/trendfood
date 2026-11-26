@@ -36,6 +36,7 @@ import everydayPhoto15 from "@/assets/curated/photo-everyday-kimchi-jjigae.webp"
 import everydayPhoto16 from "@/assets/curated/photo-everyday-doenjang-jjigae.webp";
 import everydayPhoto17 from "@/assets/curated/photo-everyday-sundubu-jjigae.webp";
 import everydayPhoto18 from "@/assets/curated/photo-everyday-budae-jjigae.webp";
+import budaeJjigaePlated from "@/assets/curated/photo-everyday-budae-jjigae-plated-20261126.webp";
 import everydayPhoto19 from "@/assets/curated/photo-everyday-egg-soup.webp";
 import everydayPhoto20 from "@/assets/curated/photo-everyday-miyeok-guk.webp";
 import everydayPhoto21 from "@/assets/curated/photo-everyday-bean-sprout-muchim.webp";
@@ -157,6 +158,7 @@ export const curatedPhotos = {
   "photo-everyday-doenjang-jjigae": everydayPhoto16,
   "photo-everyday-sundubu-jjigae": everydayPhoto17,
   "photo-everyday-budae-jjigae": everydayPhoto18,
+  "photo-everyday-budae-jjigae-plated-20261126": budaeJjigaePlated,
   "photo-everyday-egg-soup": everydayPhoto19,
   "photo-everyday-miyeok-guk": everydayPhoto20,
   "photo-everyday-bean-sprout-muchim": everydayPhoto21,

@@ -384,6 +384,7 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
   const replacementImages = new Map([
     ["tteok-guk", "photo-everyday-tteok-guk-beef-20261126"],
     ["yubu-chobap", "photo-everyday-yubu-chobap-lunchbox-20261126"],
+    ["budae-jjigae", "photo-everyday-budae-jjigae-plated-20261126"],
     ["egg-soup", "photo-ai-egg-soup-ribbons-20261126"],
     ["gyeran-jjim", "photo-ai-gyeran-jjim-microwave-20261126"],
   ]);
@@ -421,6 +422,7 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     if (credit) {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);
       if (credit.licenseUrl) await expect(page.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", credit.licenseUrl);
+      if (slug === "budae-jjigae") await expect(page.getByText("한국농수산식품유통공사 · 부대찌개(2019) · 공공누리 제1유형", { exact: true })).toBeVisible();
     } else {
       await expect(page.getByLabel("사진 정보", { exact: true }).getByText(/AI 생성 예시 ·/)).toBeVisible();
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
