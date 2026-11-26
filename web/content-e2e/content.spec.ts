@@ -107,10 +107,15 @@ test("추천 사진·제목·설명은 화면 한 장으로 이동하며 목록�
   await expect(panel).toHaveCSS("animation-name", "filters-in");
   await filters.click();
   const category = page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^일상 레시피/ });
-  await category.click();
+  await Promise.all([
+    page.waitForFunction(() => {
+      const title = Array.from(document.querySelectorAll("#list [data-motion-result] > h2"))
+        .find((heading) => heading.textContent === "일상 레시피");
+      return title?.parentElement?.getAnimations().some((animation) => animation.playState === "running");
+    }, undefined, { timeout: 5000 }),
+    category.click(),
+  ]);
   await expect(category.getByText("일상 레시피")).toHaveCSS("animation-name", "content-in");
-  const resultTitle = page.getByRole("heading", { name: "일상 레시피", exact: true });
-  await expect.poll(() => resultTitle.evaluate((heading) => heading.parentElement?.getAnimations().some((animation) => animation.playState === "running"))).toBe(true);
 });
 
 test("추천 음식 순환 경계에서 다시 밀어도 화면 양쪽에 빈 영역이 생기지 않는다", async ({ page }, info) => {
@@ -758,6 +763,59 @@ test("간식 탭 없이 기존 간식 주소는 유행 음식으로 열리고 �
   await page.getByRole("searchbox").fill(snack.name);
   await page.getByRole("button", { name: "검색", exact: true }).click();
   await expect(page.locator("#list").getByRole("heading", { name: snack.name, exact: true })).toBeVisible();
+});
+
+test("펼친 필터는 목록을 스크롤해도 카테고리 아래에 고정된다", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  if (info.project.name === "mobile") await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto("/#list");
+  const controls = page.getByRole("region", { name: "필터 설정" });
+  const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
+  const toggle = page.getByRole("button", { name: "필터", exact: true });
+  const panel = page.getByRole("complementary", { name: "음식 필터" });
+  await toggle.click();
+  await page.locator("#list").evaluate((list) => window.scrollBy(0, list.getBoundingClientRect().top + 160));
+  await expect.poll(async () => (await controls.boundingBox())!.y).toBeCloseTo(0, 0);
+  const { y, height } = (await categories.boundingBox())!;
+  const panelBox = (await panel.boundingBox())!;
+  expect(Math.abs(panelBox.y - y - height)).toBeLessThanOrEqual(1);
+  expect(panelBox.height).toBeLessThanOrEqual(page.viewportSize()!.height * 0.4 + 1);
+  await expect(panel.getByRole("button", { name: "최신 유행순", exact: true })).toBeInViewport();
+  await page.screenshot({ path: `test-results/content/sticky-filters-${info.project.name}.png` });
+  if (info.project.name === "mobile") {
+    expect(await panel.evaluate((element) => { element.scrollTop = element.scrollHeight; return element.scrollTop; })).toBeGreaterThan(0);
+    await expect(panel.getByRole("button", { name: "2026년", exact: true })).toBeInViewport();
+  }
+
+  await page.getByRole("link", { name: "유행 음식", exact: true }).click();
+  await expect.poll(async () => (await page.locator("#list").boundingBox())!.y -
+    await controls.evaluate((element) => element.getBoundingClientRect().bottom)).toBeCloseTo(0, 0);
+  await toggle.click();
+  await expect(panel).toBeHidden();
+});
+
+test("목록 찜 버튼은 작은 카드 안에서 터치 영역을 유지한다", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const mobile = info.project.name === "mobile";
+  if (mobile) await page.setViewportSize({ width: 320, height: 568 });
+  await page.goto("/#list");
+  const card = page.locator("#food-grid > li").first();
+  const like = card.getByRole("button", { name: /찜하기$/ });
+  for (const columns of [2, 3]) {
+    if (columns === 3) await page.getByRole("button", { name: /모아 보기로 전환/ }).click();
+    await like.scrollIntoViewIfNeeded();
+    const bounds = (await card.boundingBox())!;
+    const button = (await like.boundingBox())!;
+    expect(button.width).toBeGreaterThanOrEqual(44);
+    expect(button.height).toBeGreaterThanOrEqual(44);
+    expect(button.y - bounds.y).toBeGreaterThanOrEqual(4);
+    expect(bounds.x + bounds.width - button.x - button.width).toBeGreaterThanOrEqual(4);
+    if (mobile) await expect(like).toHaveCSS("background-clip", "padding-box");
+    await expect(like.locator("svg")).toHaveCSS("width", mobile ? "16px" : "20px");
+  }
+  await like.click();
+  await expect(like).toHaveAttribute("aria-pressed", "true");
+  await page.screenshot({ path: `test-results/content/card-like-${info.project.name}.png` });
 });
 
 test("정렬·태그·연도는 카테고리 아래에서 음식 목록을 필터링한다", async ({ page }, info) => {

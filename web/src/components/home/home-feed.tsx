@@ -112,9 +112,21 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const pantry = useStoredSet(PANTRY_KEY);
   const need = useStoredSet("tf:need");
   const [pantryActive, setPantryActive] = useState(false);
+  const filterControlsRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const controls = filterControlsRef.current;
+    const list = listRef.current;
+    if (!controls || !list) return;
+    const updateScrollMargin = () => { list.style.scrollMarginTop = `${controls.offsetHeight}px`; };
+    updateScrollMargin();
+    const observer = new ResizeObserver(updateScrollMargin);
+    observer.observe(controls);
+    return () => observer.disconnect();
+  }, []);
 
   // 처음 열 때 주소의 필터를 읽는다
   useEffect(() => {
@@ -262,10 +274,12 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     return filtered.sort((a, b) => pantryActive ? pantryMatch(a, pantry.items, need.items)!.missing.length - pantryMatch(b, pantry.items, need.items)!.missing.length || by[sort](a, b) : by[sort](a, b));
   }, [foods, trendFoods, sort, tag, tab, likes.items, q, year, filtering, curated, collection, today, pantryActive, pantry.items, need.items, unified, leadFood]);
 
-  /** 목록 위쪽이 화면 밖에 있으면 목록 처음으로 올려 준다 */
+  /** 목록 시작이 화면 위나 고정 필터 아래에 있으면 다시 드러낸다. */
   const toList = () => {
     const el = listRef.current;
-    if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ behavior: scrollBehavior() });
+    if (el && el.getBoundingClientRect().top < (filterControlsRef.current?.offsetHeight ?? 0)) {
+      el.scrollIntoView({ behavior: scrollBehavior() });
+    }
   };
   const pickTab = (t: Tab | typeof everydayTab) => {
     if (t === everydayTab) {
@@ -396,33 +410,33 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
 
       <div className="w-full border-t bg-feed-surface">
       <div className="mx-auto w-full max-w-[1400px] px-5">
-        <section aria-label="필터 설정" className="sticky top-0 z-20 flex min-h-16 items-center gap-3 border-b bg-feed-surface">
-          <nav aria-label="카테고리" className="flex min-w-0 flex-1 gap-4 overflow-x-auto md:gap-8 [scrollbar-width:thin]">
-            {categoryTabs.map((t) => {
-              const selected = t === everydayTab ? collection === "everyday" : collection !== "everyday" && tab === t;
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  aria-current={selected ? "true" : undefined}
-                  onClick={() => pickTab(t)}
-                  className={cn(
-                    "motion-press motion-category flex min-h-16 shrink-0 items-center gap-2 border-b-[3px] border-transparent px-1 text-left text-base font-semibold whitespace-nowrap text-body hover:text-foreground",
-                    selected && "border-primary font-bold text-accent hover:text-accent",
-                  )}
-                >
-                  <span>{t === "전체" ? trendTabLabel : t === "찜" ? "찜한 음식" : t}</span>
-                  <span className="text-meta tabular-nums">{counts[t] ?? 0}</span>
-                </button>
-              );
-            })}
-          </nav>
-          <button type="button" aria-expanded={filtersOpen} aria-controls="food-filters" onClick={() => setFiltersOpen(!filtersOpen)} className="motion-press inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-input bg-card px-3 text-base font-bold hover:bg-secondary md:px-4">
-            <SlidersHorizontal className="size-4" aria-hidden />필터<ChevronDown className={cn("hidden size-4 transition-transform md:block", filtersOpen && "rotate-180")} aria-hidden />
-          </button>
-        </section>
-        <div>
-        <aside id="food-filters" aria-label="음식 필터" hidden={!filtersOpen} className="motion-reveal min-w-0 border-b bg-card px-4 py-2 md:px-6">
+        <section ref={filterControlsRef} aria-label="필터 설정" className="sticky top-0 z-20 bg-feed-surface">
+          <div className="flex min-h-16 items-center gap-3 border-b">
+            <nav aria-label="카테고리" className="flex min-w-0 flex-1 gap-4 overflow-x-auto md:gap-8 [scrollbar-width:thin]">
+              {categoryTabs.map((t) => {
+                const selected = t === everydayTab ? collection === "everyday" : collection !== "everyday" && tab === t;
+                return (
+                  <button
+                    key={t}
+                    type="button"
+                    aria-current={selected ? "true" : undefined}
+                    onClick={() => pickTab(t)}
+                    className={cn(
+                      "motion-press motion-category flex min-h-16 shrink-0 items-center gap-2 border-b-[3px] border-transparent px-1 text-left text-base font-semibold whitespace-nowrap text-body hover:text-foreground",
+                      selected && "border-primary font-bold text-accent hover:text-accent",
+                    )}
+                  >
+                    <span>{t === "전체" ? trendTabLabel : t === "찜" ? "찜한 음식" : t}</span>
+                    <span className="text-meta tabular-nums">{counts[t] ?? 0}</span>
+                  </button>
+                );
+              })}
+            </nav>
+            <button type="button" aria-expanded={filtersOpen} aria-controls="food-filters" onClick={() => setFiltersOpen(!filtersOpen)} className="motion-press inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-input bg-card px-3 text-base font-bold hover:bg-secondary md:px-4">
+              <SlidersHorizontal className="size-4" aria-hidden />필터<ChevronDown className={cn("hidden size-4 transition-transform md:block", filtersOpen && "rotate-180")} aria-hidden />
+            </button>
+          </div>
+          <aside id="food-filters" aria-label="음식 필터" hidden={!filtersOpen} className="motion-reveal max-h-[40svh] min-w-0 overflow-y-auto border-b bg-card px-4 py-2 md:px-6">
             {(curated || year === null) && <nav aria-label="정렬과 태그" className="flex flex-wrap items-center gap-2 py-3">
               {sortOptions.filter((s) => !curated || s !== "좋아요순").map((s) => (
                 <button key={s} type="button" aria-pressed={sort === s} onClick={() => setSort(s)} className={chipClass}>
@@ -447,8 +461,10 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
               {years.map((y) => <button key={y} type="button" aria-pressed={year === y} onClick={() => { setYear(y); toList(); }} className={cn(chipClass, "lg:px-2")}>{y}년</button>)}
             </nav>}
             {!curated && collection !== "everyday" && <YearFilter year={year} onChange={pickYear} onClear={() => setYear(null)} />}
-        </aside>
+          </aside>
+        </section>
 
+        <div>
         <div className="min-w-0">
           <div id="list" ref={listRef} tabIndex={-1} className="scroll-mt-16 pt-6 pb-14">
             {curated && collection !== "everyday" && <nav aria-label="음식 모음" className="mb-4 flex flex-wrap gap-2">

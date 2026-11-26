@@ -8,15 +8,16 @@ import type { pantryMatch } from "@/data/recipe-tools";
 
 export function FoodCard({ food, columns, heading: Heading = "h3", unranked = false, match }: { food: Food; columns: 2 | 3; heading?: "h2" | "h3"; unranked?: boolean; match?: ReturnType<typeof pantryMatch> }) {
   const href = `/food/${food.slug}`;
+  const like = <LikeButton slug={food.slug} name={food.name} className="absolute top-1 right-1 max-md:border-[6px] max-md:border-transparent max-md:bg-clip-padding max-md:[&>svg]:size-4 sm:top-2 sm:right-2" />;
   return (
     <li data-motion-result className="relative flex min-w-0 origin-top-left flex-col overflow-hidden rounded-feature bg-card">
       {food.imageAvailable ? <div className={cn("relative aspect-[4/3] overflow-hidden bg-secondary lg:aspect-[3/2] lg:max-h-none", columns === 2 ? "max-h-60" : "max-h-48")}>
         <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0 focus-visible:-outline-offset-4">
           <FoodImage food={food} fit="contain" sizes={columns === 2 ? "(min-width: 1400px) 680px, 50vw" : "(min-width: 1400px) 440px, 33vw"} />
         </Link>
-        <LikeButton slug={food.slug} name={food.name} className="absolute top-0 right-0 sm:top-2 sm:right-2" />
-      </div> : <LikeButton slug={food.slug} name={food.name} className="absolute top-0 right-0 sm:top-2 sm:right-2" />}
-      <div className={cn("flex flex-1 flex-col items-start gap-1.5 p-2.5 wrap-anywhere sm:gap-2 sm:p-4", !food.imageAvailable && "pt-11 sm:pt-12")}>
+        {like}
+      </div> : like}
+      <div className={cn("flex flex-1 flex-col items-start gap-1.5 p-2.5 wrap-anywhere sm:gap-2 sm:p-4", !food.imageAvailable && "pt-12 sm:pt-14")}>
         <div className={cn("flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-1", columns === 2 && "min-h-7")}>
           {columns === 3 || food.editorial || unranked ? <span className="text-sm font-bold text-accent sm:text-base">{food.category}</span> : <span className="text-[32px] leading-none font-black tracking-[-0.04em] text-accent tabular-nums">
             <span className="sr-only">순위 </span>
