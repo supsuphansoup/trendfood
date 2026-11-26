@@ -65,10 +65,12 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
       draw(elapsed());
       frame = window.requestAnimationFrame(update);
     };
+    const progressInterval = reduced ? window.setInterval(() => draw(elapsed()), 1000) : 0;
     if (!reduced) frame = window.requestAnimationFrame(update);
     const timer = window.setTimeout(() => move(1), rotationDelay - timing.elapsed);
     return () => {
       window.clearTimeout(timer);
+      window.clearInterval(progressInterval);
       window.cancelAnimationFrame(frame);
       timing.elapsed = elapsed();
     };
@@ -167,6 +169,11 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
               </button>
             </nav>
           )}
+          {multiple && (
+            <div className="home-hero-progress" aria-hidden>
+              <span className="home-hero-progress-fill" ref={progressFill} />
+            </div>
+          )}
           <span aria-live={rotating ? "off" : "polite"} aria-atomic="true" className="sr-only">{top.name} · {curated ? `추천 ${selected + 1}/${count}` : `${selected + 1}위`}</span>
         </div>
         <div
@@ -233,11 +240,6 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
             })}
           </div>
         </div>
-        {multiple && (
-          <div className="home-hero-progress" aria-hidden>
-            <span className="home-hero-progress-fill" ref={progressFill} />
-          </div>
-        )}
       </section>
       <details aria-label="추천과 출처 안내" className="group mx-auto w-full max-w-[1200px] px-5 text-meta leading-relaxed text-muted-foreground">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 focus-visible:rounded-md [&::-webkit-details-marker]:hidden">

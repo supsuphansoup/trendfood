@@ -596,18 +596,37 @@ test("추천 음식 진행 바는 8초 자동 넘김과 함께 채워지고 정�
   expect(await filled()).toBe(0);
 });
 
-test("동작 줄이기 설정에서는 첫 음식이 유지되고 수동 전환은 애니메이션 없이 동작한다", async ({ page }) => {
+test("동작 줄이기 설정에서도 진행 바가 보이며 자동 재생을 켜면 초 단위로 표시한다", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.install();
+  if (info.project.name === "mobile") await page.setViewportSize({ width: 320, height: 568 });
+  const start = new Date("2026-11-26T03:00:00Z");
+  await page.clock.install({ time: start });
+  await page.clock.pauseAt(new Date(start.getTime() + 1000));
   await page.goto("/");
+  await page.waitForLoadState("networkidle");
   const active = page.locator("#featured-trend-food");
-  await expect(page.getByRole("button", { name: "자동 넘김 시작" })).toBeVisible();
-  await expect(page.locator(".home-hero-progress")).toBeHidden();
+  const play = page.getByRole("button", { name: "자동 넘김 시작" });
+  await expect(play).toBeVisible();
+  const progress = page.locator(".home-hero-progress");
+  await expect(progress).toBeInViewport({ ratio: 1 });
+  const bar = (await progress.boundingBox())!;
+  const button = (await play.boundingBox())!;
+  const detail = (await active.getByRole("link", { name: "음식 살펴보기", exact: true }).boundingBox())!;
+  expect(bar.height).toBeGreaterThanOrEqual(6);
+  expect(bar.y + bar.height).toBeLessThan(button.y);
+  expect(bar.y).toBeGreaterThan(detail.y + detail.height);
   await page.clock.runFor(16000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
   await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
   await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
   await expect(page.locator(".home-hero-track")).toHaveCSS("transition-property", "none");
+  await play.click();
+  await expect(page.getByRole("button", { name: "자동 넘김 일시정지" })).toBeVisible();
+  const filled = () => progress.locator("span").evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
+  await page.clock.runFor(1100);
+  expect(await filled()).toBeCloseTo(0.125, 2);
+  await page.clock.runFor(1000);
+  expect(await filled()).toBeCloseTo(0.25, 2);
 });
 
 test("모바일에서 가로 스와이프로 추천 음식을 넘긴다", async ({ page }, info) => {

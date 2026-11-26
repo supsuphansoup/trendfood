@@ -29,3 +29,16 @@
 ## 팀원 변경 확인
 
 - 시작과 검사 후 확인한 원격 기준은 `76d783a`였다.
+
+## 이어서 (2026-11-27)
+
+- 바가 잘 보이지 않는다는 피드백에 따라 재생 버튼 위 8px 위치로 옮겼다. 높이는 6px로 늘리고 밝은 회색 바탕과 주황색 채움을 사용했다.
+- `web/src/app/globals.css`에서 좁고 짧은 화면의 버튼 간격을 확보했다. `web/src/components/home/home-feature.tsx`에서 동작 줄이기를 켜도 바를 표시한다. 이때 자동 넘김을 직접 켜면 1초 단위로 채워진다.
+- `web/e2e/mvp.spec.ts`에 320px 화면 안의 배치, 버튼과의 간격, 동작 줄이기 설정에서의 진행률 검사를 추가했다.
+- `npm run lint` — `eslint` 종료 코드 0
+- `npm run typecheck` — `✓ Types generated successfully`, 종료 코드 0
+- `npm run test:unit` — `ℹ pass 229`, `ℹ fail 0`
+- `npm run test:e2e -- --workers=4` — `163 passed`, `1 skipped`
+- `npm run test:content -- --workers=4` — `65 passed`, `1 skipped`
+- 실제 공개 데이터의 320px WebKit과 1280px Chromium에서 기본 및 동작 줄이기 설정을 확인했다. `web/test-results/hero-progress-visible-mobile.png`와 `hero-progress-visible-desktop.png`를 열어 확인했다.
+- 시작과 검사 후 원격은 `76d783a`로 같았다. 새 팀원 변경이나 충돌은 없었다. 이번 작업은 `http://localhost:3000/` 미리보기까지 진행했다.
