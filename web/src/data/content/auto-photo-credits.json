@@ -953,7 +953,21 @@
     "automatic": false,
     "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
     "note": "두바이 초콜릿 참고 실사예요. 재료의 비율과 담음새는 레시피에 따라 달라질 수 있어요. 표시용 WebP로 크기와 형식을 바꿨어요. 사진과 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요.",
-    "pageId": 156905441
+    "pageId": 156905441,
+    "rejectedReason": "가까이 찍은 한 조각의 단면에서 초콜릿 바의 판형과 카다이프 결을 알아보기 어려워 교체했어요."
+  },
+  "photo-reviewed-dubai-chocolate-plate-20261126": {
+    "title": "Dubai chocolate on a plate 02.jpg",
+    "author": "Ionenlaser",
+    "url": "https://commons.wikimedia.org/wiki/File:Dubai_chocolate_on_a_plate_02.jpg",
+    "license": "CC BY 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Dubai_chocolate_on_a_plate_02.jpg",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+    "note": "두바이 초콜릿 바의 모양과 피스타치오·카다이프 단면을 보여 주는 참고 사진이에요. 표시용 WebP로 크기와 형식을 바꿨어요. 변환본은 원본과 같은 CC BY 4.0 조건으로 제공해요.",
+    "pageId": 157768323,
+    "sha1": "66075fca12c4bffd230637e90526e255d1f588a6"
   },
   "photo-everyday-tteokbokki-20261125": {
     "title": "Tteokbokki.JPG",

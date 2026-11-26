@@ -288,7 +288,7 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
   for (const slug of [
     "dalgona-coffee", "egg-soup", "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum",
     "udon-soup", "omurice", "ube-latte", "janchi-guksu", "cucumber-muchim", "tuna-gimbap",
-    "butter-garaetteok", "soy-sauce-egg-rice", "dubai-chewy-cookie",
+    "butter-garaetteok", "soy-sauce-egg-rice", "dubai-chewy-cookie", "dubai-chocolate",
   ]) {
     const food = snapshot.foods.find((food) => food.slug === slug)!;
     const credit = automaticPhotos[food.image];
@@ -303,6 +303,7 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     if (slug === "butter-garaetteok" || slug === "dubai-chewy-cookie") {
       expect(source).toContain(`photo-ai-${slug}-plated-20261125`);
     }
+    if (slug === "dubai-chocolate") expect(source).toContain("photo-reviewed-dubai-chocolate-plate-20261126");
     await expect(card.getByText("참고 사진", { exact: true })).toHaveCount(0);
     await card.screenshot({ path: `test-results/content/reviewed-${slug}-card-${info.project.name}.png` });
     await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
@@ -317,7 +318,12 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    if (["dalgona-coffee", "egg-soup", "ube-latte", "cucumber-muchim"].includes(slug)) await page.screenshot({ path: `test-results/content/reviewed-${slug}-detail-${info.project.name}.png` });
+    if (["dalgona-coffee", "egg-soup", "ube-latte", "cucumber-muchim", "dubai-chocolate"].includes(slug)) {
+      await page.screenshot({
+        path: `test-results/content/reviewed-${slug}-detail-${info.project.name}.png`,
+        fullPage: slug === "dubai-chocolate",
+      });
+    }
   }
 });
 

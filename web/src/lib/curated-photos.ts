@@ -81,6 +81,7 @@ import reviewedPhoto10 from "@/assets/curated/photo-everyday-reviewed-cucumber-m
 import photo_everyday_kimchi_jjigae_20261125 from "@/assets/curated/photo-everyday-kimchi-jjigae-20261125.webp";
 import photo_everyday_tteok_guk_20261125 from "@/assets/curated/photo-everyday-tteok-guk-20261125.webp";
 import photo_reviewed_dubai_chocolate_20261125 from "@/assets/curated/photo-reviewed-dubai-chocolate-20261125.webp";
+import dubaiChocolatePlatePhoto from "@/assets/curated/photo-reviewed-dubai-chocolate-plate-20261126.webp";
 import photo_everyday_tteokbokki_20261125 from "@/assets/curated/photo-everyday-tteokbokki-20261125.webp";
 import photo_everyday_tomato_pasta_20261125 from "@/assets/curated/photo-everyday-tomato-pasta-20261125.webp";
 
@@ -110,6 +111,7 @@ export const curatedPhotos = {
   "photo-everyday-kimchi-jjigae-20261125": photo_everyday_kimchi_jjigae_20261125,
   "photo-everyday-tteok-guk-20261125": photo_everyday_tteok_guk_20261125,
   "photo-reviewed-dubai-chocolate-20261125": photo_reviewed_dubai_chocolate_20261125,
+  "photo-reviewed-dubai-chocolate-plate-20261126": dubaiChocolatePlatePhoto,
   "photo-everyday-tteokbokki-20261125": photo_everyday_tteokbokki_20261125,
   "photo-everyday-tomato-pasta-20261125": photo_everyday_tomato_pasta_20261125,
   "photo-auto-dubai-chewy-cookie": photo0,
