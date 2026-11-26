@@ -1,9 +1,8 @@
-import { ArrowDown, ChevronDown, ChevronLeft } from "lucide-react";
+import { ArrowDown, ChevronDown, ChevronLeft, Play } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FoodImage } from "@/components/food-image";
-import { FoodVideo } from "@/components/food-video";
 import { RecipeWorkspace } from "@/components/detail/recipe-workspace";
 import { ShareButton } from "@/components/detail/share-button";
 import { TrendChart } from "@/components/detail/trend-chart";
@@ -13,7 +12,6 @@ import { SiteLogo } from "@/components/site-logo";
 import { SITE_NAME } from "@/data/site";
 import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
 import { foodUrl, recipeJson, safeJson } from "@/data/seo";
-import { foodVideoId } from "@/data/youtube";
 
 function DetailSourceLinks({ sources, className }: {
   sources: { title: string; url: string }[];
@@ -66,7 +64,6 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
   if (!food) notFound();
 
   const discovery = food.kind === "discovery";
-  const sourceVideo = food.videoId ? null : foodVideoId(food);
   const structured = recipeJson(food, food.imageAvailable ? (food.heroImage ?? food.image).src : undefined);
   const chips = [...new Set([food.change, food.cookLabel, ...(!discovery ? [`난이도 ${food.difficulty}`, food.servings] : [])])];
 
@@ -127,8 +124,15 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             </ul>
             <div className="flex flex-wrap gap-3">
               <a href={discovery ? "#sources" : "#recipe"} className="motion-press inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{discovery ? "소개 출처 보기" : food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
+              <a
+                href={`https://www.youtube.com/results?search_query=${encodeURIComponent(food.name)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="motion-press inline-flex min-h-12 items-center gap-2 rounded-full bg-foreground px-4 text-sm font-bold text-background hover:bg-destructive hover:text-background focus-visible:outline-offset-2"
+              >
+                <Play className="size-4" aria-hidden /> 영상 보기
+              </a>
               {!discovery && <a href="#cart" className="motion-press inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">{food.kind === "product" ? "제품 보기" : "재료 살펴보기"}</a>}
-              {sourceVideo && <FoodVideo name={food.name} videoId={sourceVideo} />}
             </div>
           </div>
       </section>

@@ -72,8 +72,7 @@ test("첫 화면에서 추천 음식 사진과 출처 영상을 전환한다", a
     await preview.getByRole("link", { name: "음식 살펴보기" }).click();
     if (!food.videoId) {
       await expect(page.locator("iframe")).toHaveCount(0);
-      await page.getByRole("button", { name: "영상 보기" }).click();
-      await expect(page.getByRole("dialog").locator("iframe")).toHaveAttribute("src", `https://www.youtube-nocookie.com/embed/${id}?playsinline=1`);
+      await expect(page.getByRole("link", { name: "영상 보기", exact: true })).toHaveAttribute("href", `https://www.youtube.com/results?search_query=${encodeURIComponent(food.name)}`);
     }
   }
 });
@@ -546,8 +545,8 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
   }
 });
 
-test("포켓몬빵은 직접 촬영한 제품 사진과 삼립 출처·공식 영상을 보여 준다", async ({ page }, info) => {
-  await page.route("https://www.youtube-nocookie.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>공식 영상 자리</p>" }));
+test("포켓몬빵은 직접 촬영한 사진과 삼립 출처를 보여 주고 유튜브 검색을 연다", async ({ page, context }, info) => {
+  await context.route("https://www.youtube.com/results?**", (route) => route.fulfill({ contentType: "text/html", body: "<p>유튜브 검색 결과 자리</p>" }));
   await page.goto("/?q=%ED%8F%AC%EC%BC%93%EB%AA%AC%EB%B9%B5");
   const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "포켓몬빵", exact: true }) });
   const alt = "나무 탁자 위에 놓인 삼립 포켓몬빵 돌아온 로켓단 초코롤 포장.";
@@ -567,14 +566,12 @@ test("포켓몬빵은 직접 촬영한 제품 사진과 삼립 출처·공식 �
   await expect(page.getByRole("link", { name: /삼립 · 돌아온 포켓몬빵/ })).toHaveAttribute("href", "https://spcsamlip.co.kr/company/history");
   await expect(page.getByRole("link", { name: "제품 보기", exact: true })).toHaveAttribute("href", "#cart");
   await expect(page.getByRole("link", { name: "재료 살펴보기", exact: true })).toHaveCount(0);
-  const video = intro.getByRole("button", { name: "영상 보기", exact: true });
+  const video = intro.getByRole("link", { name: "영상 보기", exact: true });
   await expect(video).toBeVisible();
   await page.screenshot({ path: `test-results/content/pokemon-official-detail-${info.project.name}.png` });
+  const popup = page.waitForEvent("popup");
   await video.click();
-  const dialog = page.getByRole("dialog", { name: "포켓몬빵 원본 영상" });
-  await expect(dialog).toBeVisible();
-  await expect(dialog.locator("iframe")).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/hU_xiUJePY0?playsinline=1");
-  await expect(dialog.getByRole("link", { name: "YouTube에서 보기" })).toHaveAttribute("href", "https://www.youtube.com/watch?v=hU_xiUJePY0");
+  await expect(await popup).toHaveURL(`https://www.youtube.com/results?search_query=${encodeURIComponent("포켓몬빵")}`);
 });
 
 test("수집 콘텐츠: 유행 음식만 최근에 확인된 유행 시기순으로 표시하고 통합 검색을 유지한다", async ({ page }, info) => {
@@ -616,9 +613,10 @@ test("수집 콘텐츠: 유행 음식만 최근에 확인된 유행 시기순으
   await page.getByRole("link", { name: "유행 음식", exact: true }).click();
   await expect(page.locator("#list h2")).toBeInViewport();
   // 펼친 필터가 상단 탐색 아래로 일부만 남지 않게 목록 시작을 맞춘다.
-  const stickyBottom = await page.getByRole("region", { name: "필터 설정" }).evaluate((el) => el.getBoundingClientRect().bottom);
-  const listTop = await page.locator("#list").evaluate((el) => el.getBoundingClientRect().top);
-  expect(Math.abs(listTop - stickyBottom)).toBeLessThanOrEqual(2);
+  const sticky = page.getByRole("region", { name: "필터 설정" });
+  await expect.poll(() => sticky.evaluate((el) =>
+    Math.abs(document.getElementById("list")!.getBoundingClientRect().top - el.getBoundingClientRect().bottom),
+  )).toBeLessThanOrEqual(2);
   expect((await page.locator("#food-grid").boundingBox())!.width).toBe(page.viewportSize()!.width - 40);
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
@@ -775,20 +773,57 @@ test("간식 탭 없이 기존 간식 주소는 유행 음식으로 열리고 �
   await expect(page.locator("#list").getByRole("heading", { name: snack.name, exact: true })).toBeVisible();
 });
 
-test("펼친 필터는 목록을 스크롤해도 카테고리 아래에 고정된다", async ({ page }, info) => {
+test("검색창은 스크롤에 따라 필터 옆과 헤더를 오가며 검색어를 유지한다", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  if (info.project.name === "mobile") await page.setViewportSize({ width: 320, height: 568 });
+  const name = "머랭롤";
+  await page.goto("/?q=" + encodeURIComponent("머랭"));
+  const headerSearch = page.getByRole("banner").getByRole("searchbox");
+  const controls = page.getByRole("region", { name: "필터 설정" });
+  const stickySearch = controls.getByRole("search");
+  const input = stickySearch.getByRole("searchbox");
+  await expect(headerSearch).toHaveValue("머랭");
+  await expect(headerSearch).toBeInViewport();
+  await expect(stickySearch).toHaveCount(0);
+  await headerSearch.fill(name);
+  await controls.evaluate((element) => window.scrollBy(0, element.getBoundingClientRect().top + 120));
+  await expect(stickySearch).toBeInViewport();
+  await expect(page.getByRole("search")).toHaveCount(1);
+  await expect(input).toHaveValue(name);
+  const searchBox = (await stickySearch.boundingBox())!;
+  const filterBox = (await controls.getByRole("button", { name: "필터", exact: true }).boundingBox())!;
+  expect(searchBox.x + searchBox.width).toBeLessThanOrEqual(filterBox.x);
+  expect(Math.abs(searchBox.y + searchBox.height / 2 - filterBox.y - filterBox.height / 2)).toBeLessThanOrEqual(1);
+  await expect(controls.getByRole("button", { name: /^일상 레시피/ })).toBeInViewport();
+
+  await input.press("Enter");
+  await expect(page).toHaveURL((url) => url.searchParams.get("q") === name);
+  await expect(page.locator("#list").getByRole("heading", { level: 2, name: /검색$/ })).toBeInViewport();
+  await expect(page.locator("#list").getByRole("heading", { name, exact: true })).toBeVisible();
+  await page.screenshot({ path: `test-results/content/sticky-search-${info.project.name}.png` });
+  await stickySearch.getByRole("button", { name: "검색어 지우기" }).click();
+  await expect(input).toBeFocused();
+  await expect(page).not.toHaveURL(/\bq=/);
+  await input.fill(name);
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await expect(headerSearch).toBeInViewport();
+  await expect(headerSearch).toHaveValue(name);
+  await expect(stickySearch).toHaveCount(0);
+});
+
+test("펼친 필터는 목록을 스크롤해도 검색과 카테고리 아래에 고정된다", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   if (info.project.name === "mobile") await page.setViewportSize({ width: 320, height: 568 });
   await page.goto("/#list");
   const controls = page.getByRole("region", { name: "필터 설정" });
-  const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
   const toggle = page.getByRole("button", { name: "필터", exact: true });
   const panel = page.getByRole("complementary", { name: "음식 필터" });
   await toggle.click();
   await page.locator("#list").evaluate((list) => window.scrollBy(0, list.getBoundingClientRect().top + 160));
   await expect.poll(async () => (await controls.boundingBox())!.y).toBeCloseTo(0, 0);
-  const { y, height } = (await categories.boundingBox())!;
+  const controlsRowBottom = await toggle.evaluate((element) => element.parentElement!.getBoundingClientRect().bottom);
   const panelBox = (await panel.boundingBox())!;
-  expect(Math.abs(panelBox.y - y - height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(panelBox.y - controlsRowBottom)).toBeLessThanOrEqual(1);
   expect(panelBox.height).toBeLessThanOrEqual(page.viewportSize()!.height * 0.4 + 1);
   await expect(panel.getByRole("button", { name: "최신 유행순", exact: true })).toBeInViewport();
   await page.screenshot({ path: `test-results/content/sticky-filters-${info.project.name}.png` });
@@ -1046,6 +1081,9 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
     const response = await page.goto(`/food/${food.slug}`);
     expect(response?.status()).toBe(200);
     await expect(page).toHaveTitle(`${food.name} ${food.kind === "discovery" ? "음식 정보와 출처" : food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | vviralfood`);
+    const video = page.getByRole("region", { name: "음식 소개", exact: true }).getByRole("link", { name: "영상 보기", exact: true });
+    await expect(video).toBeVisible();
+    await expect(video).toHaveAttribute("href", `https://www.youtube.com/results?search_query=${encodeURIComponent(food.name)}`);
     const sources = page.getByRole("region", { name: "참고한 출처" });
     await expect(sources).toBeVisible();
     expect(await sources.getByRole("link").count()).toBeGreaterThan(0);

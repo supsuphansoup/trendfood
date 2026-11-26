@@ -91,6 +91,56 @@ function readUrl(years: number[]) {
   };
 }
 
+function FoodSearch({ id, className, query, onQueryChange, onSearch }: {
+  id: string;
+  className: string;
+  query: string;
+  onQueryChange: (value: string) => void;
+  onSearch: () => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <form
+      role="search"
+      className={cn("flex h-[46px] min-w-0 items-center rounded-lg border border-input bg-secondary/50 pl-2.5 focus-within:border-accent focus-within:bg-background md:pl-3", className)}
+      onSubmit={(event) => {
+        event.preventDefault();
+        inputRef.current?.blur();
+        onSearch();
+      }}
+    >
+      <label htmlFor={id} className="sr-only">음식 이름이나 재료로 검색</label>
+      <input
+        ref={inputRef}
+        id={id}
+        type="search"
+        enterKeyHint="search"
+        value={query}
+        onChange={(event) => onQueryChange(event.target.value)}
+        placeholder="음식 검색"
+        className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground md:text-sm [&::-webkit-search-cancel-button]:hidden"
+      />
+      {query && (
+        <button
+          type="button"
+          aria-label="검색어 지우기"
+          onClick={() => {
+            onQueryChange("");
+            inputRef.current?.focus();
+          }}
+          className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary"
+        >
+          <X className="size-4" aria-hidden />
+        </button>
+      )}
+      <button type="submit" aria-label="검색" className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-secondary">
+        <Search className="size-[18px]" aria-hidden />
+      </button>
+    </form>
+  );
+}
+
 export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const curated = foods.every((food) => food.editorial);
   const years = useMemo(() => [...new Set(foods.flatMap((food) => food.history?.years ?? []))].sort((a, b) => a - b), [foods]);
@@ -102,6 +152,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const [query, setQuery] = useState("");
   const [applied, setApplied] = useState("");
   const [showTop, setShowTop] = useState(false);
+  const [searchDocked, setSearchDocked] = useState(false);
   const [ready, setReady] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [columns, setColumns] = useState<2 | 3>(2);
@@ -112,10 +163,10 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const pantry = useStoredSet(PANTRY_KEY);
   const need = useStoredSet("tf:need");
   const [pantryActive, setPantryActive] = useState(false);
+  const feedRef = useRef<HTMLDivElement>(null);
   const filterControlsRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const controls = filterControlsRef.current;
@@ -205,10 +256,19 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   }, [ready, tab, sort, tag, applied, year, collection, pantryActive]);
 
   useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 900);
+    const feed = feedRef.current;
+    if (!feed) return;
+    const onScroll = () => {
+      setShowTop(window.scrollY > 900);
+      setSearchDocked(feed.getBoundingClientRect().top <= 0);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   const trendFoods = useMemo(() => curated
@@ -274,11 +334,17 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     return filtered.sort((a, b) => pantryActive ? pantryMatch(a, pantry.items, need.items)!.missing.length - pantryMatch(b, pantry.items, need.items)!.missing.length || by[sort](a, b) : by[sort](a, b));
   }, [foods, trendFoods, sort, tag, tab, likes.items, q, year, filtering, curated, collection, today, pantryActive, pantry.items, need.items, unified, leadFood]);
 
+  const scrollToList = () => {
+    const feed = feedRef.current;
+    if (!feed) return;
+    // 검색 줄과 필터 높이가 바뀌어도 고정 영역이 시작하는 위치는 같다.
+    window.scrollTo({ top: Math.ceil(window.scrollY + feed.getBoundingClientRect().top), behavior: scrollBehavior() });
+  };
   /** 목록 시작이 화면 위나 고정 필터 아래에 있으면 다시 드러낸다. */
   const toList = () => {
     const el = listRef.current;
     if (el && el.getBoundingClientRect().top < (filterControlsRef.current?.offsetHeight ?? 0)) {
-      el.scrollIntoView({ behavior: scrollBehavior() });
+      scrollToList();
     }
   };
   const pickTab = (t: Tab | typeof everydayTab) => {
@@ -313,7 +379,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       window.history.pushState(null, "", url);
     }
     listRef.current?.focus({ preventScroll: true });
-    listRef.current?.scrollIntoView({ behavior: scrollBehavior() });
+    scrollToList();
   };
   const pickYear = (value: number) => {
     setPantryActive(false);
@@ -323,6 +389,16 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     setQuery("");
     setApplied("");
     toList();
+  };
+  const updateQuery = (value: string) => {
+    setQuery(value);
+    if (!value) setApplied("");
+  };
+  const submitSearch = () => {
+    if (!curated) setYear(null);
+    setApplied(query);
+    track("search", { search_term: "redacted", query_length: query.trim().length });
+    scrollToList();
   };
 
   const collectionTitle = collection === "everyday" ? everydayTab : unified ? "음식 둘러보기" : collections.find(({ value }) => value === collection)!.label;
@@ -339,50 +415,9 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
             <Link href="/" onClick={reset} className="flex min-h-11 items-center min-[361px]:max-md:[&>img]:w-32">
               <SiteLogo />
             </Link>
-            <form
-              role="search"
-              className="flex h-[46px] w-full min-w-0 items-center rounded-lg border border-input bg-secondary/50 pl-2.5 focus-within:border-accent focus-within:bg-background max-[361px]:order-last max-[361px]:basis-full md:max-w-[17rem] md:justify-self-end md:pl-3"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!curated) setYear(null);
-                setApplied(query);
-                track("search", { search_term: "redacted", query_length: query.trim().length });
-                searchRef.current?.blur();
-                listRef.current?.scrollIntoView({ behavior: scrollBehavior() });
-              }}
-            >
-              <label htmlFor="q" className="sr-only">
-                음식 이름이나 재료로 검색
-              </label>
-              <input
-                ref={searchRef}
-                id="q"
-                type="search"
-                enterKeyHint="search"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  if (!e.target.value) setApplied("");
-                }}
-                placeholder="음식 검색"
-                className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground md:text-sm [&::-webkit-search-cancel-button]:hidden"
-              />
-              {query && (
-                <button
-                  type="button"
-                  aria-label="검색어 지우기"
-                  onClick={() => {
-                    setQuery("");
-                    setApplied("");
-                    searchRef.current?.focus();
-                  }}
-                  className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary"
-                >
-                  <X className="size-4" aria-hidden />
-                </button>
-              )}
-              <button type="submit" aria-label="검색" className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-secondary"><Search className="size-[18px]" aria-hidden /></button>
-            </form>
+            <div className="h-[46px] w-full min-w-0 max-[361px]:order-last max-[361px]:basis-full md:max-w-[17rem] md:justify-self-end">
+              {!searchDocked && <FoodSearch id="q" className="w-full" query={query} onQueryChange={updateQuery} onSearch={submitSearch} />}
+            </div>
             <nav aria-label="바로가기" className="ml-auto flex items-center gap-1 text-sm md:gap-2">
               <Link href="/about#partners" className="hidden min-h-11 items-center px-2.5 text-muted-foreground hover:text-foreground xl:inline-flex">
                 제휴 안내
@@ -394,7 +429,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                   setCollection("all");
                   setYear(null);
                   setTab(tab === "찜" ? "전체" : "찜");
-                  listRef.current?.scrollIntoView({ behavior: scrollBehavior() });
+                  scrollToList();
                 }}
                 className="motion-press flex h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 font-bold text-foreground aria-pressed:bg-accent aria-pressed:text-white md:gap-1.5 md:px-3"
               >
@@ -409,10 +444,11 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       {leadFood && <HomeFeature foods={trendFoods.slice(0, 3)} curated={curated} onBrowse={browse} />}
 
       <div className="w-full border-t bg-feed-surface">
-      <div className="mx-auto w-full max-w-[1400px] px-5">
+      {/* 모바일 검색 줄이 생길 때 브라우저가 목록 위치를 보정해 고정 필터 뒤로 올리지 않게 한다. */}
+      <div ref={feedRef} className="mx-auto w-full max-w-[1400px] px-5 [overflow-anchor:none]">
         <section ref={filterControlsRef} aria-label="필터 설정" className="sticky top-0 z-20 bg-feed-surface">
-          <div className="flex min-h-16 items-center gap-3 border-b">
-            <nav aria-label="카테고리" className="flex min-w-0 flex-1 gap-4 overflow-x-auto md:gap-8 [scrollbar-width:thin]">
+          <div className={cn("flex min-h-16 items-center gap-x-3 border-b", searchDocked && "max-md:grid max-md:grid-cols-[minmax(0,1fr)_auto] max-md:gap-y-2 max-md:pb-2")}>
+            <nav aria-label="카테고리" className={cn("flex min-w-0 flex-1 gap-4 overflow-x-auto md:gap-8 [scrollbar-width:thin]", searchDocked && "max-md:col-span-2")}>
               {categoryTabs.map((t) => {
                 const selected = t === everydayTab ? collection === "everyday" : collection !== "everyday" && tab === t;
                 return (
@@ -432,6 +468,9 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                 );
               })}
             </nav>
+            {searchDocked && (
+              <FoodSearch id="list-q" className="w-full md:w-56 md:shrink-0" query={query} onQueryChange={updateQuery} onSearch={submitSearch} />
+            )}
             <button type="button" aria-expanded={filtersOpen} aria-controls="food-filters" onClick={() => setFiltersOpen(!filtersOpen)} className="motion-press inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg border border-input bg-card px-3 text-base font-bold hover:bg-secondary md:px-4">
               <SlidersHorizontal className="size-4" aria-hidden />필터<ChevronDown className={cn("hidden size-4 transition-transform md:block", filtersOpen && "rotate-180")} aria-hidden />
             </button>

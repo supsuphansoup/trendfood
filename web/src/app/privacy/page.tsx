@@ -31,7 +31,7 @@ export default function PrivacyPage() {
       <section>
         <h2>4. 쿠팡 링크와 YouTube 영상</h2>
         <p>재료 링크를 누르면 쿠팡 사이트가 새 창으로 열려요. 그때부터는 쿠팡의 개인정보처리방침이 적용돼요. 쿠팡은 제휴 실적을 확인하려고 쿠키를 쓸 수 있어요. 서비스는 방문자가 쿠팡에서 무엇을 샀는지 알 수 없어요.</p>
-        <p>홈과 음식 상세의 원본 영상은 YouTube 공식 플레이어로 보여 줘요. ‘영상 보기’를 누르거나 플레이어가 있는 상세 영역을 열면 IP 주소 같은 접속 정보가 YouTube(Google)에 전달되고, 영상을 재생하면 쿠키 같은 기록이 저장될 수 있어요. 이때는 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 개인정보처리방침</a>이 적용돼요.</p>
+        <p>홈과 음식 상세의 원본 영상은 YouTube 공식 플레이어로 보여 줘요. 음식 상세의 ‘영상 보기’는 YouTube에서 해당 음식 이름을 검색한 결과를 새 탭으로 열어요. YouTube 검색 결과로 이동하거나 공식 플레이어를 열면 IP 주소 같은 접속 정보가 YouTube(Google)에 전달되고, 영상을 재생하면 쿠키 같은 기록이 저장될 수 있어요. 이때는 <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google 개인정보처리방침</a>이 적용돼요.</p>
       </section>
       <section>
         <h2>5. 광고와 방문 분석</h2>
