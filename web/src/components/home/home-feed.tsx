@@ -93,6 +93,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const [ready, setReady] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [columns, setColumns] = useState<2 | 3>(2);
+  const GridIcon = columns === 2 ? Grid2X2 : Grid3X3;
   const likes = useStoredSet(LIKES_KEY);
   const pantry = useStoredSet(PANTRY_KEY);
   const need = useStoredSet("tf:need");
@@ -437,24 +438,15 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
               </div>
             ) : (
               <>
-                <div role="group" aria-label="음식 목록 보기 방식" className="mt-3 ml-auto flex w-fit rounded-full border bg-muted p-0.5">
-                  {([
-                    { count: 2, label: "크게 보기", Icon: Grid2X2 },
-                    { count: 3, label: "모아 보기", Icon: Grid3X3 },
-                  ] as const).map(({ count, label, Icon }) => (
-                    <button
-                      key={count}
-                      type="button"
-                      aria-pressed={columns === count}
-                      aria-controls="food-grid"
-                      onClick={() => setColumns(count)}
-                      className="motion-press inline-flex min-h-11 items-center gap-1.5 rounded-full border border-transparent px-3 text-sm font-semibold text-muted-foreground hover:text-foreground aria-pressed:border-border aria-pressed:bg-card aria-pressed:text-foreground aria-pressed:shadow-sm"
-                    >
-                      <Icon className="size-4" aria-hidden />
-                      {label}
-                    </button>
-                  ))}
-                </div>
+                <button
+                  type="button"
+                  aria-label={columns === 2 ? "현재 크게 보기, 모아 보기로 전환" : "현재 모아 보기, 크게 보기로 전환"}
+                  aria-controls="food-grid"
+                  onClick={() => setColumns((current) => current === 2 ? 3 : 2)}
+                  className="motion-press mt-3 ml-auto flex size-11 items-center justify-center rounded-full border bg-card text-foreground hover:bg-muted"
+                >
+                  <GridIcon className="size-5" aria-hidden />
+                </button>
                 <ol id="food-grid" className={cn("food-grid m-0 mt-2 grid list-none gap-2 p-0 pb-8 sm:gap-4 lg:gap-6", columns === 2 ? "grid-cols-2" : "grid-cols-3")}>
                   {list.map((food, i) => (
                     <Fragment key={food.slug}>

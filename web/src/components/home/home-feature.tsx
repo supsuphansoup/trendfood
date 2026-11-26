@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUpRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { type MouseEvent, type PointerEvent, useRef, useState } from "react";
+import { type MouseEvent, type PointerEvent, useLayoutEffect, useRef, useState } from "react";
 import { FoodImage } from "@/components/food-image";
 import { FoodVideo } from "@/components/food-video";
 import { foodVideoId } from "@/data/youtube";
@@ -8,12 +8,46 @@ import type { Food } from "@/lib/foods";
 
 export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolean }) {
   const [selected, setSelected] = useState(0);
+  const carousel = useRef<HTMLDivElement>(null);
+  const pendingSlide = useRef<{ before: Map<string, DOMRect>; direction: number } | null>(null);
   const dragStart = useRef<{ id: number; x: number; y: number } | null>(null);
   const suppressClick = useRef(false);
 
   const move = (direction: number) => {
+    if (foods.length < 2) return;
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches && carousel.current) {
+      const before = new Map<string, DOMRect>();
+      for (const poster of carousel.current.querySelectorAll<HTMLElement>("[data-poster]")) {
+        const image = poster.querySelector("img");
+        if (image && poster.dataset.poster) before.set(poster.dataset.poster, image.getBoundingClientRect());
+      }
+      pendingSlide.current = { before, direction };
+    }
     setSelected((current) => (current + direction + foods.length) % foods.length);
   };
+
+  useLayoutEffect(() => {
+    const slide = pendingSlide.current;
+    pendingSlide.current = null;
+    if (!slide || !carousel.current) return;
+    const animations: Animation[] = [];
+    for (const poster of carousel.current.querySelectorAll<HTMLElement>("[data-poster]")) {
+      const image = poster.querySelector("img");
+      const from = poster.dataset.poster && slide.before.get(poster.dataset.poster);
+      if (!image || !from || !from.width || !from.height) continue;
+      const to = image.getBoundingClientRect();
+      if (!to.width || !to.height) continue;
+      let dx = from.left + from.width / 2 - (to.left + to.width / 2);
+      // 끝에서 반대편으로 순환하는 이웃 사진은 바깥에서 들어온다.
+      if (dx * slide.direction < -poster.offsetWidth) dx = slide.direction * poster.offsetWidth;
+      const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+      animations.push(image.animate([
+        { transform: `translate(${dx}px, ${dy}px) scale(${from.width / to.width}, ${from.height / to.height})` },
+        { transform: "none" },
+      ], { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }));
+    }
+    return () => { for (const animation of animations) animation.cancel(); };
+  }, [selected]);
 
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.button !== 0) return;
@@ -64,6 +98,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
         <p className="basis-full text-base leading-normal text-body">유행의 배경부터 만드는 법까지.</p>
       </header>
       <div
+        ref={carousel}
         className="home-poster-carousel mt-4 md:mt-6"
         onPointerDown={startDrag}
         onPointerUp={finishDrag}
@@ -75,10 +110,10 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
           {foods.map((food, index) => {
             if (index === selected) return null;
             const side = index === (selected + 1) % foods.length ? "next" : "previous";
-            return <button key={food.slug} type="button" aria-controls="featured-trend-food" onClick={() => setSelected(index)} className={`home-poster-side home-poster-${side} text-foreground`}>
+            return <button key={food.slug} type="button" aria-controls="featured-trend-food" onClick={() => move(side === "next" ? 1 : -1)} className={`home-poster-side home-poster-${side} text-foreground`}>
               <span className="sr-only">{index + 1}위 </span>
               <span aria-hidden="true" className="home-poster-image relative block">
-                <span className="home-poster-photo"><FoodImage food={food} contain sizes="(min-width: 768px) 540px, 74vw" /></span>
+                <span className="home-poster-photo" data-poster={food.slug}><FoodImage food={food} contain sizes="(min-width: 768px) 540px, 74vw" /></span>
               </span>
               <span className="home-poster-side-caption sr-only lg:not-sr-only lg:mt-4 lg:block">
                 <span className="block text-xl font-bold md:text-2xl">{food.name}</span>
@@ -89,7 +124,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
         </section>
       <section id="featured-trend-food" aria-label={curated ? "오늘의 음식" : `오늘의 ${selected + 1}위`} className="home-poster-active relative text-center text-foreground">
         <figure className="home-poster-image relative">
-          <Link key={top.slug} href={href} aria-label={`${top.name} 상세 보기`} className="home-poster-photo rounded-2xl focus-visible:-outline-offset-4 md:rounded-3xl">
+          <Link key={top.slug} href={href} data-poster={top.slug} aria-label={`${top.name} 상세 보기`} className="home-poster-photo rounded-2xl focus-visible:-outline-offset-4 md:rounded-3xl">
             <FoodImage food={top} hero contain preload={selected === 0} sizes="(min-width: 768px) 540px, 74vw" />
           </Link>
         </figure>

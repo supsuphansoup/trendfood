@@ -45,6 +45,9 @@ test("트렌드 추천 1~3위는 첫 화면에서 선택할 수 있고 사진과
   await next.press("Enter");
   await expect(next).toBeFocused();
   await expect(preview.getByRole("heading", { name: foods[1].name, exact: true })).toBeVisible();
+  expect(await preview.locator("figure img").evaluate((image) => image.getAnimations().some(({ effect }) =>
+    effect instanceof KeyframeEffect && effect.getKeyframes().some((frame) => "transform" in frame)
+  ))).toBe(false);
   await expect(preview.getByRole("link", { name: `${foods[1].name} 상세 보기` })).toHaveAttribute("href", `/food/${foods[1].slug}`);
   await expect(page.locator("iframe")).toHaveCount(0);
 
@@ -81,7 +84,14 @@ test("순위 표시와 사진·설명, 목록 결과, 상세 화면이 동작에
   const ranks = board.getByRole("button");
   const preview = page.getByRole("region", { name: "오늘의 음식", exact: true });
   const food = trendFoods[1];
-  await ranks.filter({ hasText: food.name }).click();
+  // 클릭 직후 첫 프레임에서 실제 사진이 오른쪽에서 중앙으로 이동하는지 확인한다.
+  const offset = await ranks.filter({ hasText: food.name }).evaluate(async (button: HTMLButtonElement) => {
+    button.click();
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+    const image = document.querySelector("#featured-trend-food figure img")!;
+    return new DOMMatrix(getComputedStyle(image).transform).m41;
+  });
+  expect(offset).toBeGreaterThan(0);
   await expect(preview.getByRole("heading", { name: food.name })).toHaveCSS("animation-name", "content-in");
   await expect(preview.getByText(/^(다시 보는 유행|오늘 살펴볼 음식)/)).toHaveCSS("animation-name", "content-in");
   await expect(preview.getByTestId("feature-description")).toHaveCSS("animation-name", "content-in");
@@ -388,13 +398,17 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/feed-${info.project.name}.png` });
-  const layout = page.getByRole("group", { name: "음식 목록 보기 방식" });
-  const twoColumns = layout.getByRole("button", { name: "크게 보기" });
-  const threeColumns = layout.getByRole("button", { name: "모아 보기" });
-  await expect(twoColumns).toHaveAttribute("aria-pressed", "true");
-  await threeColumns.press("Enter");
-  await expect(threeColumns).toHaveAttribute("aria-pressed", "true");
-  await expect(twoColumns).toHaveAttribute("aria-pressed", "false");
+  const layout = page.locator('button[aria-controls="food-grid"]');
+  await expect(layout).toHaveCount(1);
+  await expect(layout).toHaveAccessibleName("현재 크게 보기, 모아 보기로 전환");
+  await expect(layout).toHaveText("");
+  await expect(layout.locator("svg")).toHaveCount(1);
+  await expect(layout.locator("svg")).toHaveClass(/lucide-grid-2x2/);
+  await layout.press("Enter");
+  await expect(layout).toHaveAccessibleName("현재 모아 보기, 크게 보기로 전환");
+  await expect(layout).toHaveText("");
+  await expect(layout.locator("svg")).toHaveCount(1);
+  await expect(layout.locator("svg")).toHaveClass(/lucide-grid-3x3/);
   const compactFirst = (await cards.nth(0).boundingBox())!;
   const compactThird = (await cards.nth(2).boundingBox())!;
   expect(compactThird.y).toBeCloseTo(compactFirst.y, 0);
@@ -402,8 +416,8 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   expect(compactFirst.width).toBeLessThan(first.width);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/feed-three-columns-${info.project.name}.png` });
-  await twoColumns.click();
-  await expect(twoColumns).toHaveAttribute("aria-pressed", "true");
+  await layout.click();
+  await expect(layout.locator("svg")).toHaveClass(/lucide-grid-2x2/);
   expect((await cards.nth(2).boundingBox())!.y).toBeGreaterThan((await cards.nth(0).boundingBox())!.y);
 
   await page.getByRole("searchbox").fill("타피오카");
