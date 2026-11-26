@@ -10,9 +10,9 @@ export function FoodCard({ food, columns, heading: Heading = "h3", unranked = fa
   const href = `/food/${food.slug}`;
   return (
     <li data-motion-result className="relative flex min-w-0 origin-top-left flex-col overflow-hidden rounded-feature bg-card">
-      {food.imageAvailable ? <div className={cn("relative aspect-[4/3] overflow-hidden bg-secondary", columns === 2 ? "max-h-60 xl:max-h-[clamp(15rem,20vw,21rem)]" : "max-h-48 xl:max-h-[clamp(12rem,16vw,17rem)]")}>
+      {food.imageAvailable ? <div className={cn("relative aspect-[4/3] overflow-hidden bg-secondary lg:aspect-[3/2] lg:max-h-none", columns === 2 ? "max-h-60" : "max-h-48")}>
         <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0 focus-visible:-outline-offset-4">
-          <FoodImage food={food} fit="contain" sizes={columns === 2 ? "(min-width: 1640px) 800px, 50vw" : "(min-width: 1640px) 520px, 33vw"} />
+          <FoodImage food={food} fit="contain" sizes={columns === 2 ? "(min-width: 1400px) 680px, 50vw" : "(min-width: 1400px) 440px, 33vw"} />
         </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-0 right-0 sm:top-2 sm:right-2" />
       </div> : <LikeButton slug={food.slug} name={food.name} className="absolute top-0 right-0 sm:top-2 sm:right-2" />}

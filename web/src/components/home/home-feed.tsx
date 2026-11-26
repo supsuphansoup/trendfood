@@ -371,7 +371,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       {leadFood && <HomeFeature foods={trendFoods.slice(0, 3)} curated={curated} />}
 
       <div className="w-full border-t bg-feed-surface">
-      <div className="mx-auto w-full max-w-[1640px] px-5">
+      <div className="mx-auto w-full max-w-[1400px] px-5">
         <section aria-label="필터 설정" className="sticky top-0 z-20 flex min-h-16 items-center gap-3 border-b bg-feed-surface">
           <nav aria-label="카테고리" className="flex min-w-0 flex-1 gap-4 overflow-x-auto md:gap-8 [scrollbar-width:thin]">
             {categoryTabs.map((t) => {

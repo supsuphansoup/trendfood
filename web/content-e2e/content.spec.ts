@@ -374,6 +374,8 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;
+  const firstPhoto = (await cards.first().getByRole("img").boundingBox())!;
+  expect(firstPhoto.width / firstPhoto.height).toBeCloseTo(info.project.name === "desktop" ? 3 / 2 : 4 / 3, 2);
   expect(Math.abs(first.y - second.y)).toBeLessThan(2);
   expect(second.x).toBeGreaterThan(first.x + first.width);
   const third = (await cards.nth(2).boundingBox())!;
@@ -426,7 +428,7 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.ingredients.some((ingredient) => ingredient.name.includes("타피오카")) || food.name.includes("타피오카") || food.why.includes("타피오카")).map((food) => food.name));
 });
 
-test("넓은 PC에서 목록과 사진이 함께 커지고 좌우 여백을 유지한다", async ({ page }, info) => {
+test("넓은 PC에서 2열·3열 모두 카드 폭에 맞춰 사진을 3:2로 배치한다", async ({ page }, info) => {
   test.skip(info.project.name !== "desktop", "넓은 PC 화면에서 확인하는 동작");
   await page.setViewportSize({ width: 1920, height: 1080 });
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -437,9 +439,10 @@ test("넓은 PC에서 목록과 사진이 함께 커지고 좌우 여백을 유�
   for (const columns of [2, 3]) {
     await expect(grid).toHaveClass(new RegExp(`grid-cols-${columns}`));
     const { x, width } = (await grid.boundingBox())!;
-    expect(width).toBe(1600);
+    expect(width).toBe(1360);
     expect(x).toBe((1920 - width) / 2);
-    await expect(photo).toHaveCSS("height", columns === 2 ? "336px" : "272px");
+    const photoBox = (await photo.boundingBox())!;
+    expect(photoBox.width / photoBox.height).toBeCloseTo(3 / 2, 2);
     await expect(photo).toHaveCSS("object-fit", "contain");
     await photo.scrollIntoViewIfNeeded();
     await Promise.all((await grid.getByRole("img").all()).slice(0, columns).map((image) => image.evaluate((img: HTMLImageElement) => img.decode())));
