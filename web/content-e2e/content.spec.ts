@@ -323,9 +323,9 @@ test("추가 일상 레시피는 검색·실사·재료 분량과 일반 구매 
   await expect(page.getByText(/AI 생성 예시 ·/)).toHaveCount(0);
 });
 
-test("로제떡볶이 기본 레시피와 개성주악 플레이팅 실사를 보여 준다", async ({ page }, info) => {
+test("로제떡볶이 기본 레시피와 두 음식의 플레이팅 사진을 보여 준다", async ({ page }, info) => {
   const cases = [
-    ["로제떡볶이", "로제 떡볶이", "photo-reviewed-rose-tteokbokki-20261126"],
+    ["로제떡볶이", "로제 떡볶이", "photo-ai-rose-tteokbokki-plated-20261126"],
     ["개성주악", "개성주악", "photo-history-gaeseong-juak-plated-20261126"],
   ] as const;
 
@@ -343,16 +343,20 @@ test("로제떡볶이 기본 레시피와 개성주악 플레이팅 실사를 �
     await expect(detailPhoto).toHaveAttribute("src", new RegExp(imageKey));
     await expect.poll(() => detailPhoto.evaluate((image: HTMLImageElement) => image.naturalWidth > 0)).toBe(true);
     await detailPhoto.screenshot({ path: `test-results/content/${imageKey}-detail-${info.project.name}.png` });
-    await page.getByLabel("사진 정보", { exact: true }).locator("summary").click();
-    await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", automaticPhotos[imageKey].url);
-    await expect(page.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", automaticPhotos[imageKey].licenseUrl);
+    const photoInfo = page.getByLabel("사진 정보", { exact: true });
+    await photoInfo.locator("summary").click();
 
     if (name === "로제떡볶이") {
+      await expect(photoInfo.getByText("AI 생성 예시 이미지", { exact: true })).toBeVisible();
+      await expect(photoInfo.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
       const ingredients = page.getByRole("region", { name: "재료 장바구니", exact: true });
       await expect(ingredients.getByRole("checkbox", { name: /우유/ })).toBeVisible();
       await expect(ingredients.getByRole("checkbox", { name: /어묵/ })).toBeVisible();
       await expect(page.locator("main").getByText(/새우/)).toHaveCount(0);
       await expect(page.getByRole("link", { name: /열려라쿡/ })).toHaveAttribute("href", "https://www.10000recipe.com/recipe/6966953");
+    } else {
+      await expect(photoInfo.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", automaticPhotos[imageKey].url);
+      await expect(photoInfo.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", automaticPhotos[imageKey].licenseUrl);
     }
   }
 });
