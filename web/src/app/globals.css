@@ -170,7 +170,6 @@
   inset: auto 0 2px;
   height: 3px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--hero-ink) 20%, transparent);
   pointer-events: none;
 }
 .home-hero-progress-fill {

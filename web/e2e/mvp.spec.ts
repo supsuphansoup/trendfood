@@ -610,6 +610,7 @@ test("진행 바가 사진 하단에 있고 동작 줄이기 중에도 재생을
   const progress = page.locator(".home-hero-progress");
   const fill = progress.locator(".home-hero-progress-fill");
   await expect(progress).toBeInViewport({ ratio: 1 });
+  await expect(progress).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   const bar = (await progress.boundingBox())!;
   const photo = (await active.locator(".home-hero-photo").boundingBox())!;
   const controls = (await page.getByRole("navigation", { name: "추천 음식 넘기기" }).boundingBox())!;
