@@ -55,3 +55,15 @@
 - `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
 - 실제 공개 데이터로 320px WebKit과 1280px Chromium의 기본·동작 줄이기 설정을 확인했다. 네 경우 모두 연속 12프레임에서 진행률이 증가했다. `web/test-results/hero-progress-slim-mobile.png`와 `hero-progress-slim-desktop.png`를 열어 배치를 확인했다.
 - 원격 기준은 `76d783a`로 같았다. 팀원 변경이나 충돌 없이 로컬 미리보기에 반영했다.
+
+### 홈 헤더와 맞춘 흰색 진행선
+
+- `web/src/app/globals.css`의 진행선을 흰색 2px로 줄이고 어두운 사진 위에 옅은 같은 색 바탕을 사용했다. 헤더와 사진이 맞닿는 위치에서 8초간 채워진다. `web/e2e/mvp.spec.ts`의 높이 기대값을 갱신했다.
+- `npm run lint` — `eslint` 종료 코드 0
+- `npm run typecheck` — `✓ Types generated successfully`, 종료 코드 0
+- `npm run test:unit` — `ℹ pass 229`, `ℹ fail 0`
+- 첫 E2E 실행에서 모바일 목록 카드의 세로 위치 측정이 한 번 실패했다. 두 진행선 테스트는 통과했다.
+- `npm run test:e2e -- --workers=4 --retries=1` 재실행 — `163 passed`, `1 skipped`
+- `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
+- 실제 공개 데이터의 320px WebKit과 1280px Chromium에서 상단 배치와 기본·동작 줄이기 재생을 확인했다. `web/test-results/hero-progress-mono-mobile.png`와 `hero-progress-mono-desktop.png`를 열어 확인했다.
+- 원격은 `76d783a`로 같았다. 새 팀원 변경이나 충돌 없이 로컬에 반영했다.

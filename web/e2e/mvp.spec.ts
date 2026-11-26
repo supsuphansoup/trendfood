@@ -611,7 +611,7 @@ test("진행 바가 사진 맨 위에 붙고 동작 줄이기 중에도 재생�
   await expect(progress).toBeInViewport({ ratio: 1 });
   const bar = (await progress.boundingBox())!;
   const photo = (await active.locator(".home-hero-photo").boundingBox())!;
-  expect(bar.height).toBe(3);
+  expect(bar.height).toBe(2);
   expect(bar.x).toBeCloseTo(photo.x, 1);
   expect(bar.y).toBeCloseTo(photo.y, 1);
   expect(bar.width).toBeCloseTo(photo.width, 1);
