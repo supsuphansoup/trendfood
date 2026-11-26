@@ -82,6 +82,11 @@ import photo_ai_frozen_gimbap from "@/assets/generated/photo-ai-frozen-gimbap.we
 import photo_ai_swedish_gummy_candy from "@/assets/generated/photo-ai-swedish-gummy-candy.webp";
 import photo_ai_towel_crepe_cake from "@/assets/generated/photo-ai-towel-crepe-cake.webp";
 import photo_ai_mango_pomelo_sago from "@/assets/generated/photo-ai-mango-pomelo-sago.webp";
+import photo_ai_amangchu from "@/assets/generated/photo-ai-amangchu.webp";
+import photo_ai_changeok_pumpkin_injeolmi from "@/assets/generated/photo-ai-changeok-pumpkin-injeolmi.webp";
+import photo_ai_bulguri from "@/assets/generated/photo-ai-bulguri.webp";
+import photo_ai_frozen_jelly_asmr from "@/assets/generated/photo-ai-frozen-jelly-asmr.webp";
+import photo_ai_cup_noodle_fried_rice from "@/assets/generated/photo-ai-cup-noodle-fried-rice.webp";
 
 export const generatedPhotos = {
   "photo-ai-butter-garaetteok-plated-20261125": butterGaraetteokPlatedPhoto,
@@ -165,4 +170,9 @@ export const generatedPhotos = {
   "photo-ai-swedish-gummy-candy": photo_ai_swedish_gummy_candy,
   "photo-ai-towel-crepe-cake": photo_ai_towel_crepe_cake,
   "photo-ai-mango-pomelo-sago": photo_ai_mango_pomelo_sago,
+  "photo-ai-amangchu": photo_ai_amangchu,
+  "photo-ai-changeok-pumpkin-injeolmi": photo_ai_changeok_pumpkin_injeolmi,
+  "photo-ai-bulguri": photo_ai_bulguri,
+  "photo-ai-frozen-jelly-asmr": photo_ai_frozen_jelly_asmr,
+  "photo-ai-cup-noodle-fried-rice": photo_ai_cup_noodle_fried_rice,
 };

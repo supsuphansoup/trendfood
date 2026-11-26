@@ -669,5 +669,50 @@
     "prompt": "Use case: photorealistic-natural. Create a single landscape 3:2 editorial food photograph for a Korean food guide. Subject: Hong Kong mango pomelo sago dessert in a clear low glass bowl, opaque ripe yellow mango and coconut milk base, tiny translucent sago pearls, fresh mango cubes and distinct pale pink pomelo segments on top. Frame all main food inside the central 70 percent, with unobstructed margins for mobile cropping. Natural side-window light, realistic edible textures, restrained food colors, simple neutral background, no dramatic props. An illustrative example, no text, logos, watermarks, people, collages, or additional dishes.",
     "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
     "basis": "description"
+  },
+  "photo-ai-amangchu": {
+    "slug": "amangchu",
+    "title": "아망추 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Use case: photorealistic-natural. One landscape 3:2 editorial photo for a Korean viral food reference site. A modest everyday serving and real food texture, gentle natural window light, clean simple neutral background, slight overhead angle, subject framed with room for the full plate or vessel, visually readable at food card thumbnail size. No text, logos, watermark, graphic overlay, borders, hands, or extravagant garnish. An ordinary clear tall tumbler of translucent amber peach iced black tea (Korean amangchu). Six or seven recognizable, irregular bite-size golden yellow frozen mango chunks float at the top, a few partly submerged so both the fruit and tea are prominent. Very light condensation on the glass. The tea is clear and amber all the way down, without milk, coffee, yellow puree, other fruit, mint or a pile of ice. Pale matte wood tabletop, daylight; a home example of the iced tea and mango combination.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
+  },
+  "photo-ai-changeok-pumpkin-injeolmi": {
+    "slug": "changeok-pumpkin-injeolmi",
+    "title": "창억떡 호박인절미 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Use case: photorealistic-natural. One landscape 3:2 editorial photo for a Korean viral food reference site. A modest everyday serving and real food texture, gentle natural window light, clean simple neutral background, slight overhead angle, subject framed with room for the full plate or vessel, visually readable at food card thumbnail size. No text, logos, watermark, graphic overlay, borders, hands, or extravagant garnish. Korean pumpkin injeolmi tteok, inspired by the texture and color of the popular Chang-eok pumpkin rice cake. 5–6 low, irregular rectangular bites on a cream ceramic plate. Generously and unevenly coated with fine fluffy pale-yellow castella sponge crumbs on the outside, scattered crumbs around the base. One torn cut face reveals smooth dense, slightly translucent deep golden yellow chewy steamed pumpkin glutinous rice cake, without filling. Each whole piece is uniformly that same kind of tteok, not a slice of sponge cake, not breaded or fried, no soybean powder, no nuts, cream or green garnish. Soft grey tabletop.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
+  },
+  "photo-ai-bulguri": {
+    "slug": "bulguri",
+    "title": "불그리 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Use case: photorealistic-natural. One landscape 3:2 editorial photo for a Korean viral food reference site. A modest everyday serving and real food texture, gentle natural window light, clean simple neutral background, slight overhead angle, subject framed with room for the full plate or vessel, visually readable at food card thumbnail size. No text, logos, watermark, graphic overlay, borders, hands, or extravagant garnish. Korean bulguri instant ramen, the combination of two instant ramen noodle types with spicy red sauce, not packaged food. Two similar but distinguishable widths of cooked curly ramen noodles, coated in a deep brick-red sauce, with a small amount of reduced sauce at the bottom of a plain dark shallow skillet. Light scattering of sesame seeds, small rehydrated vegetable flecks and a couple small dark seaweed flakes, natural glisten from a little perilla oil. Ordinary late-night homemade cooking on a matte neutral kitchen table. No deep broth bowl, no cheese, raw egg, meat, chopsticks or large strips of garnish.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
+  },
+  "photo-ai-frozen-jelly-asmr": {
+    "slug": "frozen-jelly-asmr",
+    "title": "얼먹 젤리 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Use case: photorealistic-natural. One landscape 3:2 editorial photo for a Korean viral food reference site. A modest everyday serving and real food texture, gentle natural window light, clean simple neutral background, slight overhead angle, subject framed with room for the full plate or vessel, visually readable at food card thumbnail size. No text, logos, watermark, graphic overlay, borders, hands, or extravagant garnish. Korean frozen gummy candy snack (eolmeok jelly). Close-up of a small plain clear food-storage box on a neutral tabletop, with a shallow layer of familiar translucent chewy bear-shaped gummies mixed with a few short pieces of red fruit gummy strips. Small varied fruit-candy colors (amber, yellow, red and a few green) and just a subtle frosty haze on some edges, recognizably soft gummy candy shapes underneath. Candies just taken out of the freezer. No large ice cubes, separate ice crystals, poured liquid, rock candy, powdered sugar, fresh fruit, or branded packets. Subdued lighting, no exaggerated saturation.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
+  },
+  "photo-ai-cup-noodle-fried-rice": {
+    "slug": "cup-noodle-fried-rice",
+    "title": "컵라면 볶음밥 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Use case: photorealistic-natural. One landscape 3:2 editorial photo for a Korean viral food reference site. A modest everyday serving and real food texture, gentle natural window light, clean simple neutral background, slight overhead angle, subject framed with room for the full plate or vessel, visually readable at food card thumbnail size. No text, logos, watermark, graphic overlay, borders, hands, or extravagant garnish. Korean cup noodle fried rice. A little individual serving of lightly orange-brown stir-fried rice shaped into a short molded mound, with the slight taper and flat top of an inverted disposable instant ramen cup. Place it on a white ceramic plate, set an empty plain cream unbranded paper instant noodle cup off to one side behind the mound, not blocking it. Individual cooked rice grains, tiny distinct pieces of broken curly instant ramen and small scrambled egg bits embedded throughout are visible. A few sesame seeds, modest home cooking. No long strands of ramen, no liquid, no decorative garnish or fried egg on top. Natural daylight on a light wood tabletop.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
   }
 }

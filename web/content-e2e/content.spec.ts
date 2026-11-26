@@ -552,12 +552,16 @@ test("추가한 바이럴 음식 6개를 유행 연도별로 찾고 상세 근�
     { name: "컵라면 볶음밥", slug: "cup-noodle-fried-rice", year: 2021, evidence: /1천 건/ },
   ];
   for (const { name, slug, year, evidence } of foods) {
+    const photoAlt = slug === "gaeseong-juak" ? /윤기 나는 개성주악/ : /AI 생성 예시 이미지/;
     await page.goto(`/?year=${year}&q=${encodeURIComponent(name)}`);
     const list = page.locator("#list");
     const heading = page.getByRole("heading", { level: 3, name, exact: true });
     const card = list.locator("li").filter({ has: heading });
     await expect(card.getByTestId("food-description")).toHaveText(evidence);
-    if (slug === "amangchu") await card.screenshot({ path: `test-results/content/viral-amangchu-${info.project.name}.png` });
+    const cardPhoto = card.getByRole("img", { name: photoAlt });
+    await expect(cardPhoto).toBeVisible();
+    await expect.poll(() => cardPhoto.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    await card.screenshot({ path: `test-results/content/viral-card-${slug}-${info.project.name}.png` });
 
     await heading.getByRole("link").click();
     await expect(page).toHaveURL(new RegExp(`/food/${slug}$`));
@@ -565,15 +569,17 @@ test("추가한 바이럴 음식 6개를 유행 연도별로 찾고 상세 근�
     const history = page.getByRole("region", { name: `주목받은 시기 · ${year}년` });
     await expect(history.getByRole("paragraph")).toHaveText(evidence);
     expect(await history.getByRole("link").count()).toBeGreaterThanOrEqual(2);
+    const intro = page.getByRole("region", { name: "음식 소개", exact: true });
+    const photo = intro.getByRole("img", { name: photoAlt });
+    await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
+    const photoInfo = page.getByLabel("사진 정보", { exact: true });
+    await photoInfo.locator("summary").click();
     if (slug === "gaeseong-juak") {
-      const intro = page.getByRole("region", { name: "음식 소개", exact: true });
-      const photo = intro.getByRole("img", { name: /윤기 나는 개성주악/ });
-      await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
-      const photoInfo = page.getByLabel("사진 정보", { exact: true });
-      await photoInfo.locator("summary").click();
       await expect(photoInfo.getByRole("link", { name: /사진 라이선스 · 공공누리 제1유형/ })).toHaveAttribute("href", "https://www.kogl.or.kr/info/licenseType1.do");
-      await page.screenshot({ path: `test-results/content/viral-gaeseong-juak-${info.project.name}.png`, fullPage: true });
+    } else {
+      await expect(photoInfo.getByText("AI 생성 예시 · 실제 조리·제품 사진이 아니에요.", { exact: true })).toBeVisible();
     }
+    await page.screenshot({ path: `test-results/content/viral-detail-${slug}-${info.project.name}.png`, fullPage: true });
   }
 });
 
