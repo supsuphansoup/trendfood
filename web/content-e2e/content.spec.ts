@@ -236,7 +236,7 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   const sameYear = ["yogurt-mochi", "pizza-seolgi", "mango-pomelo-sago", "butter-tteok", "bomdong-bibimbap", "dubai-chewy-cookie"];
   const examples = sameYear.map((slug) => snapshot.foods.find((food) => food.slug === slug)!.name);
   expect(ordered.filter((name) => examples.includes(name))).toEqual(examples);
-  await expect(page.getByRole("navigation", { name: "카테고리", exact: true }).getByRole("button", { name: /^전체/ })).toHaveText(`전체${trendFoods.length}`);
+  await expect(page.getByRole("navigation", { name: "카테고리", exact: true }).getByRole("button", { name: /^유행 음식/ })).toHaveText(`유행 음식${trendFoods.length}`);
   await expect(page).toHaveURL(/collection=trends/);
   await page.reload();
   await expect(collections.getByRole("button", { name: "유행 기록", exact: true })).toHaveAttribute("aria-pressed", "true");
@@ -273,7 +273,10 @@ test("일상 레시피 카테고리: 비유행 레시피만 모으고 연도·�
   expect(recipes.length).toBeGreaterThan(0);
   await page.goto("/?collection=trends&year=2026");
   const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
+  const trending = categories.getByRole("button", { name: /^유행 음식/ });
   const everyday = categories.getByRole("button", { name: /^일상 레시피/ });
+  await expect(categories.getByRole("button").first()).toHaveAccessibleName(/^유행 음식 \d+$/);
+  await expect(categories.getByRole("button").nth(1)).toHaveAccessibleName(/^일상 레시피 \d+$/);
   await expect(everyday).toHaveText(`일상 레시피${recipes.length}`);
   await expect(page.getByRole("button", { name: /^일상 레시피/ })).toHaveCount(1);
   await expect(page.getByRole("button", { name: /^자취 요리/ })).toHaveCount(0);
@@ -284,7 +287,7 @@ test("일상 레시피 카테고리: 비유행 레시피만 모으고 연도·�
   await expect(cardTitles).toHaveText(recipes.map((food) => food.name));
   await expect(everyday).toHaveAttribute("aria-current", "true");
   await expect(categories.locator('[aria-current="true"]')).toHaveCount(1);
-  await expect(categories.getByRole("button", { name: /^전체/ })).toHaveText(`전체${trendFoods.length}`);
+  await expect(trending).toHaveText(`유행 음식${trendFoods.length}`);
   await expect(page).toHaveURL(/collection=everyday/);
   await expect(page).not.toHaveURL(/year=|cat=/);
   await expect(featureTitle).toHaveText(trendFoods[1].name);
@@ -308,7 +311,8 @@ test("일상 레시피 카테고리: 비유행 레시피만 모으고 연도·�
   await expect(everyday).toHaveAttribute("aria-current", "true");
   await expect(featureTitle).toBeVisible();
   await page.getByRole("button", { name: "검색어 지우기", exact: true }).click();
-  await categories.getByRole("button", { name: /^전체/ }).click();
+  await trending.click();
+  await expect(trending).toHaveAttribute("aria-current", "true");
   await expect(cardTitles).toHaveText(original);
   await expect(featureTitle).toHaveText(trendFoods[0].name);
   await expect(page).not.toHaveURL(/collection=/);
@@ -639,12 +643,12 @@ test("디저트 탭은 기존 간식과 디저트를 함께 집계하고 카드�
   await expect(page.getByRole("navigation", { name: "현재 위치" }).getByText("디저트", { exact: true })).toBeVisible();
 });
 
-test("간식 탭 없이 기존 간식 주소는 전체로 열리고 음식 검색을 유지한다", async ({ page }, info) => {
+test("간식 탭 없이 기존 간식 주소는 유행 음식으로 열리고 음식 검색을 유지한다", async ({ page }, info) => {
   await page.goto("/?cat=" + encodeURIComponent("간식"));
   await page.getByRole("button", { name: "필터", exact: true }).click();
   const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
   await expect(categories.getByRole("button", { name: /^간식/ })).toHaveCount(0);
-  await expect(categories.getByRole("button", { name: /^전체/ })).toHaveAttribute("aria-current", "true");
+  await expect(categories.getByRole("button", { name: /^유행 음식/ })).toHaveAttribute("aria-current", "true");
   await expect(page).not.toHaveURL(/cat=/);
   await expect(page.locator("#list li h3")).toHaveText(trendFoods.slice(1).map((food) => food.name));
   await page.getByRole("link", { name: "음식 목록", exact: true }).click();

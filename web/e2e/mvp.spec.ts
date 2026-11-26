@@ -456,7 +456,7 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const titleBox = (await title.boundingBox())!;
   expect(titleBox.y).toBeGreaterThan(introBox.y + introBox.height);
   expect(titleBox.y).toBeLessThan(featureBox.y + featureBox.height);
-  await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
+  await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^유행 음식/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
   const cta = feature.getByRole("link", { name: "음식 살펴보기", exact: true });
@@ -738,12 +738,12 @@ test("메인: 카테고리 탭, 주소에 필터 기억, 뒤로가기", async ({
   await page.screenshot({ path: `test-results/home-category-${info.project.name}.png` });
   await page.goto("/?cat=" + encodeURIComponent("간식"));
   await page.getByRole("button", { name: "필터", exact: true }).click();
-  await expect(nav.getByRole("button", { name: /^전체/ })).toHaveAttribute("aria-current", "true");
+  await expect(nav.getByRole("button", { name: /^유행 음식/ })).toHaveAttribute("aria-current", "true");
   await expect(page).not.toHaveURL(/cat=/);
   expect(await cardTitles(page)).toContain("버터 가래떡구이");
 });
 
-test("일상 레시피 탭: 상단 추천을 유지하고 주소·검색·기본 목록 복귀를 지원한다", async ({ page }, info) => {
+test("일상 레시피 탭: 상단 추천을 유지하고 주소·검색·유행 음식 복귀를 지원한다", async ({ page }, info) => {
   await page.goto("/");
   const original = await cardTitles(page);
   const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
@@ -772,7 +772,7 @@ test("일상 레시피 탭: 상단 추천을 유지하고 주소·검색·기본
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expectNoA11yViolations(page);
   await page.screenshot({ path: `test-results/everyday-tab-${info.project.name}.png` });
-  await categories.getByRole("button", { name: /^전체/ }).click();
+  await categories.getByRole("button", { name: /^유행 음식/ }).click();
   await expect(page.locator("#list li h3")).toHaveText(original);
   await expect(secondPick).toHaveText(selectedName);
   await expect(page).not.toHaveURL(/collection=/);

@@ -30,13 +30,14 @@ import { track } from "@/lib/analytics";
 type Sort = (typeof sortOptions)[number];
 type Tab = "전체" | (typeof categoryOptions)[number] | "찜";
 type Collection = "all" | "recent" | "trends" | "everyday";
+const trendTabLabel = "유행 음식";
 
 function scrollBehavior(): ScrollBehavior {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
 const collections: { value: Exclude<Collection, "everyday">; label: string }[] = [
-  { value: "all", label: "유행 음식" },
+  { value: "all", label: trendTabLabel },
   { value: "recent", label: "최근 발견" },
   { value: "trends", label: "유행 기록" },
 ];
@@ -393,7 +394,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                     selected && "border-primary font-bold text-accent hover:text-accent",
                   )}
                 >
-                  <span>{t === "찜" ? "찜한 음식" : t}</span>
+                  <span>{t === "전체" ? trendTabLabel : t === "찜" ? "찜한 음식" : t}</span>
                   <span className="text-meta tabular-nums">{counts[t] ?? 0}</span>
                 </button>
               );

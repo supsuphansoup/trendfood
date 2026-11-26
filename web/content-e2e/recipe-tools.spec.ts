@@ -15,7 +15,7 @@ test("최근 발견은 첫 공개일만 사용하고 기존 출처 확인일을 
     .sort((a, b) => Math.max(0, ...(b.history?.years ?? [])) - Math.max(0, ...(a.history?.years ?? [])));
   await expect(page.locator("#list li h3")).toHaveText(recent.map((food) => food.name));
   if (!recent.length) await expect(page.getByText("최근 30일에 등록일이 확인된 새 음식이 없어요. 유행 음식과 유행 기록을 둘러보세요.")).toBeVisible();
-  await expect(page.getByRole("button", { name: `전체 ${recent.length}`, exact: true })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "카테고리", exact: true }).getByRole("button", { name: `유행 음식 ${recent.length}`, exact: true })).toBeVisible();
 });
 
 test("공개 레시피 분량·복사·원문 단계와 구매 포장 정보는 구분한다", async ({ page, context }, info) => {
