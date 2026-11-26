@@ -65,16 +65,14 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
       draw(elapsed());
       frame = window.requestAnimationFrame(update);
     };
-    const progressInterval = reduced ? window.setInterval(() => draw(elapsed()), 1000) : 0;
-    if (!reduced) frame = window.requestAnimationFrame(update);
+    frame = window.requestAnimationFrame(update);
     const timer = window.setTimeout(() => move(1), rotationDelay - timing.elapsed);
     return () => {
       window.clearTimeout(timer);
-      window.clearInterval(progressInterval);
       window.cancelAnimationFrame(frame);
       timing.elapsed = elapsed();
     };
-  }, [move, selected, rotating, reduced]);
+  }, [move, selected, rotating]);
 
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (!multiple || !event.isPrimary || event.button !== 0) return;
@@ -143,6 +141,11 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
           move(event.key === "ArrowLeft" ? -1 : 1);
         }}
       >
+        {multiple && (
+          <div className="home-hero-progress" aria-hidden>
+            <span className="home-hero-progress-fill" ref={progressFill} />
+          </div>
+        )}
         <header className="home-hero-identity">
           <h1 id="home-hero-title">유행 음식과 집밥</h1>
           <p>왜 유행했는지, 집에서 만드는 법까지.</p>
@@ -168,11 +171,6 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
                 <ChevronRight className="size-5" aria-hidden />
               </button>
             </nav>
-          )}
-          {multiple && (
-            <div className="home-hero-progress" aria-hidden>
-              <span className="home-hero-progress-fill" ref={progressFill} />
-            </div>
           )}
           <span aria-live={rotating ? "off" : "polite"} aria-atomic="true" className="sr-only">{top.name} · {curated ? `추천 ${selected + 1}/${count}` : `${selected + 1}위`}</span>
         </div>

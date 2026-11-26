@@ -42,3 +42,16 @@
 - `npm run test:content -- --workers=4` — `65 passed`, `1 skipped`
 - 실제 공개 데이터의 320px WebKit과 1280px Chromium에서 기본 및 동작 줄이기 설정을 확인했다. `web/test-results/hero-progress-visible-mobile.png`와 `hero-progress-visible-desktop.png`를 열어 확인했다.
 - 시작과 검사 후 원격은 `76d783a`로 같았다. 새 팀원 변경이나 충돌은 없었다. 이번 작업은 `http://localhost:3000/` 미리보기까지 진행했다.
+
+### 사진 상단 배치와 연속 채움
+
+- 진행 바를 추천 사진 상단에 여백 없이 전체 너비로 붙였다. `web/src/app/globals.css`에서 높이를 3px로 줄이고 기존 주황색 채움과 반투명 바탕을 사용했다. 하단에 바를 놓을 때 추가했던 여백은 되돌렸다.
+- `web/src/components/home/home-feature.tsx`에서 분기된 1초 타이머를 없앴다. 자동 넘김을 켜면 동작 줄이기 설정에서도 프레임마다 진행률을 갱신한다. 동작 줄이기 설정의 기본 자동 재생 상태는 꺼짐이다.
+- `web/e2e/mvp.spec.ts`에서 바의 위쪽과 양끝이 사진에 맞는지, 250ms 간격에도 진행률이 변하는지 검사한다.
+- `npm run lint` — `eslint` 종료 코드 0
+- `npm run typecheck` — `✓ Types generated successfully`, 종료 코드 0
+- `npm run test:unit` — `ℹ pass 229`, `ℹ fail 0`
+- `npm run test:e2e -- --workers=4` — `163 passed`, `1 skipped`
+- `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
+- 실제 공개 데이터로 320px WebKit과 1280px Chromium의 기본·동작 줄이기 설정을 확인했다. 네 경우 모두 연속 12프레임에서 진행률이 증가했다. `web/test-results/hero-progress-slim-mobile.png`와 `hero-progress-slim-desktop.png`를 열어 배치를 확인했다.
+- 원격 기준은 `76d783a`로 같았다. 팀원 변경이나 충돌 없이 로컬 미리보기에 반영했다.
