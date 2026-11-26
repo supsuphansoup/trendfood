@@ -79,6 +79,20 @@ test("대기 전용 실행도 새로 재확인한 영상 언급 점수로 상위
   assert.equal(result.deferred[0].slug, pending[0].food.slug);
 });
 
+test("포켓몬빵 추천과 사진 대기 복원은 보존한 생성 예시를 다시 붙이지 않는다", async () => {
+  const current = baseline();
+  const food = current.foods.find(({ slug }) => slug === "pokemon-bread")!;
+  const pending = { ...food, image: "pending", alt: "포켓몬빵 사진 준비 중" };
+  const published = { ...current, foods: current.foods.map((item) => item.slug === food.slug ? pending : item) };
+  const date = "2026-11-20";
+  const refreshed = refreshRecommendations(published, { baseline: published, signals: [], date });
+  assert.equal(refreshed.snapshot.foods.find(({ slug }) => slug === food.slug)?.image, "pending");
+  const withoutFood = { ...current, foods: current.foods.filter(({ slug }) => slug !== food.slug) };
+  const state = { ...emptyDiscovery(), pending: [{ food: pending, savedAt: date }] };
+  const result = await publishPendingPhotos(withoutFood, state, date, async () => { assert.fail("외부 조회 금지"); });
+  assert.equal(result.accepted.length, 0);
+});
+
 test("사진 대기 전용 실행은 음식·사진·상품 AI 호출을 모두 건너뛰고 YouTube 키만 연결한다", async () => {
   const workflow = await readFile(new URL("../../../.github/workflows/pipeline.yml", import.meta.url), "utf8");
   const steps = workflow.split(/\n      - /);

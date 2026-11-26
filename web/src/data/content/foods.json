@@ -908,8 +908,8 @@
       "tags": [],
       "why": "2022년 재출시와 함께 동봉 스티커 수집 열풍으로 품귀 현상을 빚었던 캐릭터 빵 시리즈예요.",
       "summary": "2022년 재출시와 함께 동봉 스티커 수집 열풍으로 품귀 현상을 빚었던 캐릭터 빵 시리즈예요.",
-      "image": "photo-ai-pokemon-bread-sticker-20261126",
-      "alt": "초코롤과 포장, 수집 스티커를 함께 담은 AI 생성 예시 이미지. 실제 제품 포장과 스티커는 다를 수 있어요.",
+      "image": "pending",
+      "alt": "포켓몬빵 사진 준비 중",
       "ingredients": [
         {
           "name": "포켓몬빵",
@@ -938,6 +938,10 @@
         {
           "title": "삼립 · 돌아온 포켓몬빵 출시 기록과 실제 제품 사진",
           "url": "https://spcsamlip.co.kr/company/history"
+        },
+        {
+          "title": "상미당스튜디오 · 포켓몬빵 띠부씰이 돌아왔다",
+          "url": "https://www.youtube.com/watch?v=hU_xiUJePY0"
         },
         {
           "title": "비즈워치 · 2022.12.22 유통 결산, 포켓몬빵 열풍",
@@ -2815,8 +2819,8 @@
       "cookMinutes": 15,
       "difficulty": "쉬움",
       "servings": "2인분(14개)",
-      "image": "photo-ai-yubu-chobap-plated-20261126",
-      "alt": "양념한 밥을 채운 삼각 유부초밥을 접시에 담은 AI 생성 예시 이미지.",
+      "image": "photo-everyday-yubu-chobap-lunchbox-20261126",
+      "alt": "밥을 채운 삼각 유부초밥과 곁들임 김치를 도시락에 담은 실사 사진.",
       "ingredients": [
         {
           "name": "유부초밥 세트",

@@ -1,7 +1,7 @@
 import { candidateIdentity } from "../../src/data/candidates.ts";
 import { parseContent, type ContentSnapshot } from "../../src/data/content.ts";
 import type { Scored } from "./logic.ts";
-import { generatedImages } from "../../src/data/generated-images.ts";
+import { allowsAutomaticImageFallback, generatedImages } from "../../src/data/generated-images.ts";
 import { readyPending, restorePending, type DiscoveryState } from "./discovery.ts";
 import type { RecipeVideo } from "./sources.ts";
 import { DAILY_NEW_FOOD_LIMIT, publicationCandidates, publicationSlots } from "./publish-policy.ts";
@@ -11,7 +11,8 @@ export type RecommendationInput = { baseline: ContentSnapshot; signals: Scored[]
 /** 등록한 생성 사진만 사용한다. 원고 생성·사진 검색 없이 공식 출처를 다시 확인한다. */
 export async function publishPendingPhotos(current: ContentSnapshot, state: DiscoveryState, date: string, descriptions: (ids: string[]) => Promise<RecipeVideo[]>) {
   const known = new Set(current.foods.map((food) => food.slug));
-  const eligible = { ...state, pending: state.pending.filter(({ food }) => !known.has(food.slug) && Object.values(generatedImages).some((image) => image.slug === food.slug)) };
+  const eligible = { ...state, pending: state.pending.filter(({ food }) =>
+    !known.has(food.slug) && allowsAutomaticImageFallback(food.slug) && Object.values(generatedImages).some((image) => image.slug === food.slug)) };
   const verified = await readyPending(eligible, date, descriptions);
   const restored = restorePending(current, verified);
   const result = refreshRecommendations(restored, { baseline: current, signals: verified.signals, date });
@@ -30,6 +31,7 @@ export function refreshRecommendations(current: ContentSnapshot, input: Recommen
   const known = new Set(baseline.foods.map((food) => food.slug));
   // 원문 검증을 통과한 음식의 빈 사진만, 같은 음식으로 등록한 생성 예시에 연결한다.
   current = { ...current, foods: current.foods.map((food) => {
+    if (!allowsAutomaticImageFallback(food.slug)) return food;
     const registered = Object.entries(generatedImages).find(([, image]) => image.slug === food.slug);
     if (!registered) return food;
     const [key, image] = registered;

@@ -17,3 +17,6 @@ export type GeneratedImage = {
 
 // 생성 이미지는 실사 사진의 작가·출처·CC 라이선스와 구분한다.
 export const generatedImages: Record<string, GeneratedImage> = images as Record<string, GeneratedImage>;
+
+// 포켓몬빵은 제품 사진으로 오인될 수 있어 실사가 확보될 때까지 공식 영상만 제공한다.
+export const allowsAutomaticImageFallback = (slug: string): boolean => slug !== "pokemon-bread";

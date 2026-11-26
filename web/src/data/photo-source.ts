@@ -43,19 +43,19 @@ export function validPhotoSource(photo: PhotoCredit): boolean {
       && photo.licenseUrl === "https://www.kogl.or.kr/info/licenseType1.do"
       && photo.attributionNotice === `ⓒ 한국관광공사-${photo.author}`;
   }
-  // 출처와 이용 조건을 직접 검토한 Commons 사진에만 이전 버전을 허용한다.
-  if (photo.license === "CC BY 2.0") {
-    return provider === "commons" && photo.automatic === false && photo.licenseUrl === "https://creativecommons.org/licenses/by/2.0/";
-  }
+  // 이전 버전은 직접 검수한 사진에만 허용하고 자동 검색 범위는 유지한다.
+  if (photo.license === "CC BY 2.0" && photo.automatic !== false) return false;
   const licenseUrls: Record<string, RegExp> = {
     "CC0": /^https:\/\/creativecommons\.org\/publicdomain\/zero\/1\.0\/?$/,
     "Public domain": /^https:\/\/(?:creativecommons\.org\/publicdomain\/mark\/1\.0\/?|commons\.wikimedia\.org\/wiki\/Help:Public_domain)$/,
+    "CC BY 2.0": /^https:\/\/creativecommons\.org\/licenses\/by\/2\.0\/$/,
     "CC BY 4.0": /^https:\/\/creativecommons\.org\/licenses\/by\/4\.0\/?$/,
     "CC BY-SA 4.0": /^https:\/\/creativecommons\.org\/licenses\/by-sa\/4\.0\/?$/,
   };
   if (!licenseUrls[photo.license]) return false;
-  if (provider === "commons") return !photo.licenseUrl || licenseUrls[photo.license].test(photo.licenseUrl);
-  if (!photo.providerId || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(photo.providerId) || !licenseUrls[photo.license].test(photo.licenseUrl ?? "")) return false;
+  const hasValidLicenseUrl = licenseUrls[photo.license].test(photo.licenseUrl ?? "");
+  if (provider === "commons") return hasValidLicenseUrl || (!photo.licenseUrl && photo.license !== "CC BY 2.0");
+  if (!photo.providerId || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(photo.providerId) || !hasValidLicenseUrl) return false;
   const id = new URL(photo.url).pathname.match(/\/(\d+)\/?$/)?.[1];
   return !!id && new URL(photo.imageUrl).pathname.split("/")[2].startsWith(`${id}_`);
 }

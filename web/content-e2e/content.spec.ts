@@ -383,10 +383,9 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
   ]);
   const replacementImages = new Map([
     ["tteok-guk", "photo-everyday-tteok-guk-beef-20261126"],
-    ["yubu-chobap", "photo-ai-yubu-chobap-plated-20261126"],
+    ["yubu-chobap", "photo-everyday-yubu-chobap-lunchbox-20261126"],
     ["egg-soup", "photo-ai-egg-soup-ribbons-20261126"],
     ["gyeran-jjim", "photo-ai-gyeran-jjim-microwave-20261126"],
-    ["pokemon-bread", "photo-ai-pokemon-bread-sticker-20261126"],
   ]);
   for (const slug of [
     "dalgona-coffee", ...replacementImages.keys(), "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum",
@@ -426,9 +425,6 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
       await expect(page.getByLabel("사진 정보", { exact: true }).getByText(/AI 생성 예시 ·/)).toBeVisible();
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
     }
-    if (slug === "pokemon-bread") {
-      await expect(page.getByRole("link", { name: /삼립 · 돌아온 포켓몬빵/ })).toHaveAttribute("href", "https://spcsamlip.co.kr/company/history");
-    }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (["dalgona-coffee", "egg-soup", "ube-latte", "cucumber-muchim", "dubai-chocolate", "dubai-chewy-cookie"].includes(slug)) {
       await page.screenshot({
@@ -437,6 +433,26 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
       });
     }
   }
+});
+
+test("포켓몬빵은 제품과 다른 예시 사진 없이 삼립 출처와 공식 영상을 연다", async ({ page }, info) => {
+  await page.route("https://www.youtube-nocookie.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>공식 영상 자리</p>" }));
+  await page.goto("/?q=%ED%8F%AC%EC%BC%93%EB%AA%AC%EB%B9%B5");
+  const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "포켓몬빵", exact: true }) });
+  await expect(card.locator("img")).toHaveCount(0);
+  await card.screenshot({ path: `test-results/content/pokemon-official-card-${info.project.name}.png` });
+  await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
+  const intro = page.getByRole("region", { name: "음식 소개", exact: true });
+  await expect(intro.locator("img")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /삼립 · 돌아온 포켓몬빵/ })).toHaveAttribute("href", "https://spcsamlip.co.kr/company/history");
+  const video = intro.getByRole("button", { name: "영상 보기", exact: true });
+  await expect(video).toBeVisible();
+  await page.screenshot({ path: `test-results/content/pokemon-official-detail-${info.project.name}.png` });
+  await video.click();
+  const dialog = page.getByRole("dialog", { name: "포켓몬빵 원본 영상" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator("iframe")).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/hU_xiUJePY0?playsinline=1");
+  await expect(dialog.getByRole("link", { name: "YouTube에서 보기" })).toHaveAttribute("href", "https://www.youtube.com/watch?v=hU_xiUJePY0");
 });
 
 test("수집 콘텐츠: 유행 음식만 최근에 확인된 유행 시기순으로 표시하고 통합 검색을 유지한다", async ({ page }, info) => {
@@ -903,7 +919,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       const introduction = page.getByRole("region", { name: "음식 소개", exact: true });
       await expect(introduction.locator('img, [role="img"]')).toHaveCount(0);
       await expect(page.getByText(/사진 준비 중/)).toHaveCount(0);
-      expect((await introduction.boundingBox())!.height).toBeLessThan(440);
+      await expect(introduction.locator(":scope > div")).toHaveCount(1);
       if (food.slug === "matcha-latte") await page.screenshot({ path: `test-results/content/photo-review-${info.project.name}.png`, fullPage: true });
       if (food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/photo-review-dubai-chewy-cookie-${info.project.name}.png`, fullPage: true });
     } else if (generatedImages[food.image]) {

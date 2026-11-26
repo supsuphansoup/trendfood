@@ -32,6 +32,19 @@ test("Commons CC BY 2.0은 공식 이용 조건을 확인한 수동 검수 사�
   assert.equal(validPhotoSource({ ...photo, licenseUrl: "https://creativecommons.org/licenses/by/4.0/" }), false);
 });
 
+test("Flickr CC BY 2.0도 직접 검수하고 주소의 사진 식별자가 일치해야 허용한다", () => {
+  const photo = {
+    ...openversePhoto(openverse(), date)!,
+    license: "CC BY 2.0",
+    licenseUrl: "https://creativecommons.org/licenses/by/2.0/",
+    automatic: false,
+  } as const;
+  assert.ok(validPhotoSource(photo));
+  assert.equal(validPhotoSource({ ...photo, automatic: true }), false);
+  assert.equal(validPhotoSource({ ...photo, licenseUrl: undefined }), false);
+  assert.equal(validPhotoSource({ ...photo, url: `${photo.url.replace(/\/$/, "")}9` }), false);
+});
+
 test("Openverse는 Flickr 원문·파일 ID·허용 라이선스 버전과 원작자를 대조한다", () => {
   const photo = openversePhoto(openverse(), date)!;
   assert.equal(photo.provider, "openverse"); assert.equal(photo.providerId, openverse().id);

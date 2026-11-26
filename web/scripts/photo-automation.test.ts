@@ -378,6 +378,21 @@ test("검색 결과가 없거나 검색이 실패해도 빈 사진만 설명으�
   }
 });
 
+test("포켓몬빵은 제품 실사를 찾되 검색 결과가 없으면 생성 예시를 붙이지 않는다", async () => {
+  const food = { ...input.foods.find(({ slug }) => slug === "pokemon-bread")!, image: "pending" };
+  const snapshot = { ...input, foods: [food] };
+  const dependencies = {
+    search: async (query: string) => { assert.equal(query, food.name); return []; },
+    download: async () => bytes,
+    generate: async () => ({ queries: [] }),
+    illustrate: async () => { assert.fail("포켓몬빵 생성 금지"); },
+  };
+  const result = await automaticPhotos(snapshot, {}, dependencies, now);
+  assert.equal(result.snapshot.foods[0].image, "pending");
+  assert.match(result.deferred[0].reason, /제품 실사만/);
+  assert.equal(result.generatedAssets.size, 0);
+});
+
 test("빈 사진 세 개 모두 생성하되 검증된 참고가 있는 음식부터 처리한다", async () => {
   const snapshot = current();
   snapshot.foods = input.foods.slice(0, 3).map((food, index) => ({ ...structuredClone(food), slug: `pending-${index}`, image: "pending", heroImage: undefined }));

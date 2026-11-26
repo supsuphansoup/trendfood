@@ -1,8 +1,7 @@
 import sharp from "sharp";
 import type { ContentFood, ContentSnapshot } from "../src/data/content.ts";
 import type { PhotoCredit } from "../src/data/photo-credits.ts";
-import { generatedImages } from "../src/data/generated-images.ts";
-import type { GeneratedImage } from "../src/data/generated-images.ts";
+import { allowsAutomaticImageFallback, generatedImages, type GeneratedImage } from "../src/data/generated-images.ts";
 import { AiQuotaError } from "./pipeline/llm.ts";
 import { trustedPhotoUrl, validPhotoSource } from "../src/data/photo-source.ts";
 import { photoHeroFit } from "../src/data/photo-presentation.ts";
@@ -202,6 +201,10 @@ export async function automaticPhotos(current: ContentSnapshot, registered: Reco
     (priority.has(a.food.slug) && priority.has(b.food.slug) ? prioritySlugs.indexOf(a.food.slug) - prioritySlugs.indexOf(b.food.slug) : Number(!!b.credit) - Number(!!a.credit)));
   for (const reference of ordered) {
     if (!dependencies.illustrate || (priority.has(reference.food.slug) && filled(reference.food.slug))) continue;
+    if (!allowsAutomaticImageFallback(reference.food.slug)) {
+      reference.deferred.reason = "포켓몬빵은 확인한 제품 실사만 대표 사진으로 사용해요";
+      continue;
+    }
     try {
       const result = await dependencies.illustrate(reference.food, reference.credit, reference.bytes);
       generated[result.key] = result.record; generatedAssets.set(result.key, result.bytes);
