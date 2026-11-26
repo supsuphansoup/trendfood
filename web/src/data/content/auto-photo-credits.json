@@ -1179,5 +1179,33 @@
     "licenseUrl": "https://www.kogl.or.kr/info/licenseType1.do",
     "attributionNotice": "ⓒ 한국관광공사-Toraii Republic",
     "provider": "kto"
+  },
+  "photo-reviewed-rose-tteokbokki-20261126": {
+    "title": "Rosé tteok-bokki.jpg",
+    "author": "Scudsvlad",
+    "url": "https://commons.wikimedia.org/wiki/File:Ros%C3%A9_tteok-bokki.jpg",
+    "license": "CC BY-SA 4.0",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Ros%C3%A9_tteok-bokki.jpg",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "sha1": "ec80939d7e6e12027d9acae2dc370d40bf1049f0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "creatorUrl": "https://commons.wikimedia.org/wiki/User:Scudsvlad",
+    "provider": "commons",
+    "attributionNotice": "크기 조정·WebP 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요.",
+    "note": "로제 소스에 버무린 떡을 가까이에서 촬영한 참고 사진이에요. 원본 구도를 유지하고 크기와 파일 형식을 바꿨어요."
+  },
+  "photo-history-gaeseong-juak-plated-20261126": {
+    "title": "개성주악 (2620302202312005k)",
+    "author": "Toraii Republic",
+    "url": "https://korean1.visitkorea.or.kr/enu/nphotogallery/photo.kto?func_name=photo_view&newphotoDTO.photo_code=2620302202312005k&newphotoDTO.sub_menu=plan&newphotoDTO.sub_menu_detail=49740",
+    "license": "공공누리 제1유형",
+    "imageUrl": "https://tong.visitkorea.or.kr/cms/resource_photo/01/3106201_image2_1.jpg",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "licenseUrl": "https://www.kogl.or.kr/info/licenseType1.do",
+    "attributionNotice": "ⓒ 한국관광공사-Toraii Republic",
+    "provider": "kto",
+    "note": "한국관광공사 사진 갤러리의 가로 사진이에요. 원본 구도와 출처 표기를 유지하고 형식을 WebP로 바꿨어요."
   }
 }
