@@ -18,11 +18,16 @@ test("구조화 정보는 실제 레시피에만 실제 수량·시간·단계·
   assert.equal(safeJson({ name: "</script><script>" }).includes("<"), false);
 });
 
-test("네이버 소유확인 주소는 원본 파일을 직접 제공하도록 설정한다", () => {
-  const filename = "naverb5eb1dae2d757cd736e55ac238e25752.html";
-  const file = readFileSync(new URL(`../public/${filename}`, import.meta.url), "utf8");
-  const redirects = readFileSync(new URL("../public/_redirects", import.meta.url), "utf8");
+test("검색 서비스 소유확인 주소는 원본 HTML을 직접 제공하도록 설정한다", () => {
+  const files = {
+    naver: "naverb5eb1dae2d757cd736e55ac238e25752.html",
+    google: "google5d63792eef54147b.html",
+  };
+  const redirects = readFileSync(new URL("../public/_redirects", import.meta.url), "utf8").split(/\r?\n/);
 
-  assert.equal(file.trim(), `naver-site-verification: ${filename}`);
-  assert.ok(redirects.split(/\r?\n/).includes(`/${filename} /${filename.slice(0, -5)} 200`));
+  for (const [service, filename] of Object.entries(files)) {
+    const file = readFileSync(new URL(`../public/${filename}`, import.meta.url), "utf8");
+    assert.equal(file.trim(), `${service}-site-verification: ${filename}`);
+    assert.ok(redirects.includes(`/${filename} /${filename.slice(0, -5)} 200`));
+  }
 });
