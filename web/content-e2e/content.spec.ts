@@ -369,6 +369,32 @@ test("추가 일상 레시피는 검색·실사·재료 분량과 일반 구매 
   await expect(page.getByText(/AI 생성 예시 ·/)).toHaveCount(0);
 });
 
+test("머랭롤 검색 결과와 상세에서 베리 머랭롤 실사와 유행 출처를 제공한다", async ({ page }, info) => {
+  await page.goto(`/?q=${encodeURIComponent("머랭롤")}#list`);
+  const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "머랭롤", exact: true }) });
+  const cardPhoto = card.getByRole("img");
+  await expect(cardPhoto).toHaveAttribute("src", /photo-meringue-roll-pexels/);
+  await cardPhoto.evaluate((image: HTMLImageElement) => image.decode());
+  await card.screenshot({ path: `test-results/content/meringue-roll-card-${info.project.name}.png` });
+  await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
+
+  await expect(page).toHaveURL(/\/food\/meringue-roll\/?$/);
+  await expect(page.getByRole("heading", { level: 1, name: "머랭롤" })).toBeVisible();
+  const detailPhoto = page.getByRole("region", { name: "음식 소개", exact: true }).getByRole("img");
+  await expect(detailPhoto).toHaveAttribute("src", /photo-meringue-roll-pexels/);
+  await detailPhoto.evaluate((image: HTMLImageElement) => image.decode());
+  await detailPhoto.screenshot({ path: `test-results/content/meringue-roll-detail-${info.project.name}.png` });
+
+  const history = page.getByRole("region", { name: "주목받은 시기" });
+  await expect(history.getByText(/3주 전의 4.5배/)).toBeVisible();
+  await expect(history.getByRole("link", { name: /한국경제/ })).toHaveAttribute("href", "https://www.hankyung.com/article/2026112476411");
+  const photoInfo = page.getByLabel("사진 정보", { exact: true });
+  await photoInfo.locator("summary").click();
+  await expect(photoInfo.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", automaticPhotos["photo-meringue-roll-pexels"].url);
+  await expect(photoInfo.getByRole("link", { name: /사진 라이선스/ })).toHaveAttribute("href", "https://www.pexels.com/license/");
+  await expect(page.getByRole("region", { name: "재료 구매 링크" })).toHaveCount(0);
+});
+
 test("로제떡볶이 기본 레시피와 두 음식의 플레이팅 사진을 보여 준다", async ({ page }, info) => {
   const cases = [
     ["로제떡볶이", "로제 떡볶이", "photo-ai-rose-tteokbokki-plated-20261126"],

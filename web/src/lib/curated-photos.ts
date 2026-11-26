@@ -103,6 +103,7 @@ import mangoPomeloSagoPhoto from "@/assets/curated/photo-history-mango-pomelo-sa
 import gaeseongJuakPhoto from "@/assets/curated/photo-history-gaeseong-juak.webp";
 import roseTteokbokkiPhoto from "@/assets/curated/photo-reviewed-rose-tteokbokki-20261126.webp";
 import gaeseongJuakPlatedPhoto from "@/assets/curated/photo-history-gaeseong-juak-plated-20261126.webp";
+import meringueRollPhoto from "@/assets/curated/photo-meringue-roll-pexels.webp";
 
 export const curatedPhotos = {
   "photo-reviewed-tuna-gimbap-20261125": tunaGimbapReviewedPhoto,
@@ -196,4 +197,5 @@ export const curatedPhotos = {
   "photo-history-gaeseong-juak": gaeseongJuakPhoto,
   "photo-reviewed-rose-tteokbokki-20261126": roseTteokbokkiPhoto,
   "photo-history-gaeseong-juak-plated-20261126": gaeseongJuakPlatedPhoto,
+  "photo-meringue-roll-pexels": meringueRollPhoto,
 };

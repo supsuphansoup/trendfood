@@ -494,7 +494,7 @@ test("한 음식의 생성이 실패해도 다음 원고로 세 자리를 채우
 test("하위 후보 사진 세 개가 준비됐어도 인기 상위 후보를 먼저 생성하고 같은 순서로 게시한다", async () => {
   const baseline = { ...structuredClone(input), recommendation: undefined };
   const drafts = Array.from({ length: 5 }, (_, index) => ({ ...structuredClone(protectedReal), slug: `popularity-photo-${index}`, name: `인기 사진 음식 ${index}`,
-    publishedAt: undefined, checkedAt: "2026-11-12", ...(index === 0 ? { image: "pending", heroImage: undefined } : {}) }));
+    publishedAt: undefined, history: undefined, checkedAt: "2026-11-12", ...(index === 0 ? { image: "pending", heroImage: undefined } : {}) }));
   const signals: Scored[] = drafts.map((food, index) => ({ name: food.name, category: food.category, mentions: 2, multiplier: 2, trend: [1, 2], score: 10 - index }));
   const staged = { ...baseline, foods: [...baseline.foods, ...drafts].reverse() };
   const searches: string[] = [], generations: string[] = [];

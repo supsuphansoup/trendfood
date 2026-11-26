@@ -355,11 +355,10 @@ test("가져오기 실패 시 현재 페이지 콘텐츠 파일을 보존한다"
 
 test("새 수집 결과는 기존 레시피·출처 확인 날짜를 보존하며 같은 주소만 갱신한다", () => {
   const previous = parseContent(fresh());
-  previous.checkedAt = "2026-11-16";
   for (const food of previous.foods) delete food.checkedAt;
   const current = parseContent(previous);
-  const incoming = parseContent({ version: 1, status: "ready", checkedAt: "2026-11-26", foods: [
-    { ...input.foods[0], checkedAt: "2026-11-12", why: "갱신한 소개" },
+  const incoming = parseContent({ version: 1, status: "ready", checkedAt: current.checkedAt, foods: [
+    { ...input.foods[0], history: undefined, checkedAt: "2026-11-12", why: "갱신한 소개" },
     { ...recipeInput.foods[0], slug: "new-butter-recipe", image: "pending", heroImage: undefined, alt: "새 음식 사진 준비 중" },
   ] });
   const merged = mergeContent(current, incoming);
@@ -367,7 +366,7 @@ test("새 수집 결과는 기존 레시피·출처 확인 날짜를 보존하�
   assert.equal(foods.length, input.foods.length + 1);
   assert.equal(foods[0].why, "갱신한 소개");
   assert.equal(foods[0].editorial?.checkedAt, "2026-11-12");
-  assert.equal(foods[1].editorial?.checkedAt, "2026-11-16");
+  assert.equal(foods[1].editorial?.checkedAt, current.checkedAt);
   assert.equal(foods.at(-1)?.slug, "new-butter-recipe");
   assert.equal(current.foods.length, input.foods.length);
   assert.notEqual(current.foods[0].why, "갱신한 소개");

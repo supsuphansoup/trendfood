@@ -4,6 +4,56 @@
   "checkedAt": "2026-11-26",
   "foods": [
     {
+      "slug": "meringue-roll",
+      "name": "머랭롤",
+      "category": "디저트",
+      "kind": "discovery",
+      "why": "머랭을 가를 때 나는 바삭한 소리가 먹방과 ASMR 영상으로 퍼지면서 화제가 됐어요.",
+      "summary": "달걀흰자와 설탕으로 구운 머랭 시트에 생크림과 과일을 넣고 돌돌 만 디저트예요. 겉은 바삭하게 부서지고 속은 쫀득해요.",
+      "tags": [
+        "디저트"
+      ],
+      "cookMinutes": 0,
+      "difficulty": "쉬움",
+      "servings": "음식 소개",
+      "ingredients": [],
+      "steps": [],
+      "tip": "딸기나 라즈베리처럼 새콤한 과일을 넣은 머랭롤도 있어요.",
+      "image": "photo-meringue-roll-pexels",
+      "alt": "딸기와 베리를 올리고 크림이 든 단면을 드러낸 머랭롤",
+      "convenience": [],
+      "sources": [
+        {
+          "title": "한국경제 · 머랭롤 ASMR 확산과 매장 대기 현장",
+          "url": "https://www.hankyung.com/article/2026112476411"
+        },
+        {
+          "title": "돼끼 · 요즘 초 유행하는 머랭롤 난생 처음 먹어본 후기",
+          "url": "https://www.youtube.com/watch?v=3IhUhi35k5U"
+        }
+      ],
+      "recipeNote": "공개 보도와 시식 영상을 바탕으로 정리한 AI 요약이에요.",
+      "checkedAt": "2026-11-26",
+      "publishedAt": "2026-11-26",
+      "history": {
+        "years": [
+          2026
+        ],
+        "latestPeriod": "2026-11-23",
+        "note": "2026년 11월 하순에 자르는 소리를 담은 영상이 퍼졌어요. 11월 23일 네이버 검색 관심도는 3주 전의 4.5배였고, 일부 매장에서는 대기 행렬과 품절이 이어졌어요.",
+        "sources": [
+          {
+            "title": "한국경제 · 11월 23일 검색 관심도와 매장 현장",
+            "url": "https://www.hankyung.com/article/2026112476411"
+          },
+          {
+            "title": "한경비즈니스 · 11월 중순 검색 관심도 상승",
+            "url": "https://magazine.hankyung.com/business/amp/202611247512b"
+          }
+        ]
+      }
+    },
+    {
       "slug": "bomdong-bibimbap",
       "name": "봄동 비빔밥",
       "category": "밥",
@@ -6277,7 +6327,9 @@
   ],
   "recommendation": {
     "date": "2026-11-26",
-    "basis": "rotation",
-    "newSlugs": []
+    "basis": "new",
+    "newSlugs": [
+      "meringue-roll"
+    ]
   }
 }

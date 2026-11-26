@@ -64,9 +64,10 @@ test("관리자가 옮긴 주소만 순서를 바꾸고 신규 음식 자리는 
 });
 
 test("재료 링크는 지정한 재료에만 적용하고 출처 링크는 영상 숨김 뒤에도 보존한다", () => {
-  const recipe = { ...first, sources: [...first.sources, { title: "원본 영상", url: "https://youtu.be/abcdefghijk" }] };
+  const base = snapshot.foods.find((food) => food.ingredients.length >= 2)!;
+  const recipe = { ...base, sources: [...base.sources, { title: "원본 영상", url: "https://youtu.be/abcdefghijk" }] };
   const [ingredient, other] = recipe.ingredients;
-  const source = { ...snapshot, foods: [recipe, ...snapshot.foods.slice(1)] };
+  const source = { ...snapshot, foods: snapshot.foods.map((food) => food.slug === recipe.slug ? recipe : food) };
   const result = editedContentRecords(source, parseContentEdits({ foods: {
     [recipe.slug]: { ingredientLinks: { [ingredient.name]: "https://link.coupang.com/a/example" }, videoId: null },
   } })).find((food) => food.slug === recipe.slug)!;

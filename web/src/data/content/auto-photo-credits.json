@@ -1,4 +1,18 @@
 {
+  "photo-meringue-roll-pexels": {
+    "title": "Delicious roll with cream and berries",
+    "author": "Valeria Boltneva",
+    "url": "https://www.pexels.com/photo/delicious-roll-with-cream-and-berries-7474236/",
+    "imageUrl": "https://images.pexels.com/photos/7474236/pexels-photo-7474236.jpeg",
+    "creatorUrl": "https://www.pexels.com/@valeriya/",
+    "provider": "pexels",
+    "providerId": "7474236",
+    "license": "Pexels License",
+    "licenseUrl": "https://www.pexels.com/license/",
+    "verifiedAt": "2026-11-26",
+    "automatic": false,
+    "note": "딸기와 베리를 곁들인 머랭롤 참고 사진이에요. 원본 구도를 유지하고 크기와 파일 형식을 바꿨어요."
+  },
   "photo-reviewed-tuna-gimbap-20261125": {
     "title": "Chamchigimbap at Hana Restaurant, Milan, 2023.jpg",
     "author": "Chiyako92",
