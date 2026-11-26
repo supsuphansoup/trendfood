@@ -1101,6 +1101,11 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       await expect(headings.nth(0)).toHaveText(food.kind === "product" ? "제품 구매 링크" : "재료 구매 링크");
       await expect(headings.nth(1)).toHaveText(food.kind === "product" ? "고르고 즐기는 법" : "만드는 법");
       await expect(headings.nth(2)).toHaveText("어떤 음식인가요");
+      const [cartTitle, recipeTitle] = await page.locator("#cart h2, #recipe h2").evaluateAll((titles) =>
+        titles.map((title) => title.getBoundingClientRect().top),
+      );
+      if (info.project.name === "desktop") expect(cartTitle).toBeCloseTo(recipeTitle, 0);
+      else expect(recipeTitle).toBeGreaterThan(cartTitle);
       const cart = (await page.locator("#cart").boundingBox())!;
       const recipe = (await page.locator("#recipe").boundingBox())!;
       const introduction = (await headings.nth(2).boundingBox())!;

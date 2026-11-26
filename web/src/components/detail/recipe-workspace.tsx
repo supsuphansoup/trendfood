@@ -13,7 +13,7 @@ export function RecipeWorkspace({ food }: { food: Food }) {
   const recipe = !food.kind || food.kind === "recipe";
   const displayed = { ...food, ingredients: scaledIngredients(food.ingredients, ratio) };
   const unchanged = food.ingredients.filter((item) => item.amount && !scaleAmount(item.amount, ratio).scaled);
-  return <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+  return <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-baseline">
     <IngredientCart food={displayed}>
       {recipe && <fieldset className="rounded-xl border bg-muted p-3">
         <legend className="px-1 text-sm font-bold">재료 분량 조절</legend>
@@ -26,7 +26,7 @@ export function RecipeWorkspace({ food }: { food: Food }) {
     </IngredientCart>
     <div className="flex min-w-0 flex-col gap-9">
       <section id="recipe" className="scroll-mt-6">
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2.5 pb-2">
           <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
           <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>
         </div>
