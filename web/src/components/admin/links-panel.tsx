@@ -4,12 +4,69 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { COUPANG_URL_RE } from "@/data/candidates";
+import { applyContentEdits, contentEditUploads } from "@/data/content-edits";
+import type { ContentAdmin } from "./use-content-admin";
 
 type FoodOption = { slug: string; name: string };
 type Ing = { id: number; name: string; price: number | null; url: string | null };
 
 /** 재료 링크: 쿠팡 주소(파트너스 링크)와 참고 가격을 재료마다 등록 */
-export function LinksPanel({ db }: { db: SupabaseClient }) {
+export function LinksPanel({ db, content }: { db: SupabaseClient; content?: ContentAdmin }) {
+  return content ? <ContentLinksPanel content={content} /> : <DatabaseLinksPanel db={db} />;
+}
+
+function ContentLinksPanel({ content }: { content: ContentAdmin }) {
+  const { snapshot, edits, save } = content;
+  const foods = applyContentEdits(snapshot, edits, contentEditUploads(edits)).foods
+    .filter((food) => food.ingredients.length > 0);
+  const [slug, setSlug] = useState(foods[0]?.slug ?? "");
+  const [notice, setNotice] = useState("");
+  const food = foods.find((item) => item.slug === slug);
+
+  async function saveLink(name: string, url: string) {
+    if (url && !COUPANG_URL_RE.test(url)) return setNotice("쿠팡 주소(https://…coupang.com 또는 coupa.ng)만 넣을 수 있어요.");
+    try {
+      await save(slug, { ingredientLinks: { ...edits.foods[slug]?.ingredientLinks, [name]: url || null } });
+      setNotice(`${name} 링크를 저장했어요. '사이트에 반영'을 눌러 주세요.`);
+    } catch (error) {
+      setNotice(`저장하지 못했어요: ${(error as Error).message}`);
+    }
+  }
+
+  return (
+    <section aria-labelledby="links-title" className="flex flex-col gap-3">
+      <h2 id="links-title" className="text-2xl font-black tracking-[-0.02em]">재료 링크</h2>
+      <p className="text-sm leading-relaxed text-muted-foreground">주소를 비워 두면 쿠팡 검색으로 연결돼요.</p>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor="links-food">음식</Label>
+        <select id="links-food" value={slug} onChange={(event) => { setSlug(event.target.value); setNotice(""); }}
+          className="h-11 max-w-sm rounded-lg border border-line-strong bg-background px-3 text-base">
+          {foods.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
+        </select>
+      </div>
+      <p role="status" className="text-sm font-bold empty:hidden">{notice}</p>
+      <ul className="m-0 flex list-none flex-col gap-2 p-0">
+        {food?.ingredients.map((ingredient, index) => (
+          <li key={`${slug}-${ingredient.name}`} className="rounded-2xl border bg-background p-4">
+            <form className="grid gap-3 md:grid-cols-[160px_minmax(0,1fr)_auto] md:items-end" onSubmit={(event) => {
+              event.preventDefault();
+              void saveLink(ingredient.name, String(new FormData(event.currentTarget).get("url") ?? "").trim());
+            }}>
+              <h3 className="text-base font-bold md:pb-2.5">{ingredient.name}</h3>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`url-${index}`}>쿠팡 주소</Label>
+                <Input className="h-11 text-base" id={`url-${index}`} name="url" type="url" maxLength={2000} inputMode="url" defaultValue={ingredient.url ?? ""} />
+              </div>
+              <Button type="submit" aria-label={`${ingredient.name} 저장`}>저장</Button>
+            </form>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function DatabaseLinksPanel({ db }: { db: SupabaseClient }) {
   const [foods, setFoods] = useState<FoodOption[]>([]);
   const [slug, setSlug] = useState("");
   const [items, setItems] = useState<Ing[] | null>(null);

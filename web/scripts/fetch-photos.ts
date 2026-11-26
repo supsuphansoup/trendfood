@@ -4,8 +4,11 @@ import { copyFile, mkdir, readdir, unlink, writeFile } from "node:fs/promises";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import nextEnv from "@next/env";
 import { createClient } from "@supabase/supabase-js";
+import content from "../src/data/content/foods.json" with { type: "json" };
+import { parseContent } from "../src/data/content.ts";
+import { contentEditUploads, editedContentRecords, parseContentEdits } from "../src/data/content-edits.ts";
 import { publicPhotoUrl, uploadedPhotoIds } from "../src/data/photos.ts";
-import { supabaseConfig } from "../src/lib/supabase-config.ts";
+import { contentAdminEnabled, supabaseConfig } from "../src/lib/supabase-config.ts";
 
 export async function downloadPhoto(
   supabaseUrl: string,
@@ -43,14 +46,31 @@ async function main() {
     return;
   }
   const db = createClient(cfg.url, cfg.anonKey, { auth: { persistSession: false } });
-  const { data: foods, error } = await db.from("published_foods").select("image, hero_image");
-  if (error) throw new Error(`Supabase 에서 음식 목록을 못 읽었어요: ${error.message}`);
-  const ids = uploadedPhotoIds((foods ?? []).flatMap((food) => [food.image, food.hero_image]));
-  let photos: { id: string; path: string }[] = [];
+  const published = contentAdminEnabled() ? await db.rpc("published_content_edits") : null;
+  if (published?.error) throw new Error(`Supabase 게시 관리 데이터를 못 읽었어요: ${published.error.message}`);
+  const edits = published ? parseContentEdits(published.data) : null;
+  let ids: string[] = [];
+  if (edits) {
+    ids = contentEditUploads(edits);
+  } else if (process.env.TF_CONTENT_ONLY !== "1") {
+    const { data: foods, error } = await db.from("published_foods").select("image, hero_image");
+    if (error) throw new Error(`Supabase 에서 음식 목록을 못 읽었어요: ${error.message}`);
+    ids = uploadedPhotoIds((foods ?? []).flatMap((food) => [food.image, food.hero_image]));
+  }
+  let photos: { id: string; path: string; width: number; height: number; credit: string; source_url: string; license: string }[] = [];
   if (ids.length) {
-    const result = await db.from("photos").select("id, path").in("id", ids);
-    if (result.error) throw new Error(`Supabase 에서 사진 정보를 못 읽었어요: ${result.error.message}`);
-    photos = result.data ?? [];
+    for (let index = 0; index < ids.length; index += 100) {
+      const result = await db.from("photos").select("id, path, width, height, credit, source_url, license").in("id", ids.slice(index, index + 100));
+      if (result.error) throw new Error(`Supabase 에서 사진 정보를 못 읽었어요: ${result.error.message}`);
+      photos.push(...result.data ?? []);
+    }
+  }
+  if (edits) {
+    const records = editedContentRecords(parseContent(content), edits, photos.map((photo) => photo.id));
+    const visible = new Set(uploadedPhotoIds(records.flatMap((food) => [food.image, food.heroImage])));
+    photos = photos.filter((photo) => visible.has(photo.id));
+    await mkdir(new URL("data/", web), { recursive: true });
+    await writeFile(new URL("data/published-content.json", web), JSON.stringify({ records, photos }));
   }
   await mkdir(directory, { recursive: true });
   // 이 전용 폴더 바로 아래의 WebP 파일만 정리한다.

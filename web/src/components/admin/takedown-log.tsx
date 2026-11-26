@@ -10,12 +10,14 @@ const dateTime = new Intl.DateTimeFormat("ko-KR", {
   timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit",
 });
 
-export function TakedownLog({ db, slug, name, onNotice }: {
+export function TakedownLog({ db, slug, name, onNotice, content = false }: {
   db: SupabaseClient;
   slug: string;
   name: string;
   onNotice: (message: string) => void;
+  content?: boolean;
 }) {
+  const table = content ? "content_takedown_log" : "takedown_log";
   const [entries, setEntries] = useState<Entry[] | null>(null);
   const [failed, setFailed] = useState(false);
   const saving = useRef(false);
@@ -23,7 +25,7 @@ export function TakedownLog({ db, slug, name, onNotice }: {
   useEffect(() => {
     let active = true;
     void (async () => {
-      const { data, error } = await db.from("takedown_log")
+      const { data, error } = await db.from(table)
         .select("id,action,reason,memo,created_at").eq("food_slug", slug)
         .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(5);
       if (!active) return;
@@ -31,7 +33,7 @@ export function TakedownLog({ db, slug, name, onNotice }: {
       else setEntries(data as Entry[]);
     })();
     return () => { active = false; };
-  }, [db, slug]);
+  }, [db, slug, table]);
 
   const latest = entries?.[0];
   return (
@@ -39,7 +41,7 @@ export function TakedownLog({ db, slug, name, onNotice }: {
       <legend className="text-lg font-bold">내림 기록</legend>
       {failed ? (
         <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
-          내림 기록을 못 불러왔어요. Supabase SQL Editor 에서 web/supabase/migrations/0003_takedown_log.sql 을 먼저 실행해 주세요.
+          {content ? "내림 기록을 못 불러왔어요." : "내림 기록을 못 불러왔어요. Supabase SQL Editor 에서 web/supabase/migrations/0003_takedown_log.sql 을 먼저 실행해 주세요."}
         </p>
       ) : !entries ? <p className="text-base text-muted-foreground">불러오는 중이에요…</p> : <>
         <ul className="flex list-none flex-col gap-2 p-0 text-sm [overflow-wrap:anywhere]">
@@ -58,7 +60,7 @@ export function TakedownLog({ db, slug, name, onNotice }: {
             if (result.error !== undefined) return onNotice(result.error);
             saving.current = true;
             try {
-              const { error } = await db.from("takedown_log").update(result.value).eq("id", latest.id);
+              const { error } = await db.from(table).update(result.value).eq("id", latest.id);
               if (error) return onNotice(`저장하지 못했어요: ${error.message}`);
               setEntries(entries.map((entry) => entry.id === latest.id ? { ...entry, ...result.value } : entry));
               onNotice(`${name} 내림 사유를 저장했어요.`);

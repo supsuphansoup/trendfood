@@ -37,6 +37,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
       - run: npm run test:content
+      - run: npm run test:content
+        env:
+          TF_CONTENT_ADMIN_E2E: "1"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

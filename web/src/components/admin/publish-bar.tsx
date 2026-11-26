@@ -8,7 +8,12 @@ const when = (iso: string) =>
   new Date(iso).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
 /** '사이트에 반영' 버튼 + 마지막 자동 수집 결과 */
-export function PublishBar({ db }: { db: SupabaseClient }) {
+export function PublishBar({ db, preparePublish, disabled, hasUnpublishedChanges }: {
+  db: SupabaseClient;
+  preparePublish?: () => Promise<void>;
+  disabled?: boolean;
+  hasUnpublishedChanges?: boolean;
+}) {
   const [run, setRun] = useState<Run | null>(null);
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
@@ -24,13 +29,20 @@ export function PublishBar({ db }: { db: SupabaseClient }) {
   async function publish() {
     setPending(true);
     setMessage("");
-    const { data, error } = await db.functions.invoke<{ message?: string }>("request-publish", { method: "POST" });
-    setPending(false);
-    if (error) {
-      const body = await (error as { context?: Response }).context?.json?.().catch(() => null);
-      return setMessage(body?.message ?? "반영 요청에 실패했어요. 잠시 뒤 다시 눌러 주세요.");
+    try {
+      await preparePublish?.();
+      const { data, error } = await db.functions.invoke<{ message?: string }>("request-publish", { method: "POST" });
+      if (error) {
+        const body = await (error as { context?: Response }).context?.json?.().catch(() => null);
+        const detail = body?.message ?? "잠시 뒤 다시 눌러 주세요.";
+        return setMessage(preparePublish ? `변경은 저장됐지만 배포를 요청하지 못했어요. ${detail}` : body?.message ?? "반영 요청에 실패했어요. 잠시 뒤 다시 눌러 주세요.");
+      }
+      setMessage(data?.message ?? "반영을 요청했어요. 3~5분 뒤 사이트에 보여요.");
+    } catch (error) {
+      setMessage(`반영 요청에 실패했어요: ${(error as Error).message}`);
+    } finally {
+      setPending(false);
     }
-    setMessage(data?.message ?? "반영을 요청했어요. 3~5분 뒤 사이트에 보여요.");
   }
 
   const runText = !run
@@ -45,11 +57,12 @@ export function PublishBar({ db }: { db: SupabaseClient }) {
     <section aria-label="사이트 반영" className="flex flex-wrap items-center gap-3 rounded-2xl border bg-background p-4">
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <p className="text-base font-bold">고친 내용은 &lsquo;사이트에 반영&rsquo;을 눌러야 방문자에게 보여요.</p>
+        {hasUnpublishedChanges && <p className="text-sm font-bold text-accent">사이트에 반영할 변경이 있어요.</p>}
         <p className={run?.ok === false ? "text-sm font-bold text-destructive" : "text-sm text-muted-foreground"}>
           {runText}
         </p>
       </div>
-      <Button variant="cta" onClick={publish} disabled={pending}>
+      <Button variant="cta" onClick={publish} disabled={pending || disabled}>
         {pending ? "요청 중…" : "사이트에 반영"}
       </Button>
       <p role="status" className="w-full text-sm font-bold empty:hidden">

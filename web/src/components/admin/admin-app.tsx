@@ -7,6 +7,7 @@ import { LinksPanel } from "@/components/admin/links-panel";
 import { LoginForm } from "@/components/admin/login-form";
 import { PublishBar } from "@/components/admin/publish-bar";
 import { QueuePanel } from "@/components/admin/queue-panel";
+import { useContentAdmin } from "@/components/admin/use-content-admin";
 import { Button } from "@/components/ui/button";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { supabaseConfig } from "@/lib/supabase-config";
@@ -26,7 +27,7 @@ const tabs = [
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
 
-export function AdminApp() {
+export function AdminApp({ source }: { source?: string }) {
   const [phase, setPhase] = useState<Phase>(() => (supabaseConfig() ? { kind: "loading" } : { kind: "no-config" }));
 
   const check = useCallback(async (db: SupabaseClient) => {
@@ -91,11 +92,13 @@ export function AdminApp() {
       </Centered>
     );
   }
-  return <AdminShell db={db} email={phase.email} />;
+  return <AdminShell db={db} email={phase.email} source={source} />;
 }
 
-function AdminShell({ db, email }: { db: SupabaseClient; email: string }) {
+function AdminShell({ db, email, source }: { db: SupabaseClient; email: string; source?: string }) {
   const [tab, setTab] = useState<TabId>("foods");
+  const publicAdmin = useContentAdmin(db, source);
+  const { content, loadError, retry } = publicAdmin;
   return (
     <>
       <header className="border-b bg-background">
@@ -124,9 +127,16 @@ function AdminShell({ db, email }: { db: SupabaseClient; email: string }) {
         </nav>
       </header>
       <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-5 py-6">
-        <PublishBar db={db} />
-        {tab === "foods" && <FoodsPanel db={db} />}
-        {tab === "links" && <LinksPanel db={db} />}
+        <PublishBar db={db} preparePublish={content?.preparePublish} disabled={!!source && !content} hasUnpublishedChanges={content?.hasUnpublishedChanges} />
+        {source && !content && tab !== "queue" ? (
+          <div role="status" className="flex flex-wrap items-center gap-3">
+            <p>{loadError ? `공개 음식 목록을 못 불러왔어요: ${loadError}` : "공개 음식 목록을 불러오는 중이에요…"}</p>
+            {loadError && <Button variant="outline" onClick={retry}>다시 불러오기</Button>}
+          </div>
+        ) : <>
+          {tab === "foods" && <FoodsPanel db={db} content={content} />}
+          {tab === "links" && <LinksPanel db={db} content={content} />}
+        </>}
         {tab === "queue" && <QueuePanel db={db} />}
       </main>
     </>

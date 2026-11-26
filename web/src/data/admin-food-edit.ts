@@ -41,12 +41,12 @@ export function cookLabelInput(label: string, minutes: number): string {
   return label === `조리 ${minutes}분` ? "" : label;
 }
 
-export function cleanBasicInfo(draft: BasicInfoDraft): Result<FoodBasicInfo> {
+export function cleanBasicInfo(draft: BasicInfoDraft, discovery = false): Result<FoodBasicInfo> {
   const name = draft.name.trim();
   if (!name || name.length > 30) return { error: "이름을 1~30자로 적어 주세요." };
   const minutes = draft.cook_minutes.trim();
   const cook_minutes = Number(minutes);
-  if (!/^\d+$/.test(minutes) || !Number.isInteger(cook_minutes) || cook_minutes < 1 || cook_minutes > 1440) {
+  if (!discovery && (!/^\d+$/.test(minutes) || !Number.isInteger(cook_minutes) || cook_minutes < 1 || cook_minutes > 1440)) {
     return { error: "조리 시간은 1~1440 사이의 분으로 적어 주세요." };
   }
   const change_label = draft.change_label.trim();

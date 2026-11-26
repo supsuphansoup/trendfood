@@ -6,3 +6,8 @@ export function supabaseConfig() {
   if (!url || !anonKey) return null;
   return { url, anonKey };
 }
+
+export function contentAdminEnabled() {
+  return process.env.TF_CONTENT_ONLY === "1" && process.env.TF_CONTENT_ADMIN === "1" &&
+    process.env.TF_SEED_ONLY !== "1" && !!supabaseConfig();
+}

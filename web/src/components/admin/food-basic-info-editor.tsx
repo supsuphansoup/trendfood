@@ -5,8 +5,9 @@ import { Label } from "@/components/ui/label";
 import { cleanBasicInfo, cookLabelInput, type FoodBasicInfo } from "@/data/admin-food-edit.ts";
 import { categoryOptions, tagOptions } from "@/data/catalog-schema";
 
-export function FoodBasicInfoEditor({ row, onSave, onNotice }: {
+export function FoodBasicInfoEditor({ row, onSave, onNotice, discovery = false }: {
   row: FoodBasicInfo & { slug: string };
+  discovery?: boolean;
   onSave: (patch: FoodBasicInfo) => Promise<void>;
   onNotice: (message: string) => void;
 }) {
@@ -34,10 +35,11 @@ export function FoodBasicInfoEditor({ row, onSave, onNotice }: {
       const data = new FormData(form);
       const result = cleanBasicInfo({
         name: String(data.get("name")), category: data.get("category") as FoodBasicInfo["category"],
-        tags: data.getAll("tags").map(String), cook_minutes: String(data.get("cook_minutes")),
-        cook_label: String(data.get("cook_label")), difficulty: data.get("difficulty") as FoodBasicInfo["difficulty"],
-        servings: String(data.get("servings")), change_label: String(data.get("change_label")),
-      });
+        tags: data.getAll("tags").map(String), cook_minutes: discovery ? "0" : String(data.get("cook_minutes")),
+        cook_label: discovery ? row.cook_label : String(data.get("cook_label")),
+        difficulty: discovery ? row.difficulty : data.get("difficulty") as FoodBasicInfo["difficulty"],
+        servings: discovery ? row.servings : String(data.get("servings")), change_label: String(data.get("change_label")),
+      }, discovery);
       if (result.error !== undefined) return onNotice(result.error);
       if (!form.reportValidity()) return;
       setSaving(true);
@@ -69,7 +71,7 @@ export function FoodBasicInfoEditor({ row, onSave, onNotice }: {
               ))}
             </div>
           </fieldset>
-          {textField(fields[1])}
+          {!discovery && <>{textField(fields[1])}
           {textField(fields[2])}
           <div className="flex min-w-0 flex-col gap-1.5">
             <Label htmlFor={`${row.slug}-difficulty`}>난이도</Label>
@@ -77,7 +79,7 @@ export function FoodBasicInfoEditor({ row, onSave, onNotice }: {
               {(["쉬움", "보통", "어려움"] as const).map((difficulty) => <option key={difficulty} value={difficulty}>{difficulty}</option>)}
             </select>
           </div>
-          {textField(fields[3])}
+          {textField(fields[3])}</>}
           {textField(fields[4])}
         </div>
         <Button type="submit" className="self-start">기본 정보 저장</Button>

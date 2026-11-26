@@ -2,13 +2,18 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { ArrowDown, ArrowUp } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import type { FoodBasicInfo } from "@/data/admin-food-edit.ts";
+import { moveItem, type FoodBasicInfo } from "@/data/admin-food-edit.ts";
+import { contentToRecords } from "@/data/content";
+import { applyContentEdits, contentEditUploads, getContentEdit, orderContent, type ContentEdit } from "@/data/content-edits";
+import { foodVideoId } from "@/data/youtube";
 import { FoodBasicInfoEditor } from "./food-basic-info-editor";
 import { FoodDetailsEditor, type FoodDetails } from "./food-details-editor";
 import { TakedownLog } from "./takedown-log";
+import type { ContentAdmin } from "./use-content-admin";
 
 type Row = FoodDetails & FoodBasicInfo & {
   slug: string;
@@ -25,12 +30,26 @@ type Row = FoodDetails & FoodBasicInfo & {
 };
 
 /** 게시 관리: 순서 바꾸기 · 숨기기 · 게시/초안 · 기본 정보·글·사진·재료·조리법 고치기 */
-export function FoodsPanel({ db }: { db: SupabaseClient }) {
-  const [rows, setRows] = useState<Row[] | null>(null);
+export function FoodsPanel({ db, content }: { db: SupabaseClient; content?: ContentAdmin }) {
+  const [dbRows, setDbRows] = useState<Row[] | null>(null);
   const [notice, setNotice] = useState("");
   const [editing, setEditing] = useState<string | null>(null);
   const [details, setDetails] = useState<string | null>(null);
   const [basicInfo, setBasicInfo] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const contentRows = content && orderContent(contentToRecords(applyContentEdits(
+    content.snapshot, content.edits, contentEditUploads(content.edits),
+  )).map((food): Row => {
+    const edit = getContentEdit(content.edits, food.slug);
+    return {
+      ...food, cook_minutes: food.cookMinutes, cook_label: edit?.cookLabel ?? "",
+      change_label: edit?.change ?? food.change, video_id: foodVideoId({ ...food, hideSourceVideo: edit?.videoId === null }),
+      status: edit?.draft ? "draft" : "published", hidden: !!edit?.hidden,
+      sort_order: food.rank, ai_drafted: false,
+    };
+  }), content.edits.order);
+  const rows = contentRows ?? dbRows;
+  const usesContent = !!content;
 
   const load = useCallback(async () => {
     const { data, error } = await db
@@ -39,25 +58,39 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
       .order("sort_order")
       .order("slug");
     if (error) return setNotice(`목록을 못 불러왔어요: ${error.message}`);
-    setRows(data as Row[]);
+    setDbRows(data as Row[]);
   }, [db]);
 
   useEffect(() => {
     // 처음 열 때 한 번 불러온다
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    if (!usesContent) void load();
+  }, [load, usesContent]);
+
+  async function saveContent(slug: string, patch: ContentEdit, message: string) {
+    try {
+      await content!.save(slug, patch);
+      setNotice(message);
+      return true;
+    } catch (error) {
+      setNotice(`저장하지 못했어요: ${(error as Error).message}`);
+      return false;
+    }
+  }
 
   async function save(slug: string, patch: Partial<Row>, done: string) {
+    if (content) return saveContent(slug, { draft: patch.status === "draft" }, done);
     const { error } = await db.from("foods").update(patch).eq("slug", slug);
     setNotice(error ? `저장하지 못했어요: ${error.message}` : done);
     await load();
+    return !error;
   }
 
   async function setHidden(row: Row, hidden: boolean) {
+    const done = hidden ? `${row.name}을(를) 숨겼어요.` : `${row.name}을(를) 다시 보이게 했어요.`;
+    if (content) return saveContent(row.slug, { hidden }, done);
     const { error } = await db.from("foods").update({ hidden }).eq("slug", row.slug);
     if (error) return setNotice(`저장하지 못했어요: ${error.message}`);
-    const done = hidden ? `${row.name}을(를) 숨겼어요.` : `${row.name}을(를) 다시 보이게 했어요.`;
     const { error: logError } = await db.from("takedown_log").insert({ food_slug: row.slug, action: hidden ? "hide" : "show" });
     setNotice(logError ? `${done} 다만 내림 기록을 남기지 못했어요: ${logError.message}` : done);
     await load();
@@ -68,6 +101,17 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
     const a = rows[index];
     const b = rows[index + dir];
     if (!a || !b) return;
+    const done = `${a.name} 순서를 ${dir < 0 ? "올렸어요" : "내렸어요"}.`;
+    if (content) {
+      const moved = new Set([...(content.edits.order ?? []), a.slug, b.slug]);
+      try {
+        await content.reorder(moveItem(rows, index, dir).filter((row) => moved.has(row.slug)).map((row) => row.slug));
+        setNotice(done);
+      } catch (error) {
+        setNotice(`순서를 바꾸지 못했어요: ${(error as Error).message}`);
+      }
+      return;
+    }
     // 순서 값이 같을 수도 있으니 목록 순서대로 10 간격으로 다시 매긴 뒤 두 개를 바꾼다
     const order = rows.map((r) => r.slug);
     [order[index], order[index + dir]] = [order[index + dir], order[index]];
@@ -81,7 +125,7 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
         return load();
       }
     }
-    setNotice(`${a.name} 순서를 ${dir < 0 ? "올렸어요" : "내렸어요"}.`);
+    setNotice(done);
     await load();
   }
 
@@ -89,6 +133,8 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
 
   const published = rows.filter((r) => r.status === "published" && !r.hidden);
   const rankOf = (slug: string) => published.findIndex((r) => r.slug === slug) + 1;
+  const search = query.trim().toLowerCase();
+  const matches = (row: Row) => !search || row.name.toLowerCase().includes(search) || row.slug.includes(search);
 
   return (
     <section aria-labelledby="foods-title" className="flex flex-col gap-3">
@@ -100,11 +146,16 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
           게시 중 {published.length}개 · 전체 {rows.length}개. 위에 있을수록 순위가 높아요.
         </p>
       </div>
+      {content && <div className="flex max-w-sm flex-col gap-1.5">
+        <Label htmlFor="admin-food-search">음식 검색</Label>
+        <Input id="admin-food-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)} />
+        {!rows.some(matches) && <p role="status" className="text-sm text-muted-foreground">검색 결과가 없어요.</p>}
+      </div>}
       <p role="status" className="text-sm font-bold empty:hidden">
         {notice}
       </p>
       <ol className="m-0 flex list-none flex-col gap-2 p-0">
-        {rows.map((r, i) => (
+        {rows.map((r, i) => matches(r) && (
           <li key={r.slug} className="flex flex-col gap-3 rounded-2xl border bg-background p-4">
             <div className="flex flex-wrap items-center gap-3">
               <span className="w-10 text-xl font-black text-accent">{rankOf(r.slug) || "–"}</span>
@@ -178,16 +229,37 @@ export function FoodsPanel({ db }: { db: SupabaseClient }) {
                 </Button>
               </div>
             </div>
-            {r.hidden && <TakedownLog db={db} slug={r.slug} name={r.name} onNotice={setNotice} />}
-            {basicInfo === r.slug && <FoodBasicInfoEditor row={r} onNotice={setNotice}
-              onSave={(patch) => save(r.slug, patch, `${patch.name} 기본 정보를 저장했어요. '사이트에 반영'을 눌러 주세요.`)} />}
+            {r.hidden && <TakedownLog db={db} slug={r.slug} name={r.name} onNotice={setNotice} content={usesContent} />}
+            {basicInfo === r.slug && <FoodBasicInfoEditor row={r} onNotice={setNotice} discovery={r.kind === "discovery"}
+              onSave={async (patch) => {
+                const done = `${patch.name} 기본 정보를 저장했어요. '사이트에 반영'을 눌러 주세요.`;
+                if (!content) {
+                  await save(r.slug, patch, done);
+                  return;
+                }
+                const changes: ContentEdit = {};
+                if (patch.name !== r.name) changes.name = patch.name;
+                if (patch.category !== r.category) changes.category = patch.category;
+                if (JSON.stringify(patch.tags) !== JSON.stringify(r.tags)) changes.tags = patch.tags;
+                if (patch.cook_minutes !== r.cook_minutes) changes.cookMinutes = patch.cook_minutes;
+                if (patch.cook_label !== r.cook_label) changes.cookLabel = patch.cook_label;
+                if (patch.difficulty !== r.difficulty) changes.difficulty = patch.difficulty;
+                if (patch.servings !== r.servings) changes.servings = patch.servings;
+                if (patch.change_label !== r.change_label) changes.change = patch.change_label;
+                await saveContent(r.slug, changes, done);
+              }} />}
             {editing === r.slug && (
               <TextEditor
                 row={r}
-                onSave={(patch) => save(r.slug, patch, `${r.name} 글을 저장했어요.`).then(() => setEditing(null))}
+                onSave={async (patch) => {
+                  const done = `${r.name} 글을 저장했어요.`;
+                  const changed = Object.fromEntries(Object.entries(patch).filter(([key, value]) => r[key as keyof typeof patch] !== value));
+                  if (await (content ? saveContent(r.slug, changed, done) : save(r.slug, patch, done))) setEditing(null);
+                }}
               />
             )}
-            {details === r.slug && <FoodDetailsEditor row={r} db={db} onNotice={setNotice} onReload={load} />}
+            {details === r.slug && <FoodDetailsEditor row={r} db={db} onNotice={setNotice} onReload={load}
+              saveContent={content ? (patch) => content.save(r.slug, patch) : undefined} />}
           </li>
         ))}
       </ol>

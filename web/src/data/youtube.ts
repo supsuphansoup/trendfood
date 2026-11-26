@@ -18,8 +18,9 @@ export function parseYouTubeId(input: string): string | null {
   }
 }
 
-export function foodVideoId(food: Pick<FoodRecord, "videoId" | "editorial">): string | null {
+export function foodVideoId(food: Pick<FoodRecord, "videoId" | "editorial" | "hideSourceVideo">): string | null {
   if (food.videoId && validId.test(food.videoId)) return food.videoId;
+  if (food.hideSourceVideo) return null;
   for (const source of food.editorial?.sources ?? []) {
     const id = parseYouTubeId(source.url);
     if (id) return id;

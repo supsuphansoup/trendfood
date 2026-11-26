@@ -7,27 +7,46 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cleanConvenience, cleanSteps, convenienceDrafts, ingredientChanges, moveItem, photoChanges, youtubeId, type ConvenienceDraft, type IngredientDraft, type SavedIngredient, type StepDraft } from "@/data/admin-food-edit.ts";
-import type { Step } from "@/data/catalog-schema";
+import type { FoodRecord, Ingredient, Step } from "@/data/catalog-schema";
+import { contentImages } from "@/data/content";
+import type { ContentEdit } from "@/data/content-edits";
+import { generatedImages } from "@/data/generated-images";
 import { photoLabel, type Photo } from "@/data/photos.ts";
 import { photos } from "@/lib/foods";
 import { PhotoUploader } from "./photo-uploader";
 
-export type FoodDetails = { slug: string; name: string; image: string; alt: string; steps: Step[]; convenience: unknown; video_id?: string | null };
-type Props = { row: FoodDetails; db: SupabaseClient; onNotice: (message: string) => void; onReload: () => Promise<void> };
+export type FoodDetails = { slug: string; name: string; image: string; alt: string; steps: Step[]; convenience: unknown; video_id?: string | null; kind?: FoodRecord["kind"]; ingredients?: Ingredient[] };
+type Props = {
+  row: FoodDetails;
+  db: SupabaseClient;
+  onNotice: (message: string) => void;
+  onReload: () => Promise<void>;
+  saveContent?: (patch: ContentEdit) => Promise<void>;
+};
+
+async function saveDetails({ db, row, saveContent, onReload }: Props, patch: ContentEdit, legacy: Record<string, unknown> = patch) {
+  if (saveContent) return saveContent(patch);
+  const { error } = await db.from("foods").update(legacy).eq("slug", row.slug);
+  if (error) throw error;
+  await onReload();
+}
 
 export function FoodDetailsEditor(props: Props) {
   return (
     <div className="flex min-w-0 flex-col gap-4 border-t pt-3">
       <PhotoEditor {...props} />
       <VideoEditor {...props} />
-      <IngredientsEditor {...props} />
-      <StepsEditor {...props} />
+      {(!props.saveContent || props.row.kind !== "discovery") && <>
+        <IngredientsEditor {...props} />
+        <StepsEditor {...props} />
+      </>}
       <ConvenienceEditor {...props} />
     </div>
   );
 }
 
-function PhotoEditor({ row, db, onNotice, onReload }: Props) {
+function PhotoEditor(props: Props) {
+  const { row, db, onNotice, saveContent } = props;
   const [image, setImage] = useState(row.image);
   const [alt, setAlt] = useState(row.alt);
   const [saving, setSaving] = useState(false);
@@ -46,16 +65,20 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
   }, [loadPhotos]);
 
   const selected = uploaded?.find((photo) => photo.id === image);
+  const choices = saveContent
+    ? contentImages.filter((key) => !generatedImages[key] || generatedImages[key].slug === row.slug)
+    : Object.keys(photos);
 
   async function save() {
     const result = photoChanges(row.image, image, alt);
     if (result.error !== undefined) return onNotice(result.error);
     setSaving(true);
     try {
-      const { error } = await db.from("foods").update(result.value).eq("slug", row.slug);
-      if (error) throw error;
+      await saveDetails(props, {
+        ...(image === row.image ? {} : { image }),
+        ...(result.value.alt === row.alt && image === row.image ? {} : { alt: result.value.alt }),
+      }, result.value);
       onNotice(`${row.name} 사진을 저장했어요. '사이트에 반영'을 눌러 주세요.`);
-      await onReload();
     } catch (error) {
       onNotice(`저장하지 못했어요: ${(error as Error).message}`);
     } finally {
@@ -73,7 +96,7 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
           <div className="flex min-w-0 max-w-full flex-col gap-1.5">
             <Label htmlFor={`${row.slug}-photo`}>사진 고르기</Label>
             <select id={`${row.slug}-photo`} value={image} onChange={(e) => setImage(e.target.value)} className="h-11 min-w-0 max-w-full rounded-lg border border-input bg-background px-3 text-base">
-              {Object.keys(photos).map((key) => <option key={key} value={key}>{key}</option>)}
+              {choices.map((key) => <option key={key} value={key}>{key === "pending" ? "사진 없음" : key}</option>)}
               {uploaded.map((photo) => <option key={photo.id} value={photo.id}>{photoLabel(photo)}</option>)}
             </select>
           </div>
@@ -87,7 +110,7 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
           <Input id={`${row.slug}-alt`} required maxLength={120} value={alt} onChange={(e) => setAlt(e.target.value)} className="h-11 text-base" />
         </div>
         {selected && <p className="text-sm text-muted-foreground">{"올린 사진은 [사진 저장] 뒤 '사이트에 반영'을 눌러야 방문자에게 보여요."}</p>}
-        <p className="text-sm text-muted-foreground">지금 들어 있는 사진은 모두 데모예요. 실제 서비스 전에 바꿔야 해요.</p>
+        {!saveContent && <p className="text-sm text-muted-foreground">지금 들어 있는 사진은 모두 데모예요. 실제 서비스 전에 바꿔야 해요.</p>}
         <Button type="submit" className="self-start">사진 저장</Button>
         </fieldset>
         </form>
@@ -97,7 +120,8 @@ function PhotoEditor({ row, db, onNotice, onReload }: Props) {
   );
 }
 
-function VideoEditor({ row, db, onNotice, onReload }: Props) {
+function VideoEditor(props: Props) {
+  const { row, onNotice } = props;
   const [input, setInput] = useState(row.video_id ?? "");
   const [saving, setSaving] = useState(false);
 
@@ -106,11 +130,9 @@ function VideoEditor({ row, db, onNotice, onReload }: Props) {
     if (result.error !== undefined) return onNotice(result.error);
     setSaving(true);
     try {
-      const { error } = await db.from("foods").update({ video_id: result.value }).eq("slug", row.slug);
-      if (error) throw error;
+      await saveDetails(props, result.value === row.video_id ? {} : { videoId: result.value }, { video_id: result.value });
       setInput(result.value ?? "");
       onNotice(`${row.name} 영상을 ${result.value ? "저장했어요" : "내렸어요"}. '사이트에 반영'을 눌러 주세요.`);
-      await onReload();
     } catch (error) {
       onNotice(`저장하지 못했어요: ${(error as Error).message}`);
     } finally {
@@ -134,9 +156,13 @@ function VideoEditor({ row, db, onNotice, onReload }: Props) {
   );
 }
 
-function IngredientsEditor({ row, db, onNotice }: Props) {
+function IngredientsEditor({ row, db, onNotice, saveContent }: Props) {
+  const usesContent = !!saveContent;
+  type Item = IngredientDraft & { key: string; amount?: string };
   const [original, setOriginal] = useState<SavedIngredient[] | null>(null);
-  const [items, setItems] = useState<(IngredientDraft & { key: string })[]>([]);
+  const [items, setItems] = useState<Item[]>(() => usesContent ? (row.ingredients ?? []).map((item, index) => ({
+    ...item, hard: !!item.hard, pantry: !!item.pantry, key: String(index),
+  })) : []);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const load = useCallback(async () => {
@@ -154,15 +180,24 @@ function IngredientsEditor({ row, db, onNotice }: Props) {
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    void load();
-  }, [load]);
+    if (!usesContent) void load();
+  }, [load, usesContent]);
 
   async function save() {
-    if (!original) return;
-    const result = ingredientChanges(original, items);
+    if (!original && !saveContent) return;
+    const result = ingredientChanges(original ?? [], items);
     if (result.error !== undefined) return onNotice(result.error);
     setSaving(true);
     try {
+      if (saveContent) {
+        const ingredients = items.map(({ name, amount, hard, pantry, url }) => ({
+          name: name.trim(), amount: amount?.trim(), ...(hard ? { hard } : {}),
+          ...(pantry ? { pantry } : {}), ...(url ? { url } : {}),
+        }));
+        if (JSON.stringify(ingredients) !== JSON.stringify(row.ingredients)) await saveContent({ ingredients });
+        onNotice(`${row.name} 재료를 저장했어요. '사이트에 반영'을 눌러 주세요.`);
+        return;
+      }
       // 기존 행은 유지한다. 가격·링크는 PATCH 에 포함하지 않는다.
       for (const id of result.value.removed) {
         const { error } = await db.from("ingredients").delete().eq("id", id).eq("food_slug", row.slug);
@@ -181,7 +216,7 @@ function IngredientsEditor({ row, db, onNotice }: Props) {
       // 여러 요청 중 하나라도 실패하면 성공으로 표시하지 않고 DB 상태를 다시 읽는다.
       onNotice(`저장하지 못했어요: ${(error as Error).message}`);
     } finally {
-      await load();
+      if (!usesContent) await load();
       setSaving(false);
     }
   }
@@ -190,11 +225,16 @@ function IngredientsEditor({ row, db, onNotice }: Props) {
     <form noValidate onSubmit={(e) => { e.preventDefault(); void save(); }}>
       <fieldset disabled={saving} className="flex min-w-0 flex-col gap-3 border-t pt-3">
         <legend className="text-lg font-bold">재료</legend>
-        {!original ? <p className="text-base text-muted-foreground">불러오는 중이에요…</p> : <>
+        {!original && !usesContent ? <p className="text-base text-muted-foreground">불러오는 중이에요…</p> : <>
         {items.map((item, index) => (
           <div key={item.key} className="flex min-w-0 flex-col gap-2 rounded-lg bg-muted p-3">
             <Label htmlFor={`${row.slug}-ingredient-${item.key}`}>재료 이름</Label>
             <Input id={`${row.slug}-ingredient-${item.key}`} required maxLength={60} className="h-11 text-base" value={item.name} onChange={(e) => setItems(items.map((old) => old.key === item.key ? { ...old, name: e.target.value } : old))} />
+            {usesContent && <>
+              <Label htmlFor={`${row.slug}-amount-${item.key}`}>사용량</Label>
+              <Input id={`${row.slug}-amount-${item.key}`} maxLength={100} className="h-11 text-base" value={item.amount ?? ""}
+                onChange={(e) => setItems(items.map((old) => old.key === item.key ? { ...old, amount: e.target.value } : old))} />
+            </>}
             <div className="flex flex-wrap gap-3">
               {([['hard', '구하기 어려워요'], ['pantry', '집에 흔히 있어요']] as const).map(([key, label]) => (
                 <Label key={key} htmlFor={`${row.slug}-${item.key}-${key}`} className="flex min-h-11 items-center gap-2">
@@ -214,7 +254,7 @@ function IngredientsEditor({ row, db, onNotice }: Props) {
           </div>
         ))}
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" disabled={items.length >= 30} onClick={() => setItems([...items, { key: crypto.randomUUID(), name: "", hard: false, pantry: false }])}>재료 추가</Button>
+          <Button type="button" variant="outline" disabled={items.length >= (usesContent ? 20 : 30)} onClick={() => setItems([...items, { key: crypto.randomUUID(), name: "", hard: false, pantry: false }])}>재료 추가</Button>
           <Button type="submit">재료 저장</Button>
         </div>
         </>}
@@ -223,7 +263,8 @@ function IngredientsEditor({ row, db, onNotice }: Props) {
   );
 }
 
-function StepsEditor({ row, db, onNotice, onReload }: Props) {
+function StepsEditor(props: Props) {
+  const { row, onNotice, saveContent } = props;
   const [items, setItems] = useState<(StepDraft & { key: string })[]>(() => row.steps.map((step, index) => ({ key: String(index), text: step.text, timer: step.timerMinutes?.toString() ?? "" })));
   const [saving, setSaving] = useState(false);
   async function save() {
@@ -231,10 +272,8 @@ function StepsEditor({ row, db, onNotice, onReload }: Props) {
     if (result.error !== undefined) return onNotice(result.error);
     setSaving(true);
     try {
-      const { error } = await db.from("foods").update({ steps: result.value }).eq("slug", row.slug);
-      if (error) throw error;
+      await saveDetails(props, JSON.stringify(result.value) === JSON.stringify(row.steps) && saveContent ? {} : { steps: result.value });
       onNotice(`${row.name} 조리법을 저장했어요. '사이트에 반영'을 눌러 주세요.`);
-      await onReload();
     } catch (error) {
       onNotice(`저장하지 못했어요: ${(error as Error).message}`);
     } finally {
@@ -258,7 +297,7 @@ function StepsEditor({ row, db, onNotice, onReload }: Props) {
           </div>
         ))}
         <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" disabled={items.length >= 20} onClick={() => setItems([...items, { key: crypto.randomUUID(), text: "", timer: "" }])}>단계 추가</Button>
+          <Button type="button" variant="outline" disabled={items.length >= (saveContent ? 12 : 20)} onClick={() => setItems([...items, { key: crypto.randomUUID(), text: "", timer: "" }])}>단계 추가</Button>
           <Button type="submit">조리법 저장</Button>
         </div>
       </fieldset>
@@ -266,7 +305,8 @@ function StepsEditor({ row, db, onNotice, onReload }: Props) {
   );
 }
 
-function ConvenienceEditor({ row, db, onNotice, onReload }: Props) {
+function ConvenienceEditor(props: Props) {
+  const { row, onNotice, saveContent } = props;
   const [items, setItems] = useState<(ConvenienceDraft & { key: string })[]>(() => convenienceDrafts(row.convenience).map((item, index) => ({ ...item, key: String(index) })));
   const [saving, setSaving] = useState(false);
 
@@ -275,10 +315,8 @@ function ConvenienceEditor({ row, db, onNotice, onReload }: Props) {
     if (result.error !== undefined) return onNotice(result.error);
     setSaving(true);
     try {
-      const { error } = await db.from("foods").update({ convenience: result.value }).eq("slug", row.slug);
-      if (error) throw error;
+      await saveDetails(props, JSON.stringify(result.value) === JSON.stringify(row.convenience) && saveContent ? {} : { convenience: result.value });
       onNotice(`${row.name} 사서 맛보기를 저장했어요. '사이트에 반영'을 눌러 주세요.`);
-      await onReload();
     } catch (error) {
       onNotice(`저장하지 못했어요: ${(error as Error).message}`);
     } finally {
@@ -290,7 +328,7 @@ function ConvenienceEditor({ row, db, onNotice, onReload }: Props) {
     <form noValidate onSubmit={(e) => { e.preventDefault(); void save(); }}>
       <fieldset disabled={saving} className="flex min-w-0 flex-col gap-3 border-t pt-3">
         <legend className="text-lg font-bold">사서 맛보기</legend>
-        <p className="text-[13px] text-muted-foreground">편의점·마트처럼 사서 맛볼 수 있는 곳이에요. 하나도 없으면 상세 화면에 이 구역이 안 보여요.</p>
+        <p className="text-[13px] text-muted-foreground">{saveContent ? "편의점·마트처럼 사서 맛볼 수 있는 곳을 관리해요." : "편의점·마트처럼 사서 맛볼 수 있는 곳이에요. 하나도 없으면 상세 화면에 이 구역이 안 보여요."}</p>
         {items.map((item, index) => (
           <div key={item.key} className="flex min-w-0 flex-col gap-2 rounded-lg bg-muted p-3">
             <Label htmlFor={`${row.slug}-place-${item.key}`}>파는 곳</Label>

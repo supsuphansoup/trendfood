@@ -4,7 +4,7 @@ import { generatedImages } from "./generated-images.ts";
 
 export const contentImages = ["pending", ...Object.keys(photoCredits).filter((key) => !photoCredits[key].rejectedReason), ...Object.keys(generatedImages)];
 
-export type ContentFood = Omit<FoodRecord, "rank" | "change" | "likes" | "videos" | "multiplier" | "trend" | "cookLabel" | "editorial" | "videoId"> & {
+export type ContentFood = Omit<FoodRecord, "rank" | "change" | "likes" | "videos" | "multiplier" | "trend" | "cookLabel" | "editorial" | "videoId" | "hideSourceVideo"> & {
   videoId?: string | null;
   sources: { title: string; url: string }[];
   recipeNote: string;
@@ -35,7 +35,7 @@ const https = (v: unknown): v is string => {
 };
 
 /** 빌드·파일 가져오기에서 같은 검증을 사용한다. 초안은 승인 전 공개하지 않는다. */
-export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot {
+export function parseContent(raw: unknown, allowDraft = false, uploads: readonly string[] = []): ContentSnapshot {
   const fail = (message: string): never => { throw new Error(`콘텐츠 검증 실패: ${message}`); };
   const today = publicationDate(new Date());
   if (!object(raw) || raw.version !== 1) return fail("version은 1이어야 해요");
@@ -60,7 +60,8 @@ export function parseContent(raw: unknown, allowDraft = false): ContentSnapshot 
     }
     if (!(categoryOptions as readonly unknown[]).includes(f.category) || !["쉬움", "보통", "어려움"].includes(String(f.difficulty))) return fail(`${label}: 분류·난이도가 잘못됐어요`);
     if (discovery ? f.cookMinutes !== 0 : !positive(f.cookMinutes)) return fail(`${label}: 음식 소개는 조리 시간 0, 조리법은 1~1440분이어야 해요`);
-    if (!contentImages.includes(String(f.image)) || (f.heroImage !== undefined && !contentImages.includes(String(f.heroImage)))) return fail(`${label}: 등록된 사진 키를 사용해 주세요`);
+    const validImage = (image: unknown) => typeof image === "string" && (contentImages.includes(image) || uploads.includes(image));
+    if (!validImage(f.image) || (f.heroImage !== undefined && !validImage(f.heroImage))) return fail(`${label}: 등록된 사진 키를 사용해 주세요`);
     for (const [key, alt] of [[f.image, f.alt], [f.heroImage, f.heroAlt ?? f.alt]]) {
       const generated = generatedImages[String(key)];
       if (generated && (generated.slug !== f.slug || !String(alt).includes("AI 생성"))) return fail(`${label}: 생성 이미지는 해당 음식에만 연결하고 AI 생성 설명을 적어 주세요`);

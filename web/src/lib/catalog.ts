@@ -1,7 +1,9 @@
+import { readFile } from "node:fs/promises";
+import type { FoodRecord } from "@/data/catalog-schema";
 import { createClient } from "@supabase/supabase-js";
 import { type FoodRow, rowsToRecords } from "@/data/db-mapping";
 import { type Food, toFood } from "@/lib/foods";
-import { supabaseConfig } from "@/lib/supabase-config";
+import { contentAdminEnabled, supabaseConfig } from "@/lib/supabase-config";
 import { type PublishedPhoto, uploadedPhotoIds } from "@/data/photos";
 import { seedFoods } from "@/data/seed-foods";
 import content from "@/data/content/foods.json";
@@ -27,6 +29,13 @@ async function load(): Promise<Food[]> {
       });
       return toFood(record.slug === "tuna-gimbap" ? { ...record, image: id } : record, [photo]);
     });
+  }
+  if (contentAdminEnabled()) {
+    // 사진 다운로드와 모든 정적 페이지에서 같은 공개 버전을 사용한다.
+    const { records, photos } = JSON.parse(await readFile("data/published-content.json", "utf8")) as {
+      records: FoodRecord[]; photos: PublishedPhoto[];
+    };
+    return records.map((record) => toFood(record, photos));
   }
   if (!cfg || process.env.TF_CONTENT_ONLY === "1") return contentToRecords(parseContent(content)).map((record) => toFood(record));
   const db = createClient(cfg.url, cfg.anonKey, { auth: { persistSession: false } });
