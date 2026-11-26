@@ -317,7 +317,6 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     const search = normalizeSearch(q);
     const filtered = source.filter(
       (f) =>
-        (filtering || f.slug !== leadFood?.slug) &&
         (tab === "전체" || (tab === "찜" ? likes.items.includes(f.slug) : f.category === tab)) &&
         (!tag || f.tags.includes(tag)) &&
         (!curated || !year || f.history?.years.includes(year)) &&
@@ -332,7 +331,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       조리시간순: (a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes),
     };
     return filtered.sort((a, b) => pantryActive ? pantryMatch(a, pantry.items, need.items)!.missing.length - pantryMatch(b, pantry.items, need.items)!.missing.length || by[sort](a, b) : by[sort](a, b));
-  }, [foods, trendFoods, sort, tag, tab, likes.items, q, year, filtering, curated, collection, today, pantryActive, pantry.items, need.items, unified, leadFood]);
+  }, [foods, trendFoods, sort, tag, tab, likes.items, q, year, curated, collection, today, pantryActive, pantry.items, need.items, unified]);
 
   const scrollToList = () => {
     const feed = feedRef.current;
@@ -402,7 +401,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   };
 
   const collectionTitle = collection === "everyday" ? everydayTab : unified ? "음식 둘러보기" : collections.find(({ value }) => value === collection)!.label;
-  const defaultTitle = curated || collection === "everyday" ? collectionTitle : filtering ? "전체" : "2위부터";
+  const defaultTitle = curated || collection === "everyday" ? collectionTitle : filtering ? "전체" : trendTabLabel;
   const title = [tab === "전체" ? defaultTitle : tab === "찜" ? "찜한 음식" : tab, year && `${year}년 화제`, tag && `#${tag}`, q && `'${q}' 검색`]
     .filter(Boolean)
     .join(" · ");

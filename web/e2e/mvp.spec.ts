@@ -251,7 +251,7 @@ test("연도별 음식: 2010~2025 슬라이더, 출처, 주소 유지와 초기�
   await expect(page).not.toHaveURL(/year=/);
   expect((await cardTitles(page)).sort()).toEqual(["계란 파 라면", "들기름 막국수"]);
   await page.goto("/?year=2009");
-  await expect(page.getByRole("heading", { name: "2위부터", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "유행 음식", exact: true })).toBeVisible();
 });
 
 test("통합 장바구니를 제거하고 찜·상세 재료 체크·구매 링크는 유지한다", async ({ page }, info) => {
@@ -312,11 +312,13 @@ async function expectNoA11yViolations(page: Page) {
   expect(axe.violations.map((v) => `${v.id}: ${v.help} (${v.nodes[0]?.target})`)).toEqual([]);
 }
 
-test("메인: 1위 히어로, 2~10위 목록, 테마, 접근성", async ({ page }, info) => {
+test("메인: 1위 히어로, 1~10위 목록, 테마, 접근성", async ({ page }, info) => {
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "ko");
   await expect(page.getByRole("region", { name: "오늘의 1위", exact: true }).getByRole("heading", { level: 2 })).toHaveText("두바이 초콜릿");
-  expect(await cardTitles(page)).toHaveLength(9);
+  const titles = await cardTitles(page);
+  expect(titles).toHaveLength(10);
+  expect(titles[0]).toBe("두바이 초콜릿");
   await expect(page.getByLabel("광고")).toHaveCount(1);
 
   expect(await page.evaluate(() => getComputedStyle(document.body).fontFamily)).toMatch(/^"?Pretendard Variable/);

@@ -325,7 +325,7 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   await page.goBack();
   await expect(page.locator("#list li h3")).toHaveText(trendFoods.map((food) => food.name));
   await page.getByRole("button", { name: "전체 보기", exact: true }).click();
-  await expect(page.locator("#list li h3")).toHaveText(trendFoods.slice(1).map((food) => food.name));
+  await expect(page.locator("#list li h3")).toHaveText(trendFoods.map((food) => food.name));
   await page.screenshot({ path: `test-results/content/discovery-feed-${info.project.name}.png` });
   await page.getByRole("searchbox").fill("편의점까지");
   await page.getByRole("button", { name: "검색", exact: true }).click();
@@ -601,7 +601,7 @@ test("수집 콘텐츠: 유행 음식만 최근에 확인된 유행 시기순으
       await expect(page.getByText(/새로 추가/)).toHaveCount(0);
     }
   }
-  await expect(page.locator("#list li h3")).toHaveText(trendFoods.slice(1).map((food) => food.name));
+  await expect(page.locator("#list li h3")).toHaveText(trendFoods.map((food) => food.name));
   await expect(page.getByRole("button", { name: "최신 유행순", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /^장바구니/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "좋아요순", exact: true })).toHaveCount(0);
@@ -619,13 +619,15 @@ test("수집 콘텐츠: 유행 음식만 최근에 확인된 유행 시기순으
   )).toBeLessThanOrEqual(2);
   expect((await page.locator("#food-grid").boundingBox())!.width).toBe(page.viewportSize()!.width - 40);
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
-  const first = (await cards.nth(0).boundingBox())!;
-  const second = (await cards.nth(1).boundingBox())!;
+  const [first, second, third] = await cards.evaluateAll((items) => items.slice(0, 3).map((card) => {
+    const { x, y, width, height } = card.getBoundingClientRect();
+    return { x, y, width, height };
+  }));
   const firstPhoto = (await cards.first().getByRole("img").boundingBox())!;
   expect(firstPhoto.width / firstPhoto.height).toBeCloseTo(info.project.name === "desktop" ? 3 / 2 : 4 / 3, 2);
   expect(Math.abs(first.y - second.y)).toBeLessThan(2);
   expect(second.x).toBeGreaterThan(first.x + first.width);
-  const third = (await cards.nth(2).boundingBox())!;
+  expect(second.width).toBeCloseTo(first.width, 0);
   expect(third.y).toBeGreaterThanOrEqual(first.y + first.height);
   expect(third.width).toBeCloseTo(first.width, 0);
   await expect(cards.first().getByText(/^(AI 생성 예시|참고 사진)$/)).toHaveCount(0);
@@ -648,7 +650,7 @@ test("수집 콘텐츠: 유행 음식만 최근에 확인된 유행 시기순으
   await expect(layout.locator("svg")).toHaveCount(1);
   await expect(layout.locator("svg")).toHaveClass(/lucide-grid-3x3/);
   await expect(cards.getByTestId("food-description")).toHaveCount(0);
-  const firstFood = trendFoods[1];
+  const firstFood = trendFoods[0];
   await expect(cards.first()).toHaveText(`${firstFood.category}${firstFood.name}`);
   await expect(cards.first()).toHaveCSS("transform", "none");
   const compactFirst = (await cards.nth(0).boundingBox())!;
@@ -764,7 +766,7 @@ test("간식 탭 없이 기존 간식 주소는 유행 음식으로 열리고 �
   await expect(categories.getByRole("button", { name: /^간식/ })).toHaveCount(0);
   await expect(categories.getByRole("button", { name: /^유행 음식/ })).toHaveAttribute("aria-current", "true");
   await expect(page).not.toHaveURL(/cat=/);
-  await expect(page.locator("#list li h3")).toHaveText(trendFoods.slice(1).map((food) => food.name));
+  await expect(page.locator("#list li h3")).toHaveText(trendFoods.map((food) => food.name));
   await page.getByRole("link", { name: "유행 음식", exact: true }).click();
   await page.screenshot({ path: `test-results/content/no-snack-tab-${info.project.name}.png` });
   const snack = snapshot.foods.find((food) => food.category === "간식")!;
@@ -926,7 +928,7 @@ test("2020~2026 연도 필터와 공유 주소·검색 조합·뒤로가기가 �
   await page.reload();
   await expect(page.locator("#list li h3")).toHaveText(["밤 티라미수"]);
   await page.getByRole("button", { name: "전체 보기", exact: true }).click();
-  await expect(page.locator("#list li h3")).toHaveText(trendFoods.slice(1).map((food) => food.name));
+  await expect(page.locator("#list li h3")).toHaveText(trendFoods.map((food) => food.name));
   await page.goBack();
   await expect(page.locator("#list li h3")).toHaveText(["밤 티라미수"]);
 });
