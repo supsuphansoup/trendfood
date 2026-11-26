@@ -4,14 +4,13 @@ import { Check, Share2 } from "lucide-react";
 import { useState } from "react";
 import { SITE_NAME } from "@/data/site";
 
-export function ShareButton({ title }: { title: string }) {
+export function ShareButton({ title, url }: { title: string; url: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <button
       type="button"
       aria-label={copied ? "링크를 복사했어요" : "공유하기"}
       onClick={async () => {
-        const url = window.location.href.split("#")[0];
         try {
           if (navigator.share) {
             await navigator.share({ title: `${title} | ${SITE_NAME}`, url });

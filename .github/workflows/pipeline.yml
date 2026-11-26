@@ -68,6 +68,7 @@ jobs:
           restore-keys: |
             food-discovery-v1-
       - run: npm run pipeline
+        id: candidate_collection
         if: inputs.pending_only != true && inputs.checks_only != true && inputs.photos_only != true && inputs.links_only != true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -257,6 +258,14 @@ jobs:
           git push origin HEAD:main
           echo "changed=true" >> "$GITHUB_OUTPUT"
           echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: 관리자용 원고·사진 집계 저장
+        if: always() && !cancelled() && steps.candidate_collection.outputs.run_id != ''
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          PIPELINE_RUN_ID: ${{ steps.candidate_collection.outputs.run_id }}
+        run: node scripts/pipeline/report-publication.ts
       - name: 실행 요약
         if: always() && inputs.compare_models != true
         run: |

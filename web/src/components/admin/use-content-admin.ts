@@ -1,7 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";
-import { parseContent, type ContentSnapshot } from "@/data/content";
-import { contentEditUploads, editedContentRecords, parseContentEdits, type ContentEdit, type ContentEdits, type ContentEditState } from "@/data/content-edits";
+import { parseContent, publicationDate, type ContentSnapshot } from "@/data/content";
+import { candidateContent } from "@/data/candidate-content";
+import { candidateIdentity, type CandidateRow } from "@/data/candidates";
+import { applyContentEdits, contentEditUploads, editedContentRecords, isPublicContent, parseContentEdits, type ContentEdit, type ContentEdits, type ContentEditState } from "@/data/content-edits";
 
 const columns = "revision,draft,published";
 
@@ -14,6 +16,7 @@ export type ContentAdmin = {
   edits: ContentEdits;
   hasUnpublishedChanges: boolean;
   save: (slug: string, patch: ContentEdit) => Promise<void>;
+  addCandidate: (candidate: CandidateRow, source: string) => Promise<void>;
   reorder: (order: string[]) => Promise<void>;
   preparePublish: () => Promise<void>;
 };
@@ -81,6 +84,16 @@ export function useContentAdmin(db: SupabaseClient, source: string | undefined) 
       if (!Object.keys(patch).length) return;
       await saveDraft({ ...state.draft, foods: { ...state.draft.foods, [slug]: { ...state.draft.foods[slug], ...patch } } });
     },
+    addCandidate: async (candidate, source) => {
+      if (Object.values(state.draft.foods).some((edit) => edit.addition?.candidateId === candidate.id)) return;
+      const food = candidateContent(candidate, source);
+      const identity = candidateIdentity(food.name);
+      const existing = applyContentEdits(snapshot, state.draft, contentEditUploads(state.draft)).foods;
+      if (existing.some(({ slug, name }) => slug === food.slug || candidateIdentity(name) === identity)) {
+        throw new Error("같은 이름이나 주소의 음식이 게시 관리에 있어요. 기존 음식을 확인해 주세요.");
+      }
+      await saveDraft({ ...state.draft, foods: { ...state.draft.foods, [food.slug]: { draft: true, addition: { candidateId: candidate.id, food } } } });
+    },
     reorder: (order) => saveDraft({ ...state.draft, order }),
     preparePublish: async () => {
       // 이전에 선택한 업로드 사진이 아직 있는지 다시 확인한다.
@@ -91,8 +104,14 @@ export function useContentAdmin(db: SupabaseClient, source: string | undefined) 
         if (error) throw new Error(error.message);
         registered.push(...(data ?? []).map((photo) => photo.id));
       }
-      editedContentRecords(snapshot, state.draft, registered);
-      await write({ published: state.draft });
+      const today = publicationDate(new Date());
+      const edits = { ...state.draft, foods: Object.fromEntries(Object.entries(state.draft.foods).map(([slug, edit]) =>
+        edit.addition && isPublicContent(edit) && !edit.addition.food.publishedAt
+          ? [slug, { ...edit, addition: { ...edit.addition, food: { ...edit.addition.food, publishedAt: today } } }]
+          : [slug, edit],
+      )) };
+      editedContentRecords(snapshot, edits, registered);
+      await write({ draft: edits, published: edits });
     },
   };
   return { content };

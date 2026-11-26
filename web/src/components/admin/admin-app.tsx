@@ -28,7 +28,7 @@ const tabs = [
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
 
-export function AdminApp({ source }: { source?: string }) {
+export function AdminApp({ source, publishedByDate }: { source?: string; publishedByDate: Record<string, number> }) {
   const [phase, setPhase] = useState<Phase>(() => (supabaseConfig() ? { kind: "loading" } : { kind: "no-config" }));
 
   const check = useCallback(async (db: SupabaseClient) => {
@@ -93,10 +93,10 @@ export function AdminApp({ source }: { source?: string }) {
       </Centered>
     );
   }
-  return <AdminShell db={db} email={phase.email} source={source} />;
+  return <AdminShell db={db} email={phase.email} source={source} publishedByDate={publishedByDate} />;
 }
 
-function AdminShell({ db, email, source }: { db: SupabaseClient; email: string; source?: string }) {
+function AdminShell({ db, email, source, publishedByDate }: { db: SupabaseClient; email: string; source?: string; publishedByDate: Record<string, number> }) {
   const [tab, setTab] = useState<TabId>("foods");
   const publicAdmin = useContentAdmin(db, source);
   const { content, loadError, retry } = publicAdmin;
@@ -128,7 +128,7 @@ function AdminShell({ db, email, source }: { db: SupabaseClient; email: string; 
         </nav>
       </header>
       <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-6 px-5 py-6">
-        <PublishBar db={db} preparePublish={content?.preparePublish} disabled={!!source && !content} hasUnpublishedChanges={content?.hasUnpublishedChanges} />
+        <PublishBar db={db} preparePublish={content?.preparePublish} disabled={!!source && !content} hasUnpublishedChanges={content?.hasUnpublishedChanges} publishedByDate={publishedByDate} />
         {source && !content && tab !== "queue" ? (
           <div role="status" className="flex flex-wrap items-center gap-3">
             <p>{loadError ? `공개 음식 목록을 못 불러왔어요: ${loadError}` : "공개 음식 목록을 불러오는 중이에요…"}</p>
@@ -138,7 +138,7 @@ function AdminShell({ db, email, source }: { db: SupabaseClient; email: string; 
           {tab === "foods" && <FoodsPanel db={db} content={content} />}
           {tab === "links" && <LinksPanel db={db} content={content} />}
         </>}
-        {tab === "queue" && <QueuePanel db={db} />}
+        {tab === "queue" && <QueuePanel db={db} content={content} contentMode={!!source} />}
       </main>
     </>
   );

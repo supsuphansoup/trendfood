@@ -1,17 +1,20 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { useCallback, useEffect, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import type { ContentAdmin } from "./use-content-admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { type CandidateRow, draftToRows, normalizeName } from "@/data/candidates";
 import { categoryOptions } from "@/data/catalog-schema";
+import { candidateSourceUrl } from "@/data/candidate-content";
 
 const statusOrder = { 대기: 0, 승인: 1, 반려: 2 } as const;
 
 /** 후보 큐: 자동 수집·직접 추가한 후보를 승인/반려. 승인하면 AI 초안이 '초안' 글로 들어간다 */
-export function QueuePanel({ db }: { db: SupabaseClient }) {
+export function QueuePanel({ db, content, contentMode }: { db: SupabaseClient; content?: ContentAdmin; contentMode: boolean }) {
   const [rows, setRows] = useState<CandidateRow[] | null>(null);
   const [notice, setNotice] = useState("");
+  const saving = useRef(false);
 
   const load = useCallback(async () => {
     const { data, error } = await db.from("candidates").select("*").order("created_at", { ascending: false }).limit(100);
@@ -43,7 +46,29 @@ export function QueuePanel({ db }: { db: SupabaseClient }) {
     await load();
   }
 
-  async function approve(c: CandidateRow) {
+  async function approve(c: CandidateRow, event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (saving.current) return;
+    if (!contentMode) return approveLegacy(c);
+    if (!content) return setNotice("게시 관리 원본을 불러온 뒤 다시 눌러 주세요.");
+    const source = String(new FormData(event.currentTarget).get("confirmed-source") ?? c.source);
+    saving.current = true;
+    try {
+      await content.addCandidate(c, source);
+      if (c.status !== "승인") {
+        const { error } = await db.from("candidates").update({ status: "승인" }).eq("id", c.id);
+        if (error) throw new Error(`초안은 저장했지만 후보 승인 상태를 기록하지 못했어요. 다시 승인해 주세요. ${error.message}`);
+      }
+      setNotice(`${c.name}을(를) 게시 관리에 초안으로 저장했어요.`);
+      await load();
+    } catch (error) {
+      setNotice((error as Error).message);
+    } finally {
+      saving.current = false;
+    }
+  }
+
+  async function approveLegacy(c: CandidateRow) {
     const rows = draftToRows(c);
     if (rows) {
       const { error } = await db.from("foods").insert(rows.food);
@@ -112,7 +137,7 @@ export function QueuePanel({ db }: { db: SupabaseClient }) {
       {!rows ? (
         <p className="text-base text-muted-foreground">불러오는 중이에요…</p>
       ) : rows.length === 0 ? (
-        <p className="text-base text-muted-foreground">후보가 아직 없어요. 자동 수집은 한국 시간 오전 6시, 오후 2시, 밤 10시에 시작해요.</p>
+        <p className="text-base text-muted-foreground">후보가 아직 없어요. 마지막 자동 수집 결과는 위에서 확인할 수 있어요.</p>
       ) : (
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {rows.map((c) => (
@@ -133,15 +158,22 @@ export function QueuePanel({ db }: { db: SupabaseClient }) {
                   <p className="text-sm break-all text-muted-foreground">{[c.note, c.source].filter(Boolean).join(" · ")}</p>
                 )}
               </div>
-              {c.status === "대기" && (
-                <div className="flex gap-2">
-                  <Button onClick={() => approve(c)} aria-label={`${c.name} 승인`}>
-                    승인
+              {(c.status === "대기" || (c.status === "승인" && content &&
+                !Object.values(content.edits.foods).some((edit) => edit.addition?.candidateId === c.id))) && (
+                <form className="flex flex-wrap items-end gap-2" onSubmit={(event) => void approve(c, event)}>
+                  {contentMode && !candidateSourceUrl(c.source) && (
+                    <div className="grid gap-1">
+                      <Label htmlFor={`confirmed-source-${c.id}`}>확인한 출처 주소</Label>
+                      <Input id={`confirmed-source-${c.id}`} name="confirmed-source" type="url" placeholder="https://" required />
+                    </div>
+                  )}
+                  <Button type="submit" aria-label={`${c.name} ${c.status === "대기" ? "승인" : "게시 관리로 옮기기"}`}>
+                    {c.status === "대기" ? "승인" : "게시 관리로 옮기기"}
                   </Button>
-                  <Button variant="outline" onClick={() => reject(c)} aria-label={`${c.name} 반려`}>
+                  {c.status === "대기" && <Button type="button" variant="outline" onClick={() => reject(c)} aria-label={`${c.name} 반려`}>
                     반려
-                  </Button>
-                </div>
+                  </Button>}
+                </form>
               )}
             </li>
           ))}

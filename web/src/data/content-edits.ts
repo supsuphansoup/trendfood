@@ -12,6 +12,7 @@ export type ContentEdit = Partial<Pick<ContentFood,
   cookLabel?: string;
   change?: string;
   ingredientLinks?: Record<string, string | null>;
+  addition?: { candidateId: string; food: ContentFood };
 };
 
 export type ContentEdits = { foods: Record<string, ContentEdit>; order?: string[] };
@@ -21,7 +22,7 @@ const foodFields = [
   "name", "category", "tags", "cookMinutes", "difficulty", "servings", "why", "summary", "tip",
   "image", "alt", "videoId", "ingredients", "steps", "convenience",
 ] as const satisfies readonly (keyof ContentEdit)[];
-const editFields = new Set<string>([...foodFields, "hidden", "draft", "cookLabel", "change", "ingredientLinks"]);
+const editFields = new Set<string>([...foodFields, "hidden", "draft", "cookLabel", "change", "ingredientLinks", "addition"]);
 const validSlug = (slug: string) => slug.length <= 80 && /^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug);
 const isObject = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
@@ -36,6 +37,8 @@ export function parseContentEdits(value: unknown): ContentEdits {
   for (const [slug, edit] of Object.entries(value.foods)) {
     if (!validSlug(slug) || !isObject(edit) || Object.keys(edit).some((key) => !editFields.has(key)) ||
       [edit.hidden, edit.draft].some((flag) => flag !== undefined && typeof flag !== "boolean") ||
+      (edit.addition !== undefined && (!isObject(edit.addition) || !isObject(edit.addition.food) ||
+        edit.addition.food.slug !== slug || typeof edit.addition.candidateId !== "string" || !validSlug(edit.addition.candidateId))) ||
       (edit.cookLabel !== undefined && (typeof edit.cookLabel !== "string" || edit.cookLabel.length > 40)) ||
       (edit.change !== undefined && (typeof edit.change !== "string" || !edit.change.trim() || edit.change.length > 30)) ||
       (edit.ingredientLinks !== undefined && (!isObject(edit.ingredientLinks) || Object.entries(edit.ingredientLinks)
@@ -50,7 +53,9 @@ export function parseContentEdits(value: unknown): ContentEdits {
 }
 
 export function contentEditUploads(edits: ContentEdits): string[] {
-  return uploadedPhotoIds(Object.values(edits.foods).map((edit) => edit.image));
+  return uploadedPhotoIds(Object.values(edits.foods).flatMap((edit) => [
+    edit.image ?? edit.addition?.food.image, edit.addition?.food.heroImage,
+  ]));
 }
 
 export function getContentEdit(edits: ContentEdits, slug: string): ContentEdit | undefined {
@@ -89,7 +94,10 @@ export function orderContent<T extends { slug: string }>(foods: T[], order: stri
 }
 
 export function applyContentEdits(snapshot: ContentSnapshot, edits: ContentEdits, uploads: readonly string[] = []): ContentSnapshot {
-  const foods = snapshot.foods.map((food) => mergeFood(food, getContentEdit(edits, food.slug)));
+  const baseSlugs = new Set(snapshot.foods.map((food) => food.slug));
+  const additions = Object.entries(edits.foods).flatMap(([slug, edit]) =>
+    edit.addition && !baseSlugs.has(slug) ? [edit.addition.food] : []);
+  const foods = [...snapshot.foods, ...additions].map((food) => mergeFood(food, getContentEdit(edits, food.slug)));
   return parseContent({ ...snapshot, foods }, false, uploads);
 }
 

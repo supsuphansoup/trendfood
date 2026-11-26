@@ -3,6 +3,7 @@ import { expect, test, type Route } from "@playwright/test";
 import { readFileSync } from "node:fs";
 import type { ContentSnapshot } from "../src/data/content";
 import type { ContentEditState } from "../src/data/content-edits";
+import type { CandidateRow } from "../src/data/candidates";
 import { adminApi, publishedFixture, publishedPhotoId } from "./admin-api";
 
 const original = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
@@ -21,11 +22,17 @@ test("공개 데이터가 상세·사이트맵에 반영되고 비공개 음식 
   expect(sitemap).not.toContain("/food/mint-choco-latte");
 });
 
-test("관리자가 공개 음식 전체를 찾아 편집·숨김·복구하고 저장한 버전을 배포 요청한다", async ({ page }, info) => {
+test("관리자가 공개 음식을 편집·숨김·복구하고 승인한 후보와 함께 배포 요청한다", async ({ page }, info) => {
   const state: ContentEditState = { revision: 0, draft: structuredClone(publishedFixture), published: structuredClone(publishedFixture) };
   let dispatches = 0;
   let authReads = 0;
   let rejectDispatch = true;
+  let rejectApproval = true;
+  const candidate: CandidateRow = {
+    id: "test-food", name: "새 후보 음식", normalized: "새후보음식", category: "디저트",
+    origin: "pipeline", source: "영상 제목: 새 후보 음식", note: "", status: "대기",
+    score: null, signals: {}, draft: null, created_at: "2026-11-20T01:00:00Z", week: "2026-11-16",
+  };
   const takeDown: { id: number; action: string; reason: string; memo: string; created_at: string }[] = [];
   await page.route("https://raw.githubusercontent.com/supsuphansoup/trendfood/**", (route) => {
     authReads++;
@@ -66,7 +73,16 @@ test("관리자가 공개 음식 전체를 찾아 편집·숨김·복구하고 �
       dispatches++;
       return json(route, { message: "반영을 요청했어요. 3~5분 뒤 사이트에 보여요." });
     }
-    if (url.pathname === "/rest/v1/pipeline_runs") return json(route, []);
+    if (url.pathname === "/rest/v1/pipeline_runs") return json(route, [{
+      started_at: "2026-11-20T01:17:00Z", finished_at: "2026-11-20T01:22:00Z", ok: true,
+      summary: { inserted: 3, publication: { date: "2026-11-20", verified: 3, photoWaiting: 14 } },
+    }]);
+    if (url.pathname === "/rest/v1/candidates") {
+      if (request.method() === "GET") return json(route, [candidate]);
+      if (rejectApproval) return json(route, { message: "후보 상태 저장 오류" }, 500);
+      candidate.status = request.postDataJSON().status;
+      return json(route, {});
+    }
     return json(route, { message: "예상하지 못한 요청" }, 404);
   });
 
@@ -78,6 +94,8 @@ test("관리자가 공개 음식 전체를 찾아 편집·숨김·복구하고 �
   await page.getByRole("button", { name: "로그인" }).click();
   await expect(page.getByText(`게시 중 ${original.foods.length - 1}개 · 전체 ${original.foods.length}개.`, { exact: false })).toBeVisible();
   expect(authReads).toBe(1);
+  const count = original.foods.filter((food) => food.publishedAt === "2026-11-20" && food.slug !== "mint-choco-latte").length;
+  await expect(page.getByText(`2026-11-20 · 원고 검증 3개 · 사진 대기 14개 · 공개 완료 ${count}개`, { exact: true })).toBeVisible();
 
   const search = page.getByRole("searchbox", { name: "음식 검색" });
   await search.fill("계란국");
@@ -107,6 +125,26 @@ test("관리자가 공개 음식 전체를 찾아 편집·숨김·복구하고 �
   await expect(hidden).not.toBeChecked();
   expect(dispatches).toBe(0);
 
+  await page.getByRole("button", { name: "후보 큐", exact: true }).click();
+  await page.getByLabel("확인한 출처 주소").fill("https://www.youtube.com/watch?v=Abcdef_1234");
+  const approve = page.getByRole("button", { name: "새 후보 음식 승인", exact: true });
+  await approve.click();
+  await expect(page.getByText(/초안은 저장했지만 후보 승인 상태를 기록하지 못했어요/)).toBeVisible();
+  const slug = "candidate-test-food";
+  expect(state.draft.foods[slug].draft).toBe(true);
+  expect(state.published.foods[slug]).toBeUndefined();
+  rejectApproval = false;
+  await approve.click();
+  await expect(page.getByText("새 후보 음식을(를) 게시 관리에 초안으로 저장했어요.")).toBeVisible();
+  expect(candidate.status).toBe("승인");
+  expect(Object.values(state.draft.foods).filter((edit) => edit.addition?.candidateId === candidate.id)).toHaveLength(1);
+  await page.getByRole("button", { name: "게시 관리", exact: true }).click();
+  await search.fill("새 후보 음식");
+  await expect(page.getByRole("heading", { name: "새 후보 음식" })).toBeVisible();
+  await expect(page.getByText("초안", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "게시하기", exact: true }).click();
+  await expect(page.getByText("게시 중", { exact: true })).toBeVisible();
+
   expect((await new AxeBuilder({ page }).analyze()).violations.map((violation) => violation.id)).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(info.project.use.viewport!.width);
   await page.screenshot({ path: `test-results/content-admin/admin-content-${info.project.name}.png`, fullPage: true });
@@ -119,4 +157,6 @@ test("관리자가 공개 음식 전체를 찾아 편집·숨김·복구하고 �
   await expect(page.getByText("반영을 요청했어요. 3~5분 뒤 사이트에 보여요.")).toBeVisible();
   expect(dispatches).toBe(1);
   expect(state.published.foods["mint-choco-latte"].hidden).toBe(false);
+  expect(state.published.foods[slug].draft).toBe(false);
+  expect(state.published.foods[slug].addition?.food.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 });

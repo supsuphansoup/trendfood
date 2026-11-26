@@ -7,7 +7,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { candidateIdentity, type CandidateDraft, type CandidateRow, normalizeName, weekOf } from "../../src/data/candidates.ts";
 import { cleanupOldYoutubeData } from "./cleanup.ts";
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { AiQuotaError, aiConfig, askJson, draftPrompt, draftSchema, extractPrompt, extractSchema } from "./llm.ts";
@@ -63,6 +63,7 @@ async function main() {
   const summary: Record<string, unknown> = { dryRun };
 
   try {
+    if (runId && env.GITHUB_OUTPUT) await appendFile(env.GITHUB_OUTPUT, `run_id=${runId}\n`);
     if (compareModels && (!env.YOUTUBE_API_KEY || aiConfig()?.provider !== "openai")) {
       throw new Error("모델 비교에는 YouTube와 OpenAI 연결이 필요해요.");
     }
@@ -200,6 +201,7 @@ async function main() {
       const sourceVideos = videos.filter((v) => normalizeName(v.title).includes(normalizeName(p.name)));
       const trendPending = p.multiplier < minMultiplier;
       const titles = sourceVideos.map((v) => v.title);
+      const source = sourceVideos.find((video) => /^[a-zA-Z0-9_-]{11}$/.test(video.id));
       let draft: CandidateDraft | null = null;
       if (!autoPublish && !trendPending && i < DRAFT_LIMIT && aiConfig()) {
         try {
@@ -214,7 +216,7 @@ async function main() {
         normalized: candidateIdentity(p.name),
         category: p.category,
         origin: "pipeline",
-        source: titles[0] ? `영상 제목: ${titles[0]}`.slice(0, 200) : "",
+        source: source ? `https://www.youtube.com/watch?v=${source.id}` : "",
         note: `영상 ${p.mentions}개 언급`,
         score: trendPending ? null : p.score,
         signals: { multiplier: p.multiplier, trend: p.trend, videos: titles.length, mentions: p.mentions, trendPending },

@@ -19,16 +19,17 @@ const near = (actual: number[], hex: string) =>
 const cardTitles = (page: Page) => page.locator("#list li").getByRole("heading").allInnerTexts();
 
 test("첨부 로고: 공개 페이지의 이미지·홈 이동·탭 아이콘이 동일하다", async ({ page, request }, info) => {
-  const asset = await request.get("/brand/vviralfood-logo.png");
+  const asset = await request.get("/brand/vviralfood-logo-528.png");
+  expect((await asset.body()).byteLength).toBeLessThan(50_000);
   expect(asset.ok()).toBe(true);
   expect(asset.headers()["content-type"]).toBe("image/png");
   for (const path of ["/", "/food/dubai-chocolate", "/about", "/privacy", "/terms"]) {
     await page.goto(path);
     const logo = page.getByTestId("site-logo");
     await expect(logo).toBeVisible();
-    await expect(logo).toHaveAttribute("src", "/brand/vviralfood-logo.png");
+    await expect(logo).toHaveAttribute("src", "/brand/vviralfood-logo-528.png");
     await expect(logo).toHaveAttribute("alt", "vviralfood");
-    await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(2172);
+    await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(528);
     await expect(logo).toHaveCSS("object-fit", "contain");
     const logoBox = (await logo.boundingBox())!;
     expect(logoBox.width / logoBox.height).toBeCloseTo(3, 2);
@@ -41,7 +42,7 @@ test("첨부 로고: 공개 페이지의 이미지·홈 이동·탭 아이콘이
       const title = page.getByRole("heading", { name: "유행 음식과 집밥" });
       expect(bounds.x).toBeCloseTo((await title.boundingBox())!.x, 0);
     }
-    await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/brand/vviralfood-logo.png");
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/brand/vviralfood-logo-528.png");
     await expect(page).toHaveTitle(path === "/" ? "vviralfood — 지금 뜨는 음식" : / \| vviralfood$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (path === "/food/dubai-chocolate") await page.screenshot({ path: `test-results/logo-detail-${info.project.name}.png` });
@@ -144,7 +145,7 @@ test("상세: 재료·만드는 법을 소개보다 먼저 보여주고 사서 �
       continue;
     }
     const headings = page.getByRole("main").getByRole("heading", { level: 2 });
-    await expect(headings.nth(0)).toHaveText("재료 장바구니");
+    await expect(headings.nth(0)).toHaveText("재료 구매 링크");
     await expect(headings.nth(1)).toHaveText("만드는 법");
     await expect(headings.nth(2)).toHaveText("왜 지금 뜨고 있나요");
     const cart = (await page.locator("#cart").boundingBox())!;
@@ -270,12 +271,12 @@ test("통합 장바구니를 제거하고 찜·상세 재료 체크·구매 링�
   await expect(page.getByRole("button", { name: "선택한 재료 통합 장바구니에 담기", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "두바이 초콜릿 찜하기", exact: true })).toBeVisible();
   await page.screenshot({ path: `test-results/no-cart-detail-${info.project.name}.png` });
-  const ingredients = page.getByRole("region", { name: "재료 장바구니", exact: true });
+  const ingredients = page.getByRole("region", { name: "재료 구매 링크", exact: true });
   await expect(ingredients.getByRole("checkbox")).toHaveCount(6);
   const butter = ingredients.getByRole("checkbox", { name: /무염 버터/ });
   await butter.uncheck();
   await expect(butter).not.toBeChecked();
-  await expect(ingredients.getByRole("link", { name: /장보기 시작: 피스타치오 스프레드/ })).toHaveAttribute("href", /coupang\.com/);
+  await expect(ingredients.getByRole("link", { name: /쿠팡에서 피스타치오 스프레드.* 보기/ })).toHaveAttribute("href", /coupang\.com/);
   await expect(ingredients.getByRole("button", { name: "재료 목록 복사", exact: true })).toBeVisible();
   await ingredients.scrollIntoViewIfNeeded();
   await page.screenshot({ path: `test-results/no-cart-ingredients-${info.project.name}.png` });
@@ -288,11 +289,11 @@ test("쿠팡 이동은 본문·모바일 하단에서 누른 재료 순서를 �
     await page.goto("/food/dubai-chocolate");
     await page.evaluate(() => localStorage.removeItem("tf:added:dubai-chocolate"));
     await page.reload();
-    const cart = page.getByRole("region", { name: "재료 장바구니" });
+    const cart = page.getByRole("region", { name: "재료 구매 링크" });
     for (const [index, name] of names.entries()) {
       const link = surface === "본문"
-        ? cart.getByRole("link", { name: new RegExp(`${index === 0 ? "장보기 시작" : "다음 재료 담기"}: ${name}`) })
-        : page.getByRole("link", { name: new RegExp(`다음: ${name} 담기`) });
+        ? cart.getByRole("link", { name: new RegExp(`쿠팡에서 ${name}.* 보기`) })
+        : page.getByRole("link", { name: new RegExp(`${name} 쿠팡에서 보기`) });
       await expect(link).toBeVisible();
       const href = await link.getAttribute("href");
       expect(new URL(href!).searchParams.get("q")).toBe(name);
@@ -300,9 +301,9 @@ test("쿠팡 이동은 본문·모바일 하단에서 누른 재료 순서를 �
       await expect(popup).toHaveURL(href!);
       expect(context.pages()).toHaveLength(2);
       await popup.close();
-      await expect(cart.getByText(`${index + 1}/4 담음`, { exact: true })).toBeVisible();
+      await expect(cart.getByText(`링크 확인 ${index + 1}/4`, { exact: true })).toBeVisible();
     }
-    await expect(cart.getByText("재료를 모두 담았어요", { exact: true })).toBeVisible();
+    await expect(cart.getByText("선택한 링크를 모두 열었어요", { exact: true })).toBeVisible();
   }
 });
 
@@ -388,7 +389,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await search.click();
   expect((await cardTitles(page)).sort()).toEqual(["새우 로제 떡볶이", "새우 크림 리조또"]);
   await page.getByRole("button", { name: "전체 보기", exact: true }).click();
-  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
+  await page.getByRole("link", { name: "유행 음식", exact: true }).click();
   await expect(page).toHaveURL(/#list$/);
   await expect(page.locator("#list h2")).toBeInViewport();
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
@@ -412,7 +413,7 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await expect(page.getByRole("heading", { name: "만드는 법", exact: true })).toBeInViewport();
   await page.getByRole("link", { name: "재료 살펴보기", exact: true }).click();
   await expect(page).toHaveURL(/#cart$/);
-  await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeInViewport();
+  await expect(page.getByRole("region", { name: "재료 구매 링크", exact: true })).toBeInViewport();
   await page.goto("/");
   await page.screenshot({ path: `test-results/redesign-home-${info.project.name}.png` });
 });
@@ -424,7 +425,7 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   await expect(intro).toBeInViewport({ ratio: 1 });
   await expect(intro).toHaveCSS("color", "rgb(255, 255, 255)");
   await expect(page.getByText("왜 유행했는지, 집에서 만드는 법까지.")).toBeInViewport({ ratio: 1 });
-  const browse = page.getByRole("link", { name: "음식 목록", exact: true });
+  const browse = page.getByRole("link", { name: "유행 음식", exact: true });
   await expect(browse).toBeInViewport({ ratio: 1 });
   await expect(browse).toHaveCSS("color", "rgb(255, 255, 255)");
   expect((await browse.boundingBox())!.height).toBeGreaterThanOrEqual(44);
@@ -497,7 +498,7 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   await explore.click();
   await page.getByRole("link", { name: "재료 살펴보기", exact: true }).click();
   await expect(page).toHaveURL(/#cart$/);
-  await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeInViewport();
+  await expect(page.getByRole("region", { name: "재료 구매 링크", exact: true })).toBeInViewport();
 
 });
 
@@ -639,7 +640,7 @@ test("메인: 필터 버튼으로 열고 닫으며 선택 조건과 주소를 �
   await expect(toggle).toHaveAttribute("aria-expanded", "false");
   await expect(toggle).toHaveAttribute("aria-controls", "food-filters");
   await expect(panel).toBeHidden();
-  await page.getByRole("link", { name: "음식 목록", exact: true }).click();
+  await page.getByRole("link", { name: "유행 음식", exact: true }).click();
   const closedWidth = (await page.locator("#list").boundingBox())!.width;
   await page.screenshot({ path: `test-results/filters-closed-${info.project.name}.png` });
   await toggle.focus();
@@ -781,7 +782,7 @@ test("일상 레시피 탭: 상단 추천을 유지하고 주소·검색·유행
   await expect(secondPick).toHaveText(selectedName);
 });
 
-test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근성", async ({ page, context }, info) => {
+test("상세: 재료 링크 연속 확인, 집에 있어요 기억, 타이머, 접근성", async ({ page, context }, info) => {
   await context.route("https://www.coupang.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>상품 링크 테스트</p>" }));
   await page.goto("/");
   await page.getByRole("link", { name: "음식 살펴보기", exact: true }).first().click();
@@ -790,7 +791,7 @@ test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근�
   await expectNoA11yViolations(page);
   await page.screenshot({ path: `test-results/detail-${info.project.name}.png`, fullPage: true });
 
-  const cart = page.getByRole("region", { name: "재료 장바구니" });
+  const cart = page.getByRole("region", { name: "재료 구매 링크" });
   const disclosure = cart.getByText(
     "이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.",
     { exact: true },
@@ -801,21 +802,21 @@ test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근�
   expect(disclosureBox).not.toBeNull();
   expect(firstCheckboxBox).not.toBeNull();
   expect(disclosureBox!.y).toBeLessThan(firstCheckboxBox!.y);
-  await expect(cart.getByText("0/4 담음")).toBeVisible();
+  await expect(cart.getByText("링크 확인 0/4")).toBeVisible();
   await expect(cart.getByText("37,400원")).toBeVisible();
 
   // 탭 1회 = 쿠팡 상품 1개 (새 창)
-  const first = cart.getByRole("link", { name: /장보기 시작: 피스타치오 스프레드/ });
+  const first = cart.getByRole("link", { name: /쿠팡에서 피스타치오 스프레드.* 보기/ });
   await expect(first).toHaveAttribute("rel", /sponsored/);
   const [popup] = await Promise.all([context.waitForEvent("page"), first.click()]);
   expect(popup.url()).toContain("coupang.com");
   await popup.close();
-  await expect(cart.getByText("1/4 담음")).toBeVisible();
-  await expect(cart.getByRole("link", { name: /다음 재료 담기: 카다이프 면/ })).toBeVisible();
+  await expect(cart.getByText("링크 확인 1/4")).toBeVisible();
+  await expect(cart.getByRole("link", { name: /쿠팡에서 카다이프 면.* 보기/ })).toBeVisible();
 
   // 체크 해제 → 집에 있어요, 다른 레시피에서도 빠짐
   await cart.getByRole("checkbox", { name: /무염 버터/ }).uncheck();
-  await expect(cart.getByText("1/3 담음")).toBeVisible();
+  await expect(cart.getByText("링크 확인 1/3")).toBeVisible();
   await page.goto("/food/butter-garaetteok");
   await expect(page.getByRole("checkbox", { name: /무염 버터/ })).not.toBeChecked();
 

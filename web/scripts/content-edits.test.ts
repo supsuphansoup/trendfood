@@ -2,11 +2,37 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { applyContentEdits, editedContentRecords, orderContent, parseContentEdits } from "../src/data/content-edits.ts";
 import { parseContent } from "../src/data/content.ts";
+import { candidateContent } from "../src/data/candidate-content.ts";
 import { foodVideoId } from "../src/data/youtube.ts";
 import content from "../src/data/content/foods.json" with { type: "json" };
 
 const snapshot = parseContent(content);
 const [first, second, third] = snapshot.foods;
+
+test("후보는 출처가 있는 초안으로 저장하고 게시 상태가 되면 기존 목록에 한 번만 추가한다", () => {
+  const candidate = {
+    id: "sample-candidate", name: "새 음식", normalized: "새음식", category: "디저트",
+    note: "", source: "영상 제목: 새 음식", origin: "pipeline", status: "대기",
+    score: null, signals: {}, draft: null, created_at: "2026-11-20T00:00:00Z", week: "2026-11-16",
+  } as const;
+  const date = new Date("2026-11-20T23:30:00Z");
+  assert.throws(() => candidateContent(candidate, candidate.source, date), /HTTPS/);
+  const url = "https://www.youtube.com/watch?v=Abcdef_1234";
+  const food = candidateContent(candidate, url, date);
+  assert.equal(food.checkedAt, "2026-11-21");
+  assert.equal(food.kind, "discovery");
+  assert.deepEqual(food.ingredients, []);
+  const addition = { candidateId: candidate.id, food };
+  const draft = parseContentEdits({ foods: { [food.slug]: { addition, draft: true } } });
+  assert.equal(applyContentEdits(snapshot, draft).foods.at(-1)?.slug, food.slug);
+  assert.equal(editedContentRecords(snapshot, draft).length, snapshot.foods.length);
+  const published = parseContentEdits({ foods: { [food.slug]: { addition, draft: false } } });
+  assert.equal(editedContentRecords(snapshot, published).at(-1)?.editorial?.sources[0].url, url);
+  const refreshed = { ...snapshot, foods: [...snapshot.foods, { ...food, summary: "새로 검증한 원고" }] };
+  const records = editedContentRecords(refreshed, published).filter(({ slug }) => slug === food.slug);
+  assert.equal(records.length, 1);
+  assert.equal(records[0].summary, "새로 검증한 원고");
+});
 
 test("공개 원본에 수정 필드만 적용하고 다음 수집에서 갱신된 출처와 재료를 보존한다", () => {
   const edits = parseContentEdits({ foods: { [first.slug]: { name: "편집된 음식" } } });

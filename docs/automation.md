@@ -82,7 +82,9 @@ GitHub Secrets: `YOUTUBE_API_KEY`, `NAVER_API_HUB_KEY_ID`, `NAVER_API_HUB_KEY`, 
 
 공개 JSON 모드에서 `TF_CONTENT_ADMIN=1`을 켜면 게시 관리와 재료 링크 탭이 공개 음식 전체를 읽는다. 관리자가 저장한 항목은 Supabase에 보관하고 [사이트에 반영]을 누른 뒤 정적 빌드에서 최신 JSON에 적용한다. 숨김·초안은 홈, 상세 주소, 사이트맵에서 함께 제외하고 관리자에서 다시 공개할 수 있다. 출처·유행 기록과 자동 수집 원본은 JSON 또는 아래 `content:import`로 관리한다. 공개 목록의 재료는 사용량과 쿠팡 주소를 관리한다.
 
-운영 연결은 Supabase SQL Editor에서 `web/supabase/migrations/0005_content_edits.sql`을 적용한 뒤 GitHub 저장소 변수 `TF_CONTENT_ONLY=1`, `TF_CONTENT_ADMIN=1`로 `deploy`를 실행한다. 빌드는 공개 확정본만 읽고, 관리자 저장본과 내림 사유는 RLS로 운영자에게만 제공한다. [사이트에 반영]에서 확정 저장 뒤 배포 요청에 실패하면 다음 배포에서 적용되며, 버튼으로 재요청할 수 있다. 새 변수가 꺼져 있으면 게시 관리 화면은 기존 Supabase 경로를 사용한다. 후보 큐의 수동 초안과 공개 JSON 자동 수집은 기존 승인 경로를 따른다.
+운영 연결은 Supabase SQL Editor에서 `web/supabase/migrations/0005_content_edits.sql`을 적용한 뒤 GitHub 저장소 변수 `TF_CONTENT_ONLY=1`, `TF_CONTENT_ADMIN=1`로 `deploy`를 실행한다. 빌드는 공개 확정본만 읽고, 관리자 저장본과 내림 사유는 RLS로 운영자에게만 제공한다. [사이트에 반영]에서 확정 저장 뒤 배포 요청에 실패하면 다음 배포에서 적용되며, 버튼으로 재요청할 수 있다. 변수가 꺼져 있으면 게시 관리는 기존 Supabase 경로를 사용한다.
+
+공개 JSON을 관리하는 운영자는 후보 큐에서 확인한 출처 주소로 후보를 승인해 게시 관리에 초안을 만들 수 있다. 이어서 [게시하기]와 [사이트에 반영]을 누르면 다음 정적 배포에서 공개한다. 자동 수집 기록은 원문 검증을 통과한 원고 수와 사진 미확보 건수를 보여 준다. 공개 완료 수는 현재 배포본에 실린 해당 날짜의 신규 음식 수다.
 
 `pipeline` 실행 요약과 14일 보관 `automation-report` 아티팩트의 `automation-report.json`·`photo-report.json`에 적용 가능 항목·사진 출처·보류 이유가 나온다. 설명란 원문·내부 근거 인용·이미지 바이트는 보고서에 저장하지 않는다. 개별 음식의 설명란 조회·근거 검증 실패는 그 음식을 보류한다. 수집 전체·AI 한도·검사 실패 시 새 커밋을 만들지 않는다. 배포 실패 시 기존 사이트는 유지되고 새 데이터 커밋은 남으므로 Actions의 `deploy`를 다시 실행한다. 수집 중 main이 바뀌면 반영을 중지하고 다음 실행에서 다시 시도한다.
 

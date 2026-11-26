@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined },
   title: `${SITE_NAME} — 지금 뜨는 음식`,
   description:
-    "지금 유행하는 음식을 가장 빨리 알려 주고, 필요한 재료를 하나씩 담도록 도와요.",
+    "유행 음식의 배경과 일상 레시피를 찾아보고, 필요한 재료의 구매 링크를 확인하세요.",
   icons: {
     icon: { url: SITE_LOGO, type: "image/png" },
     shortcut: SITE_LOGO,

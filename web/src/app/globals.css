@@ -122,7 +122,11 @@
   gap: 8px;
   pointer-events: none;
 }
-.home-hero-tools > :is(nav, a) { pointer-events: auto; }
+.home-hero-tools > nav { pointer-events: auto; }
+.home-hero-browse {
+  display: flex;
+  gap: clamp(.75rem, 2vw, 1.5rem);
+}
 .home-hero-list {
   display: inline-flex;
   min-height: 44px;
@@ -134,6 +138,12 @@
   text-shadow: 0 1px 12px rgb(var(--hero-shadow));
 }
 .home-hero-list:hover { text-decoration: underline; }
+@media (max-width: 380px) {
+  .home-hero-list svg { display: none; }
+}
+@media (max-width: 340px) {
+  .home-hero-browse { gap: .5rem; }
+}
 .home-hero-controls {
   display: flex;
   align-items: center;

@@ -8,11 +8,12 @@ const when = (iso: string) =>
   new Date(iso).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
 
 /** '사이트에 반영' 버튼 + 마지막 자동 수집 결과 */
-export function PublishBar({ db, preparePublish, disabled, hasUnpublishedChanges }: {
+export function PublishBar({ db, preparePublish, disabled, hasUnpublishedChanges, publishedByDate }: {
   db: SupabaseClient;
   preparePublish?: () => Promise<void>;
   disabled?: boolean;
   hasUnpublishedChanges?: boolean;
+  publishedByDate: Record<string, number>;
 }) {
   const [run, setRun] = useState<Run | null>(null);
   const [message, setMessage] = useState("");
@@ -52,6 +53,7 @@ export function PublishBar({ db, preparePublish, disabled, hasUnpublishedChanges
       : run.finished_at
         ? `마지막 자동 수집 ${when(run.started_at)} · 새 후보 ${Number(run.summary?.inserted ?? 0)}개`
         : `자동 수집 진행 중 (${when(run.started_at)} 시작)`;
+  const publication = run?.summary?.publication as { date?: string; verified?: number; photoWaiting?: number } | undefined;
 
   return (
     <section aria-label="사이트 반영" className="flex flex-wrap items-center gap-3 rounded-2xl border bg-background p-4">
@@ -61,6 +63,11 @@ export function PublishBar({ db, preparePublish, disabled, hasUnpublishedChanges
         <p className={run?.ok === false ? "text-sm font-bold text-destructive" : "text-sm text-muted-foreground"}>
           {runText}
         </p>
+        {run?.ok && publication?.date && typeof publication.verified === "number" && typeof publication.photoWaiting === "number" && (
+          <p className="text-sm text-muted-foreground">
+            {publication.date} · 원고 검증 {publication.verified}개 · 사진 대기 {publication.photoWaiting}개 · 공개 완료 {publishedByDate[publication.date] ?? 0}개
+          </p>
+        )}
       </div>
       <Button variant="cta" onClick={publish} disabled={pending || disabled}>
         {pending ? "요청 중…" : "사이트에 반영"}

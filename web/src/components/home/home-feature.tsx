@@ -23,7 +23,7 @@ function subscribeToVisibility(change: () => void) {
   return () => document.removeEventListener("visibilitychange", change);
 }
 
-export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolean }) {
+export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curated: boolean; onBrowse: (everyday: boolean) => void }) {
   const count = foods.length;
   const multiple = count > 1;
   const [{ position, instant }, setSlide] = useState({ position: 1, instant: false });
@@ -122,9 +122,14 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
           <p>왜 유행했는지, 집에서 만드는 법까지.</p>
         </header>
         <div className="home-hero-tools">
-          <Link href="#list" onNavigate={() => document.getElementById("list")?.focus({ preventScroll: true })} className="home-hero-list">
-            음식 목록 <ArrowDown className="size-4" aria-hidden />
-          </Link>
+          <nav aria-label="음식 더 보기" className="home-hero-browse">
+            <Link href="/#list" onNavigate={(event) => { event.preventDefault(); onBrowse(false); }} className="home-hero-list">
+              유행 음식 <ArrowDown className="size-4" aria-hidden />
+            </Link>
+            <Link href="/?collection=everyday#list" onNavigate={(event) => { event.preventDefault(); onBrowse(true); }} className="home-hero-list">
+              일상 레시피 <ArrowDown className="size-4" aria-hidden />
+            </Link>
+          </nav>
           {multiple && (
             <nav aria-label="추천 음식 넘기기" className="home-hero-controls">
               <button ref={rotationButton} aria-label={automatic ? "자동 넘김 일시정지" : "자동 넘김 시작"} type="button" onClick={() => setRotation(!automatic)}>
@@ -138,7 +143,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
               </button>
             </nav>
           )}
-          <span aria-live={rotating ? "off" : "polite"} aria-atomic="true" className="sr-only">{top.name} {selected + 1}위</span>
+          <span aria-live={rotating ? "off" : "polite"} aria-atomic="true" className="sr-only">{top.name} · {curated ? `추천 ${selected + 1}/${count}` : `${selected + 1}위`}</span>
         </div>
         <div
           className="home-hero-viewport"
@@ -186,7 +191,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
                     <p className="text-meta font-semibold">{context}{food.history?.years.map((year) => ` · ${year}년`)}</p>
                     <div className="home-hero-title-row">
                       <h2>{food.name}</h2>
-                      <span className="home-hero-rank">{rank}위</span>
+                      <span className="home-hero-rank">{curated ? "추천" : `${rank}위`}</span>
                     </div>
                     <p data-testid="feature-description" className="home-hero-reason">{(food.history?.note ?? food.why).split(/(?<=[.!?])\s+/)[0]}</p>
                     {food.kind !== "discovery" && food.kind !== "product" && (

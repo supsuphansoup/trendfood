@@ -36,6 +36,10 @@ function scrollBehavior(): ScrollBehavior {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth";
 }
 
+function normalizeSearch(text: string) {
+  return text.normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+}
+
 const collections: { value: Exclude<Collection, "everyday">; label: string }[] = [
   { value: "all", label: trendTabLabel },
   { value: "recent", label: "최근 발견" },
@@ -238,6 +242,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
 
   const list = useMemo(() => {
     const source = collection === "everyday" || unified ? foods : trendFoods;
+    const search = normalizeSearch(q);
     const filtered = source.filter(
       (f) =>
         (filtering || f.slug !== leadFood?.slug) &&
@@ -246,7 +251,8 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
         (!curated || !year || f.history?.years.includes(year)) &&
         matchesCollection(f, collection, today) &&
         (!pantryActive || pantryMatch(f, pantry.items, need.items) !== null) &&
-        (!q || f.name.includes(q) || f.ingredients.some((i) => i.name.includes(q)) || f.why.includes(q) || f.history?.note.includes(q)),
+        (!search || [f.name, f.why, f.history?.note ?? "", ...f.ingredients.map((item) => item.name)]
+          .some((text) => normalizeSearch(text).includes(search))),
     );
     const by: Record<Sort, (a: Food, b: Food) => number> = {
       급상승순: curated && collection !== "everyday" ? compareTrendPeriod : (a, b) => a.rank - b.rank,
@@ -283,6 +289,17 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     setTag(null);
     setQuery("");
     setApplied("");
+  };
+  const browse = (everyday: boolean) => {
+    reset();
+    setSort("급상승순");
+    if (everyday) setCollection("everyday");
+    const url = everyday ? "/?collection=everyday#list" : "/#list";
+    if (window.location.pathname + window.location.search + window.location.hash !== url) {
+      window.history.pushState(null, "", url);
+    }
+    listRef.current?.focus({ preventScroll: true });
+    listRef.current?.scrollIntoView({ behavior: scrollBehavior() });
   };
   const pickYear = (value: number) => {
     setPantryActive(false);
@@ -375,7 +392,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       </header>
 
       <main>
-      {leadFood && <HomeFeature foods={trendFoods.slice(0, 3)} curated={curated} />}
+      {leadFood && <HomeFeature foods={trendFoods.slice(0, 3)} curated={curated} onBrowse={browse} />}
 
       <div className="w-full border-t bg-feed-surface">
       <div className="mx-auto w-full max-w-[1400px] px-5">

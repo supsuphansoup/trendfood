@@ -1,6 +1,6 @@
 import type { FoodRecord } from "./catalog-schema.ts";
 
-export const SITE_URL = "https://trendfood.pages.dev";
+export const SITE_URL = "https://vviralfood.com";
 export const foodUrl = (slug: string) => `${SITE_URL}/food/${encodeURIComponent(slug)}`;
 export const safeJson = (value: unknown) => JSON.stringify(value).replace(/</g, "\\u003c").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
 

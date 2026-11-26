@@ -84,7 +84,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             </Link>
             <div className="ml-auto flex gap-1 rounded-full border px-1">
               <LikeButton slug={food.slug} name={food.name} className="size-[46px] bg-background" />
-              <ShareButton title={food.name} />
+              <ShareButton title={food.name} url={foodUrl(food.slug)} />
             </div>
           </div>
       </header>
@@ -127,7 +127,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             </ul>
             <div className="flex flex-wrap gap-3">
               <a href={discovery ? "#sources" : "#recipe"} className="motion-press inline-flex min-h-12 items-center gap-3 rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground hover:text-primary-foreground">{discovery ? "소개 출처 보기" : food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}<ArrowDown className="size-4" aria-hidden /></a>
-              {!discovery && <a href="#cart" className="motion-press inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">재료 살펴보기</a>}
+              {!discovery && <a href="#cart" className="motion-press inline-flex min-h-12 items-center rounded-full border border-line-strong px-5 text-sm font-bold text-foreground hover:text-accent">{food.kind === "product" ? "제품 보기" : "재료 살펴보기"}</a>}
               {sourceVideo && <FoodVideo name={food.name} videoId={sourceVideo} />}
             </div>
           </div>

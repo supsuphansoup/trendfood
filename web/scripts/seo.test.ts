@@ -8,7 +8,7 @@ test("구조화 정보는 실제 레시피에만 실제 수량·시간·단계·
   const value = recipeJson(food, "/food.webp")!;
   assert.equal(value["@type"], "Recipe");
   assert.equal(value.recipeInstructions.length, food.steps.length);
-  assert.equal(value.image?.[0], "https://trendfood.pages.dev/food.webp");
+  assert.equal(value.image?.[0], "https://vviralfood.com/food.webp");
   assert.equal("aggregateRating" in value, false);
   assert.equal("datePublished" in value, false);
   assert.equal(value.totalTime, undefined, "별도 굳히기 시간이 있는 레시피의 전체 시간을 조리 시간으로 꾸미지 않는다");

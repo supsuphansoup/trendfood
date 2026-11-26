@@ -149,13 +149,24 @@ test("방문 통계는 허용 전 호출하지 않고 검색어·필터를 보�
 });
 
 test("정적 SEO: 사이트맵·크롤링 규칙·canonical·Recipe가 실제 음식과 일치한다", async ({ page, request }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "share", {
+      value: async ({ url }: ShareData) => { document.body.dataset.sharedUrl = url; },
+    });
+  });
   const sitemap = await request.get("/sitemap.xml");
   expect(sitemap.ok()).toBe(true);
-  expect(await sitemap.text()).toContain("https://trendfood.pages.dev/food/butter-garaetteok");
+  expect(await sitemap.text()).toContain("https://vviralfood.com/food/butter-garaetteok");
   expect(await sitemap.text()).not.toContain("/admin");
-  expect(await (await request.get("/robots.txt")).text()).toContain("Disallow: /admin");
+  const robots = await (await request.get("/robots.txt")).text();
+  expect(robots).toContain("Disallow: /admin");
+  expect(robots).toContain("Sitemap: https://vviralfood.com/sitemap.xml");
+  await page.goto("/");
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", "https://vviralfood.com/brand/vviralfood-logo-528.png");
   await page.goto("/food/butter-garaetteok");
-  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://trendfood.pages.dev/food/butter-garaetteok");
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", "https://vviralfood.com/food/butter-garaetteok");
+  await page.getByRole("button", { name: "공유하기", exact: true }).click();
+  await expect(page.locator("body")).toHaveAttribute("data-shared-url", "https://vviralfood.com/food/butter-garaetteok");
   const recipe = JSON.parse(await page.locator('script[type="application/ld+json"]').innerText());
   expect(recipe["@type"]).toBe("Recipe");
   expect(recipe.name).toBe(await page.getByRole("heading", { level: 1 }).innerText());
@@ -171,7 +182,7 @@ test("동의한 음식 선택·찜·구매 클릭은 각각 한 번 집계하고
   await page.getByRole("heading", { name: "버터 가래떡구이", exact: true }).getByRole("link").click();
   await expect(page).toHaveURL(/\/food\/butter-garaetteok/);
   const popup = page.waitForEvent("popup");
-  await page.locator("#cart").getByRole("link", { name: /장보기 시작:/ }).click();
+  await page.locator("#cart").getByRole("link", { name: /쿠팡에서 .+ 보기/ }).click();
   await (await popup).close();
   const events = await page.evaluate(() => (window.dataLayer ?? []) as unknown[][]);
   for (const name of ["select_content", "food_like", "purchase_click"]) expect(events.filter((row) => row[0] === "event" && row[1] === name), name).toHaveLength(1);
