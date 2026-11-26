@@ -164,6 +164,21 @@
 .home-hero-controls button:hover {
   background: color-mix(in srgb, var(--hero-ink) 20%, transparent);
 }
+.home-hero-progress {
+  position: absolute;
+  z-index: 3;
+  inset: auto 0 0;
+  height: 3px;
+  background: color-mix(in srgb, var(--hero-ink) 26%, transparent);
+  pointer-events: none;
+}
+.home-hero-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--hero-focus);
+  transform: scaleX(var(--hero-progress, 0));
+  transform-origin: left;
+}
 .home-hero :focus-visible { outline-color: var(--hero-focus); }
 @media (pointer: fine) {
   .home-hero-viewport, .home-hero-photo a { cursor: grab; }
@@ -207,6 +222,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .home-hero-track { transition: none; }
+  .home-hero-progress { display: none; }
 }
 @media (max-height: 650px) {
   .home-hero-slide { min-height: calc(100svh - var(--hero-header-height)); }

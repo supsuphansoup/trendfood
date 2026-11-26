@@ -539,7 +539,7 @@ test("추천 음식 사진을 양방향으로 드래그하고 클릭하면 상�
   await expect(page).toHaveURL(href);
 });
 
-test("추천 음식 자동 넘김은 커서가 사진 위에 있어도 8초 간격이며 정지·재개를 지원한다", async ({ page }) => {
+test("추천 음식 진행 바는 8초 자동 넘김과 함께 채워지고 정지·재개·수동 이동을 따른다", async ({ page }, info) => {
   const start = new Date("2026-11-26T03:00:00Z");
   await page.clock.install({ time: start });
   await page.clock.pauseAt(new Date(start.getTime() + 1000));
@@ -547,17 +547,26 @@ test("추천 음식 자동 넘김은 커서가 사진 위에 있어도 8초 간�
   await page.waitForLoadState("networkidle");
   const active = page.locator("#featured-trend-food");
   const toggle = page.getByRole("button", { name: /^자동 넘김 / });
+  const progress = page.locator(".home-hero-progress-fill");
+  const filled = () => progress.evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).a);
   await expect(toggle).toHaveAccessibleName("자동 넘김 일시정지");
   await page.mouse.move(265, 300);
-  await page.clock.runFor(7999);
+  await page.clock.runFor(4000);
+  expect(await filled()).toBeCloseTo(0.5, 2);
+  await page.clock.runFor(3999);
   await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
   await page.clock.runFor(1);
   await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  await page.clock.runFor(2000);
   await toggle.click();
   await expect(toggle).toHaveAccessibleName("자동 넘김 시작");
+  const paused = await filled();
+  expect(paused).toBeCloseTo(0.25, 2);
   await page.mouse.move(1, 1);
   await page.clock.runFor(16000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  expect(await filled()).toBeCloseTo(paused, 4);
+  await page.screenshot({ path: `test-results/hero-timer-${info.project.name}.png` });
   await toggle.click();
   await page.evaluate(() => {
     Object.defineProperty(document, "hidden", { configurable: true, value: true });
@@ -569,14 +578,22 @@ test("추천 음식 자동 넘김은 커서가 사진 위에 있어도 8초 간�
     Reflect.deleteProperty(document, "hidden");
     document.dispatchEvent(new Event("visibilitychange"));
   });
-  await page.clock.runFor(8000);
+  await page.clock.runFor(5999);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  await page.clock.runFor(1);
   await expect(active).toHaveAttribute("aria-label", "오늘의 3위");
   await page.clock.runFor(8000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
-  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).focus();
+  await page.clock.runFor(2000);
+  const next = page.getByRole("button", { name: "다음 추천 음식", exact: true });
+  await next.focus();
   await expect(toggle).toHaveAccessibleName("자동 넘김 시작");
   await page.clock.runFor(8000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
+  expect(await filled()).toBeCloseTo(0.25, 2);
+  await next.click();
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  expect(await filled()).toBe(0);
 });
 
 test("동작 줄이기 설정에서는 첫 음식이 유지되고 수동 전환은 애니메이션 없이 동작한다", async ({ page }) => {
@@ -585,6 +602,7 @@ test("동작 줄이기 설정에서는 첫 음식이 유지되고 수동 전환�
   await page.goto("/");
   const active = page.locator("#featured-trend-food");
   await expect(page.getByRole("button", { name: "자동 넘김 시작" })).toBeVisible();
+  await expect(page.locator(".home-hero-progress")).toBeHidden();
   await page.clock.runFor(16000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
   await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();

@@ -31,6 +31,8 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
   const reduced = useSyncExternalStore(subscribeToMotion, getReducedMotion, getServerSnapshot);
   const visible = useSyncExternalStore(subscribeToVisibility, getPageVisible, getServerSnapshot);
   const rotationButton = useRef<HTMLButtonElement>(null);
+  const progressFill = useRef<HTMLSpanElement>(null);
+  const rotationTime = useRef({ selected: 0, elapsed: 0 });
   const drag = useRef<{ id: number; x: number; y: number; horizontal: boolean } | null>(null);
   const suppressClick = useRef(false);
   const selected = (position + count - 1) % count;
@@ -49,10 +51,28 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
   }, [count, multiple, reduced]);
 
   useEffect(() => {
+    if (rotationTime.current.selected !== selected) rotationTime.current = { selected, elapsed: 0 };
+    const timing = rotationTime.current;
+    const fill = progressFill.current;
+    const draw = (elapsed: number) => fill?.style.setProperty("--hero-progress", String(elapsed / rotationDelay));
+    draw(timing.elapsed);
     if (!rotating) return;
-    const timer = window.setTimeout(() => move(1), rotationDelay);
-    return () => window.clearTimeout(timer);
-  }, [move, selected, rotating]);
+
+    const startedAt = performance.now() - timing.elapsed;
+    const elapsed = () => Math.min(rotationDelay, performance.now() - startedAt);
+    let frame = 0;
+    const update = () => {
+      draw(elapsed());
+      frame = window.requestAnimationFrame(update);
+    };
+    if (!reduced) frame = window.requestAnimationFrame(update);
+    const timer = window.setTimeout(() => move(1), rotationDelay - timing.elapsed);
+    return () => {
+      window.clearTimeout(timer);
+      window.cancelAnimationFrame(frame);
+      timing.elapsed = elapsed();
+    };
+  }, [move, selected, rotating, reduced]);
 
   const startDrag = (event: PointerEvent<HTMLDivElement>) => {
     if (!multiple || !event.isPrimary || event.button !== 0) return;
@@ -213,6 +233,11 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
             })}
           </div>
         </div>
+        {multiple && (
+          <div className="home-hero-progress" aria-hidden>
+            <span className="home-hero-progress-fill" ref={progressFill} />
+          </div>
+        )}
       </section>
       <details aria-label="추천과 출처 안내" className="group mx-auto w-full max-w-[1200px] px-5 text-meta leading-relaxed text-muted-foreground">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 focus-visible:rounded-md [&::-webkit-details-marker]:hidden">
