@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { SiteLogo } from "@/components/site-logo";
 import Link from "next/link";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AdSlot } from "@/components/ad-slot";
 import { FoodCard } from "@/components/home/food-card";
 import { HomeFeature } from "@/components/home/home-feature";
@@ -53,6 +53,7 @@ function compareTrendRank(a: Food, b: Food) {
 }
 
 const everydayTab = "일상 레시피";
+const gridColumnsKey = "tf:food-grid-columns";
 const tabs: Tab[] = ["전체", ...categoryOptions.filter((category) => category !== "간식")];
 const categoryTabs: (Tab | typeof everydayTab)[] = ["전체", everydayTab, ...tabs.slice(1), "찜"];
 
@@ -93,6 +94,8 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const [ready, setReady] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [columns, setColumns] = useState<2 | 3>(2);
+  const gridRef = useRef<HTMLOListElement>(null);
+  const previousCardBounds = useRef<Map<HTMLElement, DOMRect> | null>(null);
   const GridIcon = columns === 2 ? Grid2X2 : Grid3X3;
   const likes = useStoredSet(LIKES_KEY);
   const pantry = useStoredSet(PANTRY_KEY);
@@ -107,6 +110,9 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     const s = readUrl(years);
     /* eslint-disable react-hooks/set-state-in-effect -- 브라우저 주소는 첫 렌더 뒤에만 읽을 수 있다 */
     setTab(s.tab);
+    try {
+      setColumns(sessionStorage.getItem(gridColumnsKey) === "3" ? 3 : 2);
+    } catch { /* 저장이 제한된 탭에서는 현재 화면의 선택을 사용한다. */ }
     setCollection(curated || s.collection === "everyday" ? s.collection : "all");
     setSort(s.sort);
     setTag(s.tag);
@@ -130,6 +136,34 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
     window.addEventListener("popstate", onPop);
     return () => window.removeEventListener("popstate", onPop);
   }, [years, curated]);
+
+  function toggleColumns() {
+    if (gridRef.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const cards = gridRef.current.querySelectorAll<HTMLElement>("li[data-motion-result]");
+      previousCardBounds.current = new Map(Array.from(cards, (card) => [card, card.getBoundingClientRect()]));
+    }
+    const next = columns === 2 ? 3 : 2;
+    try {
+      sessionStorage.setItem(gridColumnsKey, String(next));
+    } catch { /* 저장할 수 없어도 보기 전환은 가능하다. */ }
+    setColumns(next);
+  }
+
+  useLayoutEffect(() => {
+    const before = previousCardBounds.current;
+    previousCardBounds.current = null;
+    if (!before) return;
+    const animations: Animation[] = [];
+    for (const [card, from] of before) {
+      const to = card.getBoundingClientRect();
+      if (!to.width || Math.min(from.top, to.top) > window.innerHeight || Math.max(from.bottom, to.bottom) < 0) continue;
+      animations.push(card.animate([
+        { transform: `translate(${from.left - to.left}px, ${from.top - to.top}px) scale(${from.width / to.width})` },
+        { transform: "none" },
+      ], { duration: 360, easing: "cubic-bezier(0.22, 1, 0.36, 1)" }));
+    }
+    return () => { for (const animation of animations) animation.cancel(); };
+  }, [columns]);
 
   useEffect(() => {
     if (!ready) return;
@@ -442,12 +476,12 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                   type="button"
                   aria-label={columns === 2 ? "현재 크게 보기, 모아 보기로 전환" : "현재 모아 보기, 크게 보기로 전환"}
                   aria-controls="food-grid"
-                  onClick={() => setColumns((current) => current === 2 ? 3 : 2)}
+                  onClick={toggleColumns}
                   className="motion-press mt-3 ml-auto flex size-11 items-center justify-center rounded-full border bg-card text-foreground hover:bg-muted"
                 >
                   <GridIcon className="size-5" aria-hidden />
                 </button>
-                <ol id="food-grid" className={cn("food-grid m-0 mt-2 grid list-none gap-2 p-0 pb-8 sm:gap-4 lg:gap-6", columns === 2 ? "grid-cols-2" : "grid-cols-3")}>
+                <ol ref={gridRef} id="food-grid" className={cn("food-grid m-0 mt-2 grid list-none gap-2 p-0 pb-8 sm:gap-4 lg:gap-6", columns === 2 ? "grid-cols-2" : "grid-cols-3")}>
                   {list.map((food, i) => (
                     <Fragment key={food.slug}>
                       <FoodCard food={food} columns={columns} heading={leadFood ? "h3" : "h2"} unranked={collection === "everyday" || pantryActive} match={pantryActive ? pantryMatch(food, pantry.items, need.items) : null} />

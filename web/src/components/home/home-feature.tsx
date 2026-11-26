@@ -92,9 +92,13 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
     <div className="home-feature mx-auto w-full max-w-[1200px] px-5 pt-4 pb-2 max-[360px]:pt-3 md:pt-6">
       <header className="home-feature-heading flex flex-wrap items-center justify-between gap-x-2 text-foreground">
         <h1 className="text-2xl leading-tight font-bold tracking-tight md:text-intro-mobile">유행 음식과 집밥</h1>
-        <a href="#list" className="motion-press inline-flex min-h-11 shrink-0 items-center gap-1 rounded-sm text-meta font-semibold text-body hover:text-destructive hover:underline">
+        <Link
+          href="#list"
+          onNavigate={() => document.getElementById("list")?.focus({ preventScroll: true })}
+          className="motion-press inline-flex min-h-11 shrink-0 items-center gap-1 rounded-sm text-meta font-semibold text-body hover:text-destructive hover:underline"
+        >
           음식 목록 <ArrowDown className="size-4" aria-hidden />
-        </a>
+        </Link>
         <p className="basis-full text-base leading-normal text-body">유행의 배경부터 만드는 법까지.</p>
       </header>
       <div

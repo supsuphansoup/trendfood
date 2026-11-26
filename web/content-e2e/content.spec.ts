@@ -409,6 +409,10 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   await expect(layout).toHaveText("");
   await expect(layout.locator("svg")).toHaveCount(1);
   await expect(layout.locator("svg")).toHaveClass(/lucide-grid-3x3/);
+  await expect(cards.getByTestId("food-description")).toHaveCount(0);
+  const firstFood = trendFoods[1];
+  await expect(cards.first()).toHaveText(`${firstFood.category}${firstFood.name}`);
+  await expect(cards.first()).toHaveCSS("transform", "none");
   const compactFirst = (await cards.nth(0).boundingBox())!;
   const compactThird = (await cards.nth(2).boundingBox())!;
   expect(compactThird.y).toBeCloseTo(compactFirst.y, 0);
@@ -416,13 +420,41 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   expect(compactFirst.width).toBeLessThan(first.width);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `test-results/content/feed-three-columns-${info.project.name}.png` });
+  await cards.first().getByRole("link", { name: firstFood.name, exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(firstFood.name);
+  await page.goBack();
+  await expect(layout).toHaveAccessibleName("현재 모아 보기, 크게 보기로 전환");
+  await expect(cards.first()).toHaveText(`${firstFood.category}${firstFood.name}`);
+  await page.reload();
+  await expect(layout.locator("svg")).toHaveClass(/lucide-grid-3x3/);
   await layout.click();
   await expect(layout.locator("svg")).toHaveClass(/lucide-grid-2x2/);
+  await expect(cards.first().getByTestId("food-description")).toBeVisible();
   expect((await cards.nth(2).boundingBox())!.y).toBeGreaterThan((await cards.nth(0).boundingBox())!.y);
 
   await page.getByRole("searchbox").fill("타피오카");
   await page.getByRole("button", { name: "검색", exact: true }).click();
   await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.ingredients.some((ingredient) => ingredient.name.includes("타피오카")) || food.name.includes("타피오카") || food.why.includes("타피오카")).map((food) => food.name));
+});
+
+test("보기 전환 양방향에서 음식 사진이 원래 위치에서 새 열로 이동한다", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/#list");
+  const toggle = page.locator('button[aria-controls="food-grid"]');
+  await toggle.scrollIntoViewIfNeeded();
+  for (const compact of [true, false]) {
+    const scale = await toggle.evaluate(async (button: HTMLButtonElement) => {
+      button.click();
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
+      const card = document.querySelector("#food-grid li[data-motion-result]")!;
+      const transform = getComputedStyle(card).transform;
+      const scale = transform === "none" ? 1 : new DOMMatrix(transform).a;
+      await Promise.all(card.getAnimations().map((animation) => animation.finished));
+      return scale;
+    });
+    if (compact) expect(scale).toBeGreaterThan(1);
+    else expect(scale).toBeLessThan(1);
+  }
 });
 
 test("간식 탭 없이 기존 간식 주소는 전체로 열리고 음식 검색을 유지한다", async ({ page }, info) => {
