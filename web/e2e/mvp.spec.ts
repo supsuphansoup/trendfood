@@ -596,7 +596,7 @@ test("추천 음식 진행 바는 8초 자동 넘김과 함께 채워지고 정�
   expect(await filled()).toBe(0);
 });
 
-test("진행 바가 사진 하단에 있고 동작 줄이기 중에도 재생을 켜면 부드럽게 채워진다", async ({ page }, info) => {
+test("진행 바가 사진이 끝나는 지점에 맞고 동작 줄이기 중에도 부드럽게 채워진다", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   if (info.project.name === "mobile") await page.setViewportSize({ width: 320, height: 568 });
   const start = new Date("2026-11-26T03:00:00Z");
@@ -614,10 +614,12 @@ test("진행 바가 사진 하단에 있고 동작 줄이기 중에도 재생을
   const bar = (await progress.boundingBox())!;
   const photo = (await active.locator(".home-hero-photo").boundingBox())!;
   const controls = (await page.getByRole("navigation", { name: "추천 음식 넘기기" }).boundingBox())!;
+  const details = (await page.getByLabel("추천과 출처 안내").boundingBox())!;
   expect(bar.x).toBeCloseTo(photo.x, 1);
   expect(bar.width).toBeCloseTo(photo.width, 1);
   expect(bar.height).toBe(3);
-  expect(photo.y + photo.height - bar.y - bar.height).toBeCloseTo(2, 1);
+  expect(bar.y).toBeCloseTo(photo.y + photo.height, 1);
+  expect(bar.y + bar.height).toBeCloseTo(details.y, 1);
   expect(controls.y + controls.height).toBeLessThanOrEqual(bar.y);
   await page.clock.runFor(16000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 1위");

@@ -68,6 +68,18 @@
 - 320px WebKit과 1280px Chromium에서 투명 바탕과 재생을 확인했다. `web/test-results/hero-progress-clear-mobile.png`와 `hero-progress-clear-desktop.png`를 열어 확인했다.
 - 원격 기준은 `76d783a`로 같았다. 팀원 변경이나 충돌 없이 로컬 미리보기에 반영했다.
 
+### 진행선을 사진이 끝나는 지점에 배치
+
+- `web/src/components/home/home-feature.tsx`에서 진행선을 사진 바로 뒤에 렌더링하고, `web/src/app/globals.css`에서 그 높이 3px을 첫 화면 레이아웃에 포함했다. 사진과 진행선이 겹치거나 사이에 틈이 생기지 않는다.
+- `web/e2e/mvp.spec.ts`에서 사진 하단, 진행선, 출처 안내의 경계 좌표를 비교한다.
+- `npm run lint` — `eslint` 종료 코드 0
+- `npm run typecheck` — `✓ Types generated successfully`, 종료 코드 0
+- `npm run test:unit` — `ℹ pass 229`, `ℹ fail 0`
+- `npm run test:e2e -- --workers=4 --retries=1` — `163 passed`, `1 skipped`
+- `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
+- 320×568·390×844·568×320 WebKit과 768×1024·1280×800 Chromium에서 경계 간격 0px을 확인했다. `web/test-results/hero-progress-flush-mobile.png`와 `hero-progress-flush-desktop.png`를 열어 확인했다.
+- 원격 기준은 `76d783a`로 같았다. 팀원 변경이나 충돌 없이 로컬 미리보기에 반영했다.
+
 ### 홈 헤더와 맞춘 흰색 진행선
 
 - `web/src/app/globals.css`의 진행선을 흰색 2px로 줄이고 어두운 사진 위에 옅은 같은 색 바탕을 사용했다. 헤더와 사진이 맞닿는 위치에서 8초간 채워진다. `web/e2e/mvp.spec.ts`의 높이 기대값을 갱신했다.

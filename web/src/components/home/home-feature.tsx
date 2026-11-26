@@ -129,6 +129,7 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
         aria-labelledby="home-hero-title"
         aria-roledescription="캐러셀"
         className="home-hero"
+        data-has-progress={multiple ? "" : undefined}
         onFocusCapture={(event) => {
           if (event.target !== rotationButton.current || event.target.matches(":focus-visible")) setRotation(false);
         }}
@@ -141,11 +142,6 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
           move(event.key === "ArrowLeft" ? -1 : 1);
         }}
       >
-        {multiple && (
-          <div className="home-hero-progress" aria-hidden>
-            <span className="home-hero-progress-fill" ref={progressFill} />
-          </div>
-        )}
         <header className="home-hero-identity">
           <h1 id="home-hero-title">유행 음식과 집밥</h1>
           <p>왜 유행했는지, 집에서 만드는 법까지.</p>
@@ -238,6 +234,11 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
             })}
           </div>
         </div>
+        {multiple && (
+          <div className="home-hero-progress" aria-hidden>
+            <span className="home-hero-progress-fill" ref={progressFill} />
+          </div>
+        )}
       </section>
       <details aria-label="추천과 출처 안내" className="group mx-auto w-full max-w-[1200px] px-5 text-meta leading-relaxed text-muted-foreground">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 focus-visible:rounded-md [&::-webkit-details-marker]:hidden">

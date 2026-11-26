@@ -10,10 +10,14 @@
 }
 .home-hero {
   --hero-header-height: 67px;
+  --hero-photo-height: calc(100svh - var(--hero-header-height) - var(--hero-progress-height, 0px));
   position: relative;
   isolation: isolate;
   color: var(--hero-ink);
   background: rgb(var(--hero-shadow));
+}
+.home-hero[data-has-progress] {
+  --hero-progress-height: 3px;
 }
 .home-hero-viewport {
   overflow: clip;
@@ -36,7 +40,7 @@
   align-items: end;
   flex: 0 0 100%;
   min-width: 0;
-  min-height: max(30rem, calc(100svh - var(--hero-header-height)));
+  min-height: max(30rem, var(--hero-photo-height));
 }
 .home-hero-photo, .home-hero-picture, .home-hero-slide::after {
   position: absolute;
@@ -165,10 +169,7 @@
   background: color-mix(in srgb, var(--hero-ink) 20%, transparent);
 }
 .home-hero-progress {
-  position: absolute;
-  z-index: 3;
-  inset: auto 0 2px;
-  height: 3px;
+  height: var(--hero-progress-height);
   overflow: hidden;
   pointer-events: none;
 }
@@ -224,7 +225,7 @@
   .home-hero-track, .home-hero-progress-fill { transition: none; }
 }
 @media (max-height: 650px) {
-  .home-hero-slide { min-height: calc(100svh - var(--hero-header-height)); }
+  .home-hero-slide { min-height: var(--hero-photo-height); }
   .home-hero-identity { top: 16px; }
   .home-hero-copy { padding-block: 5.25rem 4.5rem; }
   .home-hero-tools { bottom: 5px; }
