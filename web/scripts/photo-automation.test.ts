@@ -145,14 +145,13 @@ test("일치 사진만 WebP·출처 등록부·콘텐츠로 연결하고 기존 
       if (!images?.length) return { queries: ["same food", "same food"] };
       imageCalls++;
       assert.equal(images.length, 4); assert.equal(images[0].mimeType, "image/webp");
-      const crop = await sharp(Buffer.from(images[1].data, "base64")).metadata();
-      assert.equal(crop.width, 768); assert.equal(crop.height, 512);
-      for (const [index, width, height] of [[2, 1280, 520], [3, 390, 440]]) {
-        const detail: { width?: number; height?: number } = await sharp(Buffer.from(images[index].data, "base64")).metadata();
-        assert.equal(detail.width, width); assert.equal(detail.height, height);
-      }
+      const sizes = await Promise.all(images.slice(1).map(async ({ data }) => {
+        const { width, height } = await sharp(Buffer.from(data, "base64")).metadata();
+        return [width, height];
+      }));
+      assert.deepEqual(sizes, [[568, 240], [540, 540], [352, 264]]);
       assert.match(prompt, /steps/); assert.match(prompt, /음료가 함께/);
-      assert.match(prompt, /PC 상세/); assert.match(prompt, /먹음직스럽게/);
+      assert.match(prompt, /PC 정사각 상세/); assert.match(prompt, /먹음직스럽게/);
       assert.match(prompt, /일회용 포장 용기/); assert.match(prompt, /kind=product/);
       assert.ok((schema.required as string[]).includes("recipeMatches"));
       assert.ok((schema.required as string[]).includes("presentationSuitable"));
@@ -161,7 +160,7 @@ test("일치 사진만 WebP·출처 등록부·콘텐츠로 연결하고 기존 
       return verdict;
     },
   }, now);
-  assert.equal(result.accepted.length, 1);
+  assert.equal(result.accepted.length, 1, result.deferred[0]?.reason);
   assert.equal(imageCalls, 1);
   assert.equal(result.snapshot.foods[1].image, "photo-auto-test-pending");
   assert.equal(result.assets.get("photo-auto-test-pending")!.subarray(8, 12).toString(), "WEBP");

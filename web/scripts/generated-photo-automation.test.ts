@@ -53,14 +53,17 @@ test("출처·판별·크롭을 통과한 생성 결과만 별도 등록하고 K
       assert.ok(referenceBytes?.length); return bytes;
     },
     inspect: async (prompt, schema, images) => {
-      assert.equal(images?.length, 4);
+      assert.equal(images?.length, 5);
       assert.ok((schema.required as string[]).includes("referenceMatches"));
       assert.ok((schema.required as string[]).includes("distinctComposition"));
       assert.ok((schema.required as string[]).includes("naturalAppearance"));
       assert.match(prompt, /같은 크기와 색으로 반복된 재료/);
       assert.match(prompt, /과도한 여백으로 음식이 작거나/);
-      const mobile = await sharp(Buffer.from(images![3].data, "base64")).metadata();
-      assert.equal(mobile.width, 390); assert.equal(mobile.height, 440);
+      const sizes = await Promise.all(images!.slice(1).map(async ({ data }) => {
+        const { width, height } = await sharp(Buffer.from(data, "base64")).metadata();
+        return [width, height];
+      }));
+      assert.deepEqual(sizes, [[768, 512], [568, 240], [540, 540], [352, 264]]);
       return approved;
     },
   });
@@ -107,11 +110,11 @@ test("참고 사진이 없어도 검증된 설명으로 생성하고 사진 출�
       calls++; assert.equal(original, undefined); assert.match(prompt, /참고 사진은 없어요/);
       assert.equal(JSON.parse(prompt.split("\n").at(-1)!).summary, food.summary);
       assert.match(prompt, /별도의 치즈 토핑을 의미하지/);
-      assert.match(prompt, /가로 44%로 자른 모바일 구도.*세로 61%로 자른 PC 구도/);
+      assert.match(prompt, /PC 목록 카드.*PC 상세.*모바일 상세/);
       assert.equal(state.attempts[0].status, "reserved"); return bytes;
     },
     inspect: async (prompt, schema, images) => {
-      assert.equal(images?.length, 3); assert.match(prompt, /설명만으로 일치를 판단할 수 없으면 거절/);
+      assert.equal(images?.length, 4); assert.match(prompt, /설명만으로 일치를 판단할 수 없으면 거절/);
       assert.ok(!(schema.required as string[]).includes("referenceMatches"));
       assert.ok(!("referenceMatches" in (schema.properties as object)));
       assert.ok(!(schema.required as string[]).includes("distinctComposition"));

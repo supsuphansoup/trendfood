@@ -1,6 +1,17 @@
 import sharp from "sharp";
 import type { PhotoCredit } from "../src/data/photo-credits.ts";
 
+/** 1280px 화면의 2열 목록 카드·PC 상세와 모바일 4:3 상세 구도를 재현한다. */
+export function renderPhotoDisplayPreviews(input: Buffer, detailFit: "contain" | "cover" = "cover"): Promise<Buffer[]> {
+  const image = sharp(input);
+  const background = { r: 0, g: 0, b: 0, alpha: 0 };
+  return Promise.all([
+    image.clone().resize(568, 240, { fit: "cover" }).webp({ quality: 80 }).toBuffer(),
+    image.clone().resize(540, 540, { fit: detailFit, position: detailFit === "contain" ? "east" : "centre", background }).webp({ quality: 80 }).toBuffer(),
+    image.clone().resize(352, 264, { fit: detailFit, background }).webp({ quality: 80 }).toBuffer(),
+  ]);
+}
+
 /** 원본 크기에 대한 비율로 검토한 구도를 동기화할 때도 보존한다. */
 export async function renderCuratedPhoto(input: Uint8Array, crop?: PhotoCredit["crop"]): Promise<Buffer> {
   let image = sharp(input, { limitInputPixels: 40_000_000 }).rotate();
