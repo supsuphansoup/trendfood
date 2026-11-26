@@ -113,6 +113,51 @@ test("추천 사진·제목·설명은 화면 한 장으로 이동하며 목록�
   await expect.poll(() => resultTitle.evaluate((heading) => heading.parentElement?.getAnimations().some((animation) => animation.playState === "running"))).toBe(true);
 });
 
+test("추천 음식 순환 경계에서 다시 밀어도 화면 양쪽에 빈 영역이 생기지 않는다", async ({ page }, info) => {
+  const viewport = page.locator(".home-hero-viewport");
+  const track = viewport.locator(".home-hero-track");
+  const title = page.getByRole("region", { name: "오늘의 음식", exact: true }).getByRole("heading", { level: 2 });
+
+  for (const forward of [true, false]) {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    const previous = page.getByRole("button", { name: "이전 추천 음식" });
+    if (forward) {
+      await previous.click();
+      await expect(title).toHaveText(trendFoods[2].name);
+    }
+
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    // 순환 전환이 끝나기 전에 다음 포인터 동작을 재현한다.
+    await track.evaluate((element) => { element.style.transitionDuration = "5s"; });
+    await (forward ? page.getByRole("button", { name: "다음 추천 음식" }) : previous).click();
+    await expect(title).toHaveText(trendFoods[forward ? 0 : 2].name);
+    const box = (await viewport.boundingBox())!;
+    const y = box.y + box.height * 0.3;
+    await page.mouse.move(box.x + box.width * (forward ? 0.8 : 0.2), y);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width * (forward ? 0.3 : 0.7), y, { steps: 3 });
+    await expect(viewport).toHaveAttribute("data-dragging", "");
+
+    const gap = await viewport.evaluate((element, movingForward) => {
+      const frame = element.getBoundingClientRect();
+      const slides = element.querySelectorAll(".home-hero-slide");
+      return movingForward
+        ? frame.right - slides[slides.length - 1].getBoundingClientRect().right
+        : slides[0].getBoundingClientRect().left - frame.left;
+    }, forward);
+    expect(gap).toBeLessThan(1);
+    if (forward) {
+      await viewport.locator("img").evaluateAll((images) => Promise.all(images.map((image) => (image as HTMLImageElement).decode())));
+      await page.screenshot({ path: `test-results/content/home-wrap-drag-${info.project.name}.png` });
+    }
+
+    await track.evaluate((element) => { element.style.removeProperty("transition-duration"); });
+    await page.mouse.up();
+    await expect(title).toHaveText(trendFoods[1].name);
+  }
+});
+
 test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선택할 수 있다", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   const viewports = info.project.name === "mobile" ? [{ width: 320, height: 568 }]

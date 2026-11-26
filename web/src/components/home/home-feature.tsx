@@ -73,6 +73,10 @@ export function HomeFeature({ foods, curated, onBrowse }: { foods: Food[]; curat
       setRotation(false);
       event.currentTarget.setPointerCapture(event.pointerId);
       event.currentTarget.dataset.dragging = "";
+      // 전환 도중 다시 끌 때도 양옆 음식이 있는 원래 위치에서 시작한다.
+      if (position === 0 || position === count + 1) {
+        setSlide({ position: selected + 1, instant: false });
+      }
     }
     if (!reduced) event.currentTarget.style.setProperty("--hero-drag", `${dx}px`);
   };
