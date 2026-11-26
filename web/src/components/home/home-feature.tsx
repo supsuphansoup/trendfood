@@ -179,7 +179,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
                   {food.imageAvailable && (
                     <figure className="home-hero-photo">
                       <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0 focus-visible:-outline-offset-4">
-                        <FoodImage food={food} hero cover preload={slideIndex === (multiple ? 1 : 0)} eager sizes="100vw" />
+                        <FoodImage food={food} hero fit="cover" preload={slideIndex === (multiple ? 1 : 0)} eager sizes="100vw" />
                       </Link>
                     </figure>
                   )}

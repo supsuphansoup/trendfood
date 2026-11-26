@@ -425,6 +425,26 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.ingredients.some((ingredient) => ingredient.name.includes("타피오카")) || food.name.includes("타피오카") || food.why.includes("타피오카")).map((food) => food.name));
 });
 
+test("목록의 세로 사진은 2열과 3열에서 잘리지 않고 가리켜도 확대되지 않는다", async ({ page }, info) => {
+  const food = snapshot.foods.find((item) => item.slug === "cucumber-muchim")!;
+  await page.goto(`/?q=${encodeURIComponent(food.name)}#list`);
+  const card = page.locator("#food-grid > li").filter({ has: page.getByRole("heading", { name: food.name, exact: true }) });
+  const photo = card.getByRole("link", { name: `${food.name} 상세 보기`, exact: true }).getByRole("img");
+  await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.complete && image.naturalHeight > image.naturalWidth && image.naturalWidth > 0)).toBe(true);
+  const layout = page.locator('button[aria-controls="food-grid"]');
+  for (const columns of [2, 3]) {
+    await expect(page.locator("#food-grid")).toHaveClass(new RegExp(`grid-cols-${columns}`));
+    await photo.hover();
+    await expect(photo).toHaveCSS("object-fit", "contain");
+    await expect(photo).toHaveCSS("object-position", "50% 50%");
+    await expect(photo).toHaveCSS("scale", "none");
+    if (columns === 2) await layout.click();
+  }
+  await card.screenshot({ path: `test-results/content/portrait-card-${info.project.name}.png` });
+  await photo.click();
+  await expect(page).toHaveURL(/\/food\/cucumber-muchim\/?$/);
+});
+
 test("보기 전환 양방향에서 음식 사진이 원래 위치에서 새 열로 이동한다", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/#list");

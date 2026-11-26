@@ -206,15 +206,6 @@
     transition-duration: 80ms;
   }
 
-  .food-image-link img {
-    transition: scale 280ms ease-out;
-  }
-
-  .food-image-link:active img {
-    scale: 1.06;
-    transition-duration: 100ms;
-  }
-
   .motion-feature {
     animation: feature-in 420ms cubic-bezier(0.22, 1, 0.36, 1);
   }
@@ -233,11 +224,6 @@
     animation: filters-in 300ms ease-out;
   }
 
-  @media (hover: hover) and (pointer: fine) {
-    .food-image-link:hover img {
-      scale: 1.025;
-    }
-  }
 }
 
 @keyframes feature-in {

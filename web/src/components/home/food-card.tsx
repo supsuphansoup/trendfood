@@ -11,8 +11,8 @@ export function FoodCard({ food, columns, heading: Heading = "h3", unranked = fa
   return (
     <li data-motion-result className="relative flex min-w-0 origin-top-left flex-col overflow-hidden rounded-feature bg-card">
       {food.imageAvailable ? <div className={cn("relative aspect-[4/3] overflow-hidden bg-secondary", columns === 2 ? "max-h-60" : "max-h-48")}>
-        <Link href={href} aria-label={`${food.name} 상세 보기`} className="food-image-link absolute inset-0">
-          <FoodImage food={food} sizes={columns === 2 ? "(max-width: 1200px) 50vw, 580px" : "(max-width: 1200px) 33vw, 380px"} />
+        <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0 focus-visible:-outline-offset-4">
+          <FoodImage food={food} fit="contain" sizes={columns === 2 ? "(max-width: 1200px) 50vw, 580px" : "(max-width: 1200px) 33vw, 380px"} />
         </Link>
         <LikeButton slug={food.slug} name={food.name} className="absolute top-0 right-0 sm:top-2 sm:right-2" />
       </div> : <LikeButton slug={food.slug} name={food.name} className="absolute top-0 right-0 sm:top-2 sm:right-2" />}
