@@ -48,8 +48,14 @@ function matchesCollection(food: Food, collection: Collection, today = "") {
   return !food.history?.years.length && (!food.kind || food.kind === "recipe");
 }
 
-function compareTrendRank(a: Food, b: Food) {
-  return Math.max(0, ...(b.history?.years ?? [])) - Math.max(0, ...(a.history?.years ?? [])) || a.rank - b.rank;
+function trendPeriod(food: Food) {
+  return food.history?.latestPeriod ?? String(Math.max(0, ...(food.history?.years ?? [])));
+}
+
+function compareTrendPeriod(a: Food, b: Food) {
+  const aPeriod = trendPeriod(a);
+  const bPeriod = trendPeriod(b);
+  return aPeriod === bPeriod ? a.rank - b.rank : aPeriod > bPeriod ? -1 : 1;
 }
 
 const everydayTab = "일상 레시피";
@@ -189,7 +195,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   }, []);
 
   const trendFoods = useMemo(() => curated
-    ? foods.filter((food) => matchesCollection(food, "trends")).sort(compareTrendRank)
+    ? foods.filter((food) => matchesCollection(food, "trends")).sort(compareTrendPeriod)
     : foods, [foods, curated]);
   const counts = useMemo(() => {
     const view = collection === "everyday" ? "all" : collection;
@@ -242,7 +248,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
         (!q || f.name.includes(q) || f.ingredients.some((i) => i.name.includes(q)) || f.why.includes(q) || f.history?.note.includes(q)),
     );
     const by: Record<Sort, (a: Food, b: Food) => number> = {
-      급상승순: curated && collection !== "everyday" && !unified ? compareTrendRank : (a, b) => a.rank - b.rank,
+      급상승순: curated && collection !== "everyday" ? compareTrendPeriod : (a, b) => a.rank - b.rank,
       좋아요순: (a, b) => b.likes - a.likes,
       조리시간순: (a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes),
     };
@@ -402,7 +408,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
             {(curated || year === null) && <nav aria-label="정렬과 태그" className="flex flex-wrap items-center gap-2 py-3">
               {sortOptions.filter((s) => !curated || s !== "좋아요순").map((s) => (
                 <button key={s} type="button" aria-pressed={sort === s} onClick={() => setSort(s)} className={chipClass}>
-                  {curated && s === "급상승순" ? "추천순" : s}
+                  {curated && s === "급상승순" ? (collection === "everyday" ? "추천순" : "최신 유행순") : s}
                 </button>
               ))}
               <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-border" />
@@ -441,7 +447,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                 </button>
               )}
             </div>
-            {(curated || collection === "everyday") && <p className="mt-1 max-w-[42em] text-meta leading-relaxed text-muted-foreground">{collection === "recent" ? "최근 30일 안에 서비스에 처음 등록한 음식이에요. 등록일은 유행 시작일과 달라요." : collection === "everyday" ? "유행 순위와 별개로, 집에서 해먹기 좋은 레시피를 모았어요." : unified ? "유행 음식과 일상 레시피를 함께 찾아요." : "출처로 확인한 유행 시기예요. 추천순은 최신 유행 연도부터 적용해요."}</p>}
+            {(curated || collection === "everyday") && <p className="mt-1 max-w-[42em] text-meta leading-relaxed text-muted-foreground">{collection === "recent" ? "최근 30일 안에 서비스에 처음 등록한 음식이에요. 등록일은 유행 시작일과 달라요." : collection === "everyday" ? "유행 순위와 별개로, 집에서 해먹기 좋은 레시피를 모았어요." : unified ? "유행 음식과 일상 레시피를 함께 찾아요." : "출처에서 확인한 유행 시기가 최근인 음식부터 보여줘요."}</p>}
             {!curated && year !== null ? (
               <>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">당시 보도로 살펴본 유행 음식이에요. 순위가 아닌 대표 사례이며, 연도는 유행이 확인된 시기를 뜻해요.</p>

@@ -6,9 +6,10 @@ import type { GeneratedImage } from "../src/data/generated-images";
 import { parseYouTubeId } from "../src/data/youtube";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
+const period = ({ history }: ContentSnapshot["foods"][number]) => history?.latestPeriod ?? String(Math.max(0, ...(history?.years ?? [])));
 const trendFoods = snapshot.foods
   .filter((food) => food.history?.years.length || food.kind === "discovery")
-  .sort((a, b) => Math.max(0, ...(b.history?.years ?? [])) - Math.max(0, ...(a.history?.years ?? [])));
+  .sort((a, b) => period(b).localeCompare(period(a)));
 const automaticPhotos = JSON.parse(readFileSync(new URL("../src/data/content/auto-photo-credits.json", import.meta.url), "utf8")) as Record<string, { url: string; licenseUrl: string; license: string; title: string; automatic?: boolean }>;
 const generatedImages = JSON.parse(readFileSync(new URL("../src/data/content/generated-images.json", import.meta.url), "utf8")) as Record<string, GeneratedImage>;
 
@@ -185,6 +186,10 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   const collections = page.getByRole("navigation", { name: "음식 모음", exact: true });
   await collections.getByRole("button", { name: "유행 기록", exact: true }).click();
   await expect(page.locator("#list li h3")).toHaveText(trendFoods.map((food) => food.name));
+  const ordered = await page.locator("#list li h3").allTextContents();
+  const sameYear = ["yogurt-mochi", "pizza-seolgi", "mango-pomelo-sago", "butter-tteok", "bomdong-bibimbap", "dubai-chewy-cookie"];
+  const examples = sameYear.map((slug) => snapshot.foods.find((food) => food.slug === slug)!.name);
+  expect(ordered.filter((name) => examples.includes(name))).toEqual(examples);
   await expect(page.getByRole("navigation", { name: "카테고리", exact: true }).getByRole("button", { name: /^전체/ })).toHaveText(`전체${trendFoods.length}`);
   await expect(page).toHaveURL(/collection=trends/);
   await page.reload();
@@ -200,7 +205,7 @@ test("음식 탐색: 유행 배경을 먼저 보여주고 모음·검색·공유
   await page.screenshot({ path: `test-results/content/discovery-feed-${info.project.name}.png` });
   await page.getByRole("searchbox").fill("편의점까지");
   await page.getByRole("button", { name: "검색", exact: true }).click();
-  await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.name.includes("편의점까지") || food.why.includes("편의점까지") || food.history?.note.includes("편의점까지") || food.ingredients.some((ingredient) => ingredient.name.includes("편의점까지"))).map((food) => food.name));
+  await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.name.includes("편의점까지") || food.why.includes("편의점까지") || food.history?.note.includes("편의점까지") || food.ingredients.some((ingredient) => ingredient.name.includes("편의점까지"))).sort((a, b) => period(b).localeCompare(period(a))).map((food) => food.name));
   await page.goto("/?collection=unknown");
   await expect(collections.getByRole("button", { name: "유행 음식", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page).not.toHaveURL(/collection=/);
@@ -328,7 +333,7 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
   }
 });
 
-test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 표시하고 통합 검색을 유지한다", async ({ page }, info) => {
+test("수집 콘텐츠: 유행 음식만 최근에 확인된 유행 시기순으로 표시하고 통합 검색을 유지한다", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const intro = page.getByRole("main").getByRole("heading", { level: 1 });
@@ -356,7 +361,7 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
     }
   }
   await expect(page.locator("#list li h3")).toHaveText(trendFoods.slice(1).map((food) => food.name));
-  await expect(page.getByRole("button", { name: "추천순", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "최신 유행순", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /^장바구니/ })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "좋아요순", exact: true })).toHaveCount(0);
   await expect(page.getByText(new RegExp(`출처 확인 ${trendFoods[0].checkedAt ?? snapshot.checkedAt}`))).toBeVisible();
@@ -546,12 +551,12 @@ test("정렬·태그·연도는 카테고리 아래에서 음식 목록을 필�
   await filters.getByRole("button", { name: "#10분컷", exact: true }).click();
   await expect(page).toHaveURL(/sort=/);
   await expect(page).toHaveURL(/tag=10/);
-  const expected = snapshot.foods.filter((food) => (food.history?.years.length || food.kind === "discovery") && food.tags.includes("10분컷"))
+  const expected = trendFoods.filter((food) => food.tags.includes("10분컷"))
     .sort((a, b) => (a.kind === "discovery" ? Infinity : a.cookMinutes) - (b.kind === "discovery" ? Infinity : b.cookMinutes));
   await expect(page.locator("#list li h3")).toHaveText(expected.map((food) => food.name));
   await page.screenshot({ path: `test-results/content/sidebar-filters-${info.project.name}.png` });
   await filters.getByRole("button", { name: "#10분컷", exact: true }).click();
-  await filters.getByRole("button", { name: "추천순", exact: true }).click();
+  await filters.getByRole("button", { name: "최신 유행순", exact: true }).click();
   await years.getByRole("button", { name: "2024년", exact: true }).click();
   await expect(page.locator("#list li h3")).toHaveText(trendFoods.filter((food) => food.history?.years.includes(2024)).map((food) => food.name));
   await expect(years.getByRole("button", { name: "2024년", exact: true })).toBeInViewport();

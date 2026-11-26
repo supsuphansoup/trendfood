@@ -92,6 +92,7 @@ test("자동 반영: 원문 레시피와 상승 근거를 검증해 추가하고
   assert.equal(food.image, "pending");
   assert.equal(food.kind, "recipe");
   assert.deepEqual(food.history?.years, [2026]);
+  assert.equal(food.history?.latestPeriod, checkedAt);
   assert.equal(food.sources[0].url, "https://www.youtube.com/watch?v=Abcdef_1234");
   assert.match(food.recipeNote, /개별 검수/);
   assert.doesNotThrow(() => parseContent(result.snapshot));

@@ -237,6 +237,19 @@ test("근거 없는 연도·잘못된 유형·기존 데모 사진을 공개하�
   }
 });
 
+test("가장 최근 유행 연도의 확인된 월과 날짜를 보존한다", () => {
+  const snapshot = fresh();
+  const food = snapshot.foods.find((item: { slug: string }) => item.slug === "dubai-chewy-cookie");
+  for (const period of [undefined, "2026-02", "2026-02-20"]) {
+    food.history.latestPeriod = period;
+    assert.equal(contentToRecords(parseContent(snapshot)).find((item) => item.slug === food.slug)?.history?.latestPeriod, period);
+  }
+  for (const invalid of ["2026", "2026-13", "2026-02-30", "2025-12", "2026-12-01"]) {
+    food.history.latestPeriod = invalid;
+    assert.throws(() => parseContent(snapshot), /가장 최근 유행 연도/);
+  }
+});
+
 test("검토에서 내린 사진은 본문·히어로에 다시 연결할 수 없고 공개 목록에도 남기지 않는다", () => {
   for (const food of input.foods) if (food.image === "pending") assert.equal(food.alt, `${food.name} 사진 준비 중`);
   const rejected = Object.entries(photoCredits).filter(([, photo]) => photo.rejectedReason);
@@ -325,10 +338,10 @@ test("가져오기 실패 시 현재 페이지 콘텐츠 파일을 보존한다"
 
 test("새 수집 결과는 기존 레시피·출처 확인 날짜를 보존하며 같은 주소만 갱신한다", () => {
   const previous = parseContent(fresh());
-  previous.checkedAt = "2026-11-01";
+  previous.checkedAt = "2026-11-16";
   for (const food of previous.foods) delete food.checkedAt;
   const current = parseContent(previous);
-  const incoming = parseContent({ version: 1, status: "ready", checkedAt: "2026-11-16", foods: [
+  const incoming = parseContent({ version: 1, status: "ready", checkedAt: "2026-11-26", foods: [
     { ...input.foods[0], checkedAt: "2026-11-12", why: "갱신한 소개" },
     { ...recipeInput.foods[0], slug: "new-butter-recipe", image: "pending", heroImage: undefined, alt: "새 음식 사진 준비 중" },
   ] });
@@ -337,7 +350,7 @@ test("새 수집 결과는 기존 레시피·출처 확인 날짜를 보존하�
   assert.equal(foods.length, input.foods.length + 1);
   assert.equal(foods[0].why, "갱신한 소개");
   assert.equal(foods[0].editorial?.checkedAt, "2026-11-12");
-  assert.equal(foods[1].editorial?.checkedAt, "2026-11-01");
+  assert.equal(foods[1].editorial?.checkedAt, "2026-11-16");
   assert.equal(foods.at(-1)?.slug, "new-butter-recipe");
   assert.equal(current.foods.length, input.foods.length);
   assert.notEqual(current.foods[0].why, "갱신한 소개");

@@ -30,6 +30,8 @@ export type FoodRecord = {
   /** 국내에서 주목받은 시기. 최초 발명 연도나 현재 인기 순위가 아니다. */
   history?: {
     years: number[];
+    /** 가장 최근 유행 연도에서 출처로 확인한 시기(YYYY-MM 또는 YYYY-MM-DD). */
+    latestPeriod?: string;
     note: string;
     sources: { title: string; url: string }[];
   };

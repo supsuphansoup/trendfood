@@ -167,8 +167,8 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
               const active = slideIndex === (multiple ? position : 0);
               const href = `/food/${food.slug}`;
               const context = !curated ? "오늘 가장 많이 찾은 음식"
-                : rank === 1 && food.editorial?.recommendation?.basis === "new" ? "새로 소개하는 음식"
-                : rank === 1 && food.editorial?.recommendation?.basis === "trend" ? "검색 흐름으로 살펴본 음식"
+                : food.rank === 1 && food.editorial?.newlyAdded && food.editorial.recommendation?.basis === "new" ? "새로 소개하는 음식"
+                : food.rank === 1 && food.editorial?.recommendation?.basis === "trend" ? "검색 흐름으로 살펴본 음식"
                 : food.history ? "다시 보는 유행" : "오늘 살펴볼 음식";
               const videoId = foodVideoId(food);
               return (

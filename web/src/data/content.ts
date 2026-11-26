@@ -52,6 +52,12 @@ export function parseContent(raw: unknown, allowDraft = false, uploads: readonly
     if (f.history !== undefined) {
       const h = f.history;
       if (!object(h) || !Array.isArray(h.years) || !h.years.length || h.years.some((year) => !Number.isInteger(year) || year < 2020 || year > Number(String(f.checkedAt ?? raw.checkedAt).slice(0, 4))) || new Set(h.years).size !== h.years.length || !text(h.note) || !Array.isArray(h.sources) || !h.sources.length || h.sources.some((s) => !object(s) || !text(s.title, 200) || !https(s.url))) return fail(`${label}: 유행 연도와 근거 출처를 확인해 주세요`);
+      if (h.latestPeriod !== undefined) {
+        const period = h.latestPeriod;
+        if (typeof period !== "string" || !validDate(period.length === 7 ? `${period}-01` : period, String(f.checkedAt ?? raw.checkedAt)) || Number(period.slice(0, 4)) !== Math.max(...h.years)) {
+          return fail(`${label}: 가장 최근 유행 연도의 월 또는 날짜를 확인해 주세요`);
+        }
+      }
     }
     if (f.checkedAt !== undefined && !validDate(f.checkedAt, today)) return fail(`${label}: 확인 날짜가 잘못됐어요`);
     if (f.publishedAt !== undefined && !validDate(f.publishedAt, today)) return fail(`${label}: 등록 날짜가 잘못됐어요`);

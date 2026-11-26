@@ -72,6 +72,7 @@ export function verifiedIntroduction(candidate: Scored, videos: RecipeVideo[], r
     tip: "음식 정보는 아래 원문 출처에서 확인하세요.", image: "pending", alt: `${candidate.name} 사진 준비 중`, convenience: [], sources, checkedAt,
     history: {
       years: [Number(checkedAt.slice(0, 4))],
+      latestPeriod: checkedAt,
       note: `${checkedAt}에 ${candidate.multiplier >= 1.3 ? "검색 관심 증가와 " : ""}여러 제작자의 최근 영상에서 확인했어요. 최초 유행 시기나 실시간 인기 순위는 아니에요.`,
       sources: [...(candidate.multiplier >= 1.3 ? [{ title: "네이버 데이터랩 검색어 트렌드", url: "https://datalab.naver.com/keyword/trendSearch.naver" }] : []), ...sources],
     },
@@ -110,6 +111,7 @@ export function verifiedFood(candidate: Scored, videos: RecipeVideo[], raw: unkn
     tip: recipe.tip, image: "pending", alt: `${candidate.name} 사진 준비 중`, convenience: [], sources, checkedAt,
     history: {
       years: [Number(checkedAt.slice(0, 4))],
+      latestPeriod: checkedAt,
       note: `${checkedAt}에 ${candidate.multiplier >= 1.3 ? "검색 관심 증가와 " : ""}여러 제작자의 최근 영상에서 확인했어요. 연도는 자동 수집으로 확인한 시기이며, 처음 유행한 연도를 확정한 것은 아니에요.`,
       sources: [...(candidate.multiplier >= 1.3 ? [{ title: "네이버 데이터랩 검색어 트렌드", url: "https://datalab.naver.com/keyword/trendSearch.naver" }] : []), ...sources],
     },
