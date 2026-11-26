@@ -731,8 +731,8 @@ test("메인: 정렬·태그·검색·찜 필터가 동작한다", async ({ page
   await page.getByRole("button", { name: "전체 보기" }).click();
 
   await page.getByRole("searchbox").fill("새우");
-  await page.getByRole("searchbox").press("Enter");
-  expect((await cardTitles(page)).sort()).toEqual(["새우 로제 떡볶이", "새우 크림 리조또"]);
+  await page.getByRole("button", { name: "검색", exact: true }).click();
+  await expect.poll(async () => (await cardTitles(page)).sort()).toEqual(["새우 로제 떡볶이", "새우 크림 리조또"]);
   await page.getByRole("button", { name: "전체 보기" }).click();
 
   await page.getByRole("button", { name: "참치 김밥 찜하기" }).click();
@@ -827,7 +827,7 @@ test("일상 레시피 탭: 상단 추천을 유지하고 주소·검색·유행
   await expect(secondPick).toHaveText(selectedName);
 });
 
-test("상세: 재료 링크 연속 확인, 집에 있어요 기억, 타이머, 접근성", async ({ page, context }, info) => {
+test("상세: 재료 링크 연속 확인, 집에 있어요 기억, 접근성", async ({ page, context }, info) => {
   await context.route("https://www.coupang.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>상품 링크 테스트</p>" }));
   await page.goto("/");
   await page.getByRole("link", { name: "음식 살펴보기", exact: true }).first().click();
@@ -864,9 +864,6 @@ test("상세: 재료 링크 연속 확인, 집에 있어요 기억, 타이머, �
   await expect(cart.getByText("링크 확인 1/3")).toBeVisible();
   await page.goto("/food/butter-garaetteok");
   await expect(page.getByRole("checkbox", { name: /무염 버터/ })).not.toBeChecked();
-
-  await page.getByRole("button", { name: "타이머 1분" }).click();
-  await expect(page.getByRole("timer")).toHaveText(/0:5\d|1:00/);
 });
 
 test("없는 음식 주소는 404, 모든 음식 상세는 200", async ({ page }) => {

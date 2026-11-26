@@ -4,8 +4,6 @@ import { useState } from "react";
 import type { Food } from "@/lib/foods";
 import { scaledIngredients, scaleAmount, servingLabel } from "@/data/recipe-tools";
 import { IngredientCart } from "@/components/detail/ingredient-cart";
-import { StepTimer } from "@/components/detail/step-timer";
-import { CookingMode } from "@/components/detail/cooking-mode";
 import { AdSlot } from "@/components/ad-slot";
 
 export function RecipeWorkspace({ food }: { food: Food }) {
@@ -30,11 +28,13 @@ export function RecipeWorkspace({ food }: { food: Food }) {
           <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
           <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>
         </div>
-        {recipe && <CookingMode food={food} />}
         <ol className="m-0 list-none p-0">
           {food.steps.map((step, i) => <li id={`step-${i + 1}`} key={step.text} className="grid scroll-mt-6 grid-cols-[44px_minmax(0,1fr)] gap-4 border-t py-[18px]">
             <span className="flex size-11 items-center justify-center rounded-full bg-primary text-lg font-black text-primary-foreground"><span className="sr-only">단계 </span>{i + 1}</span>
-            <div><p className="text-base leading-[1.7] md:text-[17px]">{step.text}</p>{step.timerMinutes && <StepTimer minutes={step.timerMinutes} />}</div>
+            <div>
+              <p className="text-base leading-[1.7] md:text-[17px]">{step.text}</p>
+              {step.timerMinutes && <span className="mt-2.5 inline-block rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">{step.timerMinutes}분</span>}
+            </div>
           </li>)}
         </ol>
         <p className="mt-2 rounded-2xl bg-muted px-[18px] py-4 text-[15px] leading-[1.7]"><b>팁</b> {food.tip}</p>

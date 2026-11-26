@@ -1101,6 +1101,11 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       await expect(headings.nth(0)).toHaveText(food.kind === "product" ? "제품 구매 링크" : "재료 구매 링크");
       await expect(headings.nth(1)).toHaveText(food.kind === "product" ? "고르고 즐기는 법" : "만드는 법");
       await expect(headings.nth(2)).toHaveText("어떤 음식인가요");
+      const recipeSection = page.locator("#recipe");
+      await expect(recipeSection.getByRole("button")).toHaveCount(0);
+      for (const [index, step] of food.steps.entries()) {
+        if (step.timerMinutes) await expect(recipeSection.locator(`#step-${index + 1}`).getByText(`${step.timerMinutes}분`, { exact: true })).toBeVisible();
+      }
       const [cartTitle, recipeTitle] = await page.locator("#cart h2, #recipe h2").evaluateAll((titles) =>
         titles.map((title) => title.getBoundingClientRect().top),
       );

@@ -58,72 +58,17 @@ test("저장 공간을 사용할 수 없어도 보유 재료·찜은 현재 화�
   await expect(ingredient).toBeChecked();
 });
 
-test("요리 모드: 완료 기억·키보드 닫기·포커스 복원·화면 켜두기 실패 안내", async ({ page }, info) => {
-  await page.addInitScript(() => Object.defineProperty(navigator, "wakeLock", { value: { request: async () => { throw new DOMException("denied", "NotAllowedError"); } } }));
+test("만드는 법은 요리 모드 없이 조리 시간만 표시한다", async ({ page }, info) => {
   await page.goto("/food/butter-garaetteok");
-  const trigger = page.getByRole("button", { name: "요리 모드", exact: true });
-  await trigger.click();
-  const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
-  await dialog.getByRole("checkbox", { name: "단계 1 완료", exact: true }).check();
-  await expect(dialog.getByRole("status").first()).toContainText("1/");
-  await dialog.getByRole("checkbox", { name: "화면 켜두기", exact: true }).check();
-  await expect(dialog.getByText(/화면 켜두기를 사용할 수 없어요/)).toBeVisible();
-  await dialog.getByRole("button", { name: "타이머 1분", exact: true }).click();
-  await expect(dialog.getByRole("timer")).toContainText(/1:00|0:5\d/);
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  await page.screenshot({ path: `test-results/cooking-${info.project.name}.png` });
-  await page.keyboard.press("Escape");
-  await expect(dialog).toHaveCount(0);
-  await expect(trigger).toBeFocused();
-  await trigger.click();
-  await expect(dialog.getByRole("checkbox", { name: "단계 1 완료", exact: true })).toBeChecked();
-  await dialog.getByRole("button", { name: "완료 표시 초기화" }).click();
-  await expect(dialog.getByRole("checkbox", { name: "단계 1 완료", exact: true })).not.toBeChecked();
-});
-
-test("요리 모드의 고정 제목 위에 조리 문장이 보이지 않는다", async ({ page }, info) => {
-  await page.setViewportSize(info.project.name === "mobile" ? { width: 320, height: 568 } : { width: 844, height: 390 });
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/food/butter-garaetteok");
-  await page.getByRole("button", { name: "요리 모드", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  const heading = dialog.getByRole("heading").locator("..");
-  await dialog.evaluate((el) => { el.scrollTop = 240; });
-  await expect.poll(() => dialog.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
-  const dialogTop = (await dialog.boundingBox())!.y;
-  expect((await heading.boundingBox())!.y - dialogTop).toBeLessThanOrEqual(1);
-  await expect(dialog.getByRole("button", { name: "닫기", exact: true })).toBeInViewport({ ratio: 1 });
-});
-
-test("화면 켜두기는 모드를 닫는 동안 늦게 승인돼도 즉시 해제한다", async ({ page }) => {
-  await page.addInitScript(() => {
-    const state = window as unknown as { wakeApprove: () => void; wakeReleased: number };
-    state.wakeReleased = 0;
-    Object.defineProperty(navigator, "wakeLock", { value: { request: () => new Promise((resolve) => { state.wakeApprove = () => resolve({ release: async () => { state.wakeReleased++; }, addEventListener: () => {} }); }) } });
-  });
-  await page.goto("/food/butter-garaetteok");
-  await page.getByRole("button", { name: "요리 모드", exact: true }).click();
-  const dialog = page.getByRole("dialog");
-  await dialog.getByRole("checkbox", { name: "화면 켜두기", exact: true }).check();
-  await dialog.getByRole("button", { name: "닫기", exact: true }).click();
-  await page.evaluate(() => (window as unknown as { wakeApprove: () => void }).wakeApprove());
-  await expect.poll(() => page.evaluate(() => (window as unknown as { wakeReleased: number }).wakeReleased)).toBe(1);
-});
-
-test("타이머는 백그라운드 경과 시간을 반영하고 일시정지 동안 유지된다", async ({ page }) => {
-  await page.clock.install();
-  await page.goto("/food/butter-garaetteok");
-  await page.getByRole("button", { name: "타이머 1분", exact: true }).click();
-  await page.clock.fastForward(20_000);
-  await expect(page.getByRole("timer")).toHaveText("0:40");
-  await page.getByRole("button", { name: "타이머 멈춤" }).click();
-  await page.clock.fastForward(60_000);
-  await expect(page.getByRole("timer")).toHaveText("0:40");
-  await page.getByRole("button", { name: "타이머 계속" }).click();
-  await page.clock.fastForward(40_000);
-  await expect(page.getByRole("timer")).toHaveText("다 됐어요!");
+  const recipe = page.locator("#recipe");
+  await expect(recipe.getByRole("heading", { name: "만드는 법" })).toBeVisible();
+  await expect(recipe.getByRole("button")).toHaveCount(0);
+  const duration = recipe.getByText("1분", { exact: true });
+  await expect(duration).toBeVisible();
+  await duration.click();
+  await expect(duration).toHaveText("1분");
+  await expect(recipe.getByRole("timer")).toHaveCount(0);
+  await recipe.screenshot({ path: `test-results/recipe-duration-${info.project.name}.png` });
 });
 
 test("방문 통계는 허용 전 호출하지 않고 검색어·필터를 보내지 않으며 철회 후 멈춘다", async ({ page }) => {
