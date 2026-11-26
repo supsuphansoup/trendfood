@@ -302,14 +302,14 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
 
   return (
     <>
-      <header className="border-b bg-card">
-          <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4 max-[360px]:gap-y-2 max-[360px]:py-2 md:px-[5vw] md:py-2.5">
-            <Link href="/" onClick={reset} className="flex min-h-11 items-center">
+      <header className="home-site-header border-b bg-card">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-[var(--hero-gutter)] py-4 max-[360px]:gap-y-2 max-[360px]:py-2 md:grid md:grid-cols-[1fr_minmax(0,380px)_1fr] md:py-2.5">
+            <Link href="/" onClick={reset} className="flex min-h-11 items-center justify-self-start">
               <SiteLogo />
             </Link>
             <form
               role="search"
-              className="order-3 flex h-12 min-w-0 basis-full items-center gap-2 rounded-feature border border-input bg-background pr-1 pl-4 focus-within:border-accent md:order-2 md:ml-auto md:max-w-[380px] md:flex-1"
+              className="order-3 flex h-12 min-w-0 basis-full items-center gap-2 rounded-feature border border-input bg-background pr-1 pl-4 focus-within:border-accent md:order-2"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!curated) setYear(null);
@@ -351,7 +351,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
               )}
               <button type="submit" aria-label="검색" className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-secondary"><Search className="size-5" aria-hidden /></button>
             </form>
-            <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-1 text-sm md:order-3 md:ml-0 md:gap-2">
+            <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-1 text-sm md:order-3 md:gap-2">
               <Link href="/about#partners" className="hidden min-h-11 items-center px-2.5 text-muted-foreground hover:text-foreground xl:inline-flex">
                 제휴 안내
               </Link>

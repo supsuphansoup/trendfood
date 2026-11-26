@@ -29,11 +29,18 @@ test("첨부 로고: 공개 페이지의 이미지·홈 이동·탭 아이콘이
     await expect(logo).toHaveAttribute("src", "/brand/vviralfood-logo.png");
     await expect(logo).toHaveAttribute("alt", "vviralfood");
     await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(2172);
+    await expect(logo).toHaveCSS("object-fit", "contain");
+    const logoBox = (await logo.boundingBox())!;
+    expect(logoBox.width / logoBox.height).toBeCloseTo(3, 2);
     const link = logo.locator("..");
     await expect(link).toHaveAttribute("href", "/");
     await expect(link).toHaveAccessibleName("vviralfood");
     const bounds = (await link.boundingBox())!;
     expect(bounds.height).toBeGreaterThanOrEqual(44);
+    if (path === "/") {
+      const title = page.getByRole("heading", { name: "유행 음식과 집밥" });
+      expect(bounds.x).toBeCloseTo((await title.boundingBox())!.x, 0);
+    }
     await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/brand/vviralfood-logo.png");
     await expect(page).toHaveTitle(path === "/" ? "vviralfood — 지금 뜨는 음식" : / \| vviralfood$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

@@ -121,7 +121,23 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
           <h1 id="home-hero-title">유행 음식과 집밥</h1>
           <p>왜 유행했는지, 집에서 만드는 법까지.</p>
         </header>
-        <div className="home-hero-tools">
+        <div className="home-hero-tools" data-multiple={multiple || undefined}>
+          {multiple && (
+            <nav aria-label="추천 음식 순위" className="home-hero-ranks">
+              {foods.map((food, index) => (
+                <button key={food.slug} type="button" aria-current={selected === index ? "true" : undefined} onClick={() => {
+                  setRotation(false);
+                  if (selected !== index) move(index - selected);
+                }}>
+                  <span className="home-hero-rank-number">{index + 1}위</span>
+                  <span>{food.name}</span>
+                </button>
+              ))}
+            </nav>
+          )}
+          <Link href="#list" onNavigate={() => document.getElementById("list")?.focus({ preventScroll: true })} className="home-hero-list">
+            음식 목록 <ArrowDown className="size-4" aria-hidden />
+          </Link>
           {multiple && (
             <nav aria-label="추천 음식 넘기기" className="home-hero-controls">
               <button ref={rotationButton} aria-label={automatic ? "자동 넘김 일시정지" : "자동 넘김 시작"} type="button" onClick={() => setRotation(!automatic)}>
@@ -130,15 +146,11 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
               <button type="button" aria-label="이전 추천 음식" onClick={() => { setRotation(false); move(-1); }}>
                 <ChevronLeft className="size-5" aria-hidden />
               </button>
-              <span aria-hidden className="home-hero-count">{selected + 1} / {count}</span>
               <button type="button" aria-label="다음 추천 음식" onClick={() => { setRotation(false); move(1); }}>
                 <ChevronRight className="size-5" aria-hidden />
               </button>
             </nav>
           )}
-          <Link href="#list" onNavigate={() => document.getElementById("list")?.focus({ preventScroll: true })} className="home-hero-list">
-            음식 목록 <ArrowDown className="size-4" aria-hidden />
-          </Link>
           <span aria-live={rotating ? "off" : "polite"} aria-atomic="true" className="sr-only">{selected + 1} / {count} {top.name}</span>
         </div>
         <div
@@ -182,10 +194,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
                   )}
                   <div className="home-hero-copy">
                     <p className="text-meta font-semibold">{context}{food.history?.years.map((year) => ` · ${year}년`)}</p>
-                    <div className="home-hero-title-row">
-                      {multiple && <span className="home-hero-rank" aria-hidden="true">{rank}</span>}
-                      <h2>{food.name}</h2>
-                    </div>
+                    <h2>{food.name}</h2>
                     <p data-testid="feature-description" className="home-hero-reason">{(food.history?.note ?? food.why).split(/(?<=[.!?])\s+/)[0]}</p>
                     {food.kind !== "discovery" && food.kind !== "product" && (
                       <p className="mt-2 text-meta font-medium">{[food.cookLabel, food.difficulty, food.servings].filter(Boolean).join(" · ")}</p>

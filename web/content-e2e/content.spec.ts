@@ -124,6 +124,9 @@ test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선�
     await expect(page.getByRole("link", { name: "음식 목록", exact: true })).toBeInViewport({ ratio: 1 });
     const heading = preview.getByRole("heading", { level: 2 });
     const detail = preview.getByRole("link", { name: "음식 살펴보기" });
+    const ranks = page.getByRole("navigation", { name: "추천 음식 순위" });
+    await expect(ranks).toBeInViewport({ ratio: 1 });
+    expect((await detail.boundingBox())!.y + 44).toBeLessThan((await ranks.boundingBox())!.y);
     await expect(heading).toHaveText(trendFoods[0].name);
     const next = page.getByRole("button", { name: "다음 추천 음식", exact: true });
     await next.scrollIntoViewIfNeeded();
@@ -138,25 +141,34 @@ test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선�
   }
 });
 
-test("대표 음식 번호는 제목 옆에 표시되고 음식과 함께 순환한다", async ({ page }, info) => {
+test("홈에서 유행 시기순으로 1~3위와 음식명을 표시하고 원하는 음식으로 전환한다", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
   const title = feature.getByRole("heading", { level: 2 });
-  const rank = feature.locator(".home-hero-rank");
+  const ranks = page.getByRole("navigation", { name: "추천 음식 순위" });
+  const buttons = ranks.getByRole("button");
   const next = page.getByRole("button", { name: "다음 추천 음식", exact: true });
+  await expect(buttons).toHaveCount(3);
   for (const index of [0, 1, 2]) {
-    await expect(title).toHaveAccessibleName(trendFoods[index].name);
-    await expect(rank).toHaveText(String(index + 1));
-    await expect(rank).toBeInViewport({ ratio: 1 });
-    const rankBox = (await rank.boundingBox())!;
-    const titleBox = (await title.boundingBox())!;
-    expect(rankBox.x + rankBox.width).toBeLessThan(titleBox.x);
-    expect(rankBox.y).toBeLessThan(titleBox.y + titleBox.height);
-    await page.screenshot({ path: `test-results/content/hero-number-${index + 1}-${info.project.name}.png` });
-    await next.click();
+    const button = buttons.nth(index);
+    await expect(button).toHaveAccessibleName(`${index + 1}위 ${trendFoods[index].name}`);
+    await expect(button).toBeInViewport({ ratio: 1 });
+    expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   }
-  await expect(rank).toHaveText("1");
+  for (const index of [0, 2, 1]) {
+    const button = buttons.nth(index);
+    if (index !== 0) await button.click();
+    await expect(title).toHaveAccessibleName(trendFoods[index].name);
+    await expect(feature.getByRole("link", { name: "음식 살펴보기" })).toHaveAttribute("href", `/food/${trendFoods[index].slug}`);
+    await expect(ranks.locator("[aria-current]")).toHaveCount(1);
+    await expect(button).toHaveAttribute("aria-current", "true");
+    await page.screenshot({ path: `test-results/content/home-rank-${index + 1}-${info.project.name}.png` });
+  }
+  await next.click();
+  await expect(buttons.nth(2)).toHaveAttribute("aria-current", "true");
+  await next.click();
+  await expect(buttons.first()).toHaveAttribute("aria-current", "true");
   await expect(title).toHaveAccessibleName(trendFoods[0].name);
 });
 
