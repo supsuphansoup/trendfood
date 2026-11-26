@@ -14,6 +14,40 @@ import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
 import { foodUrl, recipeJson, safeJson } from "@/data/seo";
 import { foodVideoId } from "@/data/youtube";
 
+function DetailSourceLinks({ sources, className }: {
+  sources: { title: string; url: string }[];
+  className?: string;
+}) {
+  const renderLinks = (links: typeof sources) => (
+    <ul className="m-0 flex list-none flex-col gap-1 p-0">
+      {links.map((source) => (
+        <li key={source.url}>
+          <a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm font-bold wrap-anywhere underline underline-offset-4">
+            {source.title} ↗<span className="sr-only"> (새 창)</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  );
+  const more = sources.slice(2);
+
+  return (
+    <div className={className}>
+      {renderLinks(sources.slice(0, 2))}
+      {more.length > 0 && (
+        <details className="group mt-1">
+          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-sm px-1 text-sm font-bold text-accent hover:underline [&::-webkit-details-marker]:hidden">
+            <span className="group-open:hidden">더보기</span>
+            <span className="hidden group-open:inline">접기</span>
+            <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
+          </summary>
+          {renderLinks(more)}
+        </details>
+      )}
+    </div>
+  );
+}
+
 // 빌드할 때 게시된 음식의 상세 페이지만 만든다. 목록에 없는 주소는 404.html 로 간다.
 export const dynamicParams = false;
 
@@ -114,9 +148,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             {food.history ? <section aria-labelledby="history-title" className="mt-2 rounded-2xl border p-4">
               <h2 id="history-title" className="text-lg font-black">주목받은 시기 · {food.history.years.map((year) => `${year}년`).join(" · ")}</h2>
               <p className="mt-2 text-sm leading-relaxed text-body">{food.history.note}</p>
-              <ul className="mt-2 list-none space-y-1 p-0">
-                {food.history.sources.map((source) => <li key={source.url}><a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">{source.title} ↗<span className="sr-only"> (새 창)</span></a></li>)}
-              </ul>
+              <DetailSourceLinks sources={food.history.sources} className="mt-2" />
             </section> : food.editorial && <p className="text-sm text-muted-foreground">{discovery ? "유행 시기 미확정" : "일상 레시피"} · 이 항목은 특정 연도 유행 음식으로 분류하지 않았어요.</p>}
             {!food.editorial && <TrendChart data={food.trend} multiplier={food.multiplier} />}
             <p className="text-[13px] text-muted-foreground">
@@ -128,15 +160,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
             <section id="sources" aria-labelledby="sources-title" className="flex min-w-0 flex-[1_1_460px] flex-col gap-3 rounded-2xl bg-muted p-5">
               <h2 id="sources-title" className="text-xl font-black">참고한 출처</h2>
               <p className="text-sm text-muted-foreground">확인 날짜 {food.editorial.checkedAt} · 실시간 인기 순위는 아직 집계하지 않았어요.</p>
-              <ul className="m-0 flex list-none flex-col gap-2 p-0">
-                {food.editorial.sources.map((source) => (
-                  <li key={source.url}>
-                    <a href={source.url} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-sm font-bold underline underline-offset-4">
-                      {source.title} ↗<span className="sr-only"> (새 창)</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <DetailSourceLinks sources={food.editorial.sources} />
               {food.imageAvailable && <details aria-label="사진 정보" className="group border-t text-sm text-muted-foreground">
                 <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
                   사진 정보 <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />

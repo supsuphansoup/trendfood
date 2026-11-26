@@ -577,6 +577,50 @@ test("추가한 바이럴 음식 6개를 유행 연도별로 찾고 상세 근�
   }
 });
 
+test("음식 상세의 두 출처 목록은 각각 3개부터 더보기로 펼친다", async ({ page }, info) => {
+  for (const slug of ["croffle", "bulguri", "yogurt-mochi"]) {
+    const food = snapshot.foods.find((item) => item.slug === slug)!;
+    await page.goto(`/food/${slug}`);
+    const lists = [
+      { region: page.getByRole("region", { name: /^주목받은 시기/ }), entries: food.history!.sources },
+      { region: page.getByRole("region", { name: "참고한 출처", exact: true }), entries: food.sources },
+    ];
+
+    for (const { region, entries } of lists) {
+      const links = region.getByRole("link");
+      const summary = region.locator("summary").filter({ hasText: "더보기" });
+      await expect(links).toHaveCount(Math.min(2, entries.length));
+      expect(await links.evaluateAll((els) => els.map((el) => el.getAttribute("href")))).toEqual(entries.slice(0, 2).map(({ url }) => url));
+
+      if (entries.length < 3) {
+        await expect(summary).toHaveCount(0);
+        continue;
+      }
+
+      if (slug === "yogurt-mochi" && region === lists[0].region) {
+        await region.screenshot({ path: `test-results/content/detail-history-links-${info.project.name}.png` });
+      }
+      await expect(summary.getByText("더보기", { exact: true })).toBeVisible();
+      await summary.focus();
+      await summary.press("Enter");
+      await expect(summary.getByText("접기", { exact: true })).toBeVisible();
+      await expect(links).toHaveCount(entries.length);
+      expect(await links.evaluateAll((els) => els.map((el) => el.getAttribute("href")))).toEqual(entries.map(({ url }) => url));
+      const other = lists.find((list) => list.region !== region)!;
+      await expect(other.region.getByRole("link")).toHaveCount(Math.min(2, other.entries.length));
+
+      if (slug === "yogurt-mochi" && region === lists[1].region) {
+        await region.screenshot({ path: `test-results/content/detail-expanded-sources-${info.project.name}.png` });
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+        expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+      }
+      await summary.click();
+      await expect(summary.getByText("더보기", { exact: true })).toBeVisible();
+      await expect(links).toHaveCount(2);
+    }
+  }
+});
+
 test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제공하며 가짜 수치는 없다", async ({ page }, info) => {
   test.setTimeout(Math.max(120_000, snapshot.foods.length * 1000));
   for (const food of snapshot.foods) {
