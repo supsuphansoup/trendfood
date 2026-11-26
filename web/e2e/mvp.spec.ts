@@ -638,24 +638,28 @@ test("메인: 카테고리 탭, 주소에 필터 기억, 뒤로가기", async ({
   expect(await cardTitles(page)).toContain("버터 가래떡구이");
 });
 
-test("일상 레시피 탭: 순위와 분리하고 주소·검색·기본 목록 복귀를 유지한다", async ({ page }, info) => {
+test("일상 레시피 탭: 상단 추천을 유지하고 주소·검색·기본 목록 복귀를 지원한다", async ({ page }, info) => {
   await page.goto("/");
   const original = await cardTitles(page);
   const categories = page.getByRole("navigation", { name: "카테고리", exact: true });
   const everyday = categories.getByRole("button", { name: /^일상 레시피/ });
+  const secondPick = page.getByRole("region", { name: "오늘의 2위", exact: true }).getByRole("heading", { level: 2 });
+  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
+  const selectedName = await secondPick.innerText();
   await everyday.focus();
   await everyday.press("Enter");
   await expect(everyday).toHaveAttribute("aria-current", "true");
   await expect(categories.locator('[aria-current="true"]')).toHaveCount(1);
   await expect(page).toHaveURL(/collection=everyday/);
-  await expect(page.locator("#list").getByRole("heading", { level: 1 })).toHaveText("일상 레시피");
+  await expect(page.locator("#list").getByRole("heading", { level: 2, name: "일상 레시피", exact: true })).toBeVisible();
   expect(await cardTitles(page)).toContain("치킨마요 덮밥");
   expect(await cardTitles(page)).not.toContain("계란 파 라면"); // 소개 전용 예시는 제외한다.
   await expect(page.locator("#list").getByText("순위", { exact: true })).toHaveCount(0);
-  const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
-  await expect(feature).toHaveCount(0);
+  await expect(secondPick).toHaveText(selectedName);
   await page.reload();
   await expect(everyday).toHaveAttribute("aria-current", "true");
+  await expect(page.getByRole("region", { name: "오늘의 1위", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
   await page.getByRole("searchbox").fill("치킨마요");
   await page.getByRole("button", { name: "검색", exact: true }).click();
   await expect(page.locator("#list li").getByRole("heading")).toHaveText(["치킨마요 덮밥"]);
@@ -665,10 +669,11 @@ test("일상 레시피 탭: 순위와 분리하고 주소·검색·기본 목록
   await page.screenshot({ path: `test-results/everyday-tab-${info.project.name}.png` });
   await categories.getByRole("button", { name: /^전체/ }).click();
   await expect(page.locator("#list li h3")).toHaveText(original);
-  await expect(feature.getByRole("heading", { level: 2 })).toHaveText("두바이 초콜릿");
+  await expect(secondPick).toHaveText(selectedName);
   await expect(page).not.toHaveURL(/collection=/);
   await page.goBack();
   await expect(everyday).toHaveAttribute("aria-current", "true");
+  await expect(secondPick).toHaveText(selectedName);
 });
 
 test("상세: 재료 연속 담기, 집에 있어요 기억, 타이머, 접근성", async ({ page, context }, info) => {

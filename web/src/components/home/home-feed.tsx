@@ -169,7 +169,6 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const q = applied.trim();
   const unified = collection === "all" && (tab === "찜" || (tab === "전체" && Boolean(q || pantryActive)));
   const leadFood = trendFoods[0];
-  const showFeature = leadFood && collection !== "everyday";
   const filtering = Boolean(q || tag || tab !== "전체" || year !== null || collection !== "all" || pantryActive);
   const history = trendHistory.filter((item) => item.year === year);
 
@@ -258,7 +257,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   const title = [tab === "전체" ? defaultTitle : tab === "찜" ? "찜한 음식" : tab, year && `${year}년 화제`, tag && `#${tag}`, q && `'${q}' 검색`]
     .filter(Boolean)
     .join(" · ");
-  const ListHeading = showFeature ? "h2" : "h1";
+  const ListHeading = leadFood ? "h2" : "h1";
 
   return (
     <>
@@ -335,7 +334,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
       </header>
 
       <main>
-      {showFeature && <HomeFeature foods={trendFoods.slice(0, 3)} curated={curated} />}
+      {leadFood && <HomeFeature foods={trendFoods.slice(0, 3)} curated={curated} />}
 
       <div className="w-full border-t bg-feed-surface">
       <div className="mx-auto w-full max-w-[1200px] px-5">
@@ -459,7 +458,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                 <ol id="food-grid" className={cn("food-grid m-0 mt-2 grid list-none gap-2 p-0 pb-8 sm:gap-4 lg:gap-6", columns === 2 ? "grid-cols-2" : "grid-cols-3")}>
                   {list.map((food, i) => (
                     <Fragment key={food.slug}>
-                      <FoodCard food={food} columns={columns} heading={showFeature ? "h3" : "h2"} unranked={collection === "everyday" || pantryActive} match={pantryActive ? pantryMatch(food, pantry.items, need.items) : null} />
+                      <FoodCard food={food} columns={columns} heading={leadFood ? "h3" : "h2"} unranked={collection === "everyday" || pantryActive} match={pantryActive ? pantryMatch(food, pantry.items, need.items) : null} />
                       {i === columns - 1 && list.length > columns && (
                         <li className="col-span-full list-none">
                           <AdSlot label="인피드" className="my-7 h-[130px]" />

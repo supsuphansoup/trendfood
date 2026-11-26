@@ -228,6 +228,8 @@ test("일상 레시피 카테고리: 비유행 레시피만 모으고 연도·�
   await expect(everyday).toHaveText(`일상 레시피${recipes.length}`);
   await expect(page.getByRole("button", { name: /^일상 레시피/ })).toHaveCount(1);
   await expect(page.getByRole("button", { name: /^자취 요리/ })).toHaveCount(0);
+  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
+  await expect(featureTitle).toHaveText(trendFoods[1].name);
   await everyday.focus();
   await everyday.press("Enter");
   await expect(cardTitles).toHaveText(recipes.map((food) => food.name));
@@ -236,13 +238,14 @@ test("일상 레시피 카테고리: 비유행 레시피만 모으고 연도·�
   await expect(categories.getByRole("button", { name: /^전체/ })).toHaveText(`전체${trendFoods.length}`);
   await expect(page).toHaveURL(/collection=everyday/);
   await expect(page).not.toHaveURL(/year=|cat=/);
-  await expect(featureTitle).toHaveCount(0);
+  await expect(featureTitle).toHaveText(trendFoods[1].name);
   await expect(page.getByRole("navigation", { name: "음식 모음", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "필터", exact: true }).click();
   await expect(page.getByRole("navigation", { name: "유행 연도", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "필터", exact: true }).click();
   await page.reload();
   await expect(everyday).toHaveAttribute("aria-current", "true");
+  await expect(featureTitle).toHaveText(trendFoods[0].name);
   await expect(cardTitles).toHaveText(recipes.map((food) => food.name));
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -254,6 +257,7 @@ test("일상 레시피 카테고리: 비유행 레시피만 모으고 연도·�
   await expect(page.getByRole("region", { name: "재료 장바구니", exact: true })).toBeVisible();
   await page.goBack();
   await expect(everyday).toHaveAttribute("aria-current", "true");
+  await expect(featureTitle).toBeVisible();
   await page.getByRole("button", { name: "검색어 지우기", exact: true }).click();
   await categories.getByRole("button", { name: /^전체/ }).click();
   await expect(cardTitles).toHaveText(original);
