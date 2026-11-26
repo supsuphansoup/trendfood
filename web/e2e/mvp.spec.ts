@@ -501,7 +501,7 @@ test("추천 음식 사진을 양방향으로 드래그하고 클릭하면 상�
   await expect(page).toHaveURL(href);
 });
 
-test("추천 음식 자동 넘김은 8초 간격이며 일시정지·재개·키보드 포커스를 지원한다", async ({ page }) => {
+test("추천 음식 자동 넘김은 커서가 사진 위에 있어도 8초 간격이며 정지·재개를 지원한다", async ({ page }) => {
   const start = new Date("2026-11-26T03:00:00Z");
   await page.clock.install({ time: start });
   await page.clock.pauseAt(new Date(start.getTime() + 1000));
@@ -510,12 +510,10 @@ test("추천 음식 자동 넘김은 8초 간격이며 일시정지·재개·키
   const active = page.locator("#featured-trend-food");
   const toggle = page.getByRole("button", { name: /^자동 넘김 / });
   await expect(toggle).toHaveAccessibleName("자동 넘김 일시정지");
+  await page.mouse.move(265, 300);
   await page.clock.runFor(7999);
   await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
   await page.clock.runFor(1);
-  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
-  await page.mouse.move(265, 300);
-  await page.clock.runFor(8000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
   await toggle.click();
   await expect(toggle).toHaveAccessibleName("자동 넘김 시작");
@@ -523,7 +521,6 @@ test("추천 음식 자동 넘김은 8초 간격이며 일시정지·재개·키
   await page.clock.runFor(16000);
   await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
   await toggle.click();
-  await page.mouse.move(1, 1);
   await page.evaluate(() => {
     Object.defineProperty(document, "hidden", { configurable: true, value: true });
     document.dispatchEvent(new Event("visibilitychange"));

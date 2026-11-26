@@ -28,7 +28,6 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
   const multiple = count > 1;
   const [{ position, instant }, setSlide] = useState({ position: 1, instant: false });
   const [rotation, setRotation] = useState<boolean | null>(null);
-  const [hovered, setHovered] = useState(false);
   const reduced = useSyncExternalStore(subscribeToMotion, getReducedMotion, getServerSnapshot);
   const visible = useSyncExternalStore(subscribeToVisibility, getPageVisible, getServerSnapshot);
   const rotationButton = useRef<HTMLButtonElement>(null);
@@ -36,7 +35,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
   const suppressClick = useRef(false);
   const selected = (position + count - 1) % count;
   const automatic = rotation ?? !reduced;
-  const rotating = multiple && automatic && visible && !hovered;
+  const rotating = multiple && automatic && visible;
 
   const move = useCallback((direction: number) => {
     if (!multiple) return;
@@ -106,8 +105,6 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
         aria-labelledby="home-hero-title"
         aria-roledescription="캐러셀"
         className="home-hero"
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         onFocusCapture={(event) => {
           if (event.target !== rotationButton.current || event.target.matches(":focus-visible")) setRotation(false);
         }}
