@@ -98,7 +98,7 @@ const foodExports = {} as typeof import("../src/lib/foods.ts");
 runInNewContext(compiled.outputText, {
   exports: foodExports,
   require: (specifier: string) => {
-    if (specifier.startsWith("@/assets/demo/")) return { default: { src: specifier, width: 640, height: 480, blurDataURL: "data:image/jpeg;base64,dGVzdA==" } };
+    if (specifier.startsWith("@/assets/demo/") || specifier.startsWith("@/assets/direct/")) return { default: { src: specifier, width: 640, height: 480, blurDataURL: "data:image/jpeg;base64,dGVzdA==" } };
     if (specifier === "@/data/seed-foods") return { seedFoods };
     if (specifier === "@/data/photos") return photoData;
     if (specifier === "@/data/photo-credits") return { photoCredits: {} };

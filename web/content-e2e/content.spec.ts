@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import type { ContentSnapshot } from "../src/data/content";
 import type { GeneratedImage } from "../src/data/generated-images";
 import { parseYouTubeId } from "../src/data/youtube";
+import { directPhotoCredits } from "../src/data/photos";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const period = ({ history }: ContentSnapshot["foods"][number]) => history?.latestPeriod ?? String(Math.max(0, ...(history?.years ?? [])));
@@ -545,15 +546,24 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
   }
 });
 
-test("포켓몬빵은 제품과 다른 예시 사진 없이 삼립 출처와 공식 영상을 연다", async ({ page }, info) => {
+test("포켓몬빵은 직접 촬영한 제품 사진과 삼립 출처·공식 영상을 보여 준다", async ({ page }, info) => {
   await page.route("https://www.youtube-nocookie.com/**", (route) => route.fulfill({ contentType: "text/html", body: "<p>공식 영상 자리</p>" }));
   await page.goto("/?q=%ED%8F%AC%EC%BC%93%EB%AA%AC%EB%B9%B5");
   const card = page.locator("#list li").filter({ has: page.getByRole("heading", { name: "포켓몬빵", exact: true }) });
-  await expect(card.locator("img")).toHaveCount(0);
+  const alt = "나무 탁자 위에 놓인 삼립 포켓몬빵 돌아온 로켓단 초코롤 포장.";
+  const cardPhoto = card.getByRole("img", { name: alt, exact: true });
+  await expect(cardPhoto).toHaveAttribute("src", /photo-pokemon-bread-rocket-choco-roll/);
+  await expect(cardPhoto).toHaveCSS("object-fit", "contain");
+  await cardPhoto.evaluate((image: HTMLImageElement) => image.decode());
+  const source = (await cardPhoto.getAttribute("src"))!;
   await card.screenshot({ path: `test-results/content/pokemon-official-card-${info.project.name}.png` });
   await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
   const intro = page.getByRole("region", { name: "음식 소개", exact: true });
-  await expect(intro.locator("img")).toHaveCount(0);
+  const detailPhoto = intro.getByRole("img", { name: alt, exact: true });
+  await expect(detailPhoto).toHaveAttribute("src", source);
+  await expect(detailPhoto).toHaveCSS("object-fit", "contain");
+  await detailPhoto.evaluate((image: HTMLImageElement) => image.decode());
+  await expect(page.getByText("사진: 사용자 제공 · 직접 촬영", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /삼립 · 돌아온 포켓몬빵/ })).toHaveAttribute("href", "https://spcsamlip.co.kr/company/history");
   await expect(page.getByRole("link", { name: "제품 보기", exact: true })).toHaveAttribute("href", "#cart");
   await expect(page.getByRole("link", { name: "재료 살펴보기", exact: true })).toHaveCount(0);
@@ -1110,6 +1120,9 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
         await introduction.getByRole("img", { name: food.alt, exact: true }).screenshot({ path: `test-results/content/photo-${food.slug}-${info.project.name}.png` });
       }
       if (food.slug === "matcha-latte" || food.slug === "dubai-chewy-cookie") await page.screenshot({ path: `test-results/content/ai-${food.slug}-${info.project.name}.png`, fullPage: true });
+    } else if (directPhotoCredits[food.image]) {
+      await expect(photoInfo.getByText("직접 촬영한 사진이에요.", { exact: true })).toBeVisible();
+      await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
     } else {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toBeVisible();
       const introduction = page.getByRole("region", { name: "음식 소개", exact: true });

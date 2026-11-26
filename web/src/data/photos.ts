@@ -13,6 +13,10 @@ export type Photo = {
 export type PhotoDraft = { credit: string; source_url: string; license: PhotoLicense; confirmed: boolean };
 export type PublishedPhoto = Omit<Photo, 'created_at'>;
 
+export const directPhotoCredits: Record<string, { credit: string; sourceUrl: string; license: '직접 촬영' }> = {
+  'photo-pokemon-bread-rocket-choco-roll': { credit: '사용자 제공 · 직접 촬영', sourceUrl: '', license: '직접 촬영' },
+};
+
 export function uploadedPhotoIds(values: (string | null | undefined)[]): string[] {
   return [...new Set(values.filter((value): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)))];
 }

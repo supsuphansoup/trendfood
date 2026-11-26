@@ -1,4 +1,5 @@
 import type { StaticImageData } from "next/image";
+import pokemonBread from "@/assets/direct/photo-pokemon-bread-rocket-choco-roll.webp";
 import bagel from "@/assets/demo/bagel.jpg";
 import deopbap from "@/assets/demo/deopbap.jpg";
 import dubai from "@/assets/demo/dubai.jpg";
@@ -12,7 +13,7 @@ import risotto from "@/assets/demo/risotto.jpg";
 import tteokbokki from "@/assets/demo/tteokbokki.jpg";
 import { type FoodRecord, type Ingredient, type Step } from "@/data/catalog-schema";
 import { seedFoods } from "@/data/seed-foods";
-import { type PublishedPhoto, uploadedPhotoIds, validPhotoPath } from "@/data/photos";
+import { type PublishedPhoto, directPhotoCredits, uploadedPhotoIds, validPhotoPath } from "@/data/photos";
 import { photoCredits, type PhotoCredit } from "@/data/photo-credits";
 import { curatedPhotos } from "@/lib/curated-photos";
 import { generatedPhotos } from "@/lib/generated-photos";
@@ -25,6 +26,7 @@ export type { FoodRecord, Ingredient, Step };
 export const photos: Record<string, StaticImageData> = {
   ...curatedPhotos,
   ...generatedPhotos,
+  "photo-pokemon-bread-rocket-choco-roll": pokemonBread,
   bagel,
   deopbap,
   dubai,
@@ -54,15 +56,16 @@ export const toFood = (r: FoodRecord, uploaded: PublishedPhoto[] = []): Food => 
   const hero = find(r.heroImage);
   const heroImage = hero ? localImage(hero) : r.heroImage ? photos[r.heroImage] : undefined;
   const visiblePhoto = heroImage ? hero : image;
-  const curatedCredit = photoCredits[r.heroImage ?? r.image];
-  const generatedImage = generatedImages[r.heroImage ?? r.image];
+  const visibleImageKey = r.heroImage ?? r.image;
+  const curatedCredit = photoCredits[visibleImageKey];
+  const generatedImage = generatedImages[visibleImageKey];
   return {
     ...r,
     category: r.category === "간식" ? "디저트" : r.category,
     image: image ? localImage(image) : photos[r.image] ?? photos[FALLBACK_PHOTO],
     heroImage,
     imageAvailable: !!image || (!!photos[r.image] && r.image !== "pending"),
-    photoCredit: curatedCredit ? { ...curatedCredit, credit: curatedCredit.author, sourceUrl: curatedCredit.url } : undefined,
+    photoCredit: curatedCredit ? { ...curatedCredit, credit: curatedCredit.author, sourceUrl: curatedCredit.url } : directPhotoCredits[visibleImageKey],
     generatedImage: visiblePhoto ? undefined : generatedImage,
     ...(visiblePhoto ? { photoCredit: { credit: visiblePhoto.credit, sourceUrl: visiblePhoto.source_url, license: visiblePhoto.license } } : {}),
   };

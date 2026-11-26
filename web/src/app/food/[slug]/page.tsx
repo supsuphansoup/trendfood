@@ -165,7 +165,7 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
                 <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
                   사진 정보 <ChevronDown className="size-4 transition-transform group-open:rotate-180" aria-hidden />
                 </summary>
-                <p className="leading-relaxed">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : discovery ? "참고 사진 · 소개된 판매 제품과 다를 수 있어요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>
+                <p className="leading-relaxed">{food.generatedImage ? "AI 생성 예시 · 실제 조리·제품 사진이 아니에요." : food.photoCredit?.license === "직접 촬영" ? "직접 촬영한 사진이에요." : discovery ? "참고 사진 · 소개된 판매 제품과 다를 수 있어요." : "참고 사진 · 이 레시피를 직접 조리한 완성 사진은 아니에요."}</p>
               {food.generatedImage && <div className="pt-3 text-sm leading-relaxed text-body" aria-label="이미지 안내">
                 <p className="font-bold">AI 생성 예시 이미지</p>
                 <p>{food.generatedImage.note}</p>

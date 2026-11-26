@@ -1,8 +1,9 @@
 import { categoryOptions, tagOptions, type FoodRecord } from "./catalog-schema.ts";
 import { photoCredits } from "./photo-credits.ts";
 import { generatedImages } from "./generated-images.ts";
+import { directPhotoCredits } from "./photos.ts";
 
-export const contentImages = ["pending", ...Object.keys(photoCredits).filter((key) => !photoCredits[key].rejectedReason), ...Object.keys(generatedImages)];
+export const contentImages = ["pending", ...Object.keys(directPhotoCredits), ...Object.keys(photoCredits).filter((key) => !photoCredits[key].rejectedReason), ...Object.keys(generatedImages)];
 
 export type ContentFood = Omit<FoodRecord, "rank" | "change" | "likes" | "videos" | "multiplier" | "trend" | "cookLabel" | "editorial" | "videoId" | "hideSourceVideo"> & {
   videoId?: string | null;

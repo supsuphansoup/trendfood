@@ -9,6 +9,7 @@ import { contentToRecords, mergeContent, parseContent } from "../src/data/conten
 import { draftSnapshot } from "./pipeline/content.ts";
 import { curatedLicenses, photoCredits } from "../src/data/photo-credits.ts";
 import { validPhotoSource } from "../src/data/photo-source.ts";
+import { directPhotoCredits } from "../src/data/photos.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
 import referenceRevisions from "../src/data/content/generated-reference-revisions.json" with { type: "json" };
 import sharp from "sharp";
@@ -111,9 +112,9 @@ test("자취 요리 40개는 원문·분량과 확인한 음식 이미지가 있
   }
 });
 
-test("실사 사진은 허용 라이선스·출처와 파일을 보존한다", async () => {
+test("외부 실사 사진은 허용 라이선스·출처와 파일을 보존한다", async () => {
   const { foods } = parseContent(input);
-  for (const food of foods.filter((food) => food.image !== "pending" && !generatedImages[food.image])) {
+  for (const food of foods.filter((food) => food.image !== "pending" && !generatedImages[food.image] && !directPhotoCredits[food.image])) {
     const credit = photoCredits[food.image];
     assert.ok(credit.author && credit.note && credit.verifiedAt);
     assert.equal(credit.rejectedReason, undefined, food.slug);
@@ -136,6 +137,18 @@ test("등록한 사진을 다른 음식에 중복 사용하지 않는다", () =>
   const { foods } = parseContent(input);
   const keys = foods.flatMap((food) => food.image === "pending" ? [] : [food.image]);
   assert.equal(new Set(keys).size, keys.length);
+});
+
+test("포켓몬빵 직접 촬영 사진은 외부 출처와 위치 정보 없이 공개용 WebP로 보존한다", async () => {
+  const food = parseContent(input).foods.find(({ slug }) => slug === "pokemon-bread");
+  assert.ok(food);
+  assert.deepEqual(directPhotoCredits[food.image], { credit: "사용자 제공 · 직접 촬영", sourceUrl: "", license: "직접 촬영" });
+  const asset = await readFile(new URL("../src/assets/direct/" + food.image + ".webp", import.meta.url));
+  const metadata = await sharp(asset).metadata();
+  assert.deepEqual([metadata.format, metadata.width, metadata.height], ["webp", 1600, 1600]);
+  assert.equal(metadata.exif, undefined);
+  assert.equal(metadata.xmp, undefined);
+  assert.ok(asset.length < 1024 * 1024);
 });
 
 test("한국관광공사 사진은 공공누리 1유형과 출처를 확인한 수동 등록만 허용한다", () => {
