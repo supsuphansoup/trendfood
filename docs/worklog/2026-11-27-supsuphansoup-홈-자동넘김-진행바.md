@@ -78,3 +78,15 @@
 - `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
 - 320px WebKit과 1280px Chromium에서 매 프레임 채움과 캡처의 실제 경계·흰 선·바탕 색을 확인했다. `web/test-results/hero-progress-edge-mobile.png`와 `hero-progress-edge-desktop.png`를 열어 확인했다.
 - 원격은 `76d783a`로 같았다. 팀원 변경이나 충돌 없이 로컬 미리보기에 반영했다.
+
+### 사진 하단 시안 로컬 적용
+
+- 사용자가 고른 하단 시안을 `web/src/app/globals.css`에 적용했다. 사진 하단에서 2px 위에 테두리 없는 3px 흰 선을 두고, 기존 8초 자동 넘김과 진행률을 맞춘다.
+- `web/e2e/mvp.spec.ts`에서 작은 모바일 화면에도 하단 진행선이 보이고 조작 버튼과 겹치지 않는지 검사한다.
+- `npm run lint` — `eslint` 종료 코드 0
+- `npm run typecheck` — `✓ Types generated successfully`, 종료 코드 0
+- `npm run test:unit` — `ℹ pass 229`, `ℹ fail 0`
+- `npm run test:e2e -- --workers=4 --retries=1` — `163 passed`, `1 skipped`
+- `npm run test:content -- --workers=4 -g '첫 화면에서 추천 음식|추천 사진·제목·설명|추천 음식 순환 경계|짧은 화면에서 양옆 화살표|대표 음식에 추천 표기'` — `10 passed`
+- 320px WebKit과 1280px Chromium에서 로컬의 실제 음식으로 재생을 확인했다. `web/test-results/hero-progress-bottom-mobile.png`와 `hero-progress-bottom-desktop.png`를 열어 확인했다.
+- 원격 기준은 `76d783a`로 같았다. 팀원 변경이나 충돌 없이 로컬 미리보기에 반영했다.
