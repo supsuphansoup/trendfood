@@ -91,6 +91,10 @@ import photo_ai_bulguri from "@/assets/generated/photo-ai-bulguri.webp";
 import photo_ai_frozen_jelly_asmr from "@/assets/generated/photo-ai-frozen-jelly-asmr.webp";
 import photo_ai_cup_noodle_fried_rice from "@/assets/generated/photo-ai-cup-noodle-fried-rice.webp";
 import photo_ai_rose_tteokbokki_plated_20261126 from "@/assets/generated/photo-ai-rose-tteokbokki-plated-20261126.webp";
+import yubuChobapPlatedPhoto from "@/assets/generated/photo-ai-yubu-chobap-plated-20261126.webp";
+import eggSoupRibbonsPhoto from "@/assets/generated/photo-ai-egg-soup-ribbons-20261126.webp";
+import microwaveGyeranJjimPhoto from "@/assets/generated/photo-ai-gyeran-jjim-microwave-20261126.webp";
+import pokemonBreadStickerPhoto from "@/assets/generated/photo-ai-pokemon-bread-sticker-20261126.webp";
 
 export const generatedPhotos = {
   "photo-ai-butter-garaetteok-plated-20261125": butterGaraetteokPlatedPhoto,
@@ -183,4 +187,8 @@ export const generatedPhotos = {
   "photo-ai-frozen-jelly-asmr": photo_ai_frozen_jelly_asmr,
   "photo-ai-cup-noodle-fried-rice": photo_ai_cup_noodle_fried_rice,
   "photo-ai-rose-tteokbokki-plated-20261126": photo_ai_rose_tteokbokki_plated_20261126,
+  "photo-ai-yubu-chobap-plated-20261126": yubuChobapPlatedPhoto,
+  "photo-ai-egg-soup-ribbons-20261126": eggSoupRibbonsPhoto,
+  "photo-ai-gyeran-jjim-microwave-20261126": microwaveGyeranJjimPhoto,
+  "photo-ai-pokemon-bread-sticker-20261126": pokemonBreadStickerPhoto,
 };

@@ -170,12 +170,15 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
                 : food.rank === 1 && food.editorial?.recommendation?.basis === "trend" ? "검색 흐름으로 살펴본 음식"
                 : food.history ? "다시 보는 유행" : "오늘 살펴볼 음식";
               const videoId = foodVideoId(food);
+              const photo = food.heroImage ?? food.image;
               return (
                 <section key={slideIndex} inert={!active} aria-hidden={!active || undefined} id={active ? "featured-trend-food" : undefined} aria-label={curated ? "오늘의 음식" : `오늘의 ${rank}위`} className="home-hero-slide">
                   {food.imageAvailable && (
-                    <figure className="home-hero-photo">
+                    <figure className="home-hero-photo" style={{ "--home-hero-photo": `url("${photo.src}")` } as CSSProperties}>
                       <Link href={href} aria-label={`${food.name} 상세 보기`} className="absolute inset-0 focus-visible:-outline-offset-4">
-                        <FoodImage food={food} hero fit="cover" preload={slideIndex === (multiple ? 1 : 0)} eager sizes="100vw" />
+                        <span className="home-hero-picture">
+                          <FoodImage food={food} hero fit="cover" preload={slideIndex === (multiple ? 1 : 0)} eager sizes="100vw" />
+                        </span>
                       </Link>
                     </figure>
                   )}

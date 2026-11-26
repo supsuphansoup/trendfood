@@ -75,7 +75,8 @@ test("기존 열 개 주소를 보존하고 2020~2026년 모두 근거 있는 �
 
 test("자취 요리 40개는 원문·분량과 확인한 음식 이미지가 있는 비유행 레시피로 유지한다", () => {
   const { foods } = parseContent(input);
-  const reviewedFallbacks = new Set(["gyeran-mari"]);
+  const descriptionExamples = new Set(["yubu-chobap", "egg-soup", "gyeran-jjim"]);
+  const reviewedFallbacks = new Set(["gyeran-mari", ...descriptionExamples]);
   const additions = foods.filter((food) => food.image.startsWith("photo-everyday-") || reviewedFallbacks.has(food.slug));
   assert.equal(additions.length, 40);
   assert.ok(foods.filter((food) => !food.history && (!food.kind || food.kind === "recipe")).length >= 48);
@@ -93,7 +94,13 @@ test("자취 요리 40개는 원문·분량과 확인한 음식 이미지가 있
     const example = generatedImages[food.image];
     if (example) {
       assert.ok(reviewedFallbacks.has(food.slug), food.slug);
-      assert.ok(example.prompt.includes(food.sources[0].url), food.slug);
+      if (descriptionExamples.has(food.slug)) {
+        assert.equal(example.basis, "description", food.slug);
+        assert.equal(example.reference, undefined, food.slug);
+        assert.equal(example.slug, food.slug);
+      } else {
+        assert.ok(example.prompt.includes(food.sources[0].url), food.slug);
+      }
     } else {
       const credit = photoCredits[food.image];
       assert.ok(validPhotoSource(credit), food.slug);

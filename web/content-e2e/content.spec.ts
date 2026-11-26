@@ -149,6 +149,7 @@ test("대표 음식 이름 옆에 현재 순위만 표시하고 사진을 넘기
   const rank = feature.locator(".home-hero-rank");
   const previous = page.getByRole("button", { name: "이전 추천 음식", exact: true });
   const next = page.getByRole("button", { name: "다음 추천 음식", exact: true });
+  const mobile = page.viewportSize()!.width < 768;
   await expect(page.getByRole("navigation", { name: "추천 음식 순위" })).toHaveCount(0);
   for (const index of [0, 1, 2]) {
     await expect(title).toHaveAccessibleName(trendFoods[index].name);
@@ -160,6 +161,9 @@ test("대표 음식 이름 옆에 현재 순위만 표시하고 사진을 넘기
     expect(rankBox.y).toBeLessThan(titleBox.y + titleBox.height);
     expect(rankBox.y + rankBox.height).toBeGreaterThan(titleBox.y);
     await expect(feature.getByRole("link", { name: "음식 살펴보기" })).toHaveAttribute("href", `/food/${trendFoods[index].slug}`);
+    const photo = feature.locator("figure img");
+    await photo.evaluate((image: HTMLImageElement) => image.decode());
+    await expect(photo).toHaveCSS("object-fit", mobile ? "contain" : "cover");
     await page.screenshot({ path: `test-results/content/home-title-rank-${index + 1}-${info.project.name}.png` });
     await next.click();
   }
@@ -170,25 +174,35 @@ test("대표 음식 이름 옆에 현재 순위만 표시하고 사진을 넘기
   await expect(title).toHaveAccessibleName(trendFoods[2].name);
 });
 
-test("대표 음식 사진은 화면 양끝을 채우고 사진 전체에서 상세로 연결한다", async ({ page }, info) => {
+test("대표 음식의 전체 배경에서 상세로 연결하고 모바일에서 사진 원본 구도를 보여준다", async ({ page }, info) => {
   const food = trendFoods[0];
+  const mobile = page.viewportSize()!.width < 768;
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
   const photo = feature.getByRole("link", { name: `${food.name} 상세 보기`, exact: true });
   await expect(photo).toHaveAttribute("href", `/food/${food.slug}`);
   const image = photo.getByRole("img");
   await image.evaluate((img: HTMLImageElement) => img.decode());
-  await expect(image).toHaveCSS("object-fit", "cover");
+  await expect(image).toHaveCSS("object-fit", mobile ? "contain" : "cover");
   await expect(image).toHaveCSS("object-position", "50% 50%");
   await expect(photo.locator("img")).toHaveCount(1);
   const dimensions = (await image.boundingBox())!;
   const frame = (await feature.locator("figure").boundingBox())!;
   expect(dimensions.width).toBe(page.viewportSize()!.width);
   expect(dimensions.x).toBe(0);
-  expect(dimensions.height).toBe(frame.height);
+  expect((await photo.boundingBox())!.height).toBe(frame.height);
+  if (mobile) {
+    expect(dimensions.height).toBeLessThan(frame.height);
+    expect(dimensions.y).toBeGreaterThan(frame.y);
+    const backdrop = await feature.locator("figure").evaluate((figure) => getComputedStyle(figure, "::before").backgroundImage);
+    expect(backdrop).toContain((await image.getAttribute("src"))!);
+  } else {
+    expect(dimensions.height).toBe(frame.height);
+  }
   await expect(image).toHaveCSS("border-radius", "0px");
   await page.screenshot({ path: `test-results/content/hero-fullscreen-${info.project.name}.png` });
-  await image.click({ position: { x: 8, y: 8 } });
+  await photo.click({ position: { x: 8, y: 8 } });
   await expect(page).toHaveURL(new RegExp(`/food/${food.slug}/?$`));
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(food.name);
   await page.goBack();
@@ -362,13 +376,20 @@ test("로제떡볶이 기본 레시피와 두 음식의 플레이팅 사진을 �
 });
 
 test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 정보를 제공한다", async ({ page }, info) => {
-  test.setTimeout(60_000);
+  test.setTimeout(90_000);
   const latteArtImages = new Map([
     ["matcha-latte", "photo-ai-matcha-latte-art-20261126"],
     ["ube-latte", "photo-ai-ube-latte-art-20261126"],
   ]);
+  const replacementImages = new Map([
+    ["tteok-guk", "photo-everyday-tteok-guk-beef-20261126"],
+    ["yubu-chobap", "photo-ai-yubu-chobap-plated-20261126"],
+    ["egg-soup", "photo-ai-egg-soup-ribbons-20261126"],
+    ["gyeran-jjim", "photo-ai-gyeran-jjim-microwave-20261126"],
+    ["pokemon-bread", "photo-ai-pokemon-bread-sticker-20261126"],
+  ]);
   for (const slug of [
-    "dalgona-coffee", "egg-soup", "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum",
+    "dalgona-coffee", ...replacementImages.keys(), "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum",
     "udon-soup", "omurice", "janchi-guksu", "cucumber-muchim", "tuna-gimbap", ...latteArtImages.keys(),
     "butter-garaetteok", "soy-sauce-egg-rice", "dubai-chewy-cookie", "dubai-chocolate",
   ]) {
@@ -384,6 +405,8 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     const source = await image.getAttribute("src");
     const latteArtImage = latteArtImages.get(slug);
     if (latteArtImage) expect(source).toContain(latteArtImage);
+    const replacementImage = replacementImages.get(slug);
+    if (replacementImage) expect(source).toContain(replacementImage);
     if (slug === "butter-garaetteok") expect(source).toContain("photo-ai-butter-garaetteok-plated-20261125");
     if (slug === "dubai-chewy-cookie") expect(source).toContain("photo-ai-dubai-chewy-cookie-cut-20261126");
     if (slug === "dubai-chocolate") expect(source).toContain("photo-reviewed-dubai-chocolate-plate-20261126");
@@ -394,6 +417,7 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     const detailImage = detail.getByRole("img", { name: food.alt, exact: true });
     await expect(detailImage).toHaveAttribute("src", source!);
     if (latteArtImage) await detailImage.screenshot({ path: `test-results/content/latte-art-${slug}-${info.project.name}.png` });
+    if (replacementImage) await detailImage.screenshot({ path: `test-results/content/reviewed-${slug}-photo-${info.project.name}.png` });
     await page.getByLabel("사진 정보", { exact: true }).locator("summary").click();
     if (credit) {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);
@@ -401,6 +425,9 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     } else {
       await expect(page.getByLabel("사진 정보", { exact: true }).getByText(/AI 생성 예시 ·/)).toBeVisible();
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
+    }
+    if (slug === "pokemon-bread") {
+      await expect(page.getByRole("link", { name: /삼립 · 돌아온 포켓몬빵/ })).toHaveAttribute("href", "https://spcsamlip.co.kr/company/history");
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (["dalgona-coffee", "egg-soup", "ube-latte", "cucumber-muchim", "dubai-chocolate", "dubai-chewy-cookie"].includes(slug)) {

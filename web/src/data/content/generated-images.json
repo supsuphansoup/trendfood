@@ -755,6 +755,42 @@
     "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
     "basis": "description"
   },
+  "photo-ai-yubu-chobap-plated-20261126": {
+    "slug": "yubu-chobap",
+    "title": "유부초밥 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Single 3:2 landscape realistic Korean home cooking editorial food photo. A small light-gray oval ceramic plate centered on a light matte wooden counter, with five Korean yubu chobap, triangular golden soy-braised fried tofu pockets each filled at its open face with short-grain white rice and the tiniest specks of Korean sushi kit seasoning. Show open rice ends clearly from a slightly overhead 55 degree camera, golden soft thin tofu skin folded against the rice. Modest Korean home lunch box style. Real natural mild irregularity between the five pockets. All pockets on the plate and entire plate in view, centered with 20 percent free margin at sides and clear foreground and background. Diffuse side window daylight and soft shadows. No other plates, no sushi rolls, no sauces or large ingredients on top, no hands, text or logos.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
+  },
+  "photo-ai-egg-soup-ribbons-20261126": {
+    "slug": "egg-soup",
+    "title": "계란국 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Photorealistic Korean home cooking editorial photograph, single landscape 3:2 frame. Korean gyeranguk in a shallow off-white ceramic soup bowl: clear very pale golden broth, generous big soft fluffy yellow-and-white ribbons of whisked egg very prominent and readable over most of the soup surface, a few distinctly translucent thin onion slices cooked in the broth, eight or so finely sliced green onion pieces sparsely across the egg. The soft irregular ribbons are unmistakable. No tofu, corn, noodles, meat, thick cloudy stock or dense green garnish. Center the full bowl with clear margins all around, facing slightly overhead, warm neutral matte kitchen surface, soft side daylight, appetizing but natural ordinary texture. Clean composition, no other dishes, labels or text.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
+  },
+  "photo-ai-gyeran-jjim-microwave-20261126": {
+    "slug": "gyeran-jjim",
+    "title": "전자레인지 계란찜 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Photorealistic Korean home cooking editorial photograph, single landscape 3:2 frame. Small microwave gyeran-jjim, a simple home steamed egg side dish in a deep ivory microwave-safe ceramic bowl with plain rounded rim. Set yellow whisked egg, tender matte slightly uneven surface just below the rim, small subtle pinholes, sparse finely chopped green onion already set into the egg. It looks like a moist Korean steamed egg side dish and not a sweet dessert. Ordinary one-person portion. No restaurant hot pot, black earthenware, inflated dome, melted cheese, side dishes, person, text or watermark. Center the entire bowl with breathing room all around on a light warm kitchen table, slightly overhead viewpoint, natural soft daylight with gentle shadows.",
+    "note": "참고 사진 없이 음식 설명을 바탕으로 만든 AI 생성 예시 이미지예요. 실제 모습과 다를 수 있어요.",
+    "basis": "description"
+  },
+  "photo-ai-pokemon-bread-sticker-20261126": {
+    "slug": "pokemon-bread",
+    "title": "포켓몬빵 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Single photorealistic 3:2 landscape editorial still life about the experience of collecting peel-off stickers from Korean convenience store bread. Center a small pair of chocolate sponge roll slices, a partially torn plum-and-purple snack wrapper with blank graphic color fields, and one prominent small die-cut collectible sticker lifting at an angle from a cream paper backing. The sticker is a simple original cheerful turquoise round fantasy creature with three small wide fins and a gold star, fully generic and visibly collectible. Wrapper and sticker are generic props with no print, no readable words, no trademark, no logo, no recognizable franchise artwork and no existing character. Clean neutral tabletop, warm window light, slight overhead angle. The bread, wrapper and sticker are all readable in center of frame with space around them, natural and unstaged, no extra objects, no hands.",
+    "note": "포켓몬빵 띠부씰 수집을 설명하는 AI 생성 예시 이미지예요. 보라색 포장과 스티커는 설명용으로 제작했어요. 참고한 출처의 삼립 출시 기록에서 실제 제품을 확인할 수 있어요.",
+    "basis": "description"
+  },
   "photo-ai-cup-noodle-fried-rice": {
     "slug": "cup-noodle-fried-rice",
     "title": "컵라면 볶음밥 AI 생성 예시 이미지",

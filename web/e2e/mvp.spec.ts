@@ -430,9 +430,10 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   expect((await browse.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
   const featureBox = (await feature.boundingBox())!;
+  const mobile = page.viewportSize()!.width < 768;
   const photo = feature.getByRole("img");
   await expect(photo).toBeInViewport();
-  await expect(photo).toHaveCSS("object-fit", "cover");
+  await expect(photo).toHaveCSS("object-fit", mobile ? "contain" : "cover");
   await expect(photo).toHaveCSS("object-position", "50% 50%");
   await expect(feature.locator("figure img")).toHaveCount(1);
   await expect(feature.locator("figcaption")).toHaveCount(0);
@@ -442,13 +443,19 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   await expect(page.getByRole("navigation", { name: "추천 음식 넘기기" }).getByRole("button")).toHaveCount(3);
   expect(imageBox.x).toBe(0);
   expect(imageBox.width).toBe(page.viewportSize()!.width);
-  expect(Math.abs(imageBox.y + imageBox.height - page.viewportSize()!.height)).toBeLessThan(12);
-  expect(imageBox.y).toBeLessThan(introBox.y);
+  expect(Math.abs(featureBox.y + featureBox.height - page.viewportSize()!.height)).toBeLessThan(12);
+  if (mobile) {
+    expect(imageBox.y).toBeGreaterThan(introBox.y);
+    expect(imageBox.height).toBeLessThan(featureBox.height);
+  } else {
+    expect(imageBox.y).toBeLessThan(introBox.y);
+    expect(imageBox.height).toBe(featureBox.height);
+  }
   const title = feature.getByRole("heading", { level: 2, name: "두바이 초콜릿" });
   await expect(title).toBeVisible();
   const titleBox = (await title.boundingBox())!;
   expect(titleBox.y).toBeGreaterThan(introBox.y + introBox.height);
-  expect(titleBox.y).toBeLessThan(imageBox.y + imageBox.height);
+  expect(titleBox.y).toBeLessThan(featureBox.y + featureBox.height);
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
