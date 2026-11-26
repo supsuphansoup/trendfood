@@ -182,7 +182,10 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
                   )}
                   <div className="home-hero-copy">
                     <p className="text-meta font-semibold">{context}{food.history?.years.map((year) => ` · ${year}년`)}</p>
-                    <h2>{food.name}</h2>
+                    <div className="home-hero-title-row">
+                      {multiple && <span className="home-hero-rank" aria-hidden="true">{rank}</span>}
+                      <h2>{food.name}</h2>
+                    </div>
                     <p data-testid="feature-description" className="home-hero-reason">{(food.history?.note ?? food.why).split(/(?<=[.!?])\s+/)[0]}</p>
                     {food.kind !== "discovery" && food.kind !== "product" && (
                       <p className="mt-2 text-meta font-medium">{[food.cookLabel, food.difficulty, food.servings].filter(Boolean).join(" · ")}</p>

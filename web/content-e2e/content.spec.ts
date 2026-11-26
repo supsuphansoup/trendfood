@@ -138,6 +138,28 @@ test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선�
   }
 });
 
+test("대표 음식 번호는 제목 옆에 표시되고 음식과 함께 순환한다", async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
+  const title = feature.getByRole("heading", { level: 2 });
+  const rank = feature.locator(".home-hero-rank");
+  const next = page.getByRole("button", { name: "다음 추천 음식", exact: true });
+  for (const index of [0, 1, 2]) {
+    await expect(title).toHaveAccessibleName(trendFoods[index].name);
+    await expect(rank).toHaveText(String(index + 1));
+    await expect(rank).toBeInViewport({ ratio: 1 });
+    const rankBox = (await rank.boundingBox())!;
+    const titleBox = (await title.boundingBox())!;
+    expect(rankBox.x + rankBox.width).toBeLessThan(titleBox.x);
+    expect(rankBox.y).toBeLessThan(titleBox.y + titleBox.height);
+    await page.screenshot({ path: `test-results/content/hero-number-${index + 1}-${info.project.name}.png` });
+    await next.click();
+  }
+  await expect(rank).toHaveText("1");
+  await expect(title).toHaveAccessibleName(trendFoods[0].name);
+});
+
 test("대표 음식 사진은 화면 양끝을 채우고 사진 전체에서 상세로 연결한다", async ({ page }, info) => {
   const food = trendFoods[0];
   await page.goto("/");

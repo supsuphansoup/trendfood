@@ -74,8 +74,23 @@
   padding-block: 7.5rem 6rem;
   pointer-events: none;
 }
-.home-hero-copy h2 {
+.home-hero-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: .65rem;
   margin-top: 4px;
+}
+.home-hero-rank {
+  flex: none;
+  border-inline-end: 1px solid color-mix(in srgb, var(--hero-ink) 48%, transparent);
+  padding-inline-end: .65rem;
+  color: var(--hero-focus);
+  font-size: clamp(var(--text-card-grid-title), 3.4vw, var(--text-feature-mobile));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: .95;
+}
+.home-hero-copy h2 {
   font-size: clamp(var(--text-feature-mobile), 10.2vw, var(--text-feature));
   font-weight: 880;
   line-height: 1.06;
