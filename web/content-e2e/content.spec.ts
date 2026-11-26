@@ -314,9 +314,13 @@ test("추가 일상 레시피는 검색·실사·재료 분량과 일반 구매 
 });
 
 test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 정보를 제공한다", async ({ page }, info) => {
+  const latteArtImages = new Map([
+    ["matcha-latte", "photo-ai-matcha-latte-art-20261126"],
+    ["ube-latte", "photo-ai-ube-latte-art-20261126"],
+  ]);
   for (const slug of [
     "dalgona-coffee", "egg-soup", "cream-pasta", "gamja-jorim", "eomuk-bokkeum", "jeyuk-bokkeum",
-    "udon-soup", "omurice", "ube-latte", "janchi-guksu", "cucumber-muchim", "tuna-gimbap",
+    "udon-soup", "omurice", "janchi-guksu", "cucumber-muchim", "tuna-gimbap", ...latteArtImages.keys(),
     "butter-garaetteok", "soy-sauce-egg-rice", "dubai-chewy-cookie", "dubai-chocolate",
   ]) {
     const food = snapshot.foods.find((food) => food.slug === slug)!;
@@ -329,6 +333,8 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     const image = card.getByRole("img", { name: food.alt, exact: true });
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     const source = await image.getAttribute("src");
+    const latteArtImage = latteArtImages.get(slug);
+    if (latteArtImage) expect(source).toContain(latteArtImage);
     if (slug === "butter-garaetteok") expect(source).toContain("photo-ai-butter-garaetteok-plated-20261125");
     if (slug === "dubai-chewy-cookie") expect(source).toContain("photo-ai-dubai-chewy-cookie-cut-20261126");
     if (slug === "dubai-chocolate") expect(source).toContain("photo-reviewed-dubai-chocolate-plate-20261126");
@@ -336,7 +342,9 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     await card.screenshot({ path: `test-results/content/reviewed-${slug}-card-${info.project.name}.png` });
     await card.getByRole("link", { name: "음식 살펴보기", exact: true }).click();
     const detail = page.getByRole("region", { name: "음식 소개", exact: true });
-    await expect(detail.getByRole("img", { name: food.alt, exact: true })).toHaveAttribute("src", source!);
+    const detailImage = detail.getByRole("img", { name: food.alt, exact: true });
+    await expect(detailImage).toHaveAttribute("src", source!);
+    if (latteArtImage) await detailImage.screenshot({ path: `test-results/content/latte-art-${slug}-${info.project.name}.png` });
     await page.getByLabel("사진 정보", { exact: true }).locator("summary").click();
     if (credit) {
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveAttribute("href", credit.url);

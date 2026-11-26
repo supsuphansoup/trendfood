@@ -1,4 +1,22 @@
 {
+  "photo-ai-matcha-latte-art-20261126": {
+    "slug": "matcha-latte",
+    "title": "말차 라떼 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Use case: photorealistic-natural. Create ONE original wide 3:2 editorial cafe photograph for a Korean food website. Subject: one hot matcha latte in a shallow ivory glazed ceramic cup with a small simple handle, photographed near overhead (about 65–75 degrees downward) to show a full clear view of the drink surface and the entire cup. The latte consists only of matcha, water and whole milk. Surface is naturally moss-green matcha with a crisp free-poured off-white microfoam fine leaf rosetta: a clean narrow pull-through stem, six to eight realistic pairs of tapered leaves feathering outward, subtle curves and slight barista hand variation, like a single skillful real pour. The green liquid is still visible generously around the design; no powder dust on top, no stencils, chocolate, text or coffee. Place the cup centered with the latte art in the exact visual center, the main cup entirely inside the central 60% width and 78% height so a centered 3:2 or 4:3 crop keeps the whole foam design. Calm warm pale oat-colored cafe table, no secondary food, no utensils, no hands, no extra cups. Soft diffuse daylight from one side, small believable contact shadow, appetizing muted colors and tactile glaze, natural optical sharpness across the art. Original scene, no brand, no lettering, no logo, no watermark, no frames, no collage.",
+    "note": "레시피의 말차와 우유 거품을 바탕으로 잎 모양 라떼아트를 표현한 AI 생성 예시예요.",
+    "basis": "description"
+  },
+  "photo-ai-ube-latte-art-20261126": {
+    "slug": "ube-latte",
+    "title": "우베 라떼 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Use case: photorealistic-natural. Create ONE original wide 3:2 editorial cafe photograph for a Korean food website. Subject: one warm layered ube espresso latte in a short straight clear glass, with a soft lavender ube milk lower layer, a slim translucent light espresso-tan layer just below the top and fine milk microfoam with subtly violet surrounds. The top has one crisp off-white free-pour layered tulip (three flowing nested heart-shaped tiers, one small finishing heart and a clean thin pull-through at the bottom), with a softly muted ube-lilac surface visible well around the design. Use only ube syrup, milk and espresso. No taro pearls, purple yam garnish, glitter, neon purple, chocolate, whipped cream peak, ice or decorative stencils. Camera elevated at about 58–64 degrees downward, high enough to clearly see the whole tulip with believable circular-to-elliptical perspective and low enough to show the layered body of the glass. Center the cup and its surface; keep the complete drink comfortably in the central 62% width and 78% height for centered 3:2 and 4:3 crops. Light warm gray mineral cafe table, clean soft window daylight, short natural shadow; understated editorial food styling, realistic edible texture, slight milk swirl at the margins, subtle optical glass reflections. No extra items, people, logos, words, watermarks, cropping of the art, frames or collage.",
+    "note": "레시피의 우베 우유와 에스프레소, 우유 거품을 바탕으로 튤립 모양 라떼아트를 표현한 AI 생성 예시예요.",
+    "basis": "description"
+  },
   "photo-ai-butter-garaetteok-plated-20261125": {
     "slug": "butter-garaetteok",
     "title": "버터 가래떡구이 AI 생성 예시 이미지",
