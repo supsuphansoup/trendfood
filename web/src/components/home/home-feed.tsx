@@ -303,13 +303,13 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   return (
     <>
       <header className="home-site-header border-b bg-card">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 px-[var(--hero-gutter)] py-4 max-[360px]:gap-y-2 max-[360px]:py-2 md:grid md:grid-cols-[1fr_minmax(0,380px)_1fr] md:py-2.5">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-[var(--hero-gutter)] py-3 max-[360px]:py-2 md:grid md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-x-8 md:py-2.5 lg:gap-x-10">
             <Link href="/" onClick={reset} className="flex min-h-11 items-center justify-self-start">
               <SiteLogo />
             </Link>
             <form
               role="search"
-              className="order-3 flex h-12 min-w-0 basis-full items-center gap-2 rounded-feature border border-input bg-background pr-1 pl-4 focus-within:border-accent md:order-2"
+              className="order-3 flex h-12 min-w-0 basis-full items-center gap-2 rounded-full border border-input bg-secondary/50 pr-1 pl-4 focus-within:border-accent focus-within:bg-background md:order-2 md:h-[46px] md:w-full md:max-w-[min(36vw,440px)]"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!curated) setYear(null);
@@ -349,7 +349,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                   <X className="size-4" aria-hidden />
                 </button>
               )}
-              <button type="submit" aria-label="검색" className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-secondary"><Search className="size-5" aria-hidden /></button>
+              <button type="submit" aria-label="검색" className="motion-press flex size-11 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-secondary"><Search className="size-5" aria-hidden /></button>
             </form>
             <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-1 text-sm md:order-3 md:gap-2">
               <Link href="/about#partners" className="hidden min-h-11 items-center px-2.5 text-muted-foreground hover:text-foreground xl:inline-flex">

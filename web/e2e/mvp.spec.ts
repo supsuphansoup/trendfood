@@ -356,11 +356,24 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   // 플랫폼별 입력칸의 기본 너비 차이가 검색창을 화면 밖으로 밀지 않게 한다.
   await page.getByRole("searchbox").evaluate((el: HTMLInputElement) => { el.size = 40; });
   const form = (await page.getByRole("search").boundingBox())!;
+  const logo = (await page.getByRole("link", { name: "vviralfood", exact: true }).boundingBox())!;
   expect(form.x + form.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  if (info.project.name === "desktop") {
+    const gap = form.x - (logo.x + logo.width);
+    expect(gap).toBeGreaterThanOrEqual(24);
+    expect(gap).toBeLessThanOrEqual(48);
+    expect(form.y + form.height / 2).toBeCloseTo(logo.y + logo.height / 2, 0);
+    expect(form.width).toBeCloseTo(440, 0);
+  } else {
+    expect(form.y).toBeGreaterThan(logo.y + logo.height);
+    expect(form.x).toBeCloseTo(logo.x, 0);
+    expect(form.x * 2 + form.width).toBeCloseTo(page.viewportSize()!.width, 0);
+  }
   const search = page.getByRole("button", { name: "검색", exact: true });
   const searchBox = (await search.boundingBox())!;
   expect(searchBox.width).toBeGreaterThanOrEqual(44);
   expect(searchBox.height).toBeGreaterThanOrEqual(44);
+  await page.screenshot({ path: `test-results/home-search-${info.project.name}.png` });
   await page.getByRole("searchbox").fill("새우");
   await search.click();
   expect((await cardTitles(page)).sort()).toEqual(["새우 로제 떡볶이", "새우 크림 리조또"]);
