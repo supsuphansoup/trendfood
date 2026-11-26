@@ -370,6 +370,7 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   const stickyBottom = await page.getByRole("region", { name: "필터 설정" }).evaluate((el) => el.getBoundingClientRect().bottom);
   const listTop = await page.locator("#list").evaluate((el) => el.getBoundingClientRect().top);
   expect(Math.abs(listTop - stickyBottom)).toBeLessThanOrEqual(2);
+  expect((await page.locator("#food-grid").boundingBox())!.width).toBe(page.viewportSize()!.width - 40);
   const cards = page.locator(".food-grid > li").filter({ has: page.getByRole("heading", { level: 3 }) });
   const first = (await cards.nth(0).boundingBox())!;
   const second = (await cards.nth(1).boundingBox())!;
@@ -423,6 +424,29 @@ test("수집 콘텐츠: 유행 음식만 최신 유행 연도·추천순으로 �
   await page.getByRole("searchbox").fill("타피오카");
   await page.getByRole("button", { name: "검색", exact: true }).click();
   await expect(page.locator("#list li h3")).toHaveText(snapshot.foods.filter((food) => food.ingredients.some((ingredient) => ingredient.name.includes("타피오카")) || food.name.includes("타피오카") || food.why.includes("타피오카")).map((food) => food.name));
+});
+
+test("넓은 PC에서 목록과 사진이 함께 커지고 좌우 여백을 유지한다", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "넓은 PC 화면에서 확인하는 동작");
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/#list");
+  const grid = page.locator("#food-grid");
+  const layout = page.locator('button[aria-controls="food-grid"]');
+  const photo = grid.getByRole("img").first();
+  for (const columns of [2, 3]) {
+    await expect(grid).toHaveClass(new RegExp(`grid-cols-${columns}`));
+    const { x, width } = (await grid.boundingBox())!;
+    expect(width).toBe(1600);
+    expect(x).toBe((1920 - width) / 2);
+    await expect(photo).toHaveCSS("height", columns === 2 ? "336px" : "272px");
+    await expect(photo).toHaveCSS("object-fit", "contain");
+    await photo.scrollIntoViewIfNeeded();
+    await Promise.all((await grid.getByRole("img").all()).slice(0, columns).map((image) => image.evaluate((img: HTMLImageElement) => img.decode())));
+    await page.screenshot({ path: `test-results/content/feed-wide-${columns}-columns.png` });
+    if (columns === 2) await layout.click();
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test("목록의 세로 사진은 2열과 3열에서 잘리지 않고 가리켜도 확대되지 않는다", async ({ page }, info) => {
