@@ -9,6 +9,7 @@ import { PublishBar } from "@/components/admin/publish-bar";
 import { QueuePanel } from "@/components/admin/queue-panel";
 import { useContentAdmin } from "@/components/admin/use-content-admin";
 import { Button } from "@/components/ui/button";
+import { SITE_NAME } from "@/data/site";
 import { browserSupabase } from "@/lib/supabase-browser";
 import { supabaseConfig } from "@/lib/supabase-config";
 import { cn } from "@/lib/utils";
@@ -103,7 +104,7 @@ function AdminShell({ db, email, source }: { db: SupabaseClient; email: string; 
     <>
       <header className="border-b bg-background">
         <div className="mx-auto flex max-w-[1100px] flex-wrap items-center gap-3 px-5 py-3">
-          <h1 className="text-xl font-black tracking-[-0.03em]">트렌드푸드 관리</h1>
+          <h1 className="text-xl font-black tracking-[-0.03em]">{SITE_NAME} 관리</h1>
           <span className="text-sm text-muted-foreground">{email}</span>
           <Button variant="outline" className="ml-auto" onClick={() => db.auth.signOut()}>
             로그아웃

@@ -74,6 +74,9 @@
   --shadow-bar: 0 8px 24px oklch(0.245 0.024 49.5 / 0.35); /* 모바일 하단 고정 바 */
   --brand: #FF6B0A;                           /* 로고와 이어지는 헤더 경계 */
   --feature-surface: var(--background);        /* 배경보다 음식 사진·큰 제목을 먼저 보게 한다. */
+  --hero-shadow: 22 14 10;
+  --hero-ink: #FFFFFF;
+  --hero-focus: #FFB25E;
   --accent-soft: #FFF0F1;                      /* 분류·선택 상태의 옅은 레드 */
 }
 

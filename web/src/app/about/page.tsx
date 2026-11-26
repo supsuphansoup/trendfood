@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteInfoPage } from "@/components/site-info-page";
-import { OPERATOR_EMAIL } from "@/data/site";
+import { OPERATOR_EMAIL, SITE_NAME } from "@/data/site";
 
-export const metadata: Metadata = { title: "사이트 소개 | 트렌드푸드", alternates: { canonical: "/about" } };
+export const metadata: Metadata = { title: `사이트 소개 | ${SITE_NAME}`, alternates: { canonical: "/about" } };
 
 // 필수 문서 전문과 삭제 요청 창구를 안내한다. 법률 전문가 검토는 남아 있다 (docs/spec.md Compliance).
 const sections = [
   {
     id: "about",
-    title: "트렌드푸드는",
+    title: SITE_NAME,
     body: "화제가 된 음식과 집에서 만들기 좋은 레시피를 소개하고, 필요한 재료를 하나씩 찾도록 돕는 서비스예요. 출처 확인 레시피에는 참고 링크와 확인 날짜를 표시해요. 실시간 인기 순위를 집계하기 전에는 검색량·좋아요 수를 표시하지 않아요. AI 조리 안내의 분량과 시간은 가정용 제안이며, 직접 조리한 결과는 아니에요.",
   },
   {

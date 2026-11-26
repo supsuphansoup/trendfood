@@ -297,10 +297,9 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   return (
     <>
       <header className="border-b bg-card">
-          <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4 max-[360px]:gap-y-2 max-[360px]:py-2">
-            <Link href="/" onClick={reset} className="flex min-h-11 items-center gap-2 text-[22px] font-bold tracking-[-0.04em] text-foreground hover:text-accent md:text-2xl">
+          <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4 max-[360px]:gap-y-2 max-[360px]:py-2 md:px-[5vw] md:py-2.5">
+            <Link href="/" onClick={reset} className="flex min-h-11 items-center">
               <SiteLogo />
-              트렌드푸드
             </Link>
             <form
               role="search"

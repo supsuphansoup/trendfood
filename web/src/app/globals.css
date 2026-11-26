@@ -5,76 +5,179 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* 중앙 포스터를 기준으로 이웃 추천 음식이 양옆에 이어지는 배치. */
-.home-poster-carousel {
+.home-hero {
+  --hero-gutter: clamp(20px, 5vw, 88px);
+  --hero-header-height: 137px;
   position: relative;
-  overflow: hidden;
-  padding: 8px 0;
-  --poster-width: min(74vw, 540px);
-  --poster-gap: 12px;
-  --poster-height: clamp(190px, 51vw, 360px);
+  isolation: isolate;
+  color: var(--hero-ink);
+  background: rgb(var(--hero-shadow));
 }
-.home-poster-active {
-  width: var(--poster-width);
-  margin-inline: auto;
-}
-.home-poster-image {
-  height: var(--poster-height);
+.home-hero-viewport {
+  overflow: clip;
   touch-action: pan-y pinch-zoom;
   user-select: none;
 }
-.home-poster-photo {
+.home-hero-track {
   display: flex;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+  transform: translateX(calc(var(--hero-position) + var(--hero-drag, 0px)));
+  transition: transform 460ms cubic-bezier(.25, .7, .3, 1);
 }
-@media (pointer: fine) {
-  .home-poster-image,
-  .home-poster-photo {
-    cursor: grab;
-  }
-  .home-poster-image:active,
-  .home-poster-photo:active {
-    cursor: grabbing;
-  }
+.home-hero-viewport[data-dragging] .home-hero-track,
+.home-hero-track[data-instant] {
+  transition: none;
 }
-.home-poster-controls {
-  top: calc(8px + var(--poster-height) / 2);
-  transform: translateY(-50%);
+.home-hero-slide {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: end;
+  flex: 0 0 100%;
+  min-width: 0;
+  min-height: max(30rem, calc(100svh - var(--hero-header-height)));
 }
-.home-poster-side {
+.home-hero-photo, .home-hero-slide::after {
   position: absolute;
-  top: 22px;
-  width: var(--poster-width);
+  inset: 0;
+  margin: 0;
+}
+.home-hero-slide::after {
+  content: "";
+  pointer-events: none;
+  background:
+    linear-gradient(0deg, rgb(var(--hero-shadow) / .96), rgb(var(--hero-shadow) / .83) 26%, rgb(var(--hero-shadow) / .43) 54%, transparent 72%),
+    linear-gradient(180deg, rgb(var(--hero-shadow) / .78), rgb(var(--hero-shadow) / .58) 14%, transparent 38%);
+}
+.home-hero-identity {
+  position: absolute;
+  z-index: 2;
+  inset: clamp(24px, 5vh, 60px) var(--hero-gutter) auto;
+  pointer-events: none;
+  text-shadow: 0 1px 14px rgb(var(--hero-shadow));
+}
+.home-hero-identity h1 {
+  font-size: clamp(var(--text-xl), 2.35vw, var(--text-intro-mobile));
+  font-weight: 820;
+  line-height: 1.12;
+  letter-spacing: -.035em;
+}
+.home-hero-identity p {
+  margin-top: 6px;
+  font-size: var(--text-meta);
+  font-weight: 600;
+}
+.home-hero-copy {
+  position: relative;
+  z-index: 1;
+  width: min(42rem, calc(100% - var(--hero-gutter) * 2));
+  margin-inline: var(--hero-gutter);
+  padding-block: 7.5rem 6rem;
+  pointer-events: none;
+}
+.home-hero-copy h2 {
+  margin-top: 4px;
+  font-size: clamp(var(--text-feature-mobile), 10.2vw, var(--text-feature));
+  font-weight: 880;
+  line-height: 1.06;
+  letter-spacing: -.06em;
+  overflow-wrap: anywhere;
+}
+.home-hero-reason {
+  max-width: 45ch;
+  margin-top: 9px;
+  font-size: var(--text-base);
+  font-weight: 580;
+  line-height: 1.5;
+}
+.home-hero-actions {
+  width: fit-content;
+  pointer-events: auto;
+}
+.home-hero-tools {
+  position: absolute;
+  z-index: 3;
+  inset: auto var(--hero-gutter) 16px;
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.home-hero-tools > :is(nav, a) { pointer-events: auto; }
+.home-hero-list {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--text-meta);
+  font-weight: 750;
+  color: var(--hero-ink);
+  text-shadow: 0 1px 12px rgb(var(--hero-shadow));
+}
+.home-hero-list:hover { text-decoration: underline; }
+.home-hero-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, var(--hero-ink) 50%, transparent);
+  border-radius: 40px;
+  background: rgb(var(--hero-shadow) / .89);
+}
+.home-hero-controls button {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border-radius: 50%;
   cursor: pointer;
+}
+.home-hero-controls button:hover {
+  background: color-mix(in srgb, var(--hero-ink) 20%, transparent);
+}
+.home-hero-count {
+  min-width: 32px;
   text-align: center;
+  font-size: var(--text-meta);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-.home-poster-side .home-poster-image {
-  height: calc(var(--poster-height) - 28px);
+.home-hero :focus-visible { outline-color: var(--hero-focus); }
+@media (pointer: fine) {
+  .home-hero-viewport, .home-hero-photo a { cursor: grab; }
+  .home-hero-viewport[data-dragging], .home-hero-viewport[data-dragging] .home-hero-photo a { cursor: grabbing; }
 }
-.home-poster-previous {
-  right: calc(50% + var(--poster-width) / 2 + var(--poster-gap));
-}
-.home-poster-next {
-  left: calc(50% + var(--poster-width) / 2 + var(--poster-gap));
-}
-.home-poster-previous .home-poster-photo {
-  justify-content: flex-end;
-}
-.home-poster-next .home-poster-photo {
-  justify-content: flex-start;
+@media (max-width: 360px) {
+  .home-hero { --hero-header-height: 117px; }
 }
 @media (min-width: 768px) {
-  .home-poster-carousel { --poster-gap: 24px; }
+  .home-hero { --hero-header-height: 69px; }
+  .home-hero-slide::after {
+    background:
+      linear-gradient(0deg, rgb(var(--hero-shadow) / .82), rgb(var(--hero-shadow) / .48) 26%, transparent 69%),
+      linear-gradient(90deg, rgb(var(--hero-shadow) / .83), rgb(var(--hero-shadow) / .67) 38%, transparent 82%),
+      linear-gradient(180deg, rgb(var(--hero-shadow) / .48), transparent 37%);
+  }
+  .home-hero-copy { padding-bottom: clamp(6.25rem, 14vh, 8.25rem); }
+  .home-hero-copy h2 { font-size: clamp(var(--text-feature), 6.7vw, var(--text-hero)); }
+  .home-hero-reason { margin-top: 14px; font-size: clamp(var(--text-base), 1.6vw, var(--text-xl)); }
+  .home-hero-tools { bottom: 20px; }
 }
-@media (min-width: 1024px) {
-  .home-poster-side-caption {
-    width: calc((min(100vw, 1200px) - 40px - var(--poster-width)) / 2 - var(--poster-gap));
-  }
-  .home-poster-previous .home-poster-side-caption {
-    margin-inline-start: auto;
-  }
+@media (prefers-reduced-motion: reduce) {
+  .home-hero-track { transition: none; }
+}
+@media (max-height: 650px) {
+  .home-hero-slide { min-height: calc(100svh - var(--hero-header-height)); }
+  .home-hero-identity { top: 16px; }
+  .home-hero-copy { padding-block: 6rem 4.5rem; }
+  .home-hero-tools { bottom: 5px; }
+}
+@media (min-width: 768px) and (max-height: 500px) {
+  .home-hero-copy { padding-block: 4.25rem 4.25rem; }
+  .home-hero-copy h2 { font-size: var(--text-feature-mobile); }
+  .home-hero-reason { margin-top: 6px; font-size: var(--text-meta); }
+  .home-hero-actions { margin-top: 8px; }
 }
 
 /* 색·모서리·글꼴 토큰은 theme.css 에만 둔다 (docs/design.md 기준). 다크 모드는 미정이라 .dark 토큰 없음. */
@@ -93,67 +196,7 @@
   }
 }
 
-@media (max-width: 360px) and (max-height: 650px) {
-  .home-feature-photo img {
-    max-height: 10rem;
-  }
-}
-
-@media (min-width: 768px) and (max-height: 500px) {
-  .home-feature {
-    padding-top: 0.625rem;
-  }
-
-  .home-feature-heading h1,
-  .home-feature-story h2 {
-    font-size: var(--text-2xl);
-  }
-
-  .home-feature-ranks {
-    margin-top: 0.5rem;
-  }
-
-  .home-feature-preview {
-    margin-top: 0.5rem;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-    align-items: start;
-  }
-
-  .home-feature-photo img {
-    max-height: 10rem;
-  }
-
-  .home-feature-summary {
-    line-height: 1.5;
-  }
-
-  .home-feature-actions {
-    margin-top: 0.5rem;
-  }
-
-  .home-feature-actions > :is(a, button) {
-    min-height: 2.75rem;
-  }
-}
-
-.home-rank-tabs::after {
-  content: "";
-  position: absolute;
-  inset-inline-start: 0;
-  bottom: 0;
-  width: calc(100% / 3);
-  height: 2px;
-  background: var(--primary);
-  translate: var(--rank-offset) 0;
-  transition-property: none;
-  pointer-events: none;
-}
-
 @media (prefers-reduced-motion: no-preference) {
-  .home-rank-tabs::after {
-    transition: translate 360ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
   .motion-press {
     transition: scale 170ms ease-out, background-color 180ms ease-out, color 180ms ease-out, border-color 180ms ease-out;
   }

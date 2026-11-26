@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cleanPhotoDraft, photoDimensions, photoFileError, photoLicenses, photoSizeError, type PhotoLicense } from "@/data/photos.ts";
+import { SITE_NAME } from "@/data/site";
 
 async function resizePhoto(file: File) {
   const bitmap = await createImageBitmap(file);
@@ -27,7 +28,7 @@ async function resizePhoto(file: File) {
 export function PhotoUploader({ slug, db, onNotice, onUploaded }: { slug: string; db: SupabaseClient; onNotice: (message: string) => void; onUploaded: (id: string) => Promise<void> }) {
   const [file, setFile] = useState<File>();
   const [license, setLicense] = useState<PhotoLicense>("직접 촬영");
-  const [credit, setCredit] = useState("트렌드푸드 직접 촬영");
+  const [credit, setCredit] = useState(`${SITE_NAME} 직접 촬영`);
   const [source, setSource] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [uploading, setUploading] = useState(false);

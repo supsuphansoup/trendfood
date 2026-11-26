@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { SiteInfoPage } from "@/components/site-info-page";
-import { OPERATOR_EMAIL } from "@/data/site";
+import { OPERATOR_EMAIL, SITE_NAME } from "@/data/site";
 import { ANALYTICS_ID } from "@/lib/analytics";
 
-export const metadata: Metadata = { title: "개인정보처리방침 | 트렌드푸드", alternates: { canonical: "/privacy" } };
+export const metadata: Metadata = { title: `개인정보처리방침 | ${SITE_NAME}`, alternates: { canonical: "/privacy" } };
 
 export default function PrivacyPage() {
   return (
     <SiteInfoPage title="개인정보처리방침" effectiveDate="2026년 11월 20일">
-      <p>트렌드푸드(이하 &quot;서비스&quot;)는 방문자의 개인정보를 되도록 받지 않도록 만들었어요. 이 문서는 서비스가 어떤 정보를 다루는지 알려 드려요.</p>
+      <p>{SITE_NAME}(이하 &quot;서비스&quot;)는 방문자의 개인정보를 되도록 받지 않도록 만들었어요. 이 문서는 서비스가 어떤 정보를 다루는지 알려 드려요.</p>
       <section>
         <h2>1. 받는 개인정보</h2>
         <p>회원가입과 로그인이 없어요. 방문자의 이름, 이메일, 전화번호, 주소를 받지 않아요.</p>
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
       </section>
       <section>
         <h2>10. 개인정보 보호책임자</h2>
-        <p>트렌드푸드 운영팀</p>
+        <p>{SITE_NAME} 운영팀</p>
         <a href={`mailto:${OPERATOR_EMAIL}`}>{OPERATOR_EMAIL}</a>
       </section>
       <section>

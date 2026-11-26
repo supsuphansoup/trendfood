@@ -19,27 +19,27 @@ const near = (actual: number[], hex: string) =>
 const cardTitles = (page: Page) => page.locator("#list li").getByRole("heading").allInnerTexts();
 
 test("첨부 로고: 공개 페이지의 이미지·홈 이동·탭 아이콘이 동일하다", async ({ page, request }, info) => {
-  const asset = await request.get("/brand/trendfood-logo.svg");
+  const asset = await request.get("/brand/vviralfood-logo.png");
   expect(asset.ok()).toBe(true);
-  const original = await request.get("/brand/trendfood-logo.png");
-  expect(original.ok()).toBe(true);
-  // SVG는 원본 픽셀을 다시 그리지 않고 첨부 PNG 바이트를 그대로 사용한다.
-  expect(await asset.text()).toContain(`data:image/png;base64,${(await original.body()).toString("base64")}`);
+  expect(asset.headers()["content-type"]).toBe("image/png");
   for (const path of ["/", "/food/dubai-chocolate", "/about", "/privacy", "/terms"]) {
     await page.goto(path);
     const logo = page.getByTestId("site-logo");
     await expect(logo).toBeVisible();
-    await expect(logo).toHaveAttribute("src", "/brand/trendfood-logo.svg");
-    await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.complete && image.naturalWidth > 0)).toBe(true);
+    await expect(logo).toHaveAttribute("src", "/brand/vviralfood-logo.png");
+    await expect(logo).toHaveAttribute("alt", "vviralfood");
+    await expect.poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBe(2172);
     const link = logo.locator("..");
     await expect(link).toHaveAttribute("href", "/");
+    await expect(link).toHaveAccessibleName("vviralfood");
     const bounds = (await link.boundingBox())!;
     expect(bounds.height).toBeGreaterThanOrEqual(44);
-    await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/brand/trendfood-logo.svg");
+    await expect(page.locator('link[rel="icon"]')).toHaveAttribute("href", "/brand/vviralfood-logo.png");
+    await expect(page).toHaveTitle(path === "/" ? "vviralfood — 지금 뜨는 음식" : / \| vviralfood$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     if (path === "/food/dubai-chocolate") await page.screenshot({ path: `test-results/logo-detail-${info.project.name}.png` });
   }
-  await page.getByRole("main").getByRole("link", { name: "트렌드푸드", exact: true }).click();
+  await page.getByRole("main").getByRole("link", { name: "vviralfood", exact: true }).click();
   await expect(page).toHaveURL("/");
   await page.screenshot({ path: `test-results/logo-home-${info.project.name}.png` });
 });
@@ -150,7 +150,7 @@ test("상세: 재료·만드는 법을 소개보다 먼저 보여주고 사서 �
 test("필수 페이지: 본문·시행일·메일·접근성·가로 넘침", async ({ page }, info) => {
   for (const [title, href] of siteInfoLinks.slice(0, 3)) {
     expect((await page.goto(href))?.status()).toBe(200);
-    await expect(page).toHaveTitle(`${title} | 트렌드푸드`);
+    await expect(page).toHaveTitle(`${title} | vviralfood`);
     await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
     await expect(page.getByRole("heading", { level: 1, name: title, exact: true })).toBeVisible();
     if (href !== "/about") {
@@ -202,7 +202,7 @@ test("필수 페이지: 푸터 이동·기존 소개 앵커·전문 보기", asy
     "어떤 부분이 문제인지 (원본 주소가 있으면 함께)",
     "본인이 원작자·권리자인지, 대리인인지",
   ]);
-  await page.getByRole("main").getByRole("link", { name: "트렌드푸드", exact: true }).click();
+  await page.getByRole("main").getByRole("link", { name: "vviralfood", exact: true }).click();
   await expect(page).toHaveURL("/");
 });
 
@@ -329,7 +329,7 @@ test("음식 소개는 조리법·재료 구매 없이 탐색하고 출처와 �
   await card.getByRole("button", { name: /찜/ }).click();
   await page.screenshot({ path: `test-results/discovery-card-${info.project.name}.png`, fullPage: true });
   await card.getByRole("link", { name: "음식 살펴보기" }).click();
-  await expect(page).toHaveTitle("계란 파 라면 음식 정보와 출처 | 트렌드푸드");
+  await expect(page).toHaveTitle("계란 파 라면 음식 정보와 출처 | vviralfood");
   await expect(page.getByRole("heading", { name: "어떤 음식인가요" })).toBeVisible();
   await expect(page.getByRole("region", { name: "참고한 출처" })).toBeVisible();
   await expect(page.locator("#cart, #recipe")).toHaveCount(0);
@@ -392,33 +392,33 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   const intro = page.getByRole("main").getByRole("heading", { level: 1 });
   await expect(intro).toHaveText("유행 음식과 집밥");
   await expect(intro).toBeInViewport({ ratio: 1 });
-  await expect(intro).toHaveCSS("color", "rgb(37, 37, 37)");
-  await expect(page.getByText("유행의 배경부터 만드는 법까지.")).toBeInViewport({ ratio: 1 });
+  await expect(intro).toHaveCSS("color", "rgb(255, 255, 255)");
+  await expect(page.getByText("왜 유행했는지, 집에서 만드는 법까지.")).toBeInViewport({ ratio: 1 });
   const browse = page.getByRole("link", { name: "음식 목록", exact: true });
   await expect(browse).toBeInViewport({ ratio: 1 });
+  await expect(browse).toHaveCSS("color", "rgb(255, 255, 255)");
   expect((await browse.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   const feature = page.getByRole("region", { name: "오늘의 1위", exact: true });
   const featureBox = (await feature.boundingBox())!;
   const photo = feature.getByRole("img");
   await expect(photo).toBeInViewport();
-  await expect(photo).toHaveCSS("object-fit", "contain");
+  await expect(photo).toHaveCSS("object-fit", "cover");
   await expect(photo).toHaveCSS("object-position", "50% 50%");
   await expect(feature.locator("figure img")).toHaveCount(1);
   await expect(feature.locator("figcaption")).toHaveCount(0);
   await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0);
   const imageBox = (await photo.boundingBox())!;
   const introBox = (await intro.boundingBox())!;
-  const ranks = page.getByRole("region", { name: "트렌드 추천 순위" });
-  await expect(ranks.getByRole("button")).toHaveCount(2);
-  expect(Math.abs(imageBox.x + imageBox.width / 2 - (info.project.name === "desktop" ? 640 : 195))).toBeLessThan(2);
-  const sidePhoto = (await ranks.locator(".home-poster-image img").first().boundingBox())!;
-  expect(imageBox.height).toBeGreaterThan(sidePhoto.height);
-  expect(imageBox.y).toBeGreaterThan(introBox.y + introBox.height);
+  await expect(page.getByRole("navigation", { name: "추천 음식 넘기기" }).getByRole("button")).toHaveCount(3);
+  expect(imageBox.x).toBe(0);
+  expect(imageBox.width).toBe(page.viewportSize()!.width);
+  expect(Math.abs(imageBox.y + imageBox.height - page.viewportSize()!.height)).toBeLessThan(12);
+  expect(imageBox.y).toBeLessThan(introBox.y);
   const title = feature.getByRole("heading", { level: 2, name: "두바이 초콜릿" });
   await expect(title).toBeVisible();
   const titleBox = (await title.boundingBox())!;
   expect(titleBox.y).toBeGreaterThan(introBox.y + introBox.height);
-  expect(titleBox.y).toBeGreaterThanOrEqual(imageBox.y + imageBox.height);
+  expect(titleBox.y).toBeLessThan(imageBox.y + imageBox.height);
   await expect(page.getByRole("navigation", { name: "카테고리" }).getByRole("button", { name: /^전체/ })).toHaveCSS("border-bottom-color", "rgb(201, 49, 53)");
   await expect(page.getByRole("navigation", { name: "카테고리" })).toBeVisible();
   await expect(page.locator("#food-filters")).toBeHidden();
@@ -426,9 +426,9 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
   await expect(cta).toBeVisible();
   expect((await cta.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await expect(cta).toHaveAttribute("href", "/food/dubai-chocolate");
-  await expect(cta).toHaveCSS("background-color", "rgb(201, 49, 53)");
+  await expect(cta).toHaveCSS("background-color", "rgb(255, 255, 255)");
   const featureDescription = feature.getByTestId("feature-description");
-  await expect(featureDescription).toHaveCSS("font-size", info.project.name === "desktop" ? "18px" : "16px");
+  await expect(featureDescription).toHaveCSS("font-size", info.project.name === "desktop" ? "20px" : "16px");
   const descriptionBox = (await featureDescription.boundingBox())!;
   expect(descriptionBox.y).toBeGreaterThan(titleBox.y + titleBox.height);
   expect((await cta.boundingBox())!.y).toBeGreaterThan(descriptionBox.y + descriptionBox.height);
@@ -464,14 +464,12 @@ test("첫 화면: 서비스 소개와 탐색 버튼이 보이고 대표 음식 �
 
 });
 
-test("추천 포스터: 이웃 카드와 이전·다음 버튼으로 선택하고 순환한다", async ({ page }) => {
+test("추천 음식은 좌우 버튼으로 한 장씩 순환한다", async ({ page }) => {
   await page.goto("/");
   const active = page.locator("#featured-trend-food");
   const firstName = await active.getByRole("heading", { level: 2 }).innerText();
-  const nextCard = page.getByRole("region", { name: "트렌드 추천 순위" }).getByRole("button", { name: /^2위 / });
-  const nextName = await nextCard.locator("span.font-bold").innerText();
-  await nextCard.click();
-  await expect(active.getByRole("heading", { level: 2 })).toHaveText(nextName);
+  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
   await page.getByRole("button", { name: "이전 추천 음식", exact: true }).click();
   await expect(active.getByRole("heading", { level: 2 })).toHaveText(firstName);
   await page.getByRole("button", { name: "이전 추천 음식", exact: true }).click();
@@ -481,7 +479,7 @@ test("추천 포스터: 이웃 카드와 이전·다음 버튼으로 선택하�
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("추천 포스터: 사진을 마우스로 양방향 드래그하고 클릭하면 상세로 이동한다", async ({ page }) => {
+test("추천 음식 사진을 양방향으로 드래그하고 클릭하면 상세로 이동한다", async ({ page }) => {
   await page.goto("/");
   const active = page.locator("#featured-trend-food");
   const photo = active.getByRole("img");
@@ -495,11 +493,84 @@ test("추천 포스터: 사진을 마우스로 양방향 드래그하고 클릭�
     await page.mouse.move(centerX + offset, centerY, { steps: 8 });
     await page.mouse.up();
     await expect(active).toHaveAttribute("aria-label", `오늘의 ${rank}위`);
+    await expect.poll(async () => (await photo.boundingBox())!.x).toBeCloseTo(x, 0);
     await expect(page).toHaveURL(/\/$/);
   }
   const href = (await active.getByRole("link", { name: /상세 보기/ }).getAttribute("href"))!;
   await photo.click();
   await expect(page).toHaveURL(href);
+});
+
+test("추천 음식 자동 넘김은 8초 간격이며 일시정지·재개·키보드 포커스를 지원한다", async ({ page }) => {
+  const start = new Date("2026-11-26T03:00:00Z");
+  await page.clock.install({ time: start });
+  await page.clock.pauseAt(new Date(start.getTime() + 1000));
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  const active = page.locator("#featured-trend-food");
+  const toggle = page.getByRole("button", { name: /^자동 넘김 / });
+  await expect(toggle).toHaveAccessibleName("자동 넘김 일시정지");
+  await page.clock.runFor(7999);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
+  await page.clock.runFor(1);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  await page.mouse.move(265, 300);
+  await page.clock.runFor(8000);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  await toggle.click();
+  await expect(toggle).toHaveAccessibleName("자동 넘김 시작");
+  await page.mouse.move(1, 1);
+  await page.clock.runFor(16000);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  await toggle.click();
+  await page.mouse.move(1, 1);
+  await page.evaluate(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, value: true });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await page.clock.runFor(8000);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  await page.evaluate(() => {
+    Reflect.deleteProperty(document, "hidden");
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  await page.clock.runFor(8000);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 3위");
+  await page.clock.runFor(8000);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
+  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).focus();
+  await expect(toggle).toHaveAccessibleName("자동 넘김 시작");
+  await page.clock.runFor(8000);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
+});
+
+test("동작 줄이기 설정에서는 첫 음식이 유지되고 수동 전환은 애니메이션 없이 동작한다", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.clock.install();
+  await page.goto("/");
+  const active = page.locator("#featured-trend-food");
+  await expect(page.getByRole("button", { name: "자동 넘김 시작" })).toBeVisible();
+  await page.clock.runFor(16000);
+  await expect(active).toHaveAttribute("aria-label", "오늘의 1위");
+  await page.getByRole("button", { name: "다음 추천 음식", exact: true }).click();
+  await expect(active).toHaveAttribute("aria-label", "오늘의 2위");
+  await expect(page.locator(".home-hero-track")).toHaveCSS("transition-property", "none");
+});
+
+test("모바일에서 가로 스와이프로 추천 음식을 넘긴다", async ({ page }, info) => {
+  test.skip(info.project.name !== "mobile", "모바일 터치 동작");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: 310, y: 330 }] });
+  for (const x of [275, 225, 170, 105, 65]) {
+    await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y: 330 }] });
+  }
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await expect(page.locator("#featured-trend-food")).toHaveAttribute("aria-label", "오늘의 2위");
+  await expect(page).toHaveURL(/\/$/);
+  expect(await page.evaluate(() => scrollY)).toBe(0);
 });
 
 test("메인: 음식 사진을 누르면 상세로 이동하고 찜은 이동 없이 동작한다", async ({ page }) => {

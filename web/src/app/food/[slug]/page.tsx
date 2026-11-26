@@ -10,6 +10,7 @@ import { TrendChart } from "@/components/detail/trend-chart";
 import { LikeButton } from "@/components/like-button";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteLogo } from "@/components/site-logo";
+import { SITE_NAME } from "@/data/site";
 import { getPublishedFood, getPublishedFoods } from "@/lib/catalog";
 import { foodUrl, recipeJson, safeJson } from "@/data/seo";
 import { foodVideoId } from "@/data/youtube";
@@ -57,7 +58,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<"/food/[slug]">): Promise<Metadata> {
   const food = await getPublishedFood((await params).slug);
-  return food ? { title: `${food.name} ${food.kind === "discovery" ? "음식 정보와 출처" : food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | 트렌드푸드`, description: food.why, alternates: { canonical: foodUrl(food.slug) }, openGraph: { title: food.name, description: food.why, url: foodUrl(food.slug), type: "article", locale: "ko_KR", ...(food.imageAvailable ? { images: [{ url: (food.heroImage ?? food.image).src, alt: food.heroAlt ?? food.alt }] } : {}) } } : {};
+  return food ? { title: `${food.name} ${food.kind === "discovery" ? "음식 정보와 출처" : food.kind === "product" ? "제품 정보와 구매 안내" : "레시피와 재료"} | ${SITE_NAME}`, description: food.why, alternates: { canonical: foodUrl(food.slug) }, openGraph: { title: food.name, siteName: SITE_NAME, description: food.why, url: foodUrl(food.slug), type: "article", locale: "ko_KR", ...(food.imageAvailable ? { images: [{ url: (food.heroImage ?? food.image).src, alt: food.heroAlt ?? food.alt }] } : {}) } } : {};
 }
 
 export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
@@ -76,11 +77,10 @@ export default async function FoodPage({ params }: PageProps<"/food/[slug]">) {
           <div className="mx-auto flex max-w-[1200px] flex-wrap items-center gap-2 px-5 py-4">
             <Link
               href="/"
-              className="flex min-h-11 items-center gap-1.5 text-[22px] font-black tracking-[-0.04em] text-foreground hover:text-accent"
+              className="flex min-h-11 items-center gap-1.5 text-foreground hover:text-accent"
             >
               <ChevronLeft className="size-5" aria-hidden />
               <SiteLogo />
-              트렌드푸드
             </Link>
             <div className="ml-auto flex gap-1 rounded-full border px-1">
               <LikeButton slug={food.slug} name={food.name} className="size-[46px] bg-background" />

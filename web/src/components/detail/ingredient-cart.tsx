@@ -7,6 +7,7 @@ import { coupangUrl, type Food, won } from "@/lib/foods";
 import { cn } from "@/lib/utils";
 import { PANTRY_KEY, useStoredSet } from "@/lib/use-stored-set";
 import { ingredientName, ingredientOwned } from "@/data/recipe-tools";
+import { SITE_NAME } from "@/data/site";
 
 // 재료 이름에서 용량을 뺀 기본 이름 ('무염 버터 200g' → '무염 버터'). '집에 있어요'는 이 이름으로 기억한다.
 const baseName = ingredientName;
@@ -42,7 +43,7 @@ export function IngredientCart({ food, children }: { food: Food; children?: Reac
   };
 
   const listText = () =>
-    `[트렌드푸드] ${food.name} 재료\n` + toBuy.map((r) => `- ${r.name}${r.amount ? ` ${r.amount}` : ""}${r.price ? ` (${won(r.price)})` : ""}`).join("\n");
+    `[${SITE_NAME}] ${food.name} 재료\n` + toBuy.map((r) => `- ${r.name}${r.amount ? ` ${r.amount}` : ""}${r.price ? ` (${won(r.price)})` : ""}`).join("\n");
 
   const nextLink = next && {
     href: next.url ?? coupangUrl(next.name),

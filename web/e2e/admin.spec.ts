@@ -324,7 +324,7 @@ for (const tooLarge of [false, true]) {
     await expect(page.getByRole("status").filter({ hasText: message })).toBeVisible();
     expect(await page.evaluate(() => (window as typeof window & { photoQualities: number[] }).photoQualities)).toEqual([0.82, 0.7, 0.6]);
     expect(db.storageUploads).toHaveLength(tooLarge ? 0 : 1);
-    if (!tooLarge) expect(db.photos[0]).toMatchObject({ credit: "트렌드푸드 직접 촬영", license: "직접 촬영", source_url: "", width: 20, height: 20 });
+    if (!tooLarge) expect(db.photos[0]).toMatchObject({ credit: "vviralfood 직접 촬영", license: "직접 촬영", source_url: "", width: 20, height: 20 });
   });
 }
 

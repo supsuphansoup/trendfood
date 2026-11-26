@@ -2,6 +2,7 @@
 
 import { Check, Share2 } from "lucide-react";
 import { useState } from "react";
+import { SITE_NAME } from "@/data/site";
 
 export function ShareButton({ title }: { title: string }) {
   const [copied, setCopied] = useState(false);
@@ -13,7 +14,7 @@ export function ShareButton({ title }: { title: string }) {
         const url = window.location.href.split("#")[0];
         try {
           if (navigator.share) {
-            await navigator.share({ title: `${title} | 트렌드푸드`, url });
+            await navigator.share({ title: `${title} | ${SITE_NAME}`, url });
             return;
           }
         } catch {

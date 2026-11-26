@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { SiteInfoPage } from "@/components/site-info-page";
-import { OPERATOR_EMAIL } from "@/data/site";
+import { OPERATOR_EMAIL, SITE_NAME } from "@/data/site";
 
-export const metadata: Metadata = { title: "이용약관 | 트렌드푸드", alternates: { canonical: "/terms" } };
+export const metadata: Metadata = { title: `이용약관 | ${SITE_NAME}`, alternates: { canonical: "/terms" } };
 
 export default function TermsPage() {
   return (
     <SiteInfoPage title="이용약관" effectiveDate="2026년 11월 10일">
-      <p>이 약관은 트렌드푸드(이하 &quot;서비스&quot;)를 이용하는 조건을 알려 드려요. 서비스를 이용하면 이 약관에 동의한 것으로 봐요.</p>
+      <p>이 약관은 {SITE_NAME}(이하 &quot;서비스&quot;)를 이용하는 조건을 알려 드려요. 서비스를 이용하면 이 약관에 동의한 것으로 봐요.</p>
       <section>
         <h2>1. 서비스 내용</h2>
         <p>서비스는 지금 유행하는 음식 정보와 재료 목록·조리법을 보여 주고, 재료를 쿠팡에서 살 수 있도록 링크로 이어 줘요. 가입 없이 무료로 이용해요.</p>
@@ -29,7 +29,7 @@ export default function TermsPage() {
       </section>
       <section>
         <h2>5. 저작권</h2>
-        <p>서비스가 쓴 글과 화면 구성의 권리는 트렌드푸드에 있어요. 허락 없이 통째로 복사해 다른 곳에 올리면 안 돼요.</p>
+        <p>서비스가 쓴 글과 화면 구성의 권리는 {SITE_NAME}에 있어요. 허락 없이 통째로 복사해 다른 곳에 올리면 안 돼요.</p>
         <p>소개한 원본 영상·사진의 권리는 각 원작자에게 있어요.</p>
         <p>공개 라이선스 사진과 변환본은 상세 페이지에 적힌 원본 라이선스를 따라 이용할 수 있어요. 위 서비스 글·화면의 이용 제한은 해당 사진의 라이선스가 허용하는 이용을 제한하지 않아요.</p>
       </section>
