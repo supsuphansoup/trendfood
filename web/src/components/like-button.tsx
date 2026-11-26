@@ -36,5 +36,5 @@ export function LikeButton({ slug, name, className }: { slug: string; name: stri
 
 export function LikeCount({ className }: { className?: string }) {
   const likes = useStoredSet(LIKES_KEY);
-  return <span className={className}>찜 {likes.items.length}</span>;
+  return <span className={className}><span className="min-[361px]:max-md:sr-only">찜 </span>{likes.items.length}</span>;
 }

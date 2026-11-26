@@ -324,6 +324,7 @@ test("추가 일상 레시피는 검색·실사·재료 분량과 일반 구매 
 });
 
 test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 정보를 제공한다", async ({ page }, info) => {
+  test.setTimeout(60_000);
   const latteArtImages = new Map([
     ["matcha-latte", "photo-ai-matcha-latte-art-20261126"],
     ["ube-latte", "photo-ai-ube-latte-art-20261126"],

@@ -9,7 +9,7 @@
   --hero-gutter: clamp(20px, 5vw, 88px);
 }
 .home-hero {
-  --hero-header-height: 125px;
+  --hero-header-height: 67px;
   position: relative;
   isolation: isolate;
   color: var(--hero-ink);
@@ -159,11 +159,10 @@
   .home-hero-viewport, .home-hero-photo a { cursor: grab; }
   .home-hero-viewport[data-dragging], .home-hero-viewport[data-dragging] .home-hero-photo a { cursor: grabbing; }
 }
-@media (max-width: 360px) {
-  .home-hero { --hero-header-height: 117px; }
+@media (width < 361px) {
+  .home-hero { --hero-header-height: 115px; }
 }
 @media (min-width: 768px) {
-  .home-hero { --hero-header-height: 67px; }
   .home-hero-slide::after {
     background:
       linear-gradient(0deg, rgb(var(--hero-shadow) / .82), rgb(var(--hero-shadow) / .48) 26%, transparent 69%),

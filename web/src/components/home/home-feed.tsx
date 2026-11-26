@@ -303,13 +303,13 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
   return (
     <>
       <header className="home-site-header border-b bg-card">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 px-[var(--hero-gutter)] py-3 max-[360px]:py-2 md:grid md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-x-8 md:py-2.5 lg:gap-x-10">
-            <Link href="/" onClick={reset} className="flex min-h-11 items-center justify-self-start">
+          <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 px-[var(--hero-gutter)] py-2.5 max-[361px]:flex max-[361px]:flex-wrap max-[361px]:py-2 md:gap-x-3">
+            <Link href="/" onClick={reset} className="flex min-h-11 items-center min-[361px]:max-md:[&>img]:w-32">
               <SiteLogo />
             </Link>
             <form
               role="search"
-              className="order-3 flex h-12 min-w-0 basis-full items-center gap-2 rounded-full border border-input bg-secondary/50 pr-1 pl-4 focus-within:border-accent focus-within:bg-background md:order-2 md:h-[46px] md:w-full md:max-w-[min(36vw,440px)]"
+              className="flex h-[46px] w-full min-w-0 items-center rounded-lg border border-input bg-secondary/50 pl-2.5 focus-within:border-accent focus-within:bg-background max-[361px]:order-last max-[361px]:basis-full md:max-w-[17rem] md:justify-self-end md:pl-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 if (!curated) setYear(null);
@@ -332,8 +332,8 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                   setQuery(e.target.value);
                   if (!e.target.value) setApplied("");
                 }}
-                placeholder="오늘 끌리는 음식이나 재료"
-                className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground [&::-webkit-search-cancel-button]:hidden"
+                placeholder="음식 검색"
+                className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground md:text-sm [&::-webkit-search-cancel-button]:hidden"
               />
               {query && (
                 <button
@@ -344,14 +344,14 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                     setApplied("");
                     searchRef.current?.focus();
                   }}
-                  className="motion-press flex size-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-secondary"
+                  className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary"
                 >
                   <X className="size-4" aria-hidden />
                 </button>
               )}
-              <button type="submit" aria-label="검색" className="motion-press flex size-11 shrink-0 items-center justify-center rounded-full text-foreground hover:bg-secondary"><Search className="size-5" aria-hidden /></button>
+              <button type="submit" aria-label="검색" className="motion-press flex size-11 shrink-0 items-center justify-center rounded-md text-foreground hover:bg-secondary"><Search className="size-[18px]" aria-hidden /></button>
             </form>
-            <nav aria-label="바로가기" className="order-2 ml-auto flex items-center gap-1 text-sm md:order-3 md:gap-2">
+            <nav aria-label="바로가기" className="ml-auto flex items-center gap-1 text-sm md:gap-2">
               <Link href="/about#partners" className="hidden min-h-11 items-center px-2.5 text-muted-foreground hover:text-foreground xl:inline-flex">
                 제휴 안내
               </Link>
@@ -364,7 +364,7 @@ export function HomeFeed({ foods, today }: { foods: Food[]; today: string }) {
                   setTab(tab === "찜" ? "전체" : "찜");
                   listRef.current?.scrollIntoView({ behavior: scrollBehavior() });
                 }}
-                className="motion-press flex h-11 items-center gap-1.5 rounded-md px-3 font-bold text-foreground aria-pressed:bg-accent aria-pressed:text-white"
+                className="motion-press flex h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 font-bold text-foreground aria-pressed:bg-accent aria-pressed:text-white md:gap-1.5 md:px-3"
               >
                 <Heart className="size-4" aria-hidden />
                 <LikeCount />

@@ -355,19 +355,29 @@ test("개편 화면: 검색 버튼·탐색 이동·반응형 목록·상세 바�
   await page.goto("/");
   // 플랫폼별 입력칸의 기본 너비 차이가 검색창을 화면 밖으로 밀지 않게 한다.
   await page.getByRole("searchbox").evaluate((el: HTMLInputElement) => { el.size = 40; });
-  const form = (await page.getByRole("search").boundingBox())!;
-  const logo = (await page.getByRole("link", { name: "vviralfood", exact: true }).boundingBox())!;
+  const searchForm = page.getByRole("search");
+  const homeLink = page.getByRole("link", { name: "vviralfood", exact: true });
+  const form = (await searchForm.boundingBox())!;
+  const logo = (await homeLink.boundingBox())!;
+  const shortcuts = (await page.getByRole("navigation", { name: "바로가기" }).boundingBox())!;
   expect(form.x + form.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+  expect(form.x).toBeGreaterThan(logo.x + logo.width);
+  expect(form.y + form.height / 2).toBeCloseTo(logo.y + logo.height / 2, 0);
+  expect(shortcuts.x - (form.x + form.width)).toBeGreaterThanOrEqual(8);
+  expect(shortcuts.x - (form.x + form.width)).toBeLessThanOrEqual(12);
   if (info.project.name === "desktop") {
-    const gap = form.x - (logo.x + logo.width);
-    expect(gap).toBeGreaterThanOrEqual(24);
-    expect(gap).toBeLessThanOrEqual(48);
-    expect(form.y + form.height / 2).toBeCloseTo(logo.y + logo.height / 2, 0);
-    expect(form.width).toBeCloseTo(440, 0);
+    expect(form.width).toBeCloseTo(272, 0);
   } else {
-    expect(form.y).toBeGreaterThan(logo.y + logo.height);
-    expect(form.x).toBeCloseTo(logo.x, 0);
-    expect(form.x * 2 + form.width).toBeCloseTo(page.viewportSize()!.width, 0);
+    expect(form.width).toBeGreaterThan(150);
+    expect(form.width).toBeLessThan(200);
+    const viewport = page.viewportSize()!;
+    await page.setViewportSize({ width: 360, height: 640 });
+    const compactForm = (await searchForm.boundingBox())!;
+    const compactLogo = (await homeLink.boundingBox())!;
+    expect(compactForm.y).toBeGreaterThan(compactLogo.y + compactLogo.height);
+    expect(compactForm.x).toBeCloseTo(compactLogo.x, 0);
+    expect(compactForm.x * 2 + compactForm.width).toBeCloseTo(360, 0);
+    await page.setViewportSize(viewport);
   }
   const search = page.getByRole("button", { name: "검색", exact: true });
   const searchBox = (await search.boundingBox())!;
