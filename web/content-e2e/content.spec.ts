@@ -300,9 +300,8 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
     const image = card.getByRole("img", { name: food.alt, exact: true });
     await expect.poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     const source = await image.getAttribute("src");
-    if (slug === "butter-garaetteok" || slug === "dubai-chewy-cookie") {
-      expect(source).toContain(`photo-ai-${slug}-plated-20261125`);
-    }
+    if (slug === "butter-garaetteok") expect(source).toContain("photo-ai-butter-garaetteok-plated-20261125");
+    if (slug === "dubai-chewy-cookie") expect(source).toContain("photo-ai-dubai-chewy-cookie-cut-20261126");
     if (slug === "dubai-chocolate") expect(source).toContain("photo-reviewed-dubai-chocolate-plate-20261126");
     await expect(card.getByText("참고 사진", { exact: true })).toHaveCount(0);
     await card.screenshot({ path: `test-results/content/reviewed-${slug}-card-${info.project.name}.png` });
@@ -318,10 +317,10 @@ test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 �
       await expect(page.getByRole("link", { name: /사진 출처/ })).toHaveCount(0);
     }
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-    if (["dalgona-coffee", "egg-soup", "ube-latte", "cucumber-muchim", "dubai-chocolate"].includes(slug)) {
+    if (["dalgona-coffee", "egg-soup", "ube-latte", "cucumber-muchim", "dubai-chocolate", "dubai-chewy-cookie"].includes(slug)) {
       await page.screenshot({
         path: `test-results/content/reviewed-${slug}-detail-${info.project.name}.png`,
-        fullPage: slug === "dubai-chocolate",
+        fullPage: slug === "dubai-chocolate" || slug === "dubai-chewy-cookie",
       });
     }
   }

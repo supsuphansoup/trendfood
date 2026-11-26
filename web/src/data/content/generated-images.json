@@ -7,6 +7,28 @@
     "prompt": "Photorealistic-natural. Create one original landscape 3:2 Korean home-cooking photograph for a recipe website. A casual late-afternoon window-lit oak table, a shallow warm-white porcelain plate with a simple raised rim. Six or seven short, thick off-white cylinders of butter pan-toasted Korean garaetteok (roughly 2–3 cm thick and 3 cm long), hand-cut with very slightly varied lengths, rounded edges and a couple angled cut ends. Arrange them casually, mostly in one layer, a couple leaning across their neighbors, with the cylinder ends and curved sides clearly distinguishable. White rice cake visible over most of the surface, thin irregular contact patches of light golden to golden brown on the curved sides where the pieces touched the pan, tiny bubbles and a very faint buttery sheen. Dense continuous white cut ends, no grains or pores. Set a small clear dipping dish with a shallow amount of golden honey just behind and to one side of the rice cakes, close to the plate, honey plain. Soft lateral daylight with gentle shadow falloff, realistic color, depth and texture like a Korean cookbook photograph shot from about 40 degrees. Use a close table-level composition with the cake pieces inside the central 62 percent of the width and within the middle 48 percent of image height, so a wide horizontal center crop still contains the actual food. Some plate rim may extend beyond that crop. No thick crust, brown uniform exterior, decorative stripes, grill marks, glossy syrup coating or drips, visible chunks of butter, herbs, other ingredients, hands, steam, text, watermark, or logos. Serve a plausible, unfussy, attractive snack.\nEdit the attached new butter garaetteok image only for camera distance and framing. Keep the seven irregular thick cylinders, white rice-cake cut ends, golden pan marks, cream plate, original oak table and warm window light. Back up to a medium shot and make a single 3:2 landscape photograph. Important: the plate in the final frame should measure about HALF of the full frame width and about TWO FIFTHS of the full frame height, with plenty of the same real wood table visible to left, right, above and below. Move the same honey dish in next to the plate's right edge at the height of the rice cake pieces, so the complete honey dish and every rice cake stay inside the middle half of the frame height. Use real background continuity and preserve perspective, edges, and depth. Very mild bright warmth, ordinary home kitchen daylight. No additional objects, text, hands, garnish, bands or colored borders.\n형태 확인 출처: 시크제이맘의 가래떡 치즈구이 사진과 레시피에서 떡의 크기와 구운 면을 확인했다. https://www.10000recipe.com/recipe/6871668",
     "note": "실물 사진에서 음식의 형태와 질감을 확인하고 다른 담음새로 새로 만든 AI 생성 예시예요. 실제 조리 결과와 다를 수 있어요."
   },
+  "photo-ai-dubai-chewy-cookie-cut-20261126": {
+    "slug": "dubai-chewy-cookie",
+    "title": "두바이 쫀득쿠키 AI 생성 예시 이미지",
+    "tool": "OpenAI image_gen",
+    "generatedAt": "2026-11-26",
+    "prompt": "Re-plate the Dubai chewy cookies (Korean 두바이 쫀득쿠키) from this licensed real photograph. Keep the appearance of the two actual cut cookie halves as close to the reference as possible, in particular the dense dry cross-section with tiny irregular toasted beige kataifi crumbs and muted pale pistachio-green bits, and the very thin, dark, flexible cocoa-dusted marshmallow skin hugging the filling. Preserve the lack of sheen and the crumbly granular texture. No wet cream, no glossy blobs, no long strands, no bread crust, no chocolate coating. Replace the paper underneath with a small understated warm ivory ceramic saucer on a neutral wood tabletop. Add one intact cookie behind the two halves, a small irregular handmade near-round cocoa-dusted ball with the same dark matte skin, without any cracks or decoration. Keep the outline of the intact cookie recognizable. Use soft side window light and a natural close-up cafe photo. Fit all three pieces tightly together in the middle 60% of the horizontal frame so they still read in a tight card crop. Landscape 3:2, understated everyday food photography with quiet surroundings.",
+    "note": "실제 두바이 쫀득쿠키 단면을 참고해 접시와 배치를 바꾼 AI 생성 예시예요. 이 이미지는 CC BY-SA 4.0으로 제공해요.",
+    "basis": "reference",
+    "reference": {
+      "title": "Korean Dubai Jjondeuk Cookie.jpg",
+      "author": "Real rism",
+      "url": "https://commons.wikimedia.org/wiki/File:Korean_Dubai_Jjondeuk_Cookie.jpg",
+      "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/a/ac/Korean_Dubai_Jjondeuk_Cookie.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "verifiedAt": "2026-11-26",
+      "pageId": 182321364,
+      "sha1": "5f3dff94df3b95e676bd58612e7ae85afcf1ab36",
+      "note": "Wikimedia Commons의 원본 사진을 참고해 접시와 구도를 바꾸고 통쿠키 한 개를 추가했어요.",
+      "attributionNotice": "Real rism의 원본을 바탕으로 만든 변환본은 원본과 같은 CC BY-SA 4.0 조건으로 제공해요."
+    }
+  },
   "photo-ai-dubai-chewy-cookie-plated-20261125": {
     "slug": "dubai-chewy-cookie",
     "title": "두바이 쫀득쿠키 AI 생성 예시 이미지",
