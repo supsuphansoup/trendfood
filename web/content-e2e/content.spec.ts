@@ -902,6 +902,8 @@ test("추가한 바이럴 음식 6개를 유행 연도별로 찾고 상세 근�
     await expect(card.getByTestId("food-description")).toHaveText(evidence);
     const cardPhoto = card.getByRole("img", { name: photoAlt });
     await expect(cardPhoto).toBeVisible();
+    const cupNoodlePhoto = /photo-ai-cup-noodle-fried-rice-ceramic-bowl-20261127/;
+    if (slug === "cup-noodle-fried-rice") await expect(cardPhoto).toHaveAttribute("src", cupNoodlePhoto);
     await expect.poll(() => cardPhoto.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     await card.screenshot({ path: `test-results/content/viral-card-${slug}-${info.project.name}.png` });
 
@@ -913,6 +915,7 @@ test("추가한 바이럴 음식 6개를 유행 연도별로 찾고 상세 근�
     expect(await history.getByRole("link").count()).toBeGreaterThanOrEqual(2);
     const intro = page.getByRole("region", { name: "음식 소개", exact: true });
     const photo = intro.getByRole("img", { name: photoAlt });
+    if (slug === "cup-noodle-fried-rice") await expect(photo).toHaveAttribute("src", cupNoodlePhoto);
     await expect.poll(() => photo.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0)).toBe(true);
     const photoInfo = page.getByLabel("사진 정보", { exact: true });
     await photoInfo.locator("summary").click();
