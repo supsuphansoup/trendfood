@@ -124,9 +124,7 @@ test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선�
     await expect(page.getByRole("link", { name: "음식 목록", exact: true })).toBeInViewport({ ratio: 1 });
     const heading = preview.getByRole("heading", { level: 2 });
     const detail = preview.getByRole("link", { name: "음식 살펴보기" });
-    const ranks = page.getByRole("navigation", { name: "추천 음식 순위" });
-    await expect(ranks).toBeInViewport({ ratio: 1 });
-    expect((await detail.boundingBox())!.y + 44).toBeLessThan((await ranks.boundingBox())!.y);
+    const rank = preview.locator(".home-hero-rank");
     await expect(heading).toHaveText(trendFoods[0].name);
     const next = page.getByRole("button", { name: "다음 추천 음식", exact: true });
     await next.scrollIntoViewIfNeeded();
@@ -134,6 +132,8 @@ test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선�
       await next.click();
       await expect(next).toBeInViewport({ ratio: 1 });
       await expect(heading).toHaveText(trendFoods[index].name);
+      await expect(rank).toHaveText(`${index + 1}위`);
+      await expect(rank).toBeInViewport({ ratio: 1 });
       await expect(heading).toHaveCSS("animation-name", "none");
       await expect(detail).toHaveAttribute("href", `/food/${trendFoods[index].slug}`);
     }
@@ -141,35 +141,33 @@ test("짧은 화면에서 양옆 화살표로 추천 음식을 연속으로 선�
   }
 });
 
-test("홈에서 유행 시기순으로 1~3위와 음식명을 표시하고 원하는 음식으로 전환한다", async ({ page }, info) => {
+test("대표 음식 이름 옆에 현재 순위만 표시하고 사진을 넘기면 함께 바뀐다", async ({ page }, info) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   const feature = page.getByRole("region", { name: "오늘의 음식", exact: true });
   const title = feature.getByRole("heading", { level: 2 });
-  const ranks = page.getByRole("navigation", { name: "추천 음식 순위" });
-  const buttons = ranks.getByRole("button");
+  const rank = feature.locator(".home-hero-rank");
+  const previous = page.getByRole("button", { name: "이전 추천 음식", exact: true });
   const next = page.getByRole("button", { name: "다음 추천 음식", exact: true });
-  await expect(buttons).toHaveCount(3);
+  await expect(page.getByRole("navigation", { name: "추천 음식 순위" })).toHaveCount(0);
   for (const index of [0, 1, 2]) {
-    const button = buttons.nth(index);
-    await expect(button).toHaveAccessibleName(`${index + 1}위 ${trendFoods[index].name}`);
-    await expect(button).toBeInViewport({ ratio: 1 });
-    expect((await button.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-  }
-  for (const index of [0, 2, 1]) {
-    const button = buttons.nth(index);
-    if (index !== 0) await button.click();
     await expect(title).toHaveAccessibleName(trendFoods[index].name);
+    await expect(rank).toHaveText(`${index + 1}위`);
+    await expect(rank).toBeInViewport({ ratio: 1 });
+    const titleBox = (await title.boundingBox())!;
+    const rankBox = (await rank.boundingBox())!;
+    expect(rankBox.x).toBeGreaterThan(titleBox.x + titleBox.width);
+    expect(rankBox.y).toBeLessThan(titleBox.y + titleBox.height);
+    expect(rankBox.y + rankBox.height).toBeGreaterThan(titleBox.y);
     await expect(feature.getByRole("link", { name: "음식 살펴보기" })).toHaveAttribute("href", `/food/${trendFoods[index].slug}`);
-    await expect(ranks.locator("[aria-current]")).toHaveCount(1);
-    await expect(button).toHaveAttribute("aria-current", "true");
-    await page.screenshot({ path: `test-results/content/home-rank-${index + 1}-${info.project.name}.png` });
+    await page.screenshot({ path: `test-results/content/home-title-rank-${index + 1}-${info.project.name}.png` });
+    await next.click();
   }
-  await next.click();
-  await expect(buttons.nth(2)).toHaveAttribute("aria-current", "true");
-  await next.click();
-  await expect(buttons.first()).toHaveAttribute("aria-current", "true");
+  await expect(rank).toHaveText("1위");
   await expect(title).toHaveAccessibleName(trendFoods[0].name);
+  await previous.click();
+  await expect(rank).toHaveText("3위");
+  await expect(title).toHaveAccessibleName(trendFoods[2].name);
 });
 
 test("대표 음식 사진은 화면 양끝을 채우고 사진 전체에서 상세로 연결한다", async ({ page }, info) => {

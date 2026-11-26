@@ -121,20 +121,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
           <h1 id="home-hero-title">유행 음식과 집밥</h1>
           <p>왜 유행했는지, 집에서 만드는 법까지.</p>
         </header>
-        <div className="home-hero-tools" data-multiple={multiple || undefined}>
-          {multiple && (
-            <nav aria-label="추천 음식 순위" className="home-hero-ranks">
-              {foods.map((food, index) => (
-                <button key={food.slug} type="button" aria-current={selected === index ? "true" : undefined} onClick={() => {
-                  setRotation(false);
-                  if (selected !== index) move(index - selected);
-                }}>
-                  <span className="home-hero-rank-number">{index + 1}위</span>
-                  <span>{food.name}</span>
-                </button>
-              ))}
-            </nav>
-          )}
+        <div className="home-hero-tools">
           <Link href="#list" onNavigate={() => document.getElementById("list")?.focus({ preventScroll: true })} className="home-hero-list">
             음식 목록 <ArrowDown className="size-4" aria-hidden />
           </Link>
@@ -151,7 +138,7 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
               </button>
             </nav>
           )}
-          <span aria-live={rotating ? "off" : "polite"} aria-atomic="true" className="sr-only">{selected + 1} / {count} {top.name}</span>
+          <span aria-live={rotating ? "off" : "polite"} aria-atomic="true" className="sr-only">{top.name} {selected + 1}위</span>
         </div>
         <div
           className="home-hero-viewport"
@@ -194,7 +181,10 @@ export function HomeFeature({ foods, curated }: { foods: Food[]; curated: boolea
                   )}
                   <div className="home-hero-copy">
                     <p className="text-meta font-semibold">{context}{food.history?.years.map((year) => ` · ${year}년`)}</p>
-                    <h2>{food.name}</h2>
+                    <div className="home-hero-title-row">
+                      <h2>{food.name}</h2>
+                      <span className="home-hero-rank">{rank}위</span>
+                    </div>
                     <p data-testid="feature-description" className="home-hero-reason">{(food.history?.note ?? food.why).split(/(?<=[.!?])\s+/)[0]}</p>
                     {food.kind !== "discovery" && food.kind !== "product" && (
                       <p className="mt-2 text-meta font-medium">{[food.cookLabel, food.difficulty, food.servings].filter(Boolean).join(" · ")}</p>

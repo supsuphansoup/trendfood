@@ -73,17 +73,33 @@
   z-index: 1;
   width: min(42rem, calc(100% - var(--hero-gutter) * 2));
   margin-inline: var(--hero-gutter);
-  padding-block: 7.5rem 9rem;
+  padding-block: 7.5rem 6rem;
   pointer-events: none;
 }
-.home-hero:not(:has(.home-hero-ranks)) .home-hero-copy { padding-bottom: 4.5rem; }
-.home-hero-copy h2 {
+.home-hero-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: clamp(.5rem, 1.2vw, 1rem);
   margin-top: 4px;
+}
+.home-hero-copy h2 {
   font-size: clamp(var(--text-feature-mobile), 10.2vw, var(--text-feature));
   font-weight: 880;
   line-height: 1.06;
   letter-spacing: -.06em;
   overflow-wrap: anywhere;
+}
+.home-hero-rank {
+  flex: none;
+  padding: .325em .55em;
+  border: 1px solid color-mix(in srgb, var(--hero-focus) 65%, transparent);
+  border-radius: var(--radius-md);
+  background: rgb(var(--hero-shadow) / .65);
+  color: var(--hero-focus);
+  font-size: clamp(var(--text-meta), 1.6vw, var(--text-xl));
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 .home-hero-reason {
   max-width: 45ch;
@@ -100,62 +116,14 @@
   position: absolute;
   z-index: 3;
   inset: auto var(--hero-gutter) 16px;
-  display: grid;
-  grid-template-areas: "list";
-  grid-template-columns: 1fr;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
   pointer-events: none;
 }
-.home-hero-tools[data-multiple] {
-  grid-template-areas: "ranks ranks" "list controls";
-  grid-template-columns: minmax(0, 1fr) auto;
-}
 .home-hero-tools > :is(nav, a) { pointer-events: auto; }
-.home-hero-ranks {
-  grid-area: ranks;
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
-  border: 1px solid color-mix(in srgb, var(--hero-ink) 50%, transparent);
-  border-radius: var(--radius-lg);
-  background: rgb(var(--hero-shadow) / .89);
-}
-.home-hero-ranks button {
-  display: flex;
-  min-height: 48px;
-  align-items: center;
-  gap: .4rem;
-  padding: .375rem .5rem;
-  border-bottom: 2px solid transparent;
-  font-size: var(--text-meta);
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: left;
-  word-break: keep-all;
-  overflow-wrap: anywhere;
-  cursor: pointer;
-  outline-offset: -3px;
-}
-.home-hero-ranks button + button {
-  border-inline-start: 1px solid color-mix(in srgb, var(--hero-ink) 25%, transparent);
-}
-.home-hero-ranks button:first-child { border-start-start-radius: inherit; border-end-start-radius: inherit; }
-.home-hero-ranks button:last-child { border-start-end-radius: inherit; border-end-end-radius: inherit; }
-.home-hero-ranks button:hover, .home-hero-ranks button[aria-current] {
-  background: color-mix(in srgb, var(--hero-ink) 13%, transparent);
-}
-.home-hero-ranks button[aria-current] { border-bottom-color: var(--hero-focus); }
-.home-hero-rank-number {
-  flex: none;
-  color: var(--hero-focus);
-  font-size: 1.05em;
-  font-weight: 850;
-  font-variant-numeric: tabular-nums;
-}
 .home-hero-list {
-  grid-area: list;
-  justify-self: start;
   display: inline-flex;
   min-height: 44px;
   align-items: center;
@@ -167,7 +135,6 @@
 }
 .home-hero-list:hover { text-decoration: underline; }
 .home-hero-controls {
-  grid-area: controls;
   display: flex;
   align-items: center;
   gap: 2px;
@@ -194,7 +161,6 @@
 }
 @media (max-width: 360px) {
   .home-hero { --hero-header-height: 117px; }
-  .home-hero-ranks button { gap: .25rem; padding-inline: .25rem; }
 }
 @media (min-width: 768px) {
   .home-hero { --hero-header-height: 69px; }
@@ -208,13 +174,6 @@
   .home-hero-copy h2 { font-size: clamp(var(--text-feature), 6.7vw, var(--text-hero)); }
   .home-hero-reason { margin-top: 14px; font-size: clamp(var(--text-base), 1.6vw, var(--text-xl)); }
   .home-hero-tools { bottom: 20px; }
-  .home-hero-tools[data-multiple] {
-    grid-template-areas: "ranks list controls";
-    grid-template-columns: minmax(0, 39rem) minmax(max-content, 1fr) auto;
-    gap: 18px;
-  }
-  .home-hero-tools[data-multiple] .home-hero-list { justify-self: end; }
-  .home-hero-ranks button { gap: .65rem; padding-inline: .85rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .home-hero-track { transition: none; }
@@ -222,11 +181,8 @@
 @media (max-height: 650px) {
   .home-hero-slide { min-height: calc(100svh - var(--hero-header-height)); }
   .home-hero-identity { top: 16px; }
-  .home-hero-copy { padding-block: 5.25rem 8.25rem; }
+  .home-hero-copy { padding-block: 5.25rem 4.5rem; }
   .home-hero-tools { bottom: 5px; }
-}
-@media (min-width: 768px) and (max-height: 650px) {
-  .home-hero-copy { padding-bottom: 4.5rem; }
 }
 @media (min-width: 768px) and (max-height: 500px) {
   .home-hero-copy { padding-block: 3.5rem 4.25rem; }
