@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { runInNewContext } from "node:vm";
 import ts from "typescript";
 import * as photoData from "../src/data/photos.ts";
+import { formatCookLabel } from "../src/data/cook-duration.ts";
 import { seedFoods } from "../src/data/seed-foods.ts";
 import { downloadPhoto } from "./fetch-photos.ts";
 import { generatedImages } from "../src/data/generated-images.ts";
@@ -101,6 +102,7 @@ runInNewContext(compiled.outputText, {
     if (specifier.startsWith("@/assets/demo/") || specifier.startsWith("@/assets/direct/")) return { default: { src: specifier, width: 640, height: 480, blurDataURL: "data:image/jpeg;base64,dGVzdA==" } };
     if (specifier === "@/data/seed-foods") return { seedFoods };
     if (specifier === "@/data/photos") return photoData;
+    if (specifier === "@/data/cook-duration") return { formatCookLabel };
     if (specifier === "@/data/photo-credits") return { photoCredits: {} };
     if (specifier === "@/lib/curated-photos") return { curatedPhotos: {} };
     if (specifier === "@/data/generated-images") return { generatedImages };

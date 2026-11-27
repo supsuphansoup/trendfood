@@ -18,6 +18,7 @@ import { photoCredits, type PhotoCredit } from "@/data/photo-credits";
 import { curatedPhotos } from "@/lib/curated-photos";
 import { generatedPhotos } from "@/lib/generated-photos";
 import { generatedImages, type GeneratedImage } from "@/data/generated-images";
+import { formatCookLabel } from "@/data/cook-duration";
 
 export { categoryOptions, sortOptions, tagOptions } from "@/data/catalog-schema";
 export type { FoodRecord, Ingredient, Step };
@@ -61,6 +62,7 @@ export const toFood = (r: FoodRecord, uploaded: PublishedPhoto[] = []): Food => 
   const generatedImage = generatedImages[visibleImageKey];
   return {
     ...r,
+    cookLabel: formatCookLabel(r.cookLabel),
     category: r.category === "간식" ? "디저트" : r.category,
     image: image ? localImage(image) : photos[r.image] ?? photos[FALLBACK_PHOTO],
     heroImage,

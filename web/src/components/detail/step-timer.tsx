@@ -2,8 +2,8 @@
 
 import { Pause, Play, RotateCcw, Timer } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { formatCookDuration } from "@/data/cook-duration";
 
-const label = (min: number) => (min >= 60 ? `${min / 60}시간` : `${min}분`);
 const clock = (s: number) => {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
@@ -41,7 +41,7 @@ export function StepTimer({ minutes }: { minutes: number }) {
         }}
       >
         <Timer className="size-[18px]" aria-hidden />
-        타이머 {label(minutes)}
+        타이머 {formatCookDuration(minutes)}
       </button>
     );
   }

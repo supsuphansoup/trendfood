@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { Food } from "@/lib/foods";
 import { scaledIngredients, scaleAmount, servingLabel } from "@/data/recipe-tools";
+import { formatCookDuration } from "@/data/cook-duration";
 import { IngredientCart } from "@/components/detail/ingredient-cart";
 import { AdSlot } from "@/components/ad-slot";
 
@@ -34,7 +35,7 @@ export function RecipeWorkspace({ food }: { food: Food }) {
             <span className="flex size-11 items-center justify-center rounded-full bg-primary text-lg font-black text-primary-foreground"><span className="sr-only">단계 </span>{i + 1}</span>
             <div>
               <p className="text-base leading-[1.7] md:text-[17px]">{step.text}</p>
-              {step.timerMinutes && <span className="mt-2.5 inline-block rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">{step.timerMinutes}분</span>}
+              {step.timerMinutes && <span className="mt-2.5 inline-block rounded-full bg-muted px-3 py-1 text-sm font-bold text-muted-foreground">{formatCookDuration(step.timerMinutes)}</span>}
             </div>
           </li>)}
         </ol>

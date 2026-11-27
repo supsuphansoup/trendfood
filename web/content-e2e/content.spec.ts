@@ -5,6 +5,7 @@ import type { ContentSnapshot } from "../src/data/content";
 import type { GeneratedImage } from "../src/data/generated-images";
 import { parseYouTubeId } from "../src/data/youtube";
 import { directPhotoCredits } from "../src/data/photos";
+import { formatCookDuration } from "../src/data/cook-duration";
 
 const snapshot = JSON.parse(readFileSync(new URL("../src/data/content/foods.json", import.meta.url), "utf8")) as ContentSnapshot;
 const period = ({ history }: ContentSnapshot["foods"][number]) => history?.latestPeriod ?? String(Math.max(0, ...(history?.years ?? [])));
@@ -497,6 +498,20 @@ test("보완한 여섯 레시피는 재료와 준비 방법을 해당 단계 안
     await page.goto(`/food/${slug}`);
     await expect(page.locator(step)).toContainText(instruction);
   }
+});
+
+test("상세의 예상 조리 시간과 단계 시간은 시간과 분으로 표시한다", async ({ page }, info) => {
+  await page.goto("/food/salt-bread");
+  const intro = page.getByRole("region", { name: "음식 소개", exact: true });
+  await expect(intro.getByText("예상 3시간", { exact: true })).toBeVisible();
+  const step = page.locator("#step-2");
+  await expect(step.getByText("1시간 10분", { exact: true })).toBeVisible();
+  await expect(step.getByRole("button")).toHaveCount(0);
+  await step.screenshot({ path: `test-results/content/cook-duration-${info.project.name}.png` });
+
+  await page.goto("/food/chestnut-tiramisu");
+  await expect(intro.getByText("예상 1시간", { exact: true })).toBeVisible();
+  await expect(page.locator("#step-2").getByText("30분", { exact: true })).toBeVisible();
 });
 
 test("재료 분량을 바꾸면 만드는 법에 단계의 기준 분량을 안내한다", async ({ page }, info) => {
@@ -1138,7 +1153,7 @@ test("모든 상세에 출처가 있고 레시피에만 사용량·단계를 제
       const recipeSection = page.locator("#recipe");
       await expect(recipeSection.getByRole("button")).toHaveCount(0);
       for (const [index, step] of food.steps.entries()) {
-        if (step.timerMinutes) await expect(recipeSection.locator(`#step-${index + 1}`).getByText(`${step.timerMinutes}분`, { exact: true })).toBeVisible();
+        if (step.timerMinutes) await expect(recipeSection.locator(`#step-${index + 1}`).getByText(formatCookDuration(step.timerMinutes), { exact: true })).toBeVisible();
       }
       const [cartTitle, recipeTitle] = await page.locator("#cart h2, #recipe h2").evaluateAll((titles) =>
         titles.map((title) => title.getBoundingClientRect().top),
