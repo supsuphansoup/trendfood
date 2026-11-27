@@ -18,7 +18,7 @@ export function RecipeWorkspace({ food }: { food: Food }) {
         <div className="flex flex-wrap gap-2">
           {[0.5, 1, 2].map((value) => <button key={value} type="button" aria-pressed={ratio === value} onClick={() => setRatio(value)} className="min-h-11 rounded-md border border-line-strong bg-background px-3 text-sm font-bold aria-pressed:bg-primary aria-pressed:text-primary-foreground">{servingLabel(food.servings, value)}{value === 1 ? " (기본)" : ""}</button>)}
         </div>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">기본 {food.servings}. 재료 사용량만 계산해요. 구매 포장 용량과 조리 단계의 수치·시간은 원문 기준이에요.</p>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">기본 {food.servings}. 선택한 분량의 재료 사용량을 계산해요. 구매 포장 용량은 원문 기준이에요.</p>
         {ratio !== 1 && <p role="status" className="mt-2 text-sm leading-relaxed">{unchanged.length ? `계산하지 않은 양: ${unchanged.map((item) => `${item.name} ${item.amount}`).join(", ")}. 원문 분량을 확인해 주세요.` : food.ingredients.every((item) => !item.amount) ? "사용량이 없는 재료는 구매 용량을 그대로 표시해요." : "계산 가능한 재료 사용량을 바꿨어요."}</p>}
       </fieldset>}
     </IngredientCart>
@@ -28,6 +28,7 @@ export function RecipeWorkspace({ food }: { food: Food }) {
           <h2 className="text-2xl font-black tracking-[-0.02em]">{food.kind === "product" ? "고르고 즐기는 법" : "만드는 법"}</h2>
           <p className="text-sm text-muted-foreground">{food.steps.length}단계</p>
         </div>
+        {recipe && ratio !== 1 && <p className="mb-3 text-sm leading-relaxed text-muted-foreground">단계에 적힌 양과 시간은 {food.servings} 기준이에요.</p>}
         <ol className="m-0 list-none p-0">
           {food.steps.map((step, i) => <li id={`step-${i + 1}`} key={step.text} className="grid scroll-mt-6 grid-cols-[44px_minmax(0,1fr)] gap-4 border-t py-[18px]">
             <span className="flex size-11 items-center justify-center rounded-full bg-primary text-lg font-black text-primary-foreground"><span className="sr-only">단계 </span>{i + 1}</span>

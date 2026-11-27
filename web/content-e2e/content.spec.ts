@@ -483,6 +483,40 @@ test("로제떡볶이 기본 레시피와 두 음식의 플레이팅 사진을 �
   }
 });
 
+test("보완한 여섯 레시피는 재료와 준비 방법을 해당 단계 안내에 표시한다", async ({ page }) => {
+  const cases = [
+    ["salt-bread", "#step-1", "물 85g과 우유 35g"],
+    ["kimchi-jjigae", "#step-2", "소금을 빼고"],
+    ["kimchi-jjigae", "#step-3", "소금으로 간을 맞춰요"],
+    ["chestnut-tiramisu", "#step-2", "냉동실에서 30분"],
+    ["dubai-chewy-cookie", "#step-1", "냉동실에서 단단히 굳혀요"],
+    ["shrimp-rose-tteokbokki", "#step-1", "딱딱한 떡은 물에 30분 불려요"],
+    ["bibim-guksu", "#step-1", "김치 국물이나 물 60ml"],
+  ];
+  for (const [slug, step, instruction] of cases) {
+    await page.goto(`/food/${slug}`);
+    await expect(page.locator(step)).toContainText(instruction);
+  }
+});
+
+test("재료 분량을 바꾸면 만드는 법에 단계의 기준 분량을 안내한다", async ({ page }, info) => {
+  await page.goto("/food/omurice");
+  const ingredients = page.getByRole("region", { name: "재료 구매 링크" });
+  const servings = ingredients.getByRole("group", { name: "재료 분량 조절" });
+  const ketchup = ingredients.locator("label").filter({ hasText: "케첩" });
+  const recipe = page.locator("#recipe");
+  const note = recipe.getByText("단계에 적힌 양과 시간은 1인분 기준이에요.", { exact: true });
+  await expect(note).toHaveCount(0);
+  await servings.getByRole("button", { name: "2인분", exact: true }).click();
+  await expect(ketchup.getByText("사용량 60g", { exact: true })).toBeVisible();
+  await expect(note).toBeVisible();
+  await expect(recipe.locator("#step-1")).toContainText("케첩 20g");
+  await recipe.screenshot({ path: `test-results/content/recipe-serving-note-${info.project.name}.png` });
+  await servings.getByRole("button", { name: "1인분 (기본)", exact: true }).click();
+  await expect(ketchup.getByText("사용량 30g", { exact: true })).toBeVisible();
+  await expect(note).toHaveCount(0);
+});
+
 test("재검토 사진은 카드와 상세에 일관되게 표시하고 사진 정보를 제공한다", async ({ page }, info) => {
   test.setTimeout(90_000);
   const latteArtImages = new Map([
